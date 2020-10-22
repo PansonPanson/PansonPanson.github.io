@@ -1,0 +1,198 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿 | Panson&#39;s Home</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603334315213">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson&#39;s Home
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            tags
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/weekly" class="menu gt-a-link">
+                            weekly
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1603334315213" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-10-12 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <!-- more -->
+<h2 id="1-缓存雪崩">1. 缓存雪崩</h2>
+<h3 id="什么是缓存雪崩">什么是缓存雪崩</h3>
+<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
+<h3 id="解决办法">解决办法</h3>
+<ul>
+<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
+<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
+<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
+</ul>
+<h2 id="2-缓存穿透">2. 缓存穿透</h2>
+<h3 id="什么是缓存穿透">什么是缓存穿透？</h3>
+<p>正常情况下，我们去查询数据都是存在。<br>
+那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
+这种查询不存在数据的现象我们称为缓存穿透。</p>
+<h3 id="穿透带来的问题">穿透带来的问题</h3>
+<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
+<h3 id="解决办法-2">解决办法</h3>
+<ul>
+<li>缓存空值<br>
+之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
+那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
+这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
+<li>BloomFilter<br>
+这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
+</ul>
+<h2 id="3-缓存击穿">3. 缓存击穿</h2>
+<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
+<h3 id="解决办法-3">解决办法</h3>
+<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
+但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/" class="post-title gt-a-link">
+                    一文以知 ZooKeeper 核心原理
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">不坠青云之志</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

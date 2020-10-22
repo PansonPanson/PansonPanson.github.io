@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://panson.top</id>
+    <title>Panson&apos;s Home</title>
+    <updated>2020-10-22T02:38:40.669Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://panson.top"/>
+    <link rel="self" href="https://panson.top/atom.xml"/>
+    <subtitle>不坠青云之志</subtitle>
+    <logo>https://panson.top/images/avatar.png</logo>
+    <icon>https://panson.top/favicon.ico</icon>
+    <rights>All rights reserved 2020, Panson&apos;s Home</rights>
+    <entry>
+        <title type="html"><![CDATA[博文合集]]></title>
+        <id>https://panson.top/post/bo-wen-he-ji/</id>
+        <link href="https://panson.top/post/bo-wen-he-ji/">
+        </link>
+        <updated>2020-10-21T07:30:44.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>文字是走过的路，书是文字最后的归宿。</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>文字是走过的路，书是文字最后的归宿。</em></p>
+<!-- more -->
+<h2 id="redis">Redis</h2>
+<ul>
+<li>一文以知 Redis 内存淘汰机制</li>
+<li>一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿</li>
+<li>聊聊 Redis 的 setnx 命令</li>
+<li>一文以知 Redis 文件事件处理器（file event handler）</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 Redis 文件事件处理器（file event handler）]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-redis-wen-jian-shi-jian-chu-li-qi-file-event-handler/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-redis-wen-jian-shi-jian-chu-li-qi-file-event-handler/">
+        </link>
+        <updated>2020-10-19T09:02:34.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[聊聊 Redis 的 setnx 命令]]></title>
+        <id>https://panson.top/post/liao-liao-redis-de-setnx-ming-ling/</id>
+        <link href="https://panson.top/post/liao-liao-redis-de-setnx-ming-ling/">
+        </link>
+        <updated>2020-10-13T03:09:54.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-redis-huan-cun-xue-beng-huan-cun-chuan-tou-huan-cun-ji-chuan/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-redis-huan-cun-xue-beng-huan-cun-chuan-tou-huan-cun-ji-chuan/">
+        </link>
+        <updated>2020-10-12T14:14:35.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<h2 id="1-缓存雪崩">1. 缓存雪崩</h2>
+<h3 id="什么是缓存雪崩">什么是缓存雪崩</h3>
+<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
+<h3 id="解决办法">解决办法</h3>
+<ul>
+<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
+<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
+<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
+</ul>
+<h2 id="2-缓存穿透">2. 缓存穿透</h2>
+<h3 id="什么是缓存穿透">什么是缓存穿透？</h3>
+<p>正常情况下，我们去查询数据都是存在。<br>
+那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
+这种查询不存在数据的现象我们称为缓存穿透。</p>
+<h3 id="穿透带来的问题">穿透带来的问题</h3>
+<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
+<h3 id="解决办法-2">解决办法</h3>
+<ul>
+<li>缓存空值<br>
+之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
+那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
+这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
+<li>BloomFilter<br>
+这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
+</ul>
+<h2 id="3-缓存击穿">3. 缓存击穿</h2>
+<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
+<h3 id="解决办法-3">解决办法</h3>
+<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
+但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 ZooKeeper 核心原理]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/">
+        </link>
+        <updated>2020-10-11T12:39:37.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 Java 线程池工作原理]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/">
+        </link>
+        <updated>2020-10-10T13:14:49.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[聊聊 WebSocket]]></title>
+        <id>https://panson.top/post/liao-liao-websocket/</id>
+        <link href="https://panson.top/post/liao-liao-websocket/">
+        </link>
+        <updated>2020-10-08T15:50:34.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 G1 垃圾回收器]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-g1-la-ji-hui-shou-qi/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-g1-la-ji-hui-shou-qi/">
+        </link>
+        <updated>2020-09-30T06:18:48.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="g1-垃圾回收器的设计思想">G1 垃圾回收器的设计思想</h2>
+]]></summary>
+        <content type="html"><![CDATA[<h2 id="g1-垃圾回收器的设计思想">G1 垃圾回收器的设计思想</h2>
+<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 CMS 垃圾回收器]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-jvm-la-ji-hui-shou-qi/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-jvm-la-ji-hui-shou-qi/">
+        </link>
+        <updated>2020-09-28T11:30:21.000Z</updated>
+        <content type="html"><![CDATA[<ul>
+<li>
+<p>新生代：<br>
+一般使用 ParnNew 垃圾回收，使用复制算法，标记一下，然后把标记出来的存活对象转移到 Survivor1 或者 Survivor2 中去</p>
+<p>比如对新生代的回收，Serial垃圾回收器就是用一个线程进行垃圾回收，然后此时暂停系统工作线程，所以一般我们在服务器程序中很少用这种方式。<br>
+但是我们平时常用的新生代垃圾回收器是ParNew，他针对服务器一般都是多核CPU做了优化，他是支持多线程个垃圾回收的，可以大幅度提升回收的性能，缩短回收的时间。</p>
+</li>
+<li>
+<p>老年代：CMS 垃圾回收器</p>
+</li>
+</ul>
+<p>问题：</p>
+<ul>
+<li>GC的时候还能继续创建新的对象吗？</li>
+</ul>
+<p>CMS 垃圾回收器（四个阶段）</p>
+<ul>
+<li>初始标记</li>
+<li>并发标记</li>
+<li>重新标记</li>
+<li>并发清理</li>
+</ul>
+<p>CMS 默认启动的垃圾回收线程的数量是（CPU 核数 + 3）/ 4<br>
+浮动垃圾的问题， Concurrent Mode Failure<br>
+占用 CPU  资源</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知对象何时进入老年代]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/">
+        </link>
+        <updated>2020-09-27T02:52:46.000Z</updated>
+        <content type="html"><![CDATA[<ul>
+<li>
+<p>15 次GC之后进入老年代</p>
+</li>
+<li>
+<p>动态年龄判断</p>
+</li>
+<li>
+<p>大对象直接进入老年代</p>
+</li>
+<li>
+<p>Minor GC 后对象太多，无法放入 Survivor 区域</p>
+</li>
+<li>
+<p>老年代空间分配担保原则</p>
+</li>
+<li>
+<p>老年代的垃圾回收算法(标记整理)</p>
+</li>
+<li>
+<p>stop the world</p>
+</li>
+</ul>
+<h2 id="何时老年代-full-gc">何时老年代 Full GC</h2>
+<ul>
+<li>老年代可用内存小于新生代对象的总大小，如果没有开启空间担保参数，会直接触发 Full GC,所以一般空间担保参数都会打开；</li>
+<li>老年代可用内存小于历次新生代 GC 后进入老年代的平均对象大小，此时会提前 Full GC;</li>
+<li>新生代 MInor GC 后的存活对象大于 Survivor，那么就会进入老年代，此时老年代内存不足。</li>
+<li>由于存在浮动垃圾，当老年代占用比例超过一定阈值时会触发 Full GC，默认92%</li>
+</ul>
+]]></content>
+    </entry>
+</feed>

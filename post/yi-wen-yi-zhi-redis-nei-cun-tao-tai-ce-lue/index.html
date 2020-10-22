@@ -1,0 +1,232 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>一文以知 Redis 内存淘汰策略 | Panson&#39;s Home</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603334315213">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson&#39;s Home
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            tags
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/weekly" class="menu gt-a-link">
+                            weekly
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1603334315213" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    一文以知 Redis 内存淘汰策略
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-02-08 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>老生常谈：redis 的过期策略都有哪些？内存淘汰机制都有哪些？</em></p>
+<!-- more -->
+<p>Redis 的高性能有一个原因是 Redis 使用内存做缓存，但内存是宝贵且有限的，Redis 不可能使用内存做持久化。<br>
+使用 Redis 的过程中，常见的有两个问题：</p>
+<ul>
+<li>Redis 数据丢失</li>
+<li>数据缓存过期了，但是还占用着内存</li>
+</ul>
+<p>要想理解这些问题的产生原因，就不得不了解 Redis 的过期策略。</p>
+<p>Redis 使用定期删除 + 懒惰删除的策略</p>
+<ul>
+<li>定期删除：指的是 redis 默认是每隔 100ms 就随机抽取一些设置了过期时间的 key，检查其是否过期，如果过期就删除。（因为是随机的，所以可能会有一些 key 一直没删除掉）</li>
+<li>懒惰删除：获取某个 key 的时候，redis 会检查一下 ，这个 key 如果设置了过期时间那么是否过期了，如果过期了此时就会删除，不会给你返回任何东西。</li>
+</ul>
+<p>但是如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，内存中还是会存在大量的无用数据。</p>
+<p>所以 Redis 也就有了内存淘汰机制。<br>
+redis 内存淘汰机制有以下 6 种：</p>
+<ul>
+<li>noeviction: 当内存不足以容纳新写入数据时，新写入操作会报错，这个一般没人用吧，实在是太恶心了。</li>
+<li>allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）。</li>
+<li>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个 key，这个一般没人用吧，为啥要随机，肯定是把最近最少使用的 key 给干掉啊。</li>
+<li>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的 key（这个一般不太合适）。</li>
+<li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。</li>
+<li>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。</li>
+</ul>
+<p>手写一个 LRU 算法：</p>
+<pre><code class="language-java">class LRUCache&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+    private final int CACHE_SIZE;
+
+    /**
+     * 传递进来最多能缓存多少数据
+     *
+     * @param cacheSize 缓存大小
+     */
+    public LRUCache(int cacheSize) {
+        // true 表示让 linkedHashMap 按照访问顺序来进行排序，最近访问的放在头部，最老访问的放在尾部。
+        super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        CACHE_SIZE = cacheSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+        // 当 map中的数据量大于指定的缓存个数的时候，就自动删除最老的数据。
+        return size() &gt; CACHE_SIZE;
+    }
+}
+</code></pre>
+<p>测试代码：</p>
+<pre><code class="language-java">    static LRUCache&lt;Integer, Integer&gt; lruCache = new LRUCache&lt;&gt;(16);
+
+    public static void main(String[] args) {
+        for (int i = 0; i &lt; 16; i++) {
+            lruCache.put(i, i);
+        }
+        System.out.println(lruCache.entrySet());
+        for(int i = 16; i &lt; 20; i++) {
+            lruCache.put(i, i);
+            System.out.println(lruCache.entrySet());
+        }
+
+    }
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-java">[0=0, 1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15]
+[1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16]
+[2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17]
+[3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18]
+[4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
+</code></pre>
+<p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/liao-liao-jin-cheng-jian-tong-xin/" class="post-title gt-a-link">
+                    聊聊进程间通信
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">不坠青云之志</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
