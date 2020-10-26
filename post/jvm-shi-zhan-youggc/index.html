@@ -6,7 +6,7 @@
 
 <title>JVM 实战：YougGC  | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603711966181">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603715347622">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1603711966181" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1603715347622" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -121,19 +121,27 @@
 }
 </code></pre>
 <p>我们可以使用以下 jvm 参数：</p>
-<pre><code class="language-java">-XX:NewSize=5242880 
--XX:MaxNewSize=5242880 
--XX:InitialHeapSize=10485760 
--XX:MaxHeapSize=10485760 
--XX:SurvivorRatio=8 
--XX:PretenureSizeThreshold=10485760 
--XX:+UseParNewGC 
--XX:+UseConcMarkSweepGC 
--XX:+PrintGCDetails 
--XX:+PrintGCTimeStamps 
--XXloggc:gc.log
+<pre><code class="language-java">-XX:NewSize=5242880 -XX:MaxNewSize=5242880 -XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:SurvivorRatio=8 -XX:PretenureSizeThreshold=10485760 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XXloggc:gc.log
 </code></pre>
-<p>你就会看到在在新生成的文件中保存了 gc 日志：</p>
+<p>参数解释：</p>
+<ul>
+<li>-XX:NewSize=5242880：初始新生代大小 5 MB</li>
+<li>-XX:MaxNewSize=5242880：最大新生代大小 5 MB</li>
+<li>-XX:InitialHeapSize=10485760：初始堆大小 10 MB</li>
+<li>-XX:MaxHeapSize=10485760：最大堆大小 10 MB</li>
+<li>-XX:SurvivorRatio=8：新生代中 Eden 区与一个 Survivor 区的大小之比为 8。</li>
+<li>-XX:PretenureSizeThreshold=10485760：大对象阈值为 10 MB，超过此阈值，会尝试放入老年代</li>
+<li>-XX:+UseParNewGC：新生代使用 ParNew 垃圾收集器</li>
+<li>-XX:+UseConcMarkSweepGC：老年代使用 CMS 垃圾收集器</li>
+<li>-XX:+PrintGCDetail：打印详细的GC 日志</li>
+<li>-XX:+PrintGCTimeStamps：打印每次GC 发生的时间</li>
+<li>将 GC 日志写入磁盘文件</li>
+</ul>
+<p>结合以上代码片段和 JVM 参数，我们可以分析知道，在执行</p>
+<pre><code class="language-java">byte[] array2 = new byte[2 * 1024 * 1024];
+</code></pre>
+<p>时，此时新生代的 Eden 区本身只剩下 4 - 3 = 1MB 的大小，会进行一次垃圾回收。</p>
+<p>运行程序，你就会看到在在新生成的文件中保存了 gc 日志：</p>
 <pre><code class="language-java">Memory: 4k page, physical 16777216k(418648k free)
 
 /proc/meminfo:
@@ -150,6 +158,7 @@ Heap
  Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
   class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
 </code></pre>
+<p>但是日志信息明显有些混乱，</p>
 
                 </div>
             </article>

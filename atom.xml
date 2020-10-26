@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-10-26T11:32:48.724Z</updated>
+    <updated>2020-10-26T12:29:09.635Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -52,19 +52,27 @@
 }
 </code></pre>
 <p>我们可以使用以下 jvm 参数：</p>
-<pre><code class="language-java">-XX:NewSize=5242880 
--XX:MaxNewSize=5242880 
--XX:InitialHeapSize=10485760 
--XX:MaxHeapSize=10485760 
--XX:SurvivorRatio=8 
--XX:PretenureSizeThreshold=10485760 
--XX:+UseParNewGC 
--XX:+UseConcMarkSweepGC 
--XX:+PrintGCDetails 
--XX:+PrintGCTimeStamps 
--XXloggc:gc.log
+<pre><code class="language-java">-XX:NewSize=5242880 -XX:MaxNewSize=5242880 -XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:SurvivorRatio=8 -XX:PretenureSizeThreshold=10485760 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XXloggc:gc.log
 </code></pre>
-<p>你就会看到在在新生成的文件中保存了 gc 日志：</p>
+<p>参数解释：</p>
+<ul>
+<li>-XX:NewSize=5242880：初始新生代大小 5 MB</li>
+<li>-XX:MaxNewSize=5242880：最大新生代大小 5 MB</li>
+<li>-XX:InitialHeapSize=10485760：初始堆大小 10 MB</li>
+<li>-XX:MaxHeapSize=10485760：最大堆大小 10 MB</li>
+<li>-XX:SurvivorRatio=8：新生代中 Eden 区与一个 Survivor 区的大小之比为 8。</li>
+<li>-XX:PretenureSizeThreshold=10485760：大对象阈值为 10 MB，超过此阈值，会尝试放入老年代</li>
+<li>-XX:+UseParNewGC：新生代使用 ParNew 垃圾收集器</li>
+<li>-XX:+UseConcMarkSweepGC：老年代使用 CMS 垃圾收集器</li>
+<li>-XX:+PrintGCDetail：打印详细的GC 日志</li>
+<li>-XX:+PrintGCTimeStamps：打印每次GC 发生的时间</li>
+<li>将 GC 日志写入磁盘文件</li>
+</ul>
+<p>结合以上代码片段和 JVM 参数，我们可以分析知道，在执行</p>
+<pre><code class="language-java">byte[] array2 = new byte[2 * 1024 * 1024];
+</code></pre>
+<p>时，此时新生代的 Eden 区本身只剩下 4 - 3 = 1MB 的大小，会进行一次垃圾回收。</p>
+<p>运行程序，你就会看到在在新生成的文件中保存了 gc 日志：</p>
 <pre><code class="language-java">Memory: 4k page, physical 16777216k(418648k free)
 
 /proc/meminfo:
@@ -81,6 +89,7 @@ Heap
  Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
   class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
 </code></pre>
+<p>但是日志信息明显有些混乱，</p>
 ]]></content>
     </entry>
     <entry>
@@ -245,10 +254,10 @@ Heap
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4362732"><label class="task-list-item-label" for="task-item-4362732"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-454971"><label class="task-list-item-label" for="task-item-454971"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4540795"><label class="task-list-item-label" for="task-item-4540795"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4189718"><label class="task-list-item-label" for="task-item-4189718"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
