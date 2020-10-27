@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-10-26T12:29:09.635Z</updated>
+    <updated>2020-10-27T04:35:30.440Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -11,33 +11,14 @@
     <icon>https://panson.top/favicon.ico</icon>
     <rights>All rights reserved 2020, Panson&apos;s Home</rights>
     <entry>
-        <title type="html"><![CDATA[博文合集]]></title>
-        <id>https://panson.top/post/bo-wen-he-ji/</id>
-        <link href="https://panson.top/post/bo-wen-he-ji/">
-        </link>
-        <updated>2020-10-21T07:30:44.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>文字是走过的路，书是文字最后的归宿。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>文字是走过的路，书是文字最后的归宿。</em></p>
-<!-- more -->
-<h2 id="redis">Redis</h2>
-<ul>
-<li>一文以知 Redis 内存淘汰机制</li>
-<li>一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿</li>
-<li>聊聊 Redis 的 setnx 命令</li>
-<li>一文以知 Redis 文件事件处理器（file event handler）</li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[JVM 实战：YougGC ]]></title>
+        <title type="html"><![CDATA[详解 GC 日志：YoungGC]]></title>
         <id>https://panson.top/post/jvm-shi-zhan-youggc/</id>
         <link href="https://panson.top/post/jvm-shi-zhan-youggc/">
         </link>
         <updated>2020-10-01T03:43:26.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>本文主要介绍了 JVM 的常用参数，并实战开发产生YougGC ，详细分析了 YougGC 的 GC 日志。</em></p>
+        <summary type="html"><![CDATA[<p><em>本文主要介绍了 JVM 的常用参数，并详细分析了YoungGC 日志.</em></p>
 ]]></summary>
-        <content type="html"><![CDATA[<p><em>本文主要介绍了 JVM 的常用参数，并实战开发产生YougGC ，详细分析了 YougGC 的 GC 日志。</em></p>
+        <content type="html"><![CDATA[<p><em>本文主要介绍了 JVM 的常用参数，并详细分析了YoungGC 日志.</em></p>
 <!-- more -->
 <p>在线上运行着的 Java 开发的系统，YoungGC 是一个循环出现的过程，我们如何在开发过程中分析 YoungGC 呢？</p>
 <p>要想分析 YoungGC，我们首先得让 YoungGC 留下“足迹”—— GC 日志。<br>
@@ -89,7 +70,24 @@ Heap
  Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
   class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
 </code></pre>
-<p>但是日志信息明显有些混乱，</p>
+<p>但是日志信息明显有些混乱，但我们可以将这段 GC  日志分为 3 个部分。<br>
+第 1 个部分是：</p>
+<pre><code class="language-java">CommandLine flags: 
+-XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:MaxNewSize=5242880 -XX:NewSize=5242880 -XX:OldPLABSize=16 -XX:PretenureSizeThreshold=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:SurvivorRatio=8 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+UseParNewGC 
+</code></pre>
+<p>第 2 个部分是：</p>
+<pre><code class="language-java">0.145: [GC (Allocation Failure) 0.146: [ParNew: 3874K-&gt;502K(4608K), 0.0014940 secs] 3874K-&gt;1528K(9728K), 0.0016631 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+</code></pre>
+<p>第 3 个部分是：</p>
+<pre><code class="language-java">Heap
+ par new generation   total 4608K, used 3735K [0x00000007bf600000, 0x00000007bfb00000, 0x00000007bfb00000)
+  eden space 4096K,  78% used [0x00000007bf600000, 0x00000007bf928690, 0x00000007bfa00000)
+  from space 512K,  98% used [0x00000007bfa80000, 0x00000007bfafd818, 0x00000007bfb00000)
+  to   space 512K,   0% used [0x00000007bfa00000, 0x00000007bfa00000, 0x00000007bfa80000)
+ concurrent mark-sweep generation total 5120K, used 1026K [0x00000007bfb00000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
+  class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
+</code></pre>
 ]]></content>
     </entry>
     <entry>
@@ -254,10 +252,10 @@ Heap
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-454971"><label class="task-list-item-label" for="task-item-454971"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5933155"><label class="task-list-item-label" for="task-item-5933155"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4189718"><label class="task-list-item-label" for="task-item-4189718"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5859609"><label class="task-list-item-label" for="task-item-5859609"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
@@ -281,6 +279,36 @@ Heap
 </ul>
 </li>
 </ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 JVM 类加载流程]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-jvm-lei-jia-zai-liu-cheng/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-jvm-lei-jia-zai-liu-cheng/">
+        </link>
+        <updated>2020-04-03T09:42:13.000Z</updated>
+        <summary type="html"><![CDATA[<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8484545"><label class="task-list-item-label" for="task-item-8484545">  加载 -》验证 -》准备 -》 解析 -》初始化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-636059"><label class="task-list-item-label" for="task-item-636059">  双亲委派机制</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-751904"><label class="task-list-item-label" for="task-item-751904">  方法区（Metaspace）、程序计数器、Java 虚拟机栈、本地方法栈、堆外内存（不属于JVM）</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1041567"><label class="task-list-item-label" for="task-item-1041567"> 垃圾回收：年轻代、老年代、永久代（永久代里放了一些常量池+类信息，常量池 -> 堆里面，类信息 -> metaspace（元区域））</label>
+<ul>
+<li>永久代（方法区）会不会被回收</li>
+</ul>
+</li>
+</ul>
+]]></summary>
+        <content type="html"><![CDATA[<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2286175"><label class="task-list-item-label" for="task-item-2286175">  加载 -》验证 -》准备 -》 解析 -》初始化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7939928"><label class="task-list-item-label" for="task-item-7939928">  双亲委派机制</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5712984"><label class="task-list-item-label" for="task-item-5712984">  方法区（Metaspace）、程序计数器、Java 虚拟机栈、本地方法栈、堆外内存（不属于JVM）</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2946913"><label class="task-list-item-label" for="task-item-2946913"> 垃圾回收：年轻代、老年代、永久代（永久代里放了一些常量池+类信息，常量池 -> 堆里面，类信息 -> metaspace（元区域））</label>
+<ul>
+<li>永久代（方法区）会不会被回收</li>
+</ul>
+</li>
+</ul>
+<!-- more -->
 ]]></content>
     </entry>
 </feed>
