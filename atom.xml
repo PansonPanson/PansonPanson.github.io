@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-10-28T14:39:35.273Z</updated>
+    <updated>2020-10-28T16:11:14.784Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -96,7 +96,10 @@ Heap
         <link href="https://panson.top/post/cong-mesi-xie-yi-tan-qi-volatile-yu-ke-jian-xing/">
         </link>
         <updated>2020-06-04T14:26:23.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文从 MESI 协议谈起，分析了可见性的涉及的几个底层硬件概念：寄存器、高速缓存、写缓存器，进一步引申出 flush 处理器缓存和 refresh 缓存这两个概念，完整地剖析了 volatile 保证可见性的底层原理。</em></p>
+]]></summary>
         <content type="html"><![CDATA[<p><em>本文从 MESI 协议谈起，分析了可见性的涉及的几个底层硬件概念：寄存器、高速缓存、写缓存器，进一步引申出 flush 处理器缓存和 refresh 缓存这两个概念，完整地剖析了 volatile 保证可见性的底层原理。</em></p>
+<!-- more -->
 ]]></content>
     </entry>
     <entry>
@@ -261,10 +264,10 @@ Heap
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9398677"><label class="task-list-item-label" for="task-item-9398677"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9052999"><label class="task-list-item-label" for="task-item-9052999"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8654045"><label class="task-list-item-label" for="task-item-8654045"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3798705"><label class="task-list-item-label" for="task-item-3798705"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
