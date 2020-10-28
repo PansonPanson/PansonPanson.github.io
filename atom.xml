@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-10-27T06:02:59.513Z</updated>
+    <updated>2020-10-28T14:34:41.021Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -88,6 +88,15 @@ Heap
  Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
   class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
 </code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[从 MESI 协议谈起：volatile 与可见性]]></title>
+        <id>https://panson.top/post/cong-mesi-xie-yi-tan-qi-volatile-yu-ke-jian-xing/</id>
+        <link href="https://panson.top/post/cong-mesi-xie-yi-tan-qi-volatile-yu-ke-jian-xing/">
+        </link>
+        <updated>2020-06-04T14:26:23.000Z</updated>
+        <content type="html"><![CDATA[<p><em>本文从 MESI 协议谈起，分析了可见性的涉及的几个底层硬件概念：寄存器、高速缓存、写缓存器，进一步引申出 flush 处理器缓存和 refresh 缓存这两个概念，完整地剖析了 volatile 保证可见性的底层原理。</em></p>
 ]]></content>
     </entry>
     <entry>
@@ -252,10 +261,10 @@ Heap
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7900798"><label class="task-list-item-label" for="task-item-7900798"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9273826"><label class="task-list-item-label" for="task-item-9273826"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4926057"><label class="task-list-item-label" for="task-item-4926057"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-20125"><label class="task-list-item-label" for="task-item-20125"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
@@ -279,36 +288,6 @@ Heap
 </ul>
 </li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[一文以知 JVM 类加载流程]]></title>
-        <id>https://panson.top/post/yi-wen-yi-zhi-jvm-lei-jia-zai-liu-cheng/</id>
-        <link href="https://panson.top/post/yi-wen-yi-zhi-jvm-lei-jia-zai-liu-cheng/">
-        </link>
-        <updated>2020-04-03T09:42:13.000Z</updated>
-        <summary type="html"><![CDATA[<ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3125264"><label class="task-list-item-label" for="task-item-3125264">  加载 -》验证 -》准备 -》 解析 -》初始化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6423277"><label class="task-list-item-label" for="task-item-6423277">  双亲委派机制</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-801510"><label class="task-list-item-label" for="task-item-801510">  方法区（Metaspace）、程序计数器、Java 虚拟机栈、本地方法栈、堆外内存（不属于JVM）</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2305222"><label class="task-list-item-label" for="task-item-2305222"> 垃圾回收：年轻代、老年代、永久代（永久代里放了一些常量池+类信息，常量池 -> 堆里面，类信息 -> metaspace（元区域））</label>
-<ul>
-<li>永久代（方法区）会不会被回收</li>
-</ul>
-</li>
-</ul>
-]]></summary>
-        <content type="html"><![CDATA[<ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3806279"><label class="task-list-item-label" for="task-item-3806279">  加载 -》验证 -》准备 -》 解析 -》初始化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3546294"><label class="task-list-item-label" for="task-item-3546294">  双亲委派机制</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4511078"><label class="task-list-item-label" for="task-item-4511078">  方法区（Metaspace）、程序计数器、Java 虚拟机栈、本地方法栈、堆外内存（不属于JVM）</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4137467"><label class="task-list-item-label" for="task-item-4137467"> 垃圾回收：年轻代、老年代、永久代（永久代里放了一些常量池+类信息，常量池 -> 堆里面，类信息 -> metaspace（元区域））</label>
-<ul>
-<li>永久代（方法区）会不会被回收</li>
-</ul>
-</li>
-</ul>
-<!-- more -->
 ]]></content>
     </entry>
 </feed>

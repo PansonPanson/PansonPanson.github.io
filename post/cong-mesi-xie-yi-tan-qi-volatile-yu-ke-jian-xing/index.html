@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知对象何时进入老年代 | Panson&#39;s Home</title>
+<title>从 MESI 协议谈起：volatile 与可见性 | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603895677394">
 
@@ -97,45 +97,16 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    一文以知对象何时进入老年代
+                    从 MESI 协议谈起：volatile 与可见性
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-04-11 ·
+                        · 2020-06-04 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <ul>
-<li>
-<p>15 次GC之后进入老年代</p>
-</li>
-<li>
-<p>动态年龄判断</p>
-</li>
-<li>
-<p>大对象直接进入老年代</p>
-</li>
-<li>
-<p>Minor GC 后对象太多，无法放入 Survivor 区域</p>
-</li>
-<li>
-<p>老年代空间分配担保原则</p>
-</li>
-<li>
-<p>老年代的垃圾回收算法(标记整理)</p>
-</li>
-<li>
-<p>stop the world</p>
-</li>
-</ul>
-<h2 id="何时老年代-full-gc">何时老年代 Full GC</h2>
-<ul>
-<li>老年代可用内存小于新生代对象的总大小，如果没有开启空间担保参数，会直接触发 Full GC,所以一般空间担保参数都会打开；</li>
-<li>老年代可用内存小于历次新生代 GC 后进入老年代的平均对象大小，此时会提前 Full GC;</li>
-<li>新生代 MInor GC 后的存活对象大于 Survivor，那么就会进入老年代，此时老年代内存不足。</li>
-<li>由于存在浮动垃圾，当老年代占用比例超过一定阈值时会触发 Full GC，默认92%</li>
-</ul>
+                    <p><em>本文从 MESI 协议谈起，分析了可见性的涉及的几个底层硬件概念：寄存器、高速缓存、写缓存器，进一步引申出 flush 处理器缓存和 refresh 缓存这两个概念，完整地剖析了 volatile 保证可见性的底层原理。</em></p>
 
                 </div>
             </article>
@@ -144,8 +115,8 @@
         
             <div class="next-post">
                 <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://panson.top/post/yi-wen-yi-zhi-jvm-la-ji-hui-shou-suan-fa/" class="post-title gt-a-link">
-                    一文以知 JVM  垃圾回收算法
+                <a href="https://panson.top/post/yi-wen-yi-zhi-redis-wen-jian-shi-jian-chu-li-qi-file-event-handler/" class="post-title gt-a-link">
+                    一文以知 Redis 文件事件处理器（file event handler）
                 </a>
             </div>
         
