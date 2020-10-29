@@ -6,7 +6,7 @@
 
 <title>老生常谈：HashMap 源码解析 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603950474442">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1603974212480">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1603950474442" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1603974212480" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -106,9 +106,31 @@
                     
                 </div>
                 <div class="post-content">
-                    <p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。</p>
+                    <p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
+目录：</p>
 <ol>
-<li>Node</li>
+<li>
+<p>底层数据结构<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"><br>
+上图是 HashMap 的</p>
+</li>
+<li>
+<p>核心成员变量</p>
+</li>
+<li>
+<p>核心方法</p>
+<ul>
+<li>put</li>
+<li>get</li>
+<li>resize</li>
+</ul>
+</li>
+<li>
+<p>并发安全</p>
+</li>
+<li>
+<p>Node</p>
+</li>
 </ol>
 <pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
         final int hash;    //用来定位数组索引位置
@@ -134,8 +156,7 @@
 */
 transient Node&lt;K,V&gt;[] table;
 </code></pre>
-<p>让我们再来看看 HashMap 的底层数据结构示意图：<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
+<p>让我们再来看看 HashMap 的底层数据结构示意图：</p>
 <ol start="2">
 <li>核心字段：</li>
 </ol>
@@ -274,14 +295,15 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1612021"><label class="task-list-item-label" for="task-item-1612021">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5835174"><label class="task-list-item-label" for="task-item-5835174">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4400241"><label class="task-list-item-label" for="task-item-4400241">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4678254"><label class="task-list-item-label" for="task-item-4678254">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9601607"><label class="task-list-item-label" for="task-item-9601607">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2606015"><label class="task-list-item-label" for="task-item-2606015">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3199770"><label class="task-list-item-label" for="task-item-3199770">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3555194"><label class="task-list-item-label" for="task-item-3555194">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
 <li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
+<li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
 <li>https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
 <li>https://tech.meituan.com/2016/06/24/java-hashmap.html</li>
 <li>深入浅出ConcurrentHashMap1.8：https://www.jianshu.com/p/c0642afe03e0</li>
