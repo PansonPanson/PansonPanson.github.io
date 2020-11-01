@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-10-29T12:23:39.051Z</updated>
+    <updated>2020-11-01T14:57:43.193Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -171,6 +171,116 @@ Heap
         </link>
         <updated>2020-05-01T12:39:37.000Z</updated>
         <content type="html"><![CDATA[<!-- more -->
+<p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。<br>
+事实上，我们的猜测是正确的，ZooKeeper 的主要作用就是拿来做分布式系统管理的。具体的作用主要包括：</p>
+<ol>
+<li>分布式协调（系统间信息异步通信）</li>
+<li>分布式锁（zk 分布式锁）</li>
+<li>元数据/配置信息管理（注册中心）</li>
+<li>高可用（主从选举）</li>
+</ol>
+<p>ZooKeeper 能实现这么多的功能自然离不开底层数据结构的支持。ZooKeeper 是一个树形结构，每一个节点（znode）拥有唯一的路径 path，客户端基于 path 上传节点数据，ZooKeeper 收到后会实时通知对该路径进行监听的客户端。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/zknamespace.jpg?raw=true" alt="树形结构示意图" loading="lazy"></p>
+<p>znode 有 4 种类型，持久节点、持久序号节点、临时节点、临时序号节点。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">节点类型英文</th>
+<th style="text-align:left">节点类型中文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">PERSISTENT</td>
+<td style="text-align:left">持久节点</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_SEQUENTIAL</td>
+<td style="text-align:left">持久序号节点</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL</td>
+<td style="text-align:left">临时节点(不可在拥有子节点)</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL_SEQUENTIAL</td>
+<td style="text-align:left">临时序号节点(不可在拥有子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>每一个 znode 结构包含如下属性：</p>
+<ol>
+<li>path:唯一路径</li>
+<li>childNode：子节点</li>
+<li>stat:状态属性</li>
+<li>type:节点类型</li>
+</ol>
+<p>我们可以使用命令查看 znode 的属性：</p>
+<pre><code class="language-java">stat /cluster
+</code></pre>
+<p>属性列表如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">属性</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">cZxid = 0x75</td>
+<td style="text-align:left">#创建节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">ctime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#创建时间</td>
+</tr>
+<tr>
+<td style="text-align:left">mZxid = 0x75</td>
+<td style="text-align:left">#修改节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">mtime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#最后修改时间</td>
+</tr>
+<tr>
+<td style="text-align:left">pZxid = 0x76</td>
+<td style="text-align:left">#子节点变更的事物ID</td>
+</tr>
+<tr>
+<td style="text-align:left">cversion = 1</td>
+<td style="text-align:left">#这表示对此znode的子节点进行的更改次数（不包括子节点）</td>
+</tr>
+<tr>
+<td style="text-align:left">dataVersion = 0</td>
+<td style="text-align:left"># 数据版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">aclVersion = 0</td>
+<td style="text-align:left">#权限版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">ephemeralOwner = 0x0</td>
+<td style="text-align:left">#临时节点所属会话ID</td>
+</tr>
+<tr>
+<td style="text-align:left">dataLength = 0</td>
+<td style="text-align:left">#数据长度</td>
+</tr>
+<tr>
+<td style="text-align:left">numChildren = 1</td>
+<td style="text-align:left">#子节点数(不包括子子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>ZooKeeper 特点：</p>
+<ul>
+<li><strong>顺序写</strong>：集群中只有一台机器可以写，所有机器都可以读，所有写请求都会分配一个zk集群全局的唯一递增编号，zxid，保证各种客户端发起的写请求都是有顺序的</li>
+<li><strong>数据一致性</strong>：任何一台zk机器收到了写请求之后都会同步给其他机器，保证数据的强一致，你连接到任何一台zk机器看到的数据都是一致的</li>
+<li><strong>高性能</strong>：每台zk机器都在内存维护数据，所以zk集群绝对是高并发高性能的，如果你让zk部署在高配置物理机上，一个3台机器的zk集群抗下每秒几万请求没有问题</li>
+<li><strong>高可用</strong>：哪怕集群中挂掉不超过一半的机器，都能保证可用，数据不会丢失，3台机器可以挂1台，5台机器可以挂2台</li>
+<li><strong>高并发</strong>：高性能决定的，只要基于纯内存数据结构来处理，并发能力是很高的，只有一台机器进行写，但是高配置的物理机，比如16核32G，写入几万QPS，读，所有机器都可以读，3台机器的话，起码可以支撑十几万QPS</li>
+</ul>
 ]]></content>
     </entry>
     <entry>
@@ -264,10 +374,10 @@ Heap
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9578806"><label class="task-list-item-label" for="task-item-9578806"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6458853"><label class="task-list-item-label" for="task-item-6458853"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6363337"><label class="task-list-item-label" for="task-item-6363337"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1525370"><label class="task-list-item-label" for="task-item-1525370"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
