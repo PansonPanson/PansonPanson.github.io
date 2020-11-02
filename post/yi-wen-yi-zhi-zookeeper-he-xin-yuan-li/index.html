@@ -6,7 +6,7 @@
 
 <title>一文以知 ZooKeeper 核心原理 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604242661126">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604298854106">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1604242661126" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1604298854106" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -106,9 +106,9 @@
                     
                 </div>
                 <div class="post-content">
-                    <!-- more -->
-<p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。<br>
-事实上，我们的猜测是正确的，ZooKeeper 的主要作用就是拿来做分布式系统管理的。具体的作用主要包括：</p>
+                    <p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。</p>
+<!-- more -->
+<p>事实上，我们的猜测是正确的，ZooKeeper 的主要作用就是拿来做分布式系统管理的。具体的作用主要包括：</p>
 <ol>
 <li>分布式协调（系统间信息异步通信）</li>
 <li>分布式锁（zk 分布式锁）</li>
@@ -144,6 +144,10 @@
 </tr>
 </tbody>
 </table>
+<p>持久节点：哪怕客户端断开连接，也一直存在。<br>
+临时节点：只要客户端断开连接，节点就没了。<br>
+顺序节点：就是在创建节点的时候自动添加全局递增的序号<br>
+ZooKeeper 分布式锁的实现就是基于临时顺序节点来实现的，加锁的时候，创建一个临时顺序节点。</p>
 <p>每一个 znode 结构包含如下属性：</p>
 <ol>
 <li>path:唯一路径</li>
@@ -217,6 +221,32 @@
 <li><strong>高可用</strong>：哪怕集群中挂掉不超过一半的机器，都能保证可用，数据不会丢失，3台机器可以挂1台，5台机器可以挂2台</li>
 <li><strong>高并发</strong>：高性能决定的，只要基于纯内存数据结构来处理，并发能力是很高的，只有一台机器进行写，但是高配置的物理机，比如16核32G，写入几万QPS，读，所有机器都可以读，3台机器的话，起码可以支撑十几万QPS</li>
 </ul>
+<p>ZooKeeper 3 种角色：<br>
+通常来说ZooKeeper集群里有三种角色的机器。</p>
+<ul>
+<li>Leader：集群启动自动选举一个Leader出来，只有Leader是可以写的。</li>
+<li>Follower：Follower 只能同步数据和提供数据的读取，Leader 挂了，Follower 可以继续选举出来Leader。</li>
+<li>Observer：只能读，但是Observer不参与选举</li>
+</ul>
+<p>ZooKeeper最核心的一个机制：Watcher监听回调<br>
+就是客户端可以对 Znode 进行 Watcher 监听，然后 Znode 改变的时候回调客户端。</p>
+<p>在整个zk的架构和工作原理中，有一个非常关键的环节，就是zk集群的数据同步是用什么协议做的？其实用的是特别设计的ZAB协议，ZooKeeper Atomic Broadcast，就是ZooKeeper原子广播协议。</p>
+<p>ZAB的核心思想介绍：主从同步机制和崩溃恢复机制<br>
+两种角色：Leader 和 Follower，只有 Leader 可以接受写操作，Leader 和 Follower 都可以读。<br>
+流程：Leader 收到事务请求，转换为事务 Proposal（提议）同步给所有的 Follower，超过半数的 Follower 都说收到事务 Proposal 了（返回 ack），Leader 再给所有的 Follower 发一个Commit 消息，让所有 Follower 提交事务。</p>
+<p>崩溃恢复：<br>
+zk集群启动的时候，进入恢复模式，选举一个leader出来，然后leader等待集群中过半的follower跟他进行数据同步，只要过半follower完成数据同步，接着就退出恢复模式，可以对外提供服务了</p>
+<p>集群启动：恢复模式，leader选举（过半机器选举机制） + 数据同步<br>
+消息写入：消息广播模式，leader采用2PC模式的过半写机制，给follower进行同步<br>
+崩溃恢复：恢复模式，leader/follower宕机，只要剩余机器超过一半，集群宕机不超过一半的机器，就可以选举新的leader，数据同步</p>
+<p>采用了2PC两阶段提交思想的ZAB消息广播流程：<br>
+每一个消息广播的时候，都是2PC思想走的，先是发起事务Proposal的广播，就是事务提议，仅仅只是个提议而已，各个follower返回ack，过半follower都ack了，就直接发起commit消息到全部follower上去，让大家提交。<br>
+发起一个事务proposal之前，leader会分配一个全局唯一递增的事务id，zxid，通过这个可以严格保证顺序。<br>
+leader会为每个follower创建一个队列，里面放入要发送给follower的事务proposal，这是保证了一个同步的顺序性。<br>
+每个follower收到一个事务proposal之后，就需要立即写入本地磁盘日志中，写入成功之后就可以保证数据不会丢失了，然后返回一个ack给leader，然后过半follower都返回了ack，leader推送commit消息给全部follower。<br>
+leader自己也会进行commit操作，commit之后，就意味这个数据可以被读取到了。</p>
+<p>ZooKeeper到底是强一致性还是最终一致性：<br>
+明显，ZAB协议机制，zk一定不是强一致性，是最终一致，官方的说法是顺序一致性。因为leader一定会保证所有的proposal同步到follower上都是按照顺序来走的，起码顺序不会乱。</p>
 
                 </div>
             </article>
