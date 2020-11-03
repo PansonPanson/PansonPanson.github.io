@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-03T15:48:43.916Z</updated>
+    <updated>2020-11-03T17:15:04.268Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -100,6 +100,17 @@ Heap
 ]]></summary>
         <content type="html"><![CDATA[<p><em>本文从 MESI 协议谈起，分析了可见性的涉及的几个底层硬件概念：寄存器、高速缓存、写缓存器，进一步引申出 flush 处理器缓存和 refresh 缓存这两个概念，完整地剖析了 volatile 保证可见性的底层原理。</em></p>
 <!-- more -->
+<p>可见性的第一个问题：每个处理器都有自己的寄存器（register），所以多个处理器各自运行一个线程的时候，可能导致某个变量给放到寄存器里去，接着就会导致各个线程没法看到其他处理器寄存器里的变量的值修改了（此时就有可能在寄存器的级别，导致变量副本的更新，无法让其他处理器看到）。</p>
+<p>第二个问题：一个处理器运行的线程对变量的写操作都是针对写缓冲来的（store buffer）并不是直接更新主内存，所以很可能导致一个线程更新了变量，但是仅仅是在写缓冲区里罢了，没有更新到主内存里去。这个时候，其他处理器的线程是没法读到他的写缓冲区的变量值的，所以此时就是会有可见性的问题，这是第二个可见性发生的场景。</p>
+<p>第三个问题：即使这个时候一个处理器的线程更新了写缓冲区之后，将更新同步到了自己的高速缓存里（cache，或者是主内存），然后还把这个更新通知给了其他的处理器，但是其他处理器可能就是把这个更新放到无效队列里去，没有更新它的高速缓存。此时其他处理器的线程从高速缓存里读数据的时候，读到的还是过时的旧值。</p>
+<p>如果要实现可见性的话，其中一个方法就是通过MESI协议，这个MESI协议实际上有很多种不同的时间，因为他不过就是一个协议罢了，具体的实现机制要靠具体底层的系统如何实现。根据具体底层硬件的不同，MESI协议的实现是有区别的。</p>
+<p>比如说MESI协议有一种实现，就是一个处理器将另外一个处理器的高速缓存中的更新后的数据拿到自己的高速缓存中来更新一下，这样大家的缓存不就实现同步了，然后各个处理器的线程看到的数据就一样了。</p>
+<p>为了实现MESI协议，有两个配套的专业机制需要说一下：flush处理器缓存、refresh处理器缓存。</p>
+<p>flush处理器缓存，他的意思就是把自己更新的值刷新到高速缓存里去（或者是主内存），因为必须要刷到高速缓存（或者是主内存）里，才有可能在后续通过一些特殊的机制让其他的处理器从自己的高速缓存（或者是主内存）里读取到更新的值。除了flush以外，他还会发送一个消息到总线（bus），通知其他处理器，某个变量的值被他给修改了。</p>
+<p>refresh处理器缓存，他的意思就是说，处理器中的线程在读取一个变量的值的时候，如果发现其他处理器的线程更新了变量的值，必须从其他处理器的高速缓存（或者是主内存）里，读取这个最新的值，更新到自己的高速缓存中。</p>
+<p>所以说，为了保证可见性，在底层是通过MESI协议、flush处理器缓存和refresh处理器缓存，这一整套机制来保障的。</p>
+<p>flush和refresh，这两个操作，flush是强制刷新数据到高速缓存（主内存），不要仅仅停留在写缓冲器里面；refresh，是从总线嗅探发现某个变量被修改，必须强制从其他处理器的高速缓存（或者主内存）加载变量的最新值到自己的高速缓存里去。</p>
+<p>内存屏障的使用，在底层硬件级别的原理，其实就是在执行flush和refresh，MESI协议是如何与内存屏障搭配使用的（flush、refresh）。</p>
 ]]></content>
     </entry>
     <entry>
@@ -410,10 +421,10 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
         <updated>2020-04-10T06:50:26.000Z</updated>
         <content type="html"><![CDATA[<ul class="contains-task-list">
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3298355"><label class="task-list-item-label" for="task-item-3298355"> GC Roots</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4157881"><label class="task-list-item-label" for="task-item-4157881"> GC Roots</label></p>
 </li>
 <li class="task-list-item">
-<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5255472"><label class="task-list-item-label" for="task-item-5255472"> 可达性分析算法，判断是否可以回收</label></p>
+<p><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4412593"><label class="task-list-item-label" for="task-item-4412593"> 可达性分析算法，判断是否可以回收</label></p>
 </li>
 <li>
 <p>什么样的变量才可以做为 GC Roots</p>
