@@ -1,0 +1,213 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>老生常谈：synchronized 底层原理 | Panson&#39;s Home</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604418522095">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson&#39;s Home
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            tags
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/weekly" class="menu gt-a-link">
+                            weekly
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1604418522095" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    老生常谈：synchronized 底层原理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-12-27 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <!-- more -->
+<h2 id="一-保证原子性">一、保证原子性</h2>
+<p>说白了，就是在进入加锁代码块的时候加一个monitorenter的指令，然后针对锁对象关联的monitor累加加锁计数器，同时标识自己这个线程加了锁。<br>
+通过monitor里的加锁计数器可以实现可重入的加锁。<br>
+在出锁代码块的时候，加一个monitorexit的指令，然后递减锁计数器，如果锁计数为0，就会标志当前线程不持有锁，释放锁。<br>
+然后wait和notify关键字的实现也是依托于monitor实现的，有线程执行wait之后，自己会加入一个waitset中等待唤醒获取锁，notifyall操作会从monitor的waitset中唤醒所有的线程，让他们竞争获取锁。</p>
+<pre><code class="language-java">MyObject lock = new MyObject();
+synchronized(lock) {
+
+}
+</code></pre>
+<p>Java对象都是分为对象头和实例变量两块的，其中实例变量就是大家平时看到的对象里的那些变量数据。然后对象头包含了两块东西，一个是Mark Word（包含hashCode、锁数据、GC数据，等等），另一个是Class Metadata Address（包含了指向类的元数据的指针）。</p>
+<p>在Mark Word里就有一个指针，是指向了这个对象实例关联的monitor的地址，这个monitor是c++实现的，不是java实现的。这个monitor实际上是c++实现的一个ObjectMonitor对象，里面包含了一个_owner指针，指向了持有锁的线程。</p>
+<p>ObjectMonitor里还有一个entrylist，想要加锁的线程全部先进入这个entrylist等待获取机会尝试加锁，实际有机会加锁的线程，就会设置_owner指针指向自己，然后对_count计数器累加1次。</p>
+<p>各个线程尝试竞争进行加锁，此时竞争加锁是在JDK 1.6以后优化成了基于CAS来进行加锁，理解为跟之前的Lock API的加锁机制是类似的，CAS操作，操作_count计数器，比如说将_count值尝试从0变为1。</p>
+<p>然后释放锁的时候，先是对_count计数器递减1，如果为0了就会设置_owner为null，不再指向自己，代表自己彻底释放锁。</p>
+<p>如果获取锁的线程执行wait，就会将计数器递减，同时_owner设置为null，然后自己进入waitset中等待唤醒，别人获取了锁执行notify的时候就会唤醒waitset中的线程竞争尝试获取锁。</p>
+<p>有人会问，那尝试加锁这个过程，也就是对_count计数器累加操作，是怎么执行的？如何保证多线程并发的原子性呢？很简单，JDk 1.6之后，对synchronized内的加锁机制做了大量的优化，这里就是优化为CAS加锁的。</p>
+<h2 id="二-保证可见性和有序性">二、保证可见性和有序性</h2>
+<pre><code class="language-java">int b = 0;
+int c = 0;
+
+synchronized(this) { -&gt; monitorenter
+
+Load内存屏障
+Acquire内存屏障
+
+int a = b;
+c = 1; =&gt; synchronized代码块里面还是可能会发生指令重排
+
+Release内存屏障
+
+} -&gt; monitorexit
+
+Store内存屏障
+</code></pre>
+<p>java的并发技术底层很多都对应了内存屏障的使用，包括synchronized，他底层也是依托于各种不同的内存屏障来保证可见性和有序性的。</p>
+<p>按照可见性来划分的话，内存屏障可以分为Load屏障和Store屏障。</p>
+<p>Load屏障的作用是执行refresh处理器缓存的操作，说白了就是对别的处理器更新过的变量，从其他处理器的高速缓存（或者主内存）加载数据到自己的高速缓存来，确保自己看到的是最新的数据。</p>
+<p>Store屏障的作用是执行flush处理器缓存的操作，说白了就是把自己当前处理器更新的变量的值，都刷新到高速缓存（或者主内存）里去。</p>
+<p>在monitorexit指令之后，会有一个Store屏障，让线程把自己在同步代码块里修改的变量的值都执行flush处理器缓存的操作，刷到高速缓存（或者主内存）里去；然后在monitorenter指令之后会加一个Load屏障，执行refresh处理器缓存的操作，把别的处理器修改过的最新值加载到自己高速缓存里来。</p>
+<p>所以说通过Load屏障和Store屏障，就可以让synchronized保证可见性。</p>
+<p>按照有序性保障来划分的话，还可以分为Acquire屏障和Release屏障。</p>
+<p>在monitorenter指令之后，Load屏障之后，会加一个Acquire屏障，这个屏障的作用是禁止读操作和读写操作之间发生指令重排序。在monitorexit指令之前，会加一个Release屏障，这个屏障的作用是禁止写操作和读写操作之间发生重排序。</p>
+<p>所以说，通过 Acquire屏障和Release屏障，就可以让synchronzied保证有序性，只有synchronized内部的指令可以重排序，但是绝对不会跟外部的指令发生重排序。</p>
+<p>synchronized：</p>
+<ul>
+<li>原子性：加锁和释放锁，ObjectMonitor</li>
+<li>可见性：加了Load屏障和Store屏障，释放锁flush数据，加锁会refresh数据</li>
+<li>有序性：Acquire屏障和Release屏障，保证同步代码块内部的指令可以重排，但是同步代码块内部的指令和外面的指令是不能重排的</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/lao-sheng-chang-tan-volatile-di-ceng-yuan-li/" class="post-title gt-a-link">
+                    老生常谈：volatile 底层原理
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">不坠青云之志</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
