@@ -6,7 +6,7 @@
 
 <title>一文以知 Redis 文件事件处理器（file event handler） | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604461059262">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604506295872">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1604461059262" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1604506295872" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -106,7 +106,16 @@
                     
                 </div>
                 <div class="post-content">
-                    <!-- more -->
+                    <p><em>redis 内部使用文件事件处理器 file event handler，这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</em></p>
+<!-- more -->
+<p>文件事件处理器的结构包含 4 个部分：</p>
+<ul>
+<li>多个 socket</li>
+<li>IO 多路复用程序</li>
+<li>文件事件分派器</li>
+<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></figure>
 
                 </div>
             </article>
