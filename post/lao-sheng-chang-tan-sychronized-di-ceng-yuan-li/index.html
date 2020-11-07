@@ -6,7 +6,7 @@
 
 <title>老生常谈：synchronized 底层原理 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604506295872">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604716987509">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1604506295872" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1604716987509" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -157,6 +157,36 @@ Store内存屏障
 <li>可见性：加了Load屏障和Store屏障，释放锁flush数据，加锁会refresh数据</li>
 <li>有序性：Acquire屏障和Release屏障，保证同步代码块内部的指令可以重排，但是同步代码块内部的指令和外面的指令是不能重排的</li>
 </ul>
+<p>锁消除：<br>
+锁消除是JIT编译器对synchronized锁做的优化，在编译的时候，JIT会通过逃逸分析技术，来分析synchronized锁对象，是不是只可能被一个线程来加锁，没有其他的线程来竞争加锁，这个时候编译就不用加入monitorenter和monitorexit的指令。<br>
+这就是，仅仅一个线程争用锁的时候，就可以消除这个锁了，提升这段代码的执行的效率，因为可能就只有一个线程会来加锁，不涉及到多个线程竞争锁。</p>
+<p>锁粗化</p>
+<pre><code class="language-java">synchronized(this) {
+
+}
+
+synchronized(this) {
+
+}
+
+synchronized(this) {
+
+}
+</code></pre>
+<p>这个意思就是，JIT编译器如果发现有代码里连续多次加锁释放锁的代码，会给合并为一个锁，就是锁粗化，把一个锁给搞粗了，避免频繁多次加锁释放锁。</p>
+<p>偏向锁<br>
+这个意思就是说，monitorenter和monitorexit是要使用CAS操作加锁和释放锁的，开销较大，因此如果发现大概率只有一个线程会主要竞争一个锁，那么会给这个锁维护一个偏好（Bias），后面他加锁和释放锁，基于Bias来执行，不需要通过CAS，性能会提升很多。<br>
+但是如果有偏好之外的线程来竞争锁，就要收回之前分配的偏好。</p>
+<p>轻量级锁</p>
+<p>如果偏向锁没能成功实现，就是因为不同线程竞争锁太频繁了，此时就会尝试采用轻量级锁的方式来加锁，就是将对象头的Mark Word里有一个轻量级锁指针，尝试指向持有锁的线程，然后判断一下是不是自己加的锁，如果是自己加的锁，那就执行代码就好了，如果不是自己加的锁，那就是加锁失败，说明有其他人加了锁，这个时候就是升级为重量级锁。</p>
+<p>适应锁</p>
+<p>这是JIT编译器对锁做的另外一个优化，如果各个线程持有锁的时间很短，那么一个线程竞争锁不到，就会暂停，发生上下文切换，让其他线程来执行。但是其他线程很快释放锁了，然后暂停的线程再次被唤醒</p>
+<p>也就是说在这种情况下，线程会频繁的上下文切换，导致开销过大</p>
+<p>所以对这种线程持有锁时间很短的情况，是可以采取忙等策略的，也就是一个线程没竞争到锁，进入一个while循环不停等待，不会暂停不会发生线程上下文切换，等到机会获取锁就继续执行好了</p>
+<p>再回过头来深入jvm底层的原理来剖析：偏向锁、自旋锁、轻量级锁，jvm层面的概念，栈侦，Load Record，不一定能听懂，基础的知识没有铺垫好，需要通过调节jvm的一些参数来优化底层synchronized里的各种加锁方式的使用</p>
+<p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓自旋锁，就是不断的自旋尝试获取锁</p>
+<p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的重量级锁</p>
+<p>这个根据不同情况自动调整的过程，就是适应锁的意思</p>
 
                 </div>
             </article>
