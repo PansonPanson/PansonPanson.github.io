@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-07T02:43:09.566Z</updated>
+    <updated>2020-11-07T14:11:22.431Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -10,6 +10,20 @@
     <logo>https://panson.top/images/avatar.png</logo>
     <icon>https://panson.top/favicon.ico</icon>
     <rights>All rights reserved 2020, Panson&apos;s Home</rights>
+    <entry>
+        <title type="html"><![CDATA[vipkid 一面、二面总结]]></title>
+        <id>https://panson.top/post/vipkid-yi-mian-er-mian-zong-jie/</id>
+        <link href="https://panson.top/post/vipkid-yi-mian-er-mian-zong-jie/">
+        </link>
+        <updated>2020-11-07T14:04:06.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>虽然已经过了金九银十，但还是想出去看看机会，上周面了 vipkid，趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
+——————————————————</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>虽然已经过了金九银十，但还是想出去看看机会，上周面了 vipkid，趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
+——————————————————</p>
+<!-- more -->
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[详解 GC 日志：YoungGC]]></title>
         <id>https://panson.top/post/jvm-shi-zhan-youggc/</id>
@@ -208,6 +222,7 @@ Heap
 <p>小结：在一次数据更新流程中，InnoDB 存储引擎主要包含了一些 buffer pool、redo log buffer 等内存里的缓存数据，同时还包含了 undo 日志文件、redo 日志文件等，同时 mysql server 还有 binlog 日志文件。<br>
 每次执行更新的时候，每条 SQL 语句，都会对应修改 buffer pool 里的缓存数据、写 undo 日志、写 redo log buffer 几个步骤。<br>
 但是当你提交事务的时候，一定会把 redo log 刷入磁盘，binlog 刷入磁盘，完成 redo log中的事务 commit 标记，最后后台的 IO 线程会随机把 buffer pool 里的脏数据刷入磁盘里去。</p>
+<p>3、</p>
 ]]></content>
     </entry>
     <entry>
@@ -408,44 +423,6 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
 <p>CMS 默认启动的垃圾回收线程的数量是（CPU 核数 + 3）/ 4<br>
 浮动垃圾的问题， Concurrent Mode Failure<br>
 占用 CPU  资源</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[一文以知对象何时进入老年代]]></title>
-        <id>https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/</id>
-        <link href="https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/">
-        </link>
-        <updated>2020-04-11T02:52:46.000Z</updated>
-        <content type="html"><![CDATA[<ul>
-<li>
-<p>15 次GC之后进入老年代</p>
-</li>
-<li>
-<p>动态年龄判断</p>
-</li>
-<li>
-<p>大对象直接进入老年代</p>
-</li>
-<li>
-<p>Minor GC 后对象太多，无法放入 Survivor 区域</p>
-</li>
-<li>
-<p>老年代空间分配担保原则</p>
-</li>
-<li>
-<p>老年代的垃圾回收算法(标记整理)</p>
-</li>
-<li>
-<p>stop the world</p>
-</li>
-</ul>
-<h2 id="何时老年代-full-gc">何时老年代 Full GC</h2>
-<ul>
-<li>老年代可用内存小于新生代对象的总大小，如果没有开启空间担保参数，会直接触发 Full GC,所以一般空间担保参数都会打开；</li>
-<li>老年代可用内存小于历次新生代 GC 后进入老年代的平均对象大小，此时会提前 Full GC;</li>
-<li>新生代 MInor GC 后的存活对象大于 Survivor，那么就会进入老年代，此时老年代内存不足。</li>
-<li>由于存在浮动垃圾，当老年代占用比例超过一定阈值时会触发 Full GC，默认92%</li>
-</ul>
 ]]></content>
     </entry>
 </feed>
