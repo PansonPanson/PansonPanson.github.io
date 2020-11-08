@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-07T14:11:22.431Z</updated>
+    <updated>2020-11-08T15:10:57.026Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -16,12 +16,35 @@
         <link href="https://panson.top/post/vipkid-yi-mian-er-mian-zong-jie/">
         </link>
         <updated>2020-11-07T14:04:06.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>虽然已经过了金九银十，但还是想出去看看机会，上周面了 vipkid，趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
+        <summary type="html"><![CDATA[<p><em>虽然已经过了金九银十，但好像在工作上的自我成长开始变慢，于是想着出去看看机会。上月月末试着投了几家公司，约了这周开始面试。vipkid 的一面和二面之间隔了三天，面试过程还算顺利，总的来说一面侧重技术，二面侧重业务，面完之后趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
 ——————————————————</p>
 ]]></summary>
-        <content type="html"><![CDATA[<p><em>虽然已经过了金九银十，但还是想出去看看机会，上周面了 vipkid，趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
+        <content type="html"><![CDATA[<p><em>虽然已经过了金九银十，但好像在工作上的自我成长开始变慢，于是想着出去看看机会。上月月末试着投了几家公司，约了这周开始面试。vipkid 的一面和二面之间隔了三天，面试过程还算顺利，总的来说一面侧重技术，二面侧重业务，面完之后趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em><br>
 ——————————————————</p>
 <!-- more -->
+<p>1、JDK 集合的类继承结构图，自顶向下（有点困，写完这篇总结就睡觉了~太晚了，IDEA 的 UML 图就不整理了）：</p>
+<ul>
+<li>Collection==============Map</li>
+<li>Set | List  | Queue================ TreeMap、HashTable、LinkedHashMap、HashMap</li>
+<li>TreeSet、HashSet、LinkedHashSet | ArrayList、Vector、LinkedList | LinkedList、PriorityQueue</li>
+</ul>
+<p>2、IO 类继承，自顶向下</p>
+<ul>
+<li>磁盘操作：File</li>
+<li>字节操作：InputStream 和 OutputStream</li>
+<li>字符操作：Reader 和 Writer</li>
+<li>对象操作：Serializable</li>
+<li>网络操作：Socket</li>
+<li>NIO</li>
+</ul>
+<p>3、JUC 核心类（AQS、线程池、同步器、并发集合类）<br>
+4、Redis 基础数据类型、高级数据结构、文件事件处理器、AOF、RDB，具体的使用<br>
+5、Java 锁机制（snchronized、Lock、CAS）<br>
+6、Kaka 重复消费、幂等性<br>
+7、zk 分布式锁、zab<br>
+8、xxl-job<br>
+9、CAP<br>
+10、JVM</p>
 ]]></content>
     </entry>
     <entry>
@@ -222,7 +245,9 @@ Heap
 <p>小结：在一次数据更新流程中，InnoDB 存储引擎主要包含了一些 buffer pool、redo log buffer 等内存里的缓存数据，同时还包含了 undo 日志文件、redo 日志文件等，同时 mysql server 还有 binlog 日志文件。<br>
 每次执行更新的时候，每条 SQL 语句，都会对应修改 buffer pool 里的缓存数据、写 undo 日志、写 redo log buffer 几个步骤。<br>
 但是当你提交事务的时候，一定会把 redo log 刷入磁盘，binlog 刷入磁盘，完成 redo log中的事务 commit 标记，最后后台的 IO 线程会随机把 buffer pool 里的脏数据刷入磁盘里去。</p>
-<p>3、</p>
+<p>3、Buffer Pool 默认大小（128 MB）、Buffer Pool 描述数据、free 链表、flush 链表、LRU 链表（MySQL 对冷热数据的存储优化）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool.png?raw=true" alt="" loading="lazy"><br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool01.png?raw=true" alt="" loading="lazy"></p>
 ]]></content>
     </entry>
     <entry>
