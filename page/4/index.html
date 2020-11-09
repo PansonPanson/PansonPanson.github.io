@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知 CMS 垃圾回收器 | Panson&#39;s Home</title>
+<title>Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604894948823">
 
@@ -25,11 +25,11 @@
 
 
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
 </head>
 <body>
 <div class="main gt-bg-theme-color-first">
-    <nav class="navbar navbar-expand-lg">
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg">
     <div class="navbar-brand">
         <img class="user-avatar" src="/images/avatar.png" alt="头像">
         <div class="site-name gt-c-content-color-first">
@@ -93,63 +93,54 @@
     </div>
 </nav>
 
-    <div class="post-container">
-        <div class="post-detail gt-bg-theme-color-second">
-            <article class="gt-post-content">
-                <h2 class="post-title">
-                    一文以知 CMS 垃圾回收器
-                </h2>
-                <div class="post-info">
-                    <time class="post-time gt-c-content-color-first">
-                        · 2020-04-17 ·
-                    </time>
-                    
-                </div>
-                <div class="post-content">
-                    <ul>
-<li>
-<p>新生代：<br>
-一般使用 ParnNew 垃圾回收，使用复制算法，标记一下，然后把标记出来的存活对象转移到 Survivor1 或者 Survivor2 中去</p>
-<p>比如对新生代的回收，Serial垃圾回收器就是用一个线程进行垃圾回收，然后此时暂停系统工作线程，所以一般我们在服务器程序中很少用这种方式。<br>
-但是我们平时常用的新生代垃圾回收器是ParNew，他针对服务器一般都是多核CPU做了优化，他是支持多线程个垃圾回收的，可以大幅度提升回收的性能，缩短回收的时间。</p>
-</li>
-<li>
-<p>老年代：CMS 垃圾回收器</p>
-</li>
-</ul>
-<p>问题：</p>
-<ul>
-<li>GC的时候还能继续创建新的对象吗？</li>
-</ul>
-<p>CMS 垃圾回收器（四个阶段）</p>
-<ul>
-<li>初始标记</li>
-<li>并发标记</li>
-<li>重新标记</li>
-<li>并发清理</li>
-</ul>
-<p>CMS 默认启动的垃圾回收线程的数量是（CPU 核数 + 3）/ 4<br>
-浮动垃圾的问题， Concurrent Mode Failure<br>
-占用 CPU  资源</p>
 
-                </div>
-            </article>
-        </div>
-
+        <div class="post-list-container">
+    <div class="post-inner">
         
-            <div class="next-post">
-                <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/" class="post-title gt-a-link">
-                    一文以知对象何时进入老年代
-                </a>
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/hello-gridea/">
+                            <span class="post-title gt-c-content-color-first">译文：Java EE vs J2EE vs Jakarta</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2019-02-04 ·
+                        </time>
+                        
+                            <a href="https://panson.top/tag/DhGlDDOcy/" class="post-tag">
+                                # Java
+                            </a>
+                        
+                            <a href="https://panson.top/tag/MIlya99K9l/" class="post-tag">
+                                # translation
+                            </a>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/hello-gridea/" class="post-feature-image"
+                       style="background-image: url('https://panson.top/post-images/hello-gridea.jpg')">
+                    </a>
+                
             </div>
         
+    </div>
+</div>
 
-        
+        <div class="pagination-container">
+    
+        <a href="https://panson.top/page/3/" class="prev-page gt-a-link">上一页</a>
+    
+    
+</div>
 
-        
-
-        
 
         <div class="site-footer gt-c-content-color-first">
     <div class="slogan gt-c-content-color-first">不坠青云之志</div>

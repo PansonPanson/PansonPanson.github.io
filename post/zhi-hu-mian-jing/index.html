@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知 CMS 垃圾回收器 | Panson&#39;s Home</title>
+<title>知乎面经 | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604894948823">
 
@@ -97,40 +97,31 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    一文以知 CMS 垃圾回收器
+                    知乎面经
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-04-17 ·
+                        · 2020-11-09 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <ul>
-<li>
-<p>新生代：<br>
-一般使用 ParnNew 垃圾回收，使用复制算法，标记一下，然后把标记出来的存活对象转移到 Survivor1 或者 Survivor2 中去</p>
-<p>比如对新生代的回收，Serial垃圾回收器就是用一个线程进行垃圾回收，然后此时暂停系统工作线程，所以一般我们在服务器程序中很少用这种方式。<br>
-但是我们平时常用的新生代垃圾回收器是ParNew，他针对服务器一般都是多核CPU做了优化，他是支持多线程个垃圾回收的，可以大幅度提升回收的性能，缩短回收的时间。</p>
-</li>
-<li>
-<p>老年代：CMS 垃圾回收器</p>
-</li>
-</ul>
-<p>问题：</p>
+                    <p><em>找了知乎的内推，今天早上视频一面，做个记录</em></p>
+<!-- more -->
+<p>1、ZooKeeper 选举流程<br>
+2、Redis 数据类型、内存淘汰策略、LRU 底层实现原理<br>
+3、Golang<br>
+4、算法题：</p>
 <ul>
-<li>GC的时候还能继续创建新的对象吗？</li>
-</ul>
-<p>CMS 垃圾回收器（四个阶段）</p>
+<li>一个无序整型数组，一个key，要求输出一个数组，大于 key 的元素都放在右边，小于key的元素都放在左边，左右两边都有序。</li>
+<li>一个无序整型数组，一个 target，要求输出所有子数组，所有子数组都应满足如下条件：（np）
 <ul>
-<li>初始标记</li>
-<li>并发标记</li>
-<li>重新标记</li>
-<li>并发清理</li>
+<li>元素不重复；</li>
+<li>数组元素之和等于 target</li>
 </ul>
-<p>CMS 默认启动的垃圾回收线程的数量是（CPU 核数 + 3）/ 4<br>
-浮动垃圾的问题， Concurrent Mode Failure<br>
-占用 CPU  资源</p>
+</li>
+<li>冒泡排序，优化</li>
+</ul>
 
                 </div>
             </article>
@@ -139,8 +130,8 @@
         
             <div class="next-post">
                 <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://panson.top/post/yi-wen-yi-zhi-dui-xiang-he-shi-jin-ru-lao-nian-dai/" class="post-title gt-a-link">
-                    一文以知对象何时进入老年代
+                <a href="https://panson.top/post/vipkid-yi-mian-er-mian-zong-jie/" class="post-title gt-a-link">
+                    vipkid 一面、二面总结
                 </a>
             </div>
         
