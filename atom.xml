@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-10T07:18:17.194Z</updated>
+    <updated>2020-11-10T07:33:42.861Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -270,7 +270,7 @@ Heap
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool01.png?raw=true" alt="" loading="lazy"></p>
 <p>4、使用多个Buffer Pool 优化数据库的并发性能、chunk 机制<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool02.png?raw=true" alt="" loading="lazy"></p>
-<p>5、MySQL 一行数据在磁盘上是如何存储的：<br>
+<p>5、MySQL 一行数据在磁盘上是如何存储的、行溢出<br>
 格式：变长字段的长度列表、null 值列表、数据头、隐藏字段、column01 的值、column02 的值、column03 的值<br>
 说明：</p>
 <ul>
@@ -298,7 +298,7 @@ Heap
 <li>行数据物理存储示例：<br>
 0x09 0x04 00000101 0000000000000000000010000000000000011001 000000000094(DB_ROW_ID) 000000000032D(DB_TRX_ID) EA000010078E(DB_ROL_PTR) 616161 636320 6262626262</li>
 </ul>
-<p>6、行溢出</p>
+<p>6、</p>
 ]]></content>
     </entry>
     <entry>

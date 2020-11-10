@@ -6,7 +6,7 @@
 
 <title>MySQL 存储原理串连 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604992694938">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1604993620844">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -85,7 +85,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1604992694938" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1604993620844" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -124,7 +124,7 @@
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool01.png?raw=true" alt="" loading="lazy"></p>
 <p>4、使用多个Buffer Pool 优化数据库的并发性能、chunk 机制<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool02.png?raw=true" alt="" loading="lazy"></p>
-<p>5、MySQL 一行数据在磁盘上是如何存储的：<br>
+<p>5、MySQL 一行数据在磁盘上是如何存储的、行溢出<br>
 格式：变长字段的长度列表、null 值列表、数据头、隐藏字段、column01 的值、column02 的值、column03 的值<br>
 说明：</p>
 <ul>
@@ -152,7 +152,7 @@
 <li>行数据物理存储示例：<br>
 0x09 0x04 00000101 0000000000000000000010000000000000011001 000000000094(DB_ROW_ID) 000000000032D(DB_TRX_ID) EA000010078E(DB_ROL_PTR) 616161 636320 6262626262</li>
 </ul>
-<p>6、行溢出</p>
+<p>6、</p>
 
                 </div>
             </article>
