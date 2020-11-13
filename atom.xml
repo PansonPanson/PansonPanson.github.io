@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-13T10:40:33.968Z</updated>
+    <updated>2020-11-13T10:51:54.366Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -363,6 +363,691 @@ Heap
 <li>表空间的其他组数据区的第一个数据区的前两个数据页，也是存放特殊信息的；</li>
 </ul>
 <p>7、数据库日志的顺序读写和数据文件的随机读写</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 ZooKeeper 核心原理]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/">
+        </link>
+        <updated>2020-05-01T12:39:37.000Z</updated>
+        <summary type="html"><![CDATA[<p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。</p>
+<!-- more -->
+<p>事实上，我们的猜测是正确的，ZooKeeper 的主要作用就是拿来做分布式系统管理的。具体的作用主要包括：</p>
+<ol>
+<li>分布式协调（系统间信息异步通信）</li>
+<li>分布式锁（zk 分布式锁）</li>
+<li>元数据/配置信息管理（注册中心）</li>
+<li>高可用（主从选举）</li>
+</ol>
+<p>ZooKeeper 能实现这么多的功能自然离不开底层数据结构的支持。ZooKeeper 是一个树形结构，每一个节点（znode）拥有唯一的路径 path，客户端基于 path 上传节点数据，ZooKeeper 收到后会实时通知对该路径进行监听的客户端。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/zknamespace.jpg?raw=true" alt="树形结构示意图" loading="lazy"></p>
+<p>znode 有 4 种类型，持久节点、持久序号节点、临时节点、临时序号节点。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">节点类型英文</th>
+<th style="text-align:left">节点类型中文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">PERSISTENT</td>
+<td style="text-align:left">持久节点</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_SEQUENTIAL</td>
+<td style="text-align:left">持久序号节点</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL</td>
+<td style="text-align:left">临时节点(不可在拥有子节点)</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL_SEQUENTIAL</td>
+<td style="text-align:left">临时序号节点(不可在拥有子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>持久节点：哪怕客户端断开连接，也一直存在。<br>
+临时节点：只要客户端断开连接，节点就没了。<br>
+顺序节点：就是在创建节点的时候自动添加全局递增的序号<br>
+ZooKeeper 分布式锁的实现就是基于临时顺序节点来实现的，加锁的时候，创建一个临时顺序节点。</p>
+<p>每一个 znode 结构包含如下属性：</p>
+<ol>
+<li>path:唯一路径</li>
+<li>childNode：子节点</li>
+<li>stat:状态属性</li>
+<li>type:节点类型</li>
+</ol>
+<p>我们可以使用命令查看 znode 的属性：</p>
+<pre><code class="language-java">stat /cluster
+</code></pre>
+<p>属性列表如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">属性</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">cZxid = 0x75</td>
+<td style="text-align:left">#创建节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">ctime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#创建时间</td>
+</tr>
+<tr>
+<td style="text-align:left">mZxid = 0x75</td>
+<td style="text-align:left">#修改节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">mtime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#最后修改时间</td>
+</tr>
+<tr>
+<td style="text-align:left">pZxid = 0x76</td>
+<td style="text-align:left">#子节点变更的事物ID</td>
+</tr>
+<tr>
+<td style="text-align:left">cversion = 1</td>
+<td style="text-align:left">#这表示对此znode的子节点进行的更改次数（不包括子节点）</td>
+</tr>
+<tr>
+<td style="text-align:left">dataVersion = 0</td>
+<td style="text-align:left"># 数据版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">aclVersion = 0</td>
+<td style="text-align:left">#权限版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">ephemeralOwner = 0x0</td>
+<td style="text-align:left">#临时节点所属会话ID</td>
+</tr>
+<tr>
+<td style="text-align:left">dataLength = 0</td>
+<td style="text-align:left">#数据长度</td>
+</tr>
+<tr>
+<td style="text-align:left">numChildren = 1</td>
+<td style="text-align:left">#子节点数(不包括子子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>ZooKeeper 特点：</p>
+<ul>
+<li><strong>顺序写</strong>：集群中只有一台机器可以写，所有机器都可以读，所有写请求都会分配一个zk集群全局的唯一递增编号，zxid，保证各种客户端发起的写请求都是有顺序的</li>
+<li><strong>数据一致性</strong>：任何一台zk机器收到了写请求之后都会同步给其他机器，保证数据的强一致，你连接到任何一台zk机器看到的数据都是一致的</li>
+<li><strong>高性能</strong>：每台zk机器都在内存维护数据，所以zk集群绝对是高并发高性能的，如果你让zk部署在高配置物理机上，一个3台机器的zk集群抗下每秒几万请求没有问题</li>
+<li><strong>高可用</strong>：哪怕集群中挂掉不超过一半的机器，都能保证可用，数据不会丢失，3台机器可以挂1台，5台机器可以挂2台</li>
+<li><strong>高并发</strong>：高性能决定的，只要基于纯内存数据结构来处理，并发能力是很高的，只有一台机器进行写，但是高配置的物理机，比如16核32G，写入几万QPS，读，所有机器都可以读，3台机器的话，起码可以支撑十几万QPS</li>
+</ul>
+<p>ZooKeeper 3 种角色：<br>
+通常来说ZooKeeper集群里有三种角色的机器。</p>
+<ul>
+<li>Leader：集群启动自动选举一个Leader出来，只有Leader是可以写的。</li>
+<li>Follower：Follower 只能同步数据和提供数据的读取，Leader 挂了，Follower 可以继续选举出来Leader。</li>
+<li>Observer：只能读，但是Observer不参与选举</li>
+</ul>
+<p>ZooKeeper最核心的一个机制：Watcher监听回调<br>
+就是客户端可以对 Znode 进行 Watcher 监听，然后 Znode 改变的时候回调客户端。</p>
+<p>在整个zk的架构和工作原理中，有一个非常关键的环节，就是zk集群的数据同步是用什么协议做的？其实用的是特别设计的ZAB协议，ZooKeeper Atomic Broadcast，就是ZooKeeper原子广播协议。</p>
+<p>ZAB的核心思想介绍：主从同步机制和崩溃恢复机制<br>
+两种角色：Leader 和 Follower，只有 Leader 可以接受写操作，Leader 和 Follower 都可以读。<br>
+流程：Leader 收到事务请求，转换为事务 Proposal（提议）同步给所有的 Follower，超过半数的 Follower 都说收到事务 Proposal 了（返回 ack），Leader 再给所有的 Follower 发一个Commit 消息，让所有 Follower 提交事务。</p>
+<p>崩溃恢复：<br>
+zk集群启动的时候，进入恢复模式，选举一个leader出来，然后leader等待集群中过半的follower跟他进行数据同步，只要过半follower完成数据同步，接着就退出恢复模式，可以对外提供服务了</p>
+<p>集群启动：恢复模式，leader选举（过半机器选举机制） + 数据同步<br>
+消息写入：消息广播模式，leader采用2PC模式的过半写机制，给follower进行同步<br>
+崩溃恢复：恢复模式，leader/follower宕机，只要剩余机器超过一半，集群宕机不超过一半的机器，就可以选举新的leader，数据同步</p>
+<p>采用了2PC两阶段提交思想的ZAB消息广播流程：<br>
+每一个消息广播的时候，都是2PC思想走的，先是发起事务Proposal的广播，就是事务提议，仅仅只是个提议而已，各个follower返回ack，过半follower都ack了，就直接发起commit消息到全部follower上去，让大家提交。<br>
+发起一个事务proposal之前，leader会分配一个全局唯一递增的事务id，zxid，通过这个可以严格保证顺序。<br>
+leader会为每个follower创建一个队列，里面放入要发送给follower的事务proposal，这是保证了一个同步的顺序性。<br>
+每个follower收到一个事务proposal之后，就需要立即写入本地磁盘日志中，写入成功之后就可以保证数据不会丢失了，然后返回一个ack给leader，然后过半follower都返回了ack，leader推送commit消息给全部follower。<br>
+leader自己也会进行commit操作，commit之后，就意味这个数据可以被读取到了。</p>
+<p>ZooKeeper到底是强一致性还是最终一致性：<br>
+明显，ZAB协议机制，zk一定不是强一致性，是最终一致，官方的说法是顺序一致性。因为leader一定会保证所有的proposal同步到follower上都是按照顺序来走的，起码顺序不会乱。</p>
+<p>使用 Observer 节点来扩展 ZooKeeper 集群：<br>
+Observer节点是不参与leader选举的，他也不参与ZAB协议同步时候的过半follower ack的那个环节，他只是单纯的接收数据，同步数据，可能数据存在一定的不一致的问题，但是是只读的。<br>
+zk集群无论多少台机器，只能是一个leader进行写，单机写入最多每秒上万QPS，这是没法扩展的，所以zk是适合写少的场景。<br>
+但是读呢？follower起码有2个或者4个，读你起码可以有每秒几万QPS，没问题，那如果读请求更多呢？此时你可以引入Observer节点，他就只是同步数据，提供读服务，可以无限的扩展机器。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Leetcode 分类整理]]></title>
+        <id>https://panson.top/post/leetcode-fen-lei-zheng-li/</id>
+        <link href="https://panson.top/post/leetcode-fen-lei-zheng-li/">
+        </link>
+        <updated>2020-03-29T07:08:31.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>日常刷题，不能断</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>日常刷题，不能断</em></p>
+<!-- more -->
+<h2 id="链表">链表</h2>
+<ol>
+<li><a href="https://leetcode-cn.com/problems/add-two-numbers/">002.两数相加</a></li>
+<li><a href="https://leetcode-cn.com/problems/merge-two-sorted-lists/">021.合并两个有序链表</a></li>
+<li><a href="https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/">19. 删除链表的倒数第N个节点</a></li>
+<li><a href="https://leetcode-cn.com/problems/reverse-linked-list/">206. 反转链表</a></li>
+<li><a href="https://leetcode-cn.com/problems/rotate-list/">61. 旋转链表</a></li>
+<li><a href="https://leetcode-cn.com/problems/copy-list-with-random-pointer/">138. 复制带随机指针的链表</a></li>
+</ol>
+<h2 id="数组">数组</h2>
+<ol>
+<li><a href="https://leetcode-cn.com/problems/two-sum/">001.两数之和</a></li>
+<li><a href="https://leetcode-cn.com/problems/merge-sorted-array/">合并两个有序数组</a></li>
+</ol>
+<h2 id="树">树</h2>
+<ol>
+<li><a href="">树的中序遍历</a></li>
+<li><a href="https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/">二叉搜索树的最近公共祖先</a></li>
+</ol>
+<h2 id="字符串">字符串</h2>
+<ol>
+<li><a href="https://leetcode-cn.com/problems/first-unique-character-in-a-string/">387. 字符串中的第一个唯一字符</a></li>
+<li></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[基于原型模式和享元模式完成不同分层POJO 之间的数据拷贝]]></title>
+        <id>https://panson.top/post/ji-yu-yuan-xing-mo-shi-he-xiang-yuan-mo-shi-wan-cheng-bu-tong-fen-ceng-pojo-zhi-jian-de-shu-ju-kao-bei/</id>
+        <link href="https://panson.top/post/ji-yu-yuan-xing-mo-shi-he-xiang-yuan-mo-shi-wan-cheng-bu-tong-fen-ceng-pojo-zhi-jian-de-shu-ju-kao-bei/">
+        </link>
+        <updated>2020-03-27T13:58:30.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>Once you understand the design patterns and have had an &quot;Aha!&quot; (and not just a &quot;Huh?&quot;) experience with them, you won't ever think about object-oriented design in the same way. You'll have insights that can make your own designs more flexible,<br>
+modular, reusable, and understandable—which is why you're interested in object-oriented technology in the first place, right?   —— GOF</em></p>
+<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？</em> —— 《设计模式》作者</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>Once you understand the design patterns and have had an &quot;Aha!&quot; (and not just a &quot;Huh?&quot;) experience with them, you won't ever think about object-oriented design in the same way. You'll have insights that can make your own designs more flexible,<br>
+modular, reusable, and understandable—which is why you're interested in object-oriented technology in the first place, right?   —— GOF</em></p>
+<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？</em> —— 《设计模式》作者</p>
+<!-- more -->
+<p>你在初学 Java 的时候，是不是遇到过这样的场景，不经意间写过这样的代码：</p>
+<p>原型模式与享元模式有一些相似的地方，但本质是不同的。在 GOF的书里，原型模式是创建型模式，而享元模式则属于结构姓模式。从性能优化的角度分析，原型模式是在创建多个实例时，对创建过程的性能进行调优；享元模式是用减少创建实例的方式，来调优系统性能。</p>
+<p>原型模式的一个经典应用场景是优化创建重复对象：</p>
+<pre><code class="language-java">int i = 1000;
+while(i &gt; 0) {
+  Student student = new Student();
+  i--;
+}
+</code></pre>
+<ul>
+<li>自己实现属性拷贝太繁琐，代码冗余</li>
+<li>apache 的 Beanuitils: 反射</li>
+<li>apache 的 PropetiesUtils: 反射</li>
+<li>SPring 的 beanutils: 反射</li>
+<li>cglib 的 BeanCopier: 动态代理，性能很高，达到上面反射方式的几十倍甚至是数百倍</li>
+<li>原型模式和享元模式的设计模式讲解</li>
+<li>代码实现</li>
+<li>优化深度克隆：List:   其实深拷贝就是基于浅拷贝来递归实现具体的每个对象</li>
+<li>CgLib  底层实现</li>
+</ul>
+<blockquote>
+<p>new一个对象和clone一个对象，性能差在哪里呢？文中提到直接从内存复制二进制这里不是很理解</p>
+<p>作者回复: 一个对象通过new创建的过程为：<br>
+1、在内存中开辟一块空间；<br>
+2、在开辟的内存空间中创建对象；<br>
+3、调用对象的构造函数进行初始化对象。</p>
+<p>而一个对象通过clone创建的过程为：<br>
+1、根据原对象内存大小开辟一块内存空间；<br>
+2、复制已有对象，克隆对象中所有属性值。</p>
+<p>相对new来说，clone少了调用构造函数。如果构造函数中存在大量属性初始化或大对象，则使用clone的复制对象的方式性能会好一些。</p>
+</blockquote>
+<p>引入 pom:</p>
+<pre><code class="language-xml">&lt;!-- cglib的BeanCopier需要的依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm-commons&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm-util&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;cglib&lt;/groupId&gt;
+            &lt;artifactId&gt;cglib-nodep&lt;/artifactId&gt;
+            &lt;version&gt;2.2.2&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-java">public class BeanCopierUtils {  
+       
+	/**
+	 * BeanCopier缓存
+	 */
+	public static Map&lt;String, BeanCopier&gt; beanCopierCacheMap = new HashMap&lt;String, BeanCopier&gt;();  
+      
+	/**
+	 * 将source对象的属性拷贝到target对象中去
+	 * @param source source对象
+	 * @param target target对象
+	 */
+    public static void copyProperties(Object source, Object target){  
+        String cacheKey = source.getClass().toString() + target.getClass().toString();
+        
+        BeanCopier beanCopier = null;  
+        
+        if (!beanCopierCacheMap.containsKey(cacheKey)) {  
+        	synchronized(BeanCopierUtils.class) {
+        		 if (!beanCopierCacheMap.containsKey(cacheKey)) {  
+        			 beanCopier = BeanCopier.create(source.getClass(), target.getClass(), false);  
+        			 beanCopierCacheMap.put(cacheKey, beanCopier);  
+        		 }
+        	}
+        } else {  
+            beanCopier = beanCopierCacheMap.get(cacheKey);   
+        }  
+        
+        beanCopier.copy(source, target, null);  
+    }  
+  
+}  
+</code></pre>
+<p>参考：</p>
+<ol>
+<li><a href="https://book.douban.com/subject/1052241/">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+<li><a href="https://time.geekbang.org/column/intro/185">Java性能调优实战</a></li>
+<li></li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[MacOS 环境如何使用 GitHub + Typora + PicGo 搭建写作环境]]></title>
+        <id>https://panson.top/post/macos-huan-jing-ru-he-shi-yong-github-typora-picgo-da-jian-xie-zuo-huan-jing/</id>
+        <link href="https://panson.top/post/macos-huan-jing-ru-he-shi-yong-github-typora-picgo-da-jian-xie-zuo-huan-jing/">
+        </link>
+        <updated>2020-03-21T08:16:51.000Z</updated>
+        <summary type="html"><![CDATA[<p>在某些方面，不得承认自己是一个强迫症患者。比如说写作环境，本身习惯了 Typora 的简洁与即时渲染，但 Typora 本身不支持图床，我在犹豫良久之后，还是切换回了有道云笔记。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>在某些方面，不得承认自己是一个强迫症患者。比如说写作环境，本身习惯了 Typora 的简洁与即时渲染，但 Typora 本身不支持图床，我在犹豫良久之后，还是切换回了有道云笔记。</p>
+<!-- more -->
+<p>尽管有道云笔记支持 Markdown，但界面审美还停留在上个世纪，普通的笔记有没办法给我较为满意的写作体验。直到最近陆陆续续整理有道云上的笔记，才发现我在有道云上已经写了上百篇的文档，出于对数据的安全性考虑，我准备将所有的文档都备份一份，存储在本地和坚果云上（实时同步），然后不定期将本地文件上传到有道云笔记上（异步），这样的话，即使我的电脑出现损坏，也不至于丢失数据。</p>
+<p>但这样的话，问题又来了，图床呢，Markdown 文件本身仅持有图片的链接。好在可选的方案很多，最终我选择了 GitHub + PicGo 搭建。<br>
+网上的教程给出的大多是 Windows 环境下 使用 GitHub + Typora + PicGo 搭建，所以这里写一份 MacOS 环境下搭建的教程。</p>
+<p>步骤：</p>
+<ol>
+<li>软件下载：Typora 、PicGo，从官网上就可以下载
+<ul>
+<li>https://typora.io/</li>
+<li>https://github.com/Molunerfinn/PicGo</li>
+</ul>
+</li>
+<li>GitHub账号以及一个用于存储图片的仓库</li>
+<li>安装 node 环境</li>
+<li>安装 PicGo:
+<blockquote>
+<p><code>npm install picgo -g</code></p>
+</blockquote>
+</li>
+<li>PicGo 设置:
+<blockquote>
+<p><code>picgo set uploader</code><br>
+<img src="https://panson.top/post-images/1599124188700.png" alt="" loading="lazy"></p>
+</blockquote>
+</li>
+<li>Typora 设置：<br>
+<img src="https://panson.top/post-images/1599124342291.jpg" alt="" loading="lazy"></li>
+</ol>
+<p>点击 <code>Test Uploader</code> 查看测试是否配置正确。如果顺利的话，你就可以看到如下提示：<br>
+<img src="https://panson.top/post-images/1599133921557.jpg" alt="" loading="lazy"></p>
+<p>如果中途遇到问题，因为随着软件版本的迭代，可能会出现一些小问题，你可以参考官方doc获取帮助 <a href="https://support.typora.io/Upload-Image/#option-2-config-via-cli">upload image</a>。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[老生常谈：Java 线程池工作原理]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/">
+        </link>
+        <updated>2020-03-12T13:14:49.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Dubbo in Action]]></title>
+        <id>https://panson.top/post/dubbo-in-action/</id>
+        <link href="https://panson.top/post/dubbo-in-action/">
+        </link>
+        <updated>2020-03-07T13:27:38.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文主要通过一些代码实例讲述了 Dubbo 的设计与实现原理，结合这些代码实例，读者可以更为全面地了解 Dubbo 生态，达到熟悉 Dubbo 的程度。有兴趣的读者也可以更为自行下载 Dubbo  源码，挑选感兴趣的部分阅读，戳破源码的层层迷雾。</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>本文主要通过一些代码实例讲述了 Dubbo 的设计与实现原理，结合这些代码实例，读者可以更为全面地了解 Dubbo 生态，达到熟悉 Dubbo 的程度。有兴趣的读者也可以更为自行下载 Dubbo  源码，挑选感兴趣的部分阅读，戳破源码的层层迷雾。</em></p>
+<!-- more -->
+<h2 id="一-dubbo-工作原理">一、 Dubbo 工作原理</h2>
+<h3 id="dubbo-分层">Dubbo 分层</h3>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Dubbo%20%E5%88%86%E5%B1%82.png?raw=true" alt="Dubbo 分层" loading="lazy"></figure>
+<h3 id="dubbo-运行流程">Dubbo 运行流程</h3>
+<p>大体上分为 4 个步骤：</p>
+<ol>
+<li>provider 注册到注册中心</li>
+<li>consumer 从注册中心订阅服务，注册中心会通知 consumer 注册好的服务</li>
+<li>consumer 调用 provider</li>
+<li>consumer 和 provider 都异步通知监控中心</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Kafka 核心原理与实战总结]]></title>
+        <id>https://panson.top/post/kafka-he-xin-yuan-li-yu-shi-zhan-zong-jie/</id>
+        <link href="https://panson.top/post/kafka-he-xin-yuan-li-yu-shi-zhan-zong-jie/">
+        </link>
+        <updated>2020-02-22T05:51:31.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[老生常谈：ConcurrentHashMap 源码解析]]></title>
+        <id>https://panson.top/post/lao-sheng-chang-tan-concurrenthashmap-yuan-ma-jie-xi/</id>
+        <link href="https://panson.top/post/lao-sheng-chang-tan-concurrenthashmap-yuan-ma-jie-xi/">
+        </link>
+        <updated>2020-02-12T05:44:27.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[老生常谈：HashMap 源码解析]]></title>
+        <id>https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/</id>
+        <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
+        </link>
+        <updated>2020-02-09T10:31:18.000Z</updated>
+        <content type="html"><![CDATA[<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
+目录：</p>
+<ol>
+<li>
+<p>底层数据结构<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>核心成员变量</p>
+</li>
+<li>
+<p>核心方法</p>
+<ul>
+<li>put</li>
+<li>get</li>
+<li>resize</li>
+</ul>
+</li>
+<li>
+<p>并发安全</p>
+</li>
+<li>
+<p>Node</p>
+</li>
+</ol>
+<pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+        final int hash;    //用来定位数组索引位置
+        final K key;
+        V value;
+        Node&lt;K,V&gt; next;   //链表的下一个node
+
+        Node(int hash, K key, V value, Node&lt;K,V&gt; next) { ... }
+        public final K getKey(){ ... }
+        public final V getValue() { ... }
+        public final String toString() { ... }
+        public final int hashCode() { ... }
+        public final V setValue(V newValue) { ... }
+        public final boolean equals(Object o) { ... }
+}
+</code></pre>
+<p>对应的字段：table，即哈希桶数组是一个 Node  数组</p>
+<pre><code class="language-java">/**
+  * The table, initialized on first use, and resized as
+  * necessary. When allocated, length is always a power of two.
+  * (We also tolerate length zero in some operations to allow
+  * bootstrapping mechanics that are currently not needed.)
+*/
+transient Node&lt;K,V&gt;[] table;
+</code></pre>
+<p>让我们再来看看 HashMap 的底层数据结构示意图：</p>
+<ol start="2">
+<li>核心字段：</li>
+</ol>
+<pre><code class="language-java">/**
+     * The number of key-value mappings contained in this map.
+     */
+    transient int size;
+
+    /**
+     * The number of times this HashMap has been structurally modified
+     * Structural modifications are those that change the number of mappings in
+     * the HashMap or otherwise modify its internal structure (e.g.,
+     * rehash).  This field is used to make iterators on Collection-views of
+     * the HashMap fail-fast.  (See ConcurrentModificationException).
+     */
+    transient int modCount;
+
+    /**
+     * The next size value at which to resize (capacity * load factor).
+     *
+     * @serial
+     */
+    // (The javadoc description is true upon serialization.
+    // Additionally, if the table array has not been allocated, this
+    // field holds the initial array capacity, or zero signifying
+    // DEFAULT_INITIAL_CAPACITY.)
+    int threshold;
+
+    /**
+     * The load factor for the hash table.
+     *
+     * @serial
+     */
+    final float loadFactor;
+</code></pre>
+<ol start="3">
+<li>核心方法：<br>
+本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</li>
+</ol>
+<ul>
+<li>确定哈希桶数组索引位置</li>
+</ul>
+<pre><code class="language-java">方法一：
+static final int hash(Object key) {   //jdk1.8 &amp; jdk1.7
+     int h;
+     // h = key.hashCode() 为第一步 取hashCode值
+     // h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算
+     return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+方法二：
+static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个方法，但是实现原理一样的
+     return h &amp; (length-1);  //第三步 取模运算
+}
+</code></pre>
+<ul>
+<li>put 过程</li>
+</ul>
+<pre><code class="language-java">final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node&lt;K,V&gt; e; K k;
+            if (p.hash == hash &amp;&amp;
+                ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))
+                e = p;
+            else if (p instanceof TreeNode)
+                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount &gt;= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &amp;&amp;
+                        ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size &gt; threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }
+</code></pre>
+<ul>
+<li>扩容机制</li>
+</ul>
+<pre><code class="language-java"> void resize(int newCapacity) {   //传入新的容量
+      Entry[] oldTable = table;    //引用扩容前的Entry数组
+      int oldCapacity = oldTable.length;         
+      if (oldCapacity == MAXIMUM_CAPACITY) {  //扩容前的数组大小如果已经达到最大(2^30)了
+          threshold = Integer.MAX_VALUE; //修改阈值为int的最大值(2^31-1)，这样以后就不会扩容了
+          return;
+      }
+   
+      Entry[] newTable = new Entry[newCapacity];  //初始化一个新的Entry数组
+     transfer(newTable);                         //！！将数据转移到新的Entry数组里
+     table = newTable;                           //HashMap的table属性引用新的Entry数组
+     threshold = (int)(newCapacity * loadFactor);//修改阈值
+ }
+</code></pre>
+<p>这里就是使用一个容量更大的数组来代替已有的容量小的数组，transfer()方法将原有Entry数组的元素拷贝到新的Entry数组里。</p>
+<pre><code class="language-java"> 1 void transfer(Entry[] newTable) {
+ 2     Entry[] src = table;                   //src引用了旧的Entry数组
+ 3     int newCapacity = newTable.length;
+ 4     for (int j = 0; j &lt; src.length; j++) { //遍历旧的Entry数组
+ 5         Entry&lt;K,V&gt; e = src[j];             //取得旧Entry数组的每个元素
+ 6         if (e != null) {
+ 7             src[j] = null;//释放旧Entry数组的对象引用（for循环后，旧的Entry数组不再引用任何对象）
+ 8             do {
+ 9                 Entry&lt;K,V&gt; next = e.next;
+10                 int i = indexFor(e.hash, newCapacity); //！！重新计算每个元素在数组中的位置
+11                 e.next = newTable[i]; //标记[1]
+12                 newTable[i] = e;      //将元素放在数组上
+13                 e = next;             //访问下一个Entry链上的元素
+14             } while (e != null);
+15         }
+16     }
+17 } 
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5900057"><label class="task-list-item-label" for="task-item-5900057">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9886552"><label class="task-list-item-label" for="task-item-9886552">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3870129"><label class="task-list-item-label" for="task-item-3870129">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4700212"><label class="task-list-item-label" for="task-item-4700212">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+</ul>
+<p>参考：</p>
+<ul>
+<li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
+<li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
+<li>https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
+<li>https://tech.meituan.com/2016/06/24/java-hashmap.html</li>
+<li>深入浅出ConcurrentHashMap1.8：https://www.jianshu.com/p/c0642afe03e0</li>
+<li>老生常谈，HashMap的死循环：https://www.jianshu.com/p/1e9cf0ac07f4</li>
+<li>深入分析ConcurrentHashMap1.8的扩容实现：https://www.jianshu.com/p/f6730d5784ad</li>
+<li>ConcurrentHashMap的红黑树实现分析：https://www.jianshu.com/p/23b84ba9a498</li>
+<li>谈谈ConcurrentHashMap1.7和1.8的不同实现：https://www.jianshu.com/p/e694f1e868ec</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一文以知 Redis 内存淘汰策略]]></title>
+        <id>https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/</id>
+        <link href="https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/">
+        </link>
+        <updated>2020-02-08T09:29:46.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>老生常谈：redis 的过期策略都有哪些？内存淘汰机制都有哪些？</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>老生常谈：redis 的过期策略都有哪些？内存淘汰机制都有哪些？</em></p>
+<!-- more -->
+<p>Redis 的高性能有一个原因是 Redis 使用内存做缓存，但内存是宝贵且有限的，Redis 不可能使用内存做持久化。<br>
+使用 Redis 的过程中，常见的有两个问题：</p>
+<ul>
+<li>Redis 数据丢失</li>
+<li>数据缓存过期了，但是还占用着内存</li>
+</ul>
+<p>要想理解这些问题的产生原因，就不得不了解 Redis 的过期策略。</p>
+<p>Redis 使用定期删除 + 懒惰删除的策略</p>
+<ul>
+<li>定期删除：指的是 redis 默认是每隔 100ms 就随机抽取一些设置了过期时间的 key，检查其是否过期，如果过期就删除。（因为是随机的，所以可能会有一些 key 一直没删除掉）</li>
+<li>懒惰删除：获取某个 key 的时候，redis 会检查一下 ，这个 key 如果设置了过期时间那么是否过期了，如果过期了此时就会删除，不会给你返回任何东西。</li>
+</ul>
+<p>但是如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，内存中还是会存在大量的无用数据。</p>
+<p>所以 Redis 也就有了内存淘汰机制。<br>
+redis 内存淘汰机制有以下 6 种：</p>
+<ul>
+<li>noeviction: 当内存不足以容纳新写入数据时，新写入操作会报错，这个一般没人用吧，实在是太恶心了。</li>
+<li>allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）。</li>
+<li>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个 key，这个一般没人用吧，为啥要随机，肯定是把最近最少使用的 key 给干掉啊。</li>
+<li>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的 key（这个一般不太合适）。</li>
+<li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。</li>
+<li>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。</li>
+</ul>
+<p>手写一个 LRU 算法：</p>
+<pre><code class="language-java">class LRUCache&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+    private final int CACHE_SIZE;
+
+    /**
+     * 传递进来最多能缓存多少数据
+     *
+     * @param cacheSize 缓存大小
+     */
+    public LRUCache(int cacheSize) {
+        // true 表示让 linkedHashMap 按照访问顺序来进行排序，最近访问的放在头部，最老访问的放在尾部。
+        super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        CACHE_SIZE = cacheSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+        // 当 map中的数据量大于指定的缓存个数的时候，就自动删除最老的数据。
+        return size() &gt; CACHE_SIZE;
+    }
+}
+</code></pre>
+<p>测试代码：</p>
+<pre><code class="language-java">    static LRUCache&lt;Integer, Integer&gt; lruCache = new LRUCache&lt;&gt;(16);
+
+    public static void main(String[] args) {
+        for (int i = 0; i &lt; 16; i++) {
+            lruCache.put(i, i);
+        }
+        System.out.println(lruCache.entrySet());
+        for(int i = 16; i &lt; 20; i++) {
+            lruCache.put(i, i);
+            System.out.println(lruCache.entrySet());
+        }
+
+    }
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-java">[0=0, 1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15]
+[1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16]
+[2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17]
+[3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18]
+[4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
+</code></pre>
+<p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
 ]]></content>
     </entry>
 </feed>
