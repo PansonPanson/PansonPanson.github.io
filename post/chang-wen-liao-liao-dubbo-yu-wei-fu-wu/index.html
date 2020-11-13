@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>聊聊 Redis 的 setnx 命令 | Panson&#39;s Home</title>
+<title>长文：聊聊 Dubbo 与微服务 | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605288678990">
 
@@ -89,28 +89,35 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    聊聊 Redis 的 setnx 命令
+                    长文：聊聊 Dubbo 与微服务
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-05-30 ·
+                        · 2020-10-05 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <!-- more -->
+                    <p><em>这是一篇旧文，我重新整理了一下。文中大多数图都是使用 draw.io 画的。</em></p>
+<!-- more -->
+<h2 id="一-引言">一、引言</h2>
+<h2 id="二-dubbo-工作原理">二、 Dubbo 工作原理</h2>
+<h3 id=""></h3>
+<h3 id="dubbo-分层">Dubbo 分层</h3>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Dubbo%20%E5%88%86%E5%B1%82.png?raw=true" alt="Dubbo 分层" loading="lazy"></figure>
+<h3 id="dubbo-运行流程">Dubbo 运行流程</h3>
+<p>大体上分为 4 个步骤：</p>
+<ol>
+<li>provider 注册到注册中心</li>
+<li>consumer 从注册中心订阅服务，注册中心会通知 consumer 注册好的服务</li>
+<li>consumer 调用 provider</li>
+<li>consumer 和 provider 都异步通知监控中心</li>
+</ol>
 
                 </div>
             </article>
         </div>
 
-        
-            <div class="next-post">
-                <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://panson.top/post/yi-wen-yi-zhi-redis-huan-cun-xue-beng-huan-cun-chuan-tou-huan-cun-ji-chuan/" class="post-title gt-a-link">
-                    一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿
-                </a>
-            </div>
         
 
         
