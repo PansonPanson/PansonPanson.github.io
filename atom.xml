@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-11T14:56:31.610Z</updated>
+    <updated>2020-11-13T10:40:33.968Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -75,9 +75,9 @@
         <link href="https://panson.top/post/zhi-hu-mian-jing/">
         </link>
         <updated>2020-11-09T03:27:41.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>找了知乎的内推，今天早上视频一面，做个记录</em></p>
+        <summary type="html"><![CDATA[<p><em>找了知乎的内推，做个记录</em></p>
 ]]></summary>
-        <content type="html"><![CDATA[<p><em>找了知乎的内推，今天早上视频一面，做个记录</em></p>
+        <content type="html"><![CDATA[<p><em>找了知乎的内推，做个记录</em></p>
 <!-- more -->
 <p>1、ZooKeeper 选举流程<br>
 2、Redis 数据类型、内存淘汰策略、LRU 底层实现原理<br>
@@ -357,7 +357,12 @@ Heap
 <li>行数据物理存储示例：<br>
 0x09 0x04 00000101 0000000000000000000010000000000000011001 000000000094(DB_ROW_ID) 000000000032D(DB_TRX_ID) EA000010078E(DB_ROL_PTR) 616161 636320 6262626262</li>
 </ul>
-<p>6、数据页</p>
+<p>6、MySQL的存储模型：表空间有很多组数据区(extend)，一组数据区是256个数据区，每个数据区占 1 Mb，包含了 64 个数据页，每个数据页 16 Kb；数据页的各个部分</p>
+<ul>
+<li>表空间的第一组数据区的第一个数据区的前 3 个数据页，都是存放特殊信息的；</li>
+<li>表空间的其他组数据区的第一个数据区的前两个数据页，也是存放特殊信息的；</li>
+</ul>
+<p>7、数据库日志的顺序读写和数据文件的随机读写</p>
 ]]></content>
     </entry>
 </feed>

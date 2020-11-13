@@ -6,7 +6,7 @@
 
 <title>MySQL 存储原理串连 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605106543314">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605264031981">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -75,17 +75,9 @@
                     
                 </div>
             
-                <div class="nav-item">
-                    
-                        <a href="/post/weekly" class="menu gt-a-link">
-                            weekly
-                        </a>
-                    
-                </div>
-            
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1605106543314" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1605264031981" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -152,7 +144,12 @@
 <li>行数据物理存储示例：<br>
 0x09 0x04 00000101 0000000000000000000010000000000000011001 000000000094(DB_ROW_ID) 000000000032D(DB_TRX_ID) EA000010078E(DB_ROL_PTR) 616161 636320 6262626262</li>
 </ul>
-<p>6、数据页</p>
+<p>6、MySQL的存储模型：表空间有很多组数据区(extend)，一组数据区是256个数据区，每个数据区占 1 Mb，包含了 64 个数据页，每个数据页 16 Kb；数据页的各个部分</p>
+<ul>
+<li>表空间的第一组数据区的第一个数据区的前 3 个数据页，都是存放特殊信息的；</li>
+<li>表空间的其他组数据区的第一个数据区的前两个数据页，也是存放特殊信息的；</li>
+</ul>
+<p>7、数据库日志的顺序读写和数据文件的随机读写</p>
 
                 </div>
             </article>
