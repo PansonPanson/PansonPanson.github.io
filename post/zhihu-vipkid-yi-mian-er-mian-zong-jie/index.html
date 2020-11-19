@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知 Redis 文件事件处理器（file event handler） | Panson&#39;s Home</title>
+<title>知乎与 vipkid 面经总结 | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605778854460">
 
@@ -89,25 +89,50 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    一文以知 Redis 文件事件处理器（file event handler）
+                    知乎与 vipkid 面经总结
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-05-31 ·
+                        · 2020-11-09 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <p><em>redis 内部使用文件事件处理器 file event handler，这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</em></p>
+                    <p><em>虽然已经过了金九银十，但好像在工作上的自我成长开始变慢，于是想着出去看看机会。上月月末试着投了几家公司，约了这周开始面试。vipkid 的一面和二面之间隔了三天，面试过程还算顺利，总的来说一面侧重技术，二面侧重业务，面完之后趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em></p>
 <!-- more -->
-<p>文件事件处理器的结构包含 4 个部分：</p>
+<p>——————————————————<br>
+1、JDK 集合的类继承结构图，自顶向下（有点困，写完这篇总结就睡觉了~太晚了，IDEA 的 UML 图就不整理了）：</p>
 <ul>
-<li>多个 socket</li>
-<li>IO 多路复用程序</li>
-<li>文件事件分派器</li>
-<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）</li>
+<li>Collection==============Map</li>
+<li>Set | List  | Queue================ TreeMap、HashTable、LinkedHashMap、HashMap</li>
+<li>TreeSet、HashSet、LinkedHashSet | ArrayList、Vector、LinkedList | LinkedList、PriorityQueue</li>
 </ul>
-<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></figure>
+<p>2、IO 类继承，自顶向下</p>
+<ul>
+<li>磁盘操作：File</li>
+<li>字节操作：InputStream 和 OutputStream</li>
+<li>字符操作：Reader 和 Writer</li>
+<li>对象操作：Serializable</li>
+<li>网络操作：Socket</li>
+<li>NIO</li>
+</ul>
+<p>3、JUC 核心类（AQS、线程池、同步器、并发集合类）<br>
+4、Redis 基础数据类型、高级数据结构、文件事件处理器、AOF、RDB，具体的使用<br>
+5、Java 锁机制（snchronized、Lock、CAS）<br>
+6、Kaka 重复消费、幂等性<br>
+7、zk 分布式锁、zab<br>
+8、xxl-job<br>
+9、CAP<br>
+10、JVM<br>
+11、ZooKeeper 选举流程<br>
+12、Redis 数据类型、内存淘汰策略、LRU 底层实现原理<br>
+13、Golang<br>
+14、算法题：</p>
+<ul>
+<li>一个无序整型数组，一个key，要求输出一个数组，大于 key 的元素都放在右边，小于key的元素都放在左边，左右两边都有序。</li>
+<li><a href="https://leetcode-cn.com/problems/combination-sum-ii/">40. 组合总和 II</a></li>
+<li>冒泡排序，优化</li>
+</ul>
 
                 </div>
             </article>
@@ -116,8 +141,8 @@
         
             <div class="next-post">
                 <div class="next gt-c-content-color-first">下一篇</div>
-                <a href="https://panson.top/post/liao-liao-redis-de-setnx-ming-ling/" class="post-title gt-a-link">
-                    聊聊 Redis 的 setnx 命令
+                <a href="https://panson.top/post/chang-wen-liao-liao-dubbo-yu-wei-fu-wu/" class="post-title gt-a-link">
+                    长文：聊聊 Dubbo 与微服务
                 </a>
             </div>
         
