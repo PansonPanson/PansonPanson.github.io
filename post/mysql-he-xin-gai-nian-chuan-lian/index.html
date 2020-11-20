@@ -6,7 +6,7 @@
 
 <title>MySQL 存储原理串连 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605778854460">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1605856291955">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1605778854460" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1605856291955" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -149,7 +149,41 @@
 <li>表空间的第一组数据区的第一个数据区的前 3 个数据页，都是存放特殊信息的；</li>
 <li>表空间的其他组数据区的第一个数据区的前两个数据页，也是存放特殊信息的；</li>
 </ul>
-<p>7、数据库日志的顺序读写和数据文件的随机读写</p>
+<p>7、数据库日志的顺序读写和数据文件的随机读写<br>
+8、Linux 存储系统层级：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Linux%20%E5%AD%98%E5%82%A8%E5%B1%82%E6%AC%A1.png?raw=true" alt="" loading="lazy"></p>
+<p>IO 调度层默认使用 CFQ 公平调度算法，使用该算法事会导致饥饿，生产环境中，建议改为deadline IO，该算法的核心思想是：任何 IO 操作都不能一直不停地等待，在指定的时间范围内，都必须让他去执行。<br>
+最后 IO 完成调度之后，就会决定哪个IO 请求先执行，哪个 IO 请求后执行，此时可以执行的 IO 请求就会交给 Block 设备驱动层。<br>
+Block 设备驱动层把 IO 请求发送给真正的存储硬件，也就是 Block 设备层。<br>
+Block 设备层完成了 IO 读写操作之后，进行读写操作，最后把响应经过上面的层级反向依次返回， MySQL 就可以得到本次 IO 读写操作的结果。</p>
+<p>9、Too many connections 故障<br>
+与 Linux 文件句柄数量有关，需要调大一点。</p>
+<pre><code class="language-shell">ulimit -HSn 65535
+</code></pre>
+<p>然后就可以用如下命令检查最大文件句柄数是否被修改了</p>
+<pre><code class="language-shell">cat /etc/security/limits.conf
+cat /etc/rc.local
+</code></pre>
+<p>我们平时可以用ulimit命令来设置每个进程被限制使用的资源量，用ulimit -a就可以看到进程被限制使用的各种资源的量。</p>
+<ul>
+<li>core file size 代表的进程崩溃时候的转储文件的大小限制</li>
+<li>max locked memory就是最大锁定内存大小</li>
+<li>open files就是最大可以打开的文件句柄数量</li>
+<li>max user processes就是最多可以拥有的子进程数量。</li>
+</ul>
+<p>设置之后，我们要确保变更落地到/etc/security/limits.conf文件里，永久性的设置进程的资源限制</p>
+<p>10、redo log 底层存储格式</p>
+<p>redo log 本质上记录的就是在对某个表空间的某个数据页的某个偏移量的地方修改了几个字节的值，具体修改的值是什么，他里面需要记录的就是<strong>表空间号+数据页号+偏移量+修改几个字节的值+具体的值</strong>.</p>
+<p>根据你修改了数据页里的几个字节的值，redo log就划分为了不同的类型，MLOG_1BYTE类型的日志指的就是修改了1个字节的值，MLOG_2BYTE类型的日志指的就是修改了2个字节的值，以此类推，还有修改了4个字节的值的日志类型，修改了8个字节的值的日志类型。当然，如果你要是一下子修改了一大串的值，类型就是MLOG_WRITE_STRING，就是代表你一下子在那个数据页的某个偏移量的位置插入或者修改了一大串的值。</p>
+<p>所以其实一条redo log看起来大致的结构如下所示：</p>
+<ul>
+<li>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，具体修改的数据</li>
+</ul>
+<p>如果是MLOG_WRITE_STRING类型的日志，因为不知道具体修改了多少字节的数据，所以其实会多一个修改数据长度，就告诉你他这次修改了多少字节的数据，如下所示它的格式：</p>
+<ul>
+<li>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，修改数据长度，具体修改的数据</li>
+</ul>
+<p>11、redo log block 数据结构、redo log buffer 中的缓冲日志何时写入磁盘</p>
 
                 </div>
             </article>
