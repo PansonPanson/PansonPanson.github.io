@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-20T11:59:50.691Z</updated>
+    <updated>2020-11-21T06:07:19.257Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -291,9 +291,9 @@ Heap
 <li>多个 socket</li>
 <li>IO 多路复用程序</li>
 <li>文件事件分派器</li>
-<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）</li>
+<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></li>
 </ul>
-<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></figure>
 ]]></content>
     </entry>
     <entry>
@@ -624,7 +624,8 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
 <h2 id="快慢指针遍历">快慢指针遍历</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/linked-list-cycle/">141. 环形链表</a></li>
-<li></li>
+<li><a href="https://leetcode-cn.com/problems/happy-number/">202. 快乐数</a></li>
+<li><a href="https://leetcode-cn.com/problems/middle-of-the-linked-list/">876. 链表的中间结点</a></li>
 </ol>
 <h2 id="链表">链表</h2>
 <ol>
@@ -648,8 +649,8 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
 <h2 id="字符串">字符串</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/first-unique-character-in-a-string/">387. 字符串中的第一个唯一字符</a></li>
-<li></li>
 </ol>
+<h2 id="合并区间">合并区间</h2>
 ]]></content>
     </entry>
     <entry>
@@ -1024,10 +1025,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3693765"><label class="task-list-item-label" for="task-item-3693765">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1683553"><label class="task-list-item-label" for="task-item-1683553">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4801912"><label class="task-list-item-label" for="task-item-4801912">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8366263"><label class="task-list-item-label" for="task-item-8366263">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2062370"><label class="task-list-item-label" for="task-item-2062370">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2577206"><label class="task-list-item-label" for="task-item-2577206">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7393046"><label class="task-list-item-label" for="task-item-7393046">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1399147"><label class="task-list-item-label" for="task-item-1399147">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
