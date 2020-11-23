@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-23T12:44:53.744Z</updated>
+    <updated>2020-11-23T14:05:20.030Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -110,7 +110,8 @@
 <ul>
 <li>一个无序整型数组，一个key，要求输出一个数组，大于 key 的元素都放在右边，小于key的元素都放在左边，左右两边都有序。</li>
 <li><a href="https://leetcode-cn.com/problems/combination-sum-ii/">40. 组合总和 II</a></li>
-<li>冒泡排序，优化</li>
+<li>冒泡排序，优化<br>
+15、聊团队业务、搜索 &amp; 销售线索转换</li>
 </ul>
 ]]></content>
     </entry>
@@ -1077,10 +1078,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3944207"><label class="task-list-item-label" for="task-item-3944207">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9904489"><label class="task-list-item-label" for="task-item-9904489">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9987599"><label class="task-list-item-label" for="task-item-9987599">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4601655"><label class="task-list-item-label" for="task-item-4601655">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1891855"><label class="task-list-item-label" for="task-item-1891855">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7441731"><label class="task-list-item-label" for="task-item-7441731">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3669571"><label class="task-list-item-label" for="task-item-3669571">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7429429"><label class="task-list-item-label" for="task-item-7429429">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
