@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-23T14:05:20.030Z</updated>
+    <updated>2020-11-24T15:50:52.427Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -582,6 +582,22 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
 ]]></summary>
         <content type="html"><![CDATA[<p><em>消息队列中，最熟悉的应该就是 RocketMQ 了，Kafka 和 RabbitMQ 都不是用 Java 写的，深入研究的话，时间耗费有点大，准备先熟悉透了 RocketMQ 之后再去研究 Kafka。本文很多内容其实都参照了官方文档，有兴趣的读者也可以通读一遍<a href="https://github.com/apache/rocketmq/tree/master/docs/cn">官方文档</a>。</em></p>
 <!-- more -->
+<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1">1 架构设计</a></li>
+<li><a href="#2-nameserver-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">2 NameServer 工作原理</a></li>
+<li><a href="#3-broker-%E7%9A%84%E4%B8%BB%E4%BB%8E%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86">3 Broker 的主从架构原理</a></li>
+<li><a href="#4-%E7%94%9F%E4%BA%A7%E8%80%85%E5%86%99%E5%85%A5-broker">4 生产者写入 Broker</a>
+<ul>
+<li><a href="#41-%E5%88%86%E7%89%87%E6%9C%BA%E5%88%B6">4.1 分片机制</a></li>
+<li><a href="#42-broker-%E5%AD%98%E5%82%A8%E6%9C%BA%E5%88%B6">4.2 Broker 存储机制</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
 <h2 id="1-架构设计">1 架构设计</h2>
 <p>先来看一下 RocketMQ 的架构设计图：<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rocketmq_architecture_1.png?raw=true" alt="" loading="lazy"><br>
@@ -646,6 +662,33 @@ RocketMQ架构上主要分为四部分，如上图所示:</p>
 </ul>
 </li>
 </ul>
+<h2 id="4-生产者写入-broker">4 生产者写入 Broker</h2>
+<h3 id="41-分片机制">4.1 分片机制</h3>
+<p>Topic 为了能分布式存储，引入了 MessageQueue 的概念（分片机制），如下图所示：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/RocketMQ-producer-write.png?raw=true" alt="" loading="lazy"></p>
+<p>在 Producer 中有一个开关：sendLatencyFaultEnable，一旦打开这个开关，就会开启自动容错机制，比如说某次访问一个 broker 发现网络延迟有 500 ms，然后还会无法访问，那么就会自动回避访问这个 Broker 一段时间，比如接下来 3000 ms 内，就不会再访问这个 Broker 了。</p>
+<h3 id="42-broker-存储机制">4.2 Broker 存储机制</h3>
+<p>先来讲一下一串名词，这些名词都与Broker 的数据存储有关系。</p>
+<ul>
+<li>CommitLog</li>
+<li>Topic</li>
+<li>MesageQueue</li>
+<li>ConsumeQueue 文件</li>
+<li>CommitLog offset 偏移量</li>
+<li>同步刷盘</li>
+<li>异步刷盘</li>
+</ul>
+<p>我们可以将上面的名词都串起来，捋一捋，就能知道 Broker 的存储机制了。</p>
+<ol>
+<li>Broker 收到生产者的一条消息，会把消息直接顺序写入到磁盘上的一个日志文件，叫做 CommitLog。CommitLog 是许多磁盘文件，每个文件最多 1 GB，Broker 收到消息之后就直接追加写入这个文件的结尾。如果一个 CommitLog 写满了 1 GB，就会创建一个新的 CommitLog 文件。</li>
+<li>在 Broker 中，对 Topic 下的每个 MessageQueue 都会有一系列的 ConsumerQueue 文件，ConsumeQueue 文件里存储的消息在 CommitLog 上的物理位置，也就是 offset 偏移量。一个 ConsumerQueue 的大概目录是这样的：<pre><code class="language-java">$HOME/store/consumequeue/{topic}/{queueId}/{fileName}
+</code></pre>
+实际上 ConsumeQueue 中存储的每条数据不只是消息在 CommitLog 中的 offset 偏移量，还包含了消息的长度，以及 tag hashcode。<br>
+所以实际上 Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 文件，保存了这个 MessageQueue 的所有消息在 CommitLog 文件中的物理位置，也就是 offset 偏移量。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rokcketmq-store.png?raw=true" alt="" loading="lazy"><br>
+在性能优化上， broker 采用了 磁盘文件顺序写 + OS PageCache 写入 + OS 异步刷盘的策略，基本上可以保证让消息写入 CommitLog 的性能跟写入内存差不多，这样才能保证高吞吐量。</li>
+<li></li>
+</ol>
 ]]></content>
     </entry>
     <entry>
@@ -1078,10 +1121,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1891855"><label class="task-list-item-label" for="task-item-1891855">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7441731"><label class="task-list-item-label" for="task-item-7441731">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3669571"><label class="task-list-item-label" for="task-item-3669571">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7429429"><label class="task-list-item-label" for="task-item-7429429">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2269601"><label class="task-list-item-label" for="task-item-2269601">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8041384"><label class="task-list-item-label" for="task-item-8041384">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3876379"><label class="task-list-item-label" for="task-item-3876379">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7440990"><label class="task-list-item-label" for="task-item-7440990">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
