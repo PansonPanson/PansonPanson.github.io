@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知 G1 垃圾回收器 | Panson&#39;s Home</title>
+<title>JDK 源码阅读002：ArrayList | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606553936671">
 
@@ -89,22 +89,50 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    一文以知 G1 垃圾回收器
+                    JDK 源码阅读002：ArrayList
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-04-18 ·
+                        · 2019-03-05 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <h2 id="g1-垃圾回收器的设计思想">G1 垃圾回收器的设计思想</h2>
-<!-- more -->
+                    <p><em>ArrayList 可以说是我们日常开发中最常用的集合工具类了。今天开始肝 JDK 的源码~</em></p>
+<h2 id="1-引言">1 引言</h2>
+<p>首先，我们要对 ArrayList 的特点有一个基本的认识，比如说 ：</p>
+<ul>
+<li>ArrayList 底层是用什么实现的？</li>
+<li>缺点是什么？有点又是什么？</li>
+<li>扩容机制了解吗</li>
+</ul>
+<p>其实 ArrayList 底层是基于数组来实现的，随机读的时间复杂度为 O(1)， 对于删除的的时间复杂度为O(N)。所以 ArrayList 的优势在于随机读，缺点有两个地方，一个是不断地添加元素的时候，会扩容，扩容会导致性能较差，另一个删除元素的时候，会导致大量元素的拷贝，性能也较差。</p>
+<h2 id="2-继承关系">2 继承关系</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/arraylist001.png?raw=true" alt="" loading="lazy"></figure>
+<pre><code class="language-java">public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
+        implements List&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable
+</code></pre>
+<p>ArrayList实现了List, RandomAccess, Cloneable, java.io.Serializable等接口。</p>
+<ul>
+<li>ArrayList实现了List，提供了基础的添加、删除、遍历等操作。</li>
+<li>ArrayList实现了RandomAccess，提供了随机访问的能力。</li>
+<li>ArrayList实现了Cloneable，可以被克隆。</li>
+<li>ArrayList实现了Serializable，可以被序列化。</li>
+</ul>
+<h2 id=""></h2>
+<h2 id="-2"></h2>
 
                 </div>
             </article>
         </div>
 
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/arraylist-yuan-ma-yue-du/" class="post-title gt-a-link">
+                    JDK 源码阅读001：String 
+                </a>
+            </div>
         
 
         
