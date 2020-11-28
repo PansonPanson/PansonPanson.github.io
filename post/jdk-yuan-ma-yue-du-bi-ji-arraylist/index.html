@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读002：ArrayList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606553936671">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606556208307">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606553936671" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606556208307" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -98,8 +98,19 @@
                     
                 </div>
                 <div class="post-content">
-                    <p><em>ArrayList 可以说是我们日常开发中最常用的集合工具类了。今天开始肝 JDK 的源码~</em></p>
-<h2 id="1-引言">1 引言</h2>
+                    <p><em>ArrayList  源码阅读~</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB">2 继承关系</a>
+<ul>
+<li><a href="#41-set">4.1 set</a></li>
+<li></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="1-引言">1 引言</h1>
 <p>首先，我们要对 ArrayList 的特点有一个基本的认识，比如说 ：</p>
 <ul>
 <li>ArrayList 底层是用什么实现的？</li>
@@ -107,7 +118,7 @@
 <li>扩容机制了解吗</li>
 </ul>
 <p>其实 ArrayList 底层是基于数组来实现的，随机读的时间复杂度为 O(1)， 对于删除的的时间复杂度为O(N)。所以 ArrayList 的优势在于随机读，缺点有两个地方，一个是不断地添加元素的时候，会扩容，扩容会导致性能较差，另一个删除元素的时候，会导致大量元素的拷贝，性能也较差。</p>
-<h2 id="2-继承关系">2 继承关系</h2>
+<h1 id="2-继承关系">2 继承关系</h1>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/arraylist001.png?raw=true" alt="" loading="lazy"></figure>
 <pre><code class="language-java">public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
         implements List&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable
@@ -119,8 +130,71 @@
 <li>ArrayList实现了Cloneable，可以被克隆。</li>
 <li>ArrayList实现了Serializable，可以被序列化。</li>
 </ul>
+<p>#3 初始化<br>
+一共 3 个构造函数</p>
+<ol>
+<li>不指定初始大小，默认为 10</li>
+</ol>
+<pre><code class="language-java">public ArrayList() {
+        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+    }
+</code></pre>
+<ol start="2">
+<li>指定初始大小</li>
+</ol>
+<pre><code class="language-java">public ArrayList(int initialCapacity) {
+        if (initialCapacity &gt; 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+
+                                               initialCapacity);
+        }
+    }
+</code></pre>
+<ol start="3">
+<li>传入指定集合初始化</li>
+</ol>
+<pre><code class="language-java">    public ArrayList(Collection&lt;? extends E&gt; c) {
+        Object[] a = c.toArray();
+        if ((size = a.length) != 0) {
+            if (c.getClass() == ArrayList.class) {
+                elementData = a;
+            } else {
+                elementData = Arrays.copyOf(a, size, Object[].class);
+            }
+        } else {
+            // replace with empty array.
+            elementData = EMPTY_ELEMENTDATA;
+        }
+    }
+</code></pre>
+<p>#4  核心方法</p>
+<h2 id="41-set">4.1 set</h2>
+<pre><code class="language-java">/**
+     * Replaces the element at the specified position in this list with
+     * the specified element.
+     *
+     * @param index index of the element to replace
+     * @param element element to be stored at the specified position
+     * @return the element previously at the specified position
+     * @throws IndexOutOfBoundsException {@inheritDoc}
+     */
+    public E set(int index, E element) {
+        // 判断是否数组越界
+        rangeCheck(index);
+        E oldValue = elementData(index);
+        elementData[index] = element;
+        return oldValue;
+    }
+
+    private void rangeCheck(int index) {
+        if (index &gt;= size)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+    }
+</code></pre>
 <h2 id=""></h2>
-<h2 id="-2"></h2>
 
                 </div>
             </article>
