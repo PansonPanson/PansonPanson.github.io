@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读002：ArrayList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606556208307">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606715351062">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606556208307" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606715351062" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -102,12 +102,17 @@
 <!-- more -->
 <p><ul class="markdownIt-TOC">
 <li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
-<li><a href="#2-%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB">2 继承关系</a>
+<li><a href="#2-%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB">2 继承关系</a></li>
+<li><a href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96">3 初始化</a></li>
+<li><a href="#4-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95">4  核心方法</a>
 <ul>
 <li><a href="#41-set">4.1 set</a></li>
-<li></li>
+<li><a href="#42-add">4.2 add</a></li>
+<li><a href="#43-get">4.3 get</a></li>
+<li><a href="#44-remove">4.4 remove</a></li>
 </ul>
 </li>
+<li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
 </ul>
 </p>
 <h1 id="1-引言">1 引言</h1>
@@ -130,8 +135,8 @@
 <li>ArrayList实现了Cloneable，可以被克隆。</li>
 <li>ArrayList实现了Serializable，可以被序列化。</li>
 </ul>
-<p>#3 初始化<br>
-一共 3 个构造函数</p>
+<h1 id="3-初始化">3 初始化</h1>
+<p>一共 3 个构造函数</p>
 <ol>
 <li>不指定初始大小，默认为 10</li>
 </ol>
@@ -170,31 +175,110 @@
         }
     }
 </code></pre>
-<p>#4  核心方法</p>
+<h1 id="4-核心方法">4  核心方法</h1>
 <h2 id="41-set">4.1 set</h2>
-<pre><code class="language-java">/**
-     * Replaces the element at the specified position in this list with
-     * the specified element.
-     *
-     * @param index index of the element to replace
-     * @param element element to be stored at the specified position
-     * @return the element previously at the specified position
-     * @throws IndexOutOfBoundsException {@inheritDoc}
-     */
-    public E set(int index, E element) {
+<pre><code class="language-java">public E set(int index, E element) {
         // 判断是否数组越界
         rangeCheck(index);
         E oldValue = elementData(index);
         elementData[index] = element;
         return oldValue;
-    }
+}
 
-    private void rangeCheck(int index) {
+private void rangeCheck(int index) {
         if (index &gt;= size)
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-    }
+}
 </code></pre>
-<h2 id=""></h2>
+<h2 id="42-add">4.2 add</h2>
+<ol>
+<li>在末尾插入</li>
+</ol>
+<pre><code class="language-java">	public boolean add(E e) {
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        elementData[size++] = e;
+        return true;
+ }
+</code></pre>
+<ol start="2">
+<li>在指定下标插入</li>
+</ol>
+<pre><code class="language-java">public void add(int index, E element) {
+        // 添加时判断数据越界
+        rangeCheckForAdd(index);
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+  			
+  			// 数组拷贝
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+}
+
+// 添加时判断数据越界
+private void rangeCheckForAdd(int index) {
+        if (index &gt; size || index &lt; 0)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre>
+<h2 id="43-get">4.3 get</h2>
+<p>直接通过索引下标获取元素</p>
+<pre><code class="language-java">public E get(int index) {
+    rangeCheck(index);
+    checkForComodification();
+    return ArrayList.this.elementData(offset + index);
+}
+</code></pre>
+<h2 id="44-remove">4.4 remove</h2>
+<p>调用 System.arraycopy() 将 index+1 后面的元素都复制到 index 位置上，该操作的时间复杂度为 O(N)。</p>
+<pre><code class="language-java">public E remove(int index) {
+    rangeCheck(index);
+
+    modCount++;
+    E oldValue = elementData(index);
+
+    int numMoved = size - index - 1;
+    if (numMoved &gt; 0)
+        System.arraycopy(elementData, index+1, elementData, index,
+                         numMoved);
+    elementData[--size] = null; // clear to let GC do its work
+
+    return oldValue;
+}
+</code></pre>
+<h1 id="5-扩容机制">5 扩容机制</h1>
+<p>在添加元素的时候，可能会触发扩容机制，相关源码如下：</p>
+<pre><code class="language-java">public boolean add(E e) {
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+    elementData[size++] = e;
+    return true;
+}
+
+private void ensureCapacityInternal(int minCapacity) {
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+    ensureExplicitCapacity(minCapacity);
+}
+
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+    // overflow-conscious code
+    if (minCapacity - elementData.length &gt; 0)
+        grow(minCapacity);
+}
+
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);
+    if (newCapacity - minCapacity &lt; 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+</code></pre>
 
                 </div>
             </article>
