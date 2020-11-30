@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-30T05:49:21.630Z</updated>
+    <updated>2020-11-30T06:15:35.650Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -773,12 +773,11 @@ Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 
         <updated>2020-03-27T13:58:30.000Z</updated>
         <summary type="html"><![CDATA[<p><em>Once you understand the design patterns and have had an &quot;Aha!&quot; (and not just a &quot;Huh?&quot;) experience with them, you won't ever think about object-oriented design in the same way. You'll have insights that can make your own designs more flexible,<br>
 modular, reusable, and understandable—which is why you're interested in object-oriented technology in the first place, right?   —— GOF</em></p>
-<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？</em> —— 《设计模式》作者</p>
 ]]></summary>
         <content type="html"><![CDATA[<p><em>Once you understand the design patterns and have had an &quot;Aha!&quot; (and not just a &quot;Huh?&quot;) experience with them, you won't ever think about object-oriented design in the same way. You'll have insights that can make your own designs more flexible,<br>
 modular, reusable, and understandable—which is why you're interested in object-oriented technology in the first place, right?   —— GOF</em></p>
-<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？</em> —— 《设计模式》作者</p>
 <!-- more -->
+<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？ —— 《设计模式》作者四人帮</em></p>
 <p>你在初学 Java 的时候，是不是遇到过这样的场景，不经意间写过这样的代码：</p>
 <p>原型模式与享元模式有一些相似的地方，但本质是不同的。在 GOF的书里，原型模式是创建型模式，而享元模式则属于结构姓模式。从性能优化的角度分析，原型模式是在创建多个实例时，对创建过程的性能进行调优；享元模式是用减少创建实例的方式，来调优系统性能。</p>
 <p>原型模式的一个经典应用场景是优化创建重复对象：</p>
@@ -1370,10 +1369,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8831218"><label class="task-list-item-label" for="task-item-8831218">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9954334"><label class="task-list-item-label" for="task-item-9954334">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7377429"><label class="task-list-item-label" for="task-item-7377429">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4055813"><label class="task-list-item-label" for="task-item-4055813">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6496387"><label class="task-list-item-label" for="task-item-6496387">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1549289"><label class="task-list-item-label" for="task-item-1549289">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1379334"><label class="task-list-item-label" for="task-item-1379334">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4889098"><label class="task-list-item-label" for="task-item-4889098">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
