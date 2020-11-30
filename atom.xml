@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-30T06:15:35.650Z</updated>
+    <updated>2020-11-30T07:40:08.242Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -577,7 +577,7 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
         <id>https://panson.top/post/rocketmq-he-xin-yuan-li-zong-jie/</id>
         <link href="https://panson.top/post/rocketmq-he-xin-yuan-li-zong-jie/">
         </link>
-        <updated>2020-04-10T06:34:08.000Z</updated>
+        <updated>2020-04-07T06:34:08.000Z</updated>
         <summary type="html"><![CDATA[<p><em>消息队列中，最熟悉的应该就是 RocketMQ 了，Kafka 和 RabbitMQ 都不是用 Java 写的，深入研究的话，时间耗费有点大，准备先熟悉透了 RocketMQ 之后再去研究 Kafka。本文很多内容其实都参照了官方文档，有兴趣的读者也可以通读一遍<a href="https://github.com/apache/rocketmq/tree/master/docs/cn">官方文档</a>。</em></p>
 ]]></summary>
         <content type="html"><![CDATA[<p><em>消息队列中，最熟悉的应该就是 RocketMQ 了，Kafka 和 RabbitMQ 都不是用 Java 写的，深入研究的话，时间耗费有点大，准备先熟悉透了 RocketMQ 之后再去研究 Kafka。本文很多内容其实都参照了官方文档，有兴趣的读者也可以通读一遍<a href="https://github.com/apache/rocketmq/tree/master/docs/cn">官方文档</a>。</em></p>
@@ -913,15 +913,6 @@ while(i &gt; 0) {
 <p>点击 <code>Test Uploader</code> 查看测试是否配置正确。如果顺利的话，你就可以看到如下提示：<br>
 <img src="https://panson.top/post-images/1599133921557.jpg" alt="" loading="lazy"></p>
 <p>如果中途遇到问题，因为随着软件版本的迭代，可能会出现一些小问题，你可以参考官方doc获取帮助 <a href="https://support.typora.io/Upload-Image/#option-2-config-via-cli">upload image</a>。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[老生常谈：Java 线程池工作原理]]></title>
-        <id>https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/</id>
-        <link href="https://panson.top/post/yi-wen-yi-zhi-java-xian-cheng-chi-gong-zuo-yuan-li/">
-        </link>
-        <updated>2020-03-12T13:14:49.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
 ]]></content>
     </entry>
     <entry>
@@ -1369,10 +1360,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6496387"><label class="task-list-item-label" for="task-item-6496387">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1549289"><label class="task-list-item-label" for="task-item-1549289">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1379334"><label class="task-list-item-label" for="task-item-1379334">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4889098"><label class="task-list-item-label" for="task-item-4889098">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3359301"><label class="task-list-item-label" for="task-item-3359301">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1442373"><label class="task-list-item-label" for="task-item-1442373">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1999494"><label class="task-list-item-label" for="task-item-1999494">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4905553"><label class="task-list-item-label" for="task-item-4905553">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
@@ -1386,6 +1377,197 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 <li>ConcurrentHashMap的红黑树实现分析：https://www.jianshu.com/p/23b84ba9a498</li>
 <li>谈谈ConcurrentHashMap1.7和1.8的不同实现：https://www.jianshu.com/p/e694f1e868ec</li>
 </ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读002：ArrayList]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-yue-du-bi-ji-arraylist/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-bi-ji-arraylist/">
+        </link>
+        <updated>2019-03-05T04:01:14.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>ArrayList  源码阅读~</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>ArrayList  源码阅读~</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB">2 继承关系</a></li>
+<li><a href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96">3 初始化</a></li>
+<li><a href="#4-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95">4  核心方法</a>
+<ul>
+<li><a href="#41-set">4.1 set</a></li>
+<li><a href="#42-add">4.2 add</a></li>
+<li><a href="#43-get">4.3 get</a></li>
+<li><a href="#44-remove">4.4 remove</a></li>
+</ul>
+</li>
+<li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
+</ul>
+</p>
+<h1 id="1-引言">1 引言</h1>
+<p>首先，我们要对 ArrayList 的特点有一个基本的认识，比如说 ：</p>
+<ul>
+<li>ArrayList 底层是用什么实现的？</li>
+<li>缺点是什么？有点又是什么？</li>
+<li>扩容机制了解吗</li>
+</ul>
+<p>其实 ArrayList 底层是基于数组来实现的，随机读的时间复杂度为 O(1)， 对于删除的的时间复杂度为O(N)。所以 ArrayList 的优势在于随机读，缺点有两个地方，一个是不断地添加元素的时候，会扩容，扩容会导致性能较差，另一个删除元素的时候，会导致大量元素的拷贝，性能也较差。</p>
+<h1 id="2-继承关系">2 继承关系</h1>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/arraylist001.png?raw=true" alt="" loading="lazy"></figure>
+<pre><code class="language-java">public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
+        implements List&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable
+</code></pre>
+<p>ArrayList实现了List, RandomAccess, Cloneable, java.io.Serializable等接口。</p>
+<ul>
+<li>ArrayList实现了List，提供了基础的添加、删除、遍历等操作。</li>
+<li>ArrayList实现了RandomAccess，提供了随机访问的能力。</li>
+<li>ArrayList实现了Cloneable，可以被克隆。</li>
+<li>ArrayList实现了Serializable，可以被序列化。</li>
+</ul>
+<h1 id="3-初始化">3 初始化</h1>
+<p>一共 3 个构造函数</p>
+<ol>
+<li>不指定初始大小，默认为 10</li>
+</ol>
+<pre><code class="language-java">public ArrayList() {
+        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+    }
+</code></pre>
+<ol start="2">
+<li>指定初始大小</li>
+</ol>
+<pre><code class="language-java">public ArrayList(int initialCapacity) {
+        if (initialCapacity &gt; 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+
+                                               initialCapacity);
+        }
+    }
+</code></pre>
+<ol start="3">
+<li>传入指定集合初始化</li>
+</ol>
+<pre><code class="language-java">    public ArrayList(Collection&lt;? extends E&gt; c) {
+        Object[] a = c.toArray();
+        if ((size = a.length) != 0) {
+            if (c.getClass() == ArrayList.class) {
+                elementData = a;
+            } else {
+                elementData = Arrays.copyOf(a, size, Object[].class);
+            }
+        } else {
+            // replace with empty array.
+            elementData = EMPTY_ELEMENTDATA;
+        }
+    }
+</code></pre>
+<h1 id="4-核心方法">4  核心方法</h1>
+<h2 id="41-set">4.1 set</h2>
+<pre><code class="language-java">public E set(int index, E element) {
+        // 判断是否数组越界
+        rangeCheck(index);
+        E oldValue = elementData(index);
+        elementData[index] = element;
+        return oldValue;
+}
+
+private void rangeCheck(int index) {
+        if (index &gt;= size)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre>
+<h2 id="42-add">4.2 add</h2>
+<ol>
+<li>在末尾插入</li>
+</ol>
+<pre><code class="language-java">	public boolean add(E e) {
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        elementData[size++] = e;
+        return true;
+ }
+</code></pre>
+<ol start="2">
+<li>在指定下标插入</li>
+</ol>
+<pre><code class="language-java">public void add(int index, E element) {
+        // 添加时判断数据越界
+        rangeCheckForAdd(index);
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+  			
+  			// 数组拷贝
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+}
+
+// 添加时判断数据越界
+private void rangeCheckForAdd(int index) {
+        if (index &gt; size || index &lt; 0)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre>
+<h2 id="43-get">4.3 get</h2>
+<p>直接通过索引下标获取元素</p>
+<pre><code class="language-java">public E get(int index) {
+    rangeCheck(index);
+    checkForComodification();
+    return ArrayList.this.elementData(offset + index);
+}
+</code></pre>
+<h2 id="44-remove">4.4 remove</h2>
+<p>调用 System.arraycopy() 将 index+1 后面的元素都复制到 index 位置上，该操作的时间复杂度为 O(N)。</p>
+<pre><code class="language-java">public E remove(int index) {
+    rangeCheck(index);
+
+    modCount++;
+    E oldValue = elementData(index);
+
+    int numMoved = size - index - 1;
+    if (numMoved &gt; 0)
+        System.arraycopy(elementData, index+1, elementData, index,
+                         numMoved);
+    elementData[--size] = null; // clear to let GC do its work
+
+    return oldValue;
+}
+</code></pre>
+<h1 id="5-扩容机制">5 扩容机制</h1>
+<p>在添加元素的时候，可能会触发扩容机制，相关源码如下：</p>
+<pre><code class="language-java">public boolean add(E e) {
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+    elementData[size++] = e;
+    return true;
+}
+
+private void ensureCapacityInternal(int minCapacity) {
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+    ensureExplicitCapacity(minCapacity);
+}
+
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+    // overflow-conscious code
+    if (minCapacity - elementData.length &gt; 0)
+        grow(minCapacity);
+}
+
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);
+    if (newCapacity - minCapacity &lt; 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+</code></pre>
 ]]></content>
     </entry>
 </feed>
