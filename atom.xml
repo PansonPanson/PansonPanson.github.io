@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-11-30T07:40:08.242Z</updated>
+    <updated>2020-12-01T07:52:19.510Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -710,7 +710,7 @@ Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 
 ]]></summary>
         <content type="html"><![CDATA[<p><em>日常刷题，不能断</em></p>
 <!-- more -->
-<p>主要是参照<a href="https://github.com/yuanguangxin/LeetCode">链接</a>来刷的，后面自己又增加了一些题目。</p>
+<p>主要是参照<a href="https://github.com/yuanguangxin/LeetCode">链接</a>来刷的，后面自己又增加了一些题目。买了 leetcode 的会员，刷企业题库，冲~</p>
 <h2 id="双指针遍历滑动窗口">双指针遍历/滑动窗口</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/">3. 无重复字符的最长子串</a></li>
@@ -750,7 +750,10 @@ Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 
 <h2 id="树">树</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/binary-tree-inorder-traversal/">94. 二叉树的中序遍历</a></li>
-<li><a href="https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/">二叉搜索树的最近公共祖先</a></li>
+<li><a href="https://leetcode-cn.com/problems/binary-tree-preorder-traversal/">144. 二叉树的前序遍历</a></li>
+<li><a href="https://leetcode-cn.com/problems/binary-tree-postorder-traversal/">145. 二叉树的后序遍历</a></li>
+<li><a href="https://leetcode-cn.com/problems/binary-tree-level-order-traversal/">102. 二叉树的层序遍历</a></li>
+<li><a href="https://leetcode-cn.com/problems/symmetric-tree/">101. 对称二叉树</a></li>
 </ol>
 <h2 id="字符串">字符串</h2>
 <ol>
@@ -759,9 +762,14 @@ Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 
 <li><a href="https://leetcode-cn.com/problems/longest-common-prefix/">14. 最长公共前缀</a></li>
 <li><a href="https://leetcode-cn.com/problems/partition-labels/">763. 划分字母区间</a></li>
 </ol>
+<h2 id="回溯">回溯</h2>
 <h2 id="合并区间">合并区间</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/merge-intervals/">56. 合并区间</a></li>
+</ol>
+<h2 id="队列">队列</h2>
+<ol>
+<li><a href="https://leetcode-cn.com/problems/moving-average-from-data-stream/">346. 数据流中的移动平均值</a></li>
 </ol>
 ]]></content>
     </entry>
@@ -916,15 +924,6 @@ while(i &gt; 0) {
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[Kafka 核心原理与实战总结]]></title>
-        <id>https://panson.top/post/kafka-he-xin-yuan-li-yu-shi-zhan-zong-jie/</id>
-        <link href="https://panson.top/post/kafka-he-xin-yuan-li-yu-shi-zhan-zong-jie/">
-        </link>
-        <updated>2020-02-22T05:51:31.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
-]]></content>
-    </entry>
-    <entry>
         <title type="html"><![CDATA[一文以知 Redis 内存淘汰策略]]></title>
         <id>https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/</id>
         <link href="https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/">
@@ -1002,6 +1001,86 @@ redis 内存淘汰机制有以下 6 种：</p>
 [4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
 </code></pre>
 <p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Redis 核心原理总结]]></title>
+        <id>https://panson.top/post/redis-he-xin-yuan-li-zong-jie/</id>
+        <link href="https://panson.top/post/redis-he-xin-yuan-li-zong-jie/">
+        </link>
+        <updated>2020-01-15T15:27:35.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">1 底层数据结构</a>
+<ul>
+<li><a href="#11-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">1.1 数据结构总览</a></li>
+<li><a href="#12-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8">1.2 压缩列表</a></li>
+<li><a href="#13-%E8%B7%B3%E8%A1%A8">1.3 跳表</a></li>
+</ul>
+</li>
+<li><a href="#2-redis-%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B">2 redis  的线程模型</a>
+<ul>
+<li><a href="#21-%E5%8D%95%E7%BA%BF%E7%A8%8B">2.1 单线程</a>
+<ul>
+<li><a href="#211-redis-%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B9%9F%E8%83%BD%E6%95%88%E7%8E%87%E8%BF%99%E4%B9%88%E9%AB%98">2.1.1 Redis 单线程模型也能效率这么高？</a></li>
+</ul>
+</li>
+<li><a href="#22-%E5%A4%9A%E7%BA%BF%E7%A8%8B">2.2 多线程</a></li>
+<li><a href="#23-%E6%80%BB%E7%BB%93">2.3 总结</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="1-底层数据结构">1 底层数据结构</h1>
+<h2 id="11-数据结构总览">1.1 数据结构总览</h2>
+<p>String类型的底层实现只有⼀种数据结构，也就是简单动态字符串。⽽List、Hash、Set和<br>
+Sorted Set这四种数据类型，都有两种底层实现结构。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Redis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.jpg?raw=true" alt="" loading="lazy"></p>
+<h2 id="12-压缩列表">1.2 压缩列表</h2>
+<p>压缩列表实际上类似于⼀个数组，数组中的每⼀个元素都对应保存⼀个数据。<br>
+和数组不同的是，压缩列表在表头有三个字段 <strong>zlbytes</strong>、<strong>zltail</strong> 和 <strong>zllen</strong>，分别表⽰列表⻓度、列表尾的偏移量和列表中的entry个数；压缩列表在表尾还有⼀个 <strong>zlend</strong>，表⽰列表结束。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/ziplist.png?raw=true" alt="" loading="lazy"><br>
+在压缩列表中，如果我们要查找定位第⼀个元素和最后⼀个元素，可以通过表头三个字段的⻓度直接定位，<br>
+复杂度是O(1)。⽽查找其他元素时，就没有这么⾼效了，只能逐个查找，此时的复杂度为 O(N)。<br>
+使⽤压缩列表本质上是将所有元素紧挨着存储，所以分配的是⼀块连续的内存空间，虽然数据结构本⾝没有时间复杂度的优势，但是这样节省空间⽽且也能避免⼀些内存碎⽚。</p>
+<h2 id="13-跳表">1.3 跳表</h2>
+<p>跳表在链表的基础上，增加了多级索引，通过索引位置的⼏个跳转，实现数据的快速定位。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/skiplist.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="2-redis-的线程模型">2 redis  的线程模型</h1>
+<h2 id="21-单线程">2.1 单线程</h2>
+<p>在 redis 启动初始化的时候，redis 会将<strong>连接应答处理器</strong>跟 AE_READABLE 事件关联起来，接着如果一个客户端跟 redis 发起连接，此时会产生一个 AE_READBLE 事件，然后由连接应答处理器来处理与客户端建立连接，创建客户端对应的 socket，同时将这个 socket 的 AE_READABLE 事件跟<strong>命令请求处理器</strong>关联起来。</p>
+<p>当客户端向 redis 发起请求的时候（不管是读请求还是写请求，都一样），首先都会在 socket 中产生一个 AE_READABLE 事件，然后由对应的命令请求处理器来处理。这个命令请求处理器就会从 socket 中读取请求相关数据，然后进行执行和处理。</p>
+<p>接着 redis 这边准备好了给客户端的响应数据之后，就会将 socket 的 AE_WRITABLE 事件跟<strong>命令回复处理器</strong> 关联起来，当客户端这边准备好读取响应数据时，就会在 socket 上产生一个 AE_READABLE 事件，会由对应的命令回复处理器来处理，就是将准备好的响应数据写入 socket，供客户端来读取。</p>
+<p>命令回复处理器写完之后，就会删除这个 socket 的 AE_WRITABLE 事件和命令回复处理器的关联关系。</p>
+<p>redis 内部使用文件事件处理器（file event handler），这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</p>
+<p>如果被监听的 socket 准备好执行 accept、read、write、close 等操作的时候，跟操作对应的文件事件就会产生，这个时候文件事件处理器就会调用之前关联好的事件处理器来处理这个事件。</p>
+<p>文件事件处理器是单线程模式运行的，但是通过 IO 多路复用机制监听多个 socket，可以实现高性能的网络通信模型，又可以跟内部的其他单线程的模块进行对接，保证了redis 内部的线程模型的简单性。</p>
+<p>文件事件处理器包含 4 个部分：</p>
+<ul>
+<li>多个 socket</li>
+<li>IO 多路复用程序</li>
+<li>文件事件分派器</li>
+<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<p>多个socket 可能并发地产生不同的操作，每个操作对应不同的文件事件，但是 IO 多路复用程序会监听多个 socket，将 socket 放入一个队列中排队，每次从队列中取出一个 socket 给事件分派器，事件分派器把 sokcet 给对应的时间处理器。</p>
+<p>然后一个 socket 的事件处理完之后，IO 多路复用程序才会将队列中的下一个 socket 给事件分配器。文件事件分派器会根据每个 socket 当前产生的事件，来选择对应的事件处理器来处理。</p>
+<h3 id="211-redis-单线程模型也能效率这么高">2.1.1 Redis 单线程模型也能效率这么高？</h3>
+<ol>
+<li>纯内存操作。</li>
+<li>核心是基于非阻塞的 IO 多路复用机制。</li>
+<li>C 语言实现，一般来说，C 语言实现的程序“距离”操作系统更近，执行速度相对会更快。</li>
+<li>单线程反而避免了多线程的频繁上下文切换问题，预防了多线程可能产生的竞争问题。</li>
+</ol>
+<h2 id="22-多线程">2.2 多线程</h2>
+<p>Redis 6.0 之后的版本抛弃了单线程模型这一设计，原本使用单线程运行的 Redis 也开始选择性地使用多线程模型。</p>
+<p>前面还在强调 Redis 单线程模型的高效性，现在为什么又要引入多线程？这其实说明 Redis 在有些方面，单线程已经不具有优势了。因为<strong>读写网络的 Read/Write 系统调用在 Redis 执行期间占用了大部分 CPU 时间，如果把网络读写做成多线程的方式对性能会有很大提升</strong>。</p>
+<p><strong>Redis 的多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。</strong> 之所以这么设计是不想 Redis 因为多线程而变得复杂，需要去控制 key、lua、事务、LPUSH/LPOP 等等的并发问题。</p>
+<h2 id="23-总结">2.3 总结</h2>
+<p>Redis 选择使用单线程模型处理客户端的请求主要还是因为** CPU 不是 Redis 服务器的瓶颈**，所以使用多线程模型带来的性能提升并不能抵消它带来的开发成本和维护成本，系统的性能瓶颈也主要在网络 I/O 操作上；而 Redis 引入多线程操作也是出于性能上的考虑，对于一些大键值对的删除操作，通过多线程非阻塞地释放内存空间也能减少对 Redis 主线程阻塞的时间，提高执行的效率。</p>
 ]]></content>
     </entry>
     <entry>
@@ -1360,10 +1439,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3359301"><label class="task-list-item-label" for="task-item-3359301">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1442373"><label class="task-list-item-label" for="task-item-1442373">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1999494"><label class="task-list-item-label" for="task-item-1999494">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4905553"><label class="task-list-item-label" for="task-item-4905553">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9768473"><label class="task-list-item-label" for="task-item-9768473">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1090897"><label class="task-list-item-label" for="task-item-1090897">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6063371"><label class="task-list-item-label" for="task-item-6063371">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6985367"><label class="task-list-item-label" for="task-item-6985367">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
