@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-01T08:03:38.323Z</updated>
+    <updated>2020-12-01T08:11:07.417Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -275,50 +275,6 @@ Heap
 <p>所以说，为了保证可见性，在底层是通过MESI协议、flush处理器缓存和refresh处理器缓存，这一整套机制来保障的。</p>
 <p>flush和refresh，这两个操作，flush是强制刷新数据到高速缓存（主内存），不要仅仅停留在写缓冲器里面；refresh，是从总线嗅探发现某个变量被修改，必须强制从其他处理器的高速缓存（或者主内存）加载变量的最新值到自己的高速缓存里去。</p>
 <p>内存屏障的使用，在底层硬件级别的原理，其实就是在执行flush和refresh，MESI协议是如何与内存屏障搭配使用的（flush、refresh）。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[一文以知 Redis 缓存雪崩、缓存穿透、缓存击穿]]></title>
-        <id>https://panson.top/post/yi-wen-yi-zhi-redis-huan-cun-xue-beng-huan-cun-chuan-tou-huan-cun-ji-chuan/</id>
-        <link href="https://panson.top/post/yi-wen-yi-zhi-redis-huan-cun-xue-beng-huan-cun-chuan-tou-huan-cun-ji-chuan/">
-        </link>
-        <updated>2020-05-29T14:14:35.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
-<h2 id="1-缓存雪崩">1. 缓存雪崩</h2>
-<h3 id="什么是缓存雪崩">什么是缓存雪崩</h3>
-<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
-<h3 id="解决办法">解决办法</h3>
-<ul>
-<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
-<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
-<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
-</ul>
-<h2 id="2-缓存穿透">2. 缓存穿透</h2>
-<h3 id="什么是缓存穿透">什么是缓存穿透？</h3>
-<p>正常情况下，我们去查询数据都是存在。<br>
-那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
-这种查询不存在数据的现象我们称为缓存穿透。</p>
-<h3 id="穿透带来的问题">穿透带来的问题</h3>
-<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
-<h3 id="解决办法-2">解决办法</h3>
-<ul>
-<li>缓存空值<br>
-之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
-那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
-这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
-<li>BloomFilter<br>
-这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
-</ul>
-<h2 id="3-缓存击穿">3. 缓存击穿</h2>
-<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
-<h3 id="解决办法-3">解决办法</h3>
-<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
-但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
-<p>参考：</p>
-<ul>
-<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
-<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
-</ul>
 ]]></content>
     </entry>
     <entry>
@@ -924,15 +880,140 @@ while(i &gt; 0) {
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[一文以知 Redis 内存淘汰策略]]></title>
-        <id>https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/</id>
-        <link href="https://panson.top/post/yi-wen-yi-zhi-redis-nei-cun-tao-tai-ce-lue/">
+        <title type="html"><![CDATA[Redis 核心原理总结]]></title>
+        <id>https://panson.top/post/redis-he-xin-yuan-li-zong-jie/</id>
+        <link href="https://panson.top/post/redis-he-xin-yuan-li-zong-jie/">
         </link>
-        <updated>2020-02-08T09:29:46.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>老生常谈：redis 的过期策略都有哪些？内存淘汰机制都有哪些？</em></p>
+        <updated>2020-01-15T15:27:35.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
 ]]></summary>
-        <content type="html"><![CDATA[<p><em>老生常谈：redis 的过期策略都有哪些？内存淘汰机制都有哪些？</em></p>
+        <content type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
 <!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">1 底层数据结构</a>
+<ul>
+<li><a href="#11-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">1.1 数据结构总览</a></li>
+<li><a href="#12-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8">1.2 压缩列表</a></li>
+<li><a href="#13-%E8%B7%B3%E8%A1%A8">1.3 跳表</a></li>
+</ul>
+</li>
+<li><a href="#2-redis-%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B">2 redis  的线程模型</a>
+<ul>
+<li><a href="#21-%E5%8D%95%E7%BA%BF%E7%A8%8B">2.1 单线程</a>
+<ul>
+<li><a href="#211-redis-%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B9%9F%E8%83%BD%E6%95%88%E7%8E%87%E8%BF%99%E4%B9%88%E9%AB%98">2.1.1 Redis 单线程模型也能效率这么高？</a></li>
+</ul>
+</li>
+<li><a href="#22-%E5%A4%9A%E7%BA%BF%E7%A8%8B">2.2 多线程</a></li>
+<li><a href="#23-%E6%80%BB%E7%BB%93">2.3 总结</a></li>
+</ul>
+</li>
+<li><a href="#3-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3 缓存雪崩、缓存击穿、缓存穿透</a>
+<ul>
+<li><a href="#31-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1 缓存雪崩</a>
+<ul>
+<li><a href="#311-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1.1 什么是缓存雪崩</a></li>
+<li><a href="#311-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.1.1 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#32-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2 缓存穿透</a>
+<ul>
+<li><a href="#321-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2.1 什么是缓存穿透？</a></li>
+<li><a href="#322-%E7%A9%BF%E9%80%8F%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98">3.2.2 穿透带来的问题</a></li>
+<li><a href="#323-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.2.3 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#33-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3 缓存击穿</a>
+<ul>
+<li><a href="#331-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3.1 什么是缓存击穿</a></li>
+<li><a href="#332-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.3.2 解决办法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#4-%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5">4 过期策略</a></li>
+</ul>
+</p>
+<h1 id="1-底层数据结构">1 底层数据结构</h1>
+<h2 id="11-数据结构总览">1.1 数据结构总览</h2>
+<p>String类型的底层实现只有⼀种数据结构，也就是简单动态字符串。⽽List、Hash、Set和<br>
+Sorted Set这四种数据类型，都有两种底层实现结构。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Redis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.jpg?raw=true" alt="" loading="lazy"></p>
+<h2 id="12-压缩列表">1.2 压缩列表</h2>
+<p>压缩列表实际上类似于⼀个数组，数组中的每⼀个元素都对应保存⼀个数据。<br>
+和数组不同的是，压缩列表在表头有三个字段 <strong>zlbytes</strong>、<strong>zltail</strong> 和 <strong>zllen</strong>，分别表⽰列表⻓度、列表尾的偏移量和列表中的entry个数；压缩列表在表尾还有⼀个 <strong>zlend</strong>，表⽰列表结束。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/ziplist.png?raw=true" alt="" loading="lazy"><br>
+在压缩列表中，如果我们要查找定位第⼀个元素和最后⼀个元素，可以通过表头三个字段的⻓度直接定位，<br>
+复杂度是O(1)。⽽查找其他元素时，就没有这么⾼效了，只能逐个查找，此时的复杂度为 O(N)。<br>
+使⽤压缩列表本质上是将所有元素紧挨着存储，所以分配的是⼀块连续的内存空间，虽然数据结构本⾝没有时间复杂度的优势，但是这样节省空间⽽且也能避免⼀些内存碎⽚。</p>
+<h2 id="13-跳表">1.3 跳表</h2>
+<p>跳表在链表的基础上，增加了多级索引，通过索引位置的⼏个跳转，实现数据的快速定位。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/skiplist.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="2-redis-的线程模型">2 redis  的线程模型</h1>
+<h2 id="21-单线程">2.1 单线程</h2>
+<p>在 redis 启动初始化的时候，redis 会将<strong>连接应答处理器</strong>跟 AE_READABLE 事件关联起来，接着如果一个客户端跟 redis 发起连接，此时会产生一个 AE_READBLE 事件，然后由连接应答处理器来处理与客户端建立连接，创建客户端对应的 socket，同时将这个 socket 的 AE_READABLE 事件跟<strong>命令请求处理器</strong>关联起来。</p>
+<p>当客户端向 redis 发起请求的时候（不管是读请求还是写请求，都一样），首先都会在 socket 中产生一个 AE_READABLE 事件，然后由对应的命令请求处理器来处理。这个命令请求处理器就会从 socket 中读取请求相关数据，然后进行执行和处理。</p>
+<p>接着 redis 这边准备好了给客户端的响应数据之后，就会将 socket 的 AE_WRITABLE 事件跟<strong>命令回复处理器</strong> 关联起来，当客户端这边准备好读取响应数据时，就会在 socket 上产生一个 AE_READABLE 事件，会由对应的命令回复处理器来处理，就是将准备好的响应数据写入 socket，供客户端来读取。</p>
+<p>命令回复处理器写完之后，就会删除这个 socket 的 AE_WRITABLE 事件和命令回复处理器的关联关系。</p>
+<p>redis 内部使用文件事件处理器（file event handler），这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</p>
+<p>如果被监听的 socket 准备好执行 accept、read、write、close 等操作的时候，跟操作对应的文件事件就会产生，这个时候文件事件处理器就会调用之前关联好的事件处理器来处理这个事件。</p>
+<p>文件事件处理器是单线程模式运行的，但是通过 IO 多路复用机制监听多个 socket，可以实现高性能的网络通信模型，又可以跟内部的其他单线程的模块进行对接，保证了redis 内部的线程模型的简单性。</p>
+<p>文件事件处理器包含 4 个部分：</p>
+<ul>
+<li>多个 socket</li>
+<li>IO 多路复用程序</li>
+<li>文件事件分派器</li>
+<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<p>多个socket 可能并发地产生不同的操作，每个操作对应不同的文件事件，但是 IO 多路复用程序会监听多个 socket，将 socket 放入一个队列中排队，每次从队列中取出一个 socket 给事件分派器，事件分派器把 sokcet 给对应的时间处理器。</p>
+<p>然后一个 socket 的事件处理完之后，IO 多路复用程序才会将队列中的下一个 socket 给事件分配器。文件事件分派器会根据每个 socket 当前产生的事件，来选择对应的事件处理器来处理。</p>
+<h3 id="211-redis-单线程模型也能效率这么高">2.1.1 Redis 单线程模型也能效率这么高？</h3>
+<ol>
+<li>纯内存操作。</li>
+<li>核心是基于非阻塞的 IO 多路复用机制。</li>
+<li>C 语言实现，一般来说，C 语言实现的程序“距离”操作系统更近，执行速度相对会更快。</li>
+<li>单线程反而避免了多线程的频繁上下文切换问题，预防了多线程可能产生的竞争问题。</li>
+</ol>
+<h2 id="22-多线程">2.2 多线程</h2>
+<p>Redis 6.0 之后的版本抛弃了单线程模型这一设计，原本使用单线程运行的 Redis 也开始选择性地使用多线程模型。</p>
+<p>前面还在强调 Redis 单线程模型的高效性，现在为什么又要引入多线程？这其实说明 Redis 在有些方面，单线程已经不具有优势了。因为<strong>读写网络的 Read/Write 系统调用在 Redis 执行期间占用了大部分 CPU 时间，如果把网络读写做成多线程的方式对性能会有很大提升</strong>。</p>
+<p><strong>Redis 的多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。</strong> 之所以这么设计是不想 Redis 因为多线程而变得复杂，需要去控制 key、lua、事务、LPUSH/LPOP 等等的并发问题。</p>
+<h2 id="23-总结">2.3 总结</h2>
+<p>Redis 选择使用单线程模型处理客户端的请求主要还是因为** CPU 不是 Redis 服务器的瓶颈**，所以使用多线程模型带来的性能提升并不能抵消它带来的开发成本和维护成本，系统的性能瓶颈也主要在网络 I/O 操作上；而 Redis 引入多线程操作也是出于性能上的考虑，对于一些大键值对的删除操作，通过多线程非阻塞地释放内存空间也能减少对 Redis 主线程阻塞的时间，提高执行的效率。</p>
+<h1 id="3-缓存雪崩-缓存击穿-缓存穿透">3 缓存雪崩、缓存击穿、缓存穿透</h1>
+<h2 id="31-缓存雪崩">3.1 缓存雪崩</h2>
+<h3 id="311-什么是缓存雪崩">3.1.1 什么是缓存雪崩</h3>
+<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
+<h3 id="311-解决办法">3.1.1 解决办法</h3>
+<ul>
+<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
+<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
+<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
+</ul>
+<h2 id="32-缓存穿透">3.2 缓存穿透</h2>
+<h3 id="321-什么是缓存穿透">3.2.1 什么是缓存穿透？</h3>
+<p>正常情况下，我们去查询数据都是存在。<br>
+那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
+这种查询不存在数据的现象我们称为缓存穿透。</p>
+<h3 id="322-穿透带来的问题">3.2.2 穿透带来的问题</h3>
+<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
+<h3 id="323-解决办法">3.2.3 解决办法</h3>
+<ul>
+<li>缓存空值<br>
+之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
+那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
+这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
+<li>BloomFilter<br>
+这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
+</ul>
+<h2 id="33-缓存击穿">3.3 缓存击穿</h2>
+<h3 id="331-什么是缓存击穿">3.3.1 什么是缓存击穿</h3>
+<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
+<h3 id="332-解决办法">3.3.2 解决办法</h3>
+<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
+但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
+<h1 id="4-过期策略">4 过期策略</h1>
 <p>Redis 的高性能有一个原因是 Redis 使用内存做缓存，但内存是宝贵且有限的，Redis 不可能使用内存做持久化。<br>
 使用 Redis 的过程中，常见的有两个问题：</p>
 <ul>
@@ -1001,86 +1082,11 @@ redis 内存淘汰机制有以下 6 种：</p>
 [4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
 </code></pre>
 <p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Redis 核心原理总结]]></title>
-        <id>https://panson.top/post/redis-he-xin-yuan-li-zong-jie/</id>
-        <link href="https://panson.top/post/redis-he-xin-yuan-li-zong-jie/">
-        </link>
-        <updated>2020-01-15T15:27:35.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
-<!-- more -->
-<p><ul class="markdownIt-TOC">
-<li><a href="#1-%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">1 底层数据结构</a>
+<p>参考：</p>
 <ul>
-<li><a href="#11-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">1.1 数据结构总览</a></li>
-<li><a href="#12-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8">1.2 压缩列表</a></li>
-<li><a href="#13-%E8%B7%B3%E8%A1%A8">1.3 跳表</a></li>
+<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
 </ul>
-</li>
-<li><a href="#2-redis-%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B">2 redis  的线程模型</a>
-<ul>
-<li><a href="#21-%E5%8D%95%E7%BA%BF%E7%A8%8B">2.1 单线程</a>
-<ul>
-<li><a href="#211-redis-%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B9%9F%E8%83%BD%E6%95%88%E7%8E%87%E8%BF%99%E4%B9%88%E9%AB%98">2.1.1 Redis 单线程模型也能效率这么高？</a></li>
-</ul>
-</li>
-<li><a href="#22-%E5%A4%9A%E7%BA%BF%E7%A8%8B">2.2 多线程</a></li>
-<li><a href="#23-%E6%80%BB%E7%BB%93">2.3 总结</a></li>
-</ul>
-</li>
-</ul>
-</p>
-<h1 id="1-底层数据结构">1 底层数据结构</h1>
-<h2 id="11-数据结构总览">1.1 数据结构总览</h2>
-<p>String类型的底层实现只有⼀种数据结构，也就是简单动态字符串。⽽List、Hash、Set和<br>
-Sorted Set这四种数据类型，都有两种底层实现结构。<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Redis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.jpg?raw=true" alt="" loading="lazy"></p>
-<h2 id="12-压缩列表">1.2 压缩列表</h2>
-<p>压缩列表实际上类似于⼀个数组，数组中的每⼀个元素都对应保存⼀个数据。<br>
-和数组不同的是，压缩列表在表头有三个字段 <strong>zlbytes</strong>、<strong>zltail</strong> 和 <strong>zllen</strong>，分别表⽰列表⻓度、列表尾的偏移量和列表中的entry个数；压缩列表在表尾还有⼀个 <strong>zlend</strong>，表⽰列表结束。<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/ziplist.png?raw=true" alt="" loading="lazy"><br>
-在压缩列表中，如果我们要查找定位第⼀个元素和最后⼀个元素，可以通过表头三个字段的⻓度直接定位，<br>
-复杂度是O(1)。⽽查找其他元素时，就没有这么⾼效了，只能逐个查找，此时的复杂度为 O(N)。<br>
-使⽤压缩列表本质上是将所有元素紧挨着存储，所以分配的是⼀块连续的内存空间，虽然数据结构本⾝没有时间复杂度的优势，但是这样节省空间⽽且也能避免⼀些内存碎⽚。</p>
-<h2 id="13-跳表">1.3 跳表</h2>
-<p>跳表在链表的基础上，增加了多级索引，通过索引位置的⼏个跳转，实现数据的快速定位。<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/skiplist.png?raw=true" alt="" loading="lazy"></p>
-<h1 id="2-redis-的线程模型">2 redis  的线程模型</h1>
-<h2 id="21-单线程">2.1 单线程</h2>
-<p>在 redis 启动初始化的时候，redis 会将<strong>连接应答处理器</strong>跟 AE_READABLE 事件关联起来，接着如果一个客户端跟 redis 发起连接，此时会产生一个 AE_READBLE 事件，然后由连接应答处理器来处理与客户端建立连接，创建客户端对应的 socket，同时将这个 socket 的 AE_READABLE 事件跟<strong>命令请求处理器</strong>关联起来。</p>
-<p>当客户端向 redis 发起请求的时候（不管是读请求还是写请求，都一样），首先都会在 socket 中产生一个 AE_READABLE 事件，然后由对应的命令请求处理器来处理。这个命令请求处理器就会从 socket 中读取请求相关数据，然后进行执行和处理。</p>
-<p>接着 redis 这边准备好了给客户端的响应数据之后，就会将 socket 的 AE_WRITABLE 事件跟<strong>命令回复处理器</strong> 关联起来，当客户端这边准备好读取响应数据时，就会在 socket 上产生一个 AE_READABLE 事件，会由对应的命令回复处理器来处理，就是将准备好的响应数据写入 socket，供客户端来读取。</p>
-<p>命令回复处理器写完之后，就会删除这个 socket 的 AE_WRITABLE 事件和命令回复处理器的关联关系。</p>
-<p>redis 内部使用文件事件处理器（file event handler），这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</p>
-<p>如果被监听的 socket 准备好执行 accept、read、write、close 等操作的时候，跟操作对应的文件事件就会产生，这个时候文件事件处理器就会调用之前关联好的事件处理器来处理这个事件。</p>
-<p>文件事件处理器是单线程模式运行的，但是通过 IO 多路复用机制监听多个 socket，可以实现高性能的网络通信模型，又可以跟内部的其他单线程的模块进行对接，保证了redis 内部的线程模型的简单性。</p>
-<p>文件事件处理器包含 4 个部分：</p>
-<ul>
-<li>多个 socket</li>
-<li>IO 多路复用程序</li>
-<li>文件事件分派器</li>
-<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></li>
-</ul>
-<p>多个socket 可能并发地产生不同的操作，每个操作对应不同的文件事件，但是 IO 多路复用程序会监听多个 socket，将 socket 放入一个队列中排队，每次从队列中取出一个 socket 给事件分派器，事件分派器把 sokcet 给对应的时间处理器。</p>
-<p>然后一个 socket 的事件处理完之后，IO 多路复用程序才会将队列中的下一个 socket 给事件分配器。文件事件分派器会根据每个 socket 当前产生的事件，来选择对应的事件处理器来处理。</p>
-<h3 id="211-redis-单线程模型也能效率这么高">2.1.1 Redis 单线程模型也能效率这么高？</h3>
-<ol>
-<li>纯内存操作。</li>
-<li>核心是基于非阻塞的 IO 多路复用机制。</li>
-<li>C 语言实现，一般来说，C 语言实现的程序“距离”操作系统更近，执行速度相对会更快。</li>
-<li>单线程反而避免了多线程的频繁上下文切换问题，预防了多线程可能产生的竞争问题。</li>
-</ol>
-<h2 id="22-多线程">2.2 多线程</h2>
-<p>Redis 6.0 之后的版本抛弃了单线程模型这一设计，原本使用单线程运行的 Redis 也开始选择性地使用多线程模型。</p>
-<p>前面还在强调 Redis 单线程模型的高效性，现在为什么又要引入多线程？这其实说明 Redis 在有些方面，单线程已经不具有优势了。因为<strong>读写网络的 Read/Write 系统调用在 Redis 执行期间占用了大部分 CPU 时间，如果把网络读写做成多线程的方式对性能会有很大提升</strong>。</p>
-<p><strong>Redis 的多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。</strong> 之所以这么设计是不想 Redis 因为多线程而变得复杂，需要去控制 key、lua、事务、LPUSH/LPOP 等等的并发问题。</p>
-<h2 id="23-总结">2.3 总结</h2>
-<p>Redis 选择使用单线程模型处理客户端的请求主要还是因为** CPU 不是 Redis 服务器的瓶颈**，所以使用多线程模型带来的性能提升并不能抵消它带来的开发成本和维护成本，系统的性能瓶颈也主要在网络 I/O 操作上；而 Redis 引入多线程操作也是出于性能上的考虑，对于一些大键值对的删除操作，通过多线程非阻塞地释放内存空间也能减少对 Redis 主线程阻塞的时间，提高执行的效率。</p>
 ]]></content>
     </entry>
     <entry>
@@ -1439,10 +1445,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5113994"><label class="task-list-item-label" for="task-item-5113994">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9471411"><label class="task-list-item-label" for="task-item-9471411">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3932299"><label class="task-list-item-label" for="task-item-3932299">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7481370"><label class="task-list-item-label" for="task-item-7481370">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4076149"><label class="task-list-item-label" for="task-item-4076149">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7740009"><label class="task-list-item-label" for="task-item-7740009">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5632072"><label class="task-list-item-label" for="task-item-5632072">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6830744"><label class="task-list-item-label" for="task-item-6830744">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
@@ -1647,6 +1653,175 @@ private void grow(int minCapacity) {
     elementData = Arrays.copyOf(elementData, newCapacity);
 }
 </code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读001：String ]]></title>
+        <id>https://panson.top/post/arraylist-yuan-ma-yue-du/</id>
+        <link href="https://panson.top/post/arraylist-yuan-ma-yue-du/">
+        </link>
+        <updated>2019-03-02T06:03:26.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文剖析了 <code>String</code> 的源码（1.8），主要讲述了 <code>String</code> 的一些特性以及一些核心方法的设计与实现。</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>本文剖析了 <code>String</code> 的源码（1.8），主要讲述了 <code>String</code> 的一些特性以及一些核心方法的设计与实现。</em></p>
+<!-- more -->
+<hr>
+<h2 id="一-string-的不可变性">一、String 的不可变性</h2>
+<pre><code class="language-java">public final class String implements java.io.Serializable, Comparable&lt;String&gt;, CharSequence {
+    /** The value is used for character storage. */
+    private final char value[];
+}
+</code></pre>
+<p>上面的String 源码解释了 String 的不可变性。</p>
+<ol>
+<li>
+<p>String 被 final 修饰，意味着该类不能被继承，也就没有子类，无法通过继承的方式覆写 String 的方法。</p>
+<p>final 修饰 class，可以参考 <a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.2">Java  虚拟机规范</a></p>
+<blockquote>
+<p>A class can be declared <code>final</code> if its definition is complete and no subclasses are desired or required. <!-- more --></p>
+<p>It is a compile-time error if the name of a <code>final</code> class appears in the <code>extends</code> clause (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.4">§8.1.4</a>) of another class declaration; this implies that a <code>final</code> class cannot have any subclasses.</p>
+<p>It is a compile-time error if a class is declared both <code>final</code> and <code>abstract</code>, because the implementation of such a class could never be completed (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.1">§8.1.1.1</a>).</p>
+<p>Because a <code>final</code> class never has any subclasses, the methods of a <code>final</code> class are never overridden (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.4.8.1">§8.4.8.1</a>).</p>
+</blockquote>
+</li>
+<li>
+<p>String 底层使用一个 value 字符数组来存储，使用 <code>private</code> 和 <code>final</code> 修饰，意味着 <code>value</code> 一旦被赋值，内存地址不会再改变(<code>final</code>)，并且不能再被修改（<code>private</code>）</p>
+</li>
+</ol>
+<h2 id="二-stringintern-方法">二、String.intern() 方法</h2>
+<p><code>String</code> 类的<code>intern()</code>方法涉及到一个叫做 “常量池“ 的概念，可以理解成 Java 系统级别的缓存。</p>
+<ul>
+<li>直接使用双引号声明出来的<code>String</code>对象会直接存储在常量池中。</li>
+<li>如果不是用双引号声明的<code>String</code>对象，可以使用<code>String</code>提供的<code>intern</code>方法。intern 方法会从字符串常量池中查询当前字符串是否存在，若不存在就会将当前字符串放入常量池中</li>
+</ul>
+<p>JAVA 使用 jni 调用c++实现的<code>StringTable</code>的<code>intern</code>方法, <code>StringTable</code>的<code>intern</code>方法跟Java中的<code>HashMap</code>的实现是差不多的, 只是不能自动扩容。默认大小是1009。<!--more--></p>
+<p>要注意的是，String的String Pool是一个固定大小的<code>Hashtable</code>，默认值大小长度是1009，如果放进String Pool的String非常多，就会造成Hash冲突严重，从而导致链表会很长，而链表长了后直接会造成的影响就是当调用<code>String.intern</code>时性能会大幅下降（因为要一个一个找）。</p>
+<p>在 jdk6中<code>StringTable</code>是固定的，就是1009的长度，所以如果常量池中的字符串过多就会导致效率下降很快。在jdk7中，<code>StringTable</code>的长度可以通过一个参数指定：</p>
+<ul>
+<li><code>-XX:StringTableSize=99991</code></li>
+</ul>
+<h2 id="三-string-的构造函数和若干重要方法">三、String 的构造函数和若干重要方法</h2>
+<h3 id="1-构造函数">1. 构造函数</h3>
+<p><code>String</code> 类有4个核心构造函数</p>
+<pre><code class="language-java">// String 为参数的构造方法
+public String(String original) {
+    this.value = original.value;
+    this.hash = original.hash;
+}
+// char[] 为参数构造方法
+public String(char value[]) {
+    this.value = Arrays.copyOf(value, value.length);
+}
+// StringBuffer 为参数的构造方法
+public String(StringBuffer buffer) {
+    synchronized(buffer) {
+        this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
+    }
+}
+// StringBuilder 为参数的构造方法
+public String(StringBuilder builder) {
+    this.value = Arrays.copyOf(builder.getValue(), builder.length());
+}
+</code></pre>
+<h3 id="2-使用频率很高的几个方法">2. 使用频率很高的几个方法</h3>
+<h4 id="length"><code>length()</code></h4>
+<pre><code class="language-java">// 字符串长度
+public int length() {
+    return value.length;
+}
+</code></pre>
+<h4 id="isempty"><code>isEmpty()</code></h4>
+<pre><code class="language-java">public boolean isEmpty() {
+    return value.length == 0;
+}
+</code></pre>
+<h4 id="charat"><code>charAt()</code></h4>
+<pre><code class="language-java">public char charAt(int index) {
+    if ((index &lt; 0) || (index &gt;= value.length)) {
+        throw new StringIndexOutOfBoundsException(index);
+    }
+    return value[index];
+}
+</code></pre>
+<h4 id="equals-和-equalsignorecase"><code>equals()</code>  和 <code>equalsIgnoreCase()</code></h4>
+<pre><code class="language-java">public boolean equals(Object anObject) {
+    // 对象引用相同直接返回 true
+    if (this == anObject) {
+        return true;
+    }
+    // 判断需要对比的值是否为 String 类型，如果不是则直接返回 false
+    if (anObject instanceof String) {
+        String anotherString = (String)anObject;
+        int n = value.length;
+        // 比较底层数组长度，长度不同，直接返回 false，长度相同，遍历字符数组，循环比较，只要有一个字符不同，返回 false
+        if (n == anotherString.value.length) {
+            char v1[] = value;
+            char v2[] = anotherString.value;
+            int i = 0;
+            while (n-- != 0) {
+                if (v1[i] != v2[i])
+                    return false;
+                i++;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+</code></pre>
+<p>直接使用 <code>equals()</code> 方法时，应该小心空指针。非空字符串放在前面，或者直接使用 apache commons 相关工具类 <code>StringUtils</code>：</p>
+<pre><code class="language-java">// StringUtils::equals
+public static boolean equals(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equals(str2);
+}
+</code></pre>
+<p><code>equalsIgnoreCase()</code>: 该方法 与 <code>equals()</code> 不同之处在于前者忽略大小写比较字符串。</p>
+<h4 id="compareto和-comparetoignorecase"><code>compareTo()</code>和 <code>compareToIgnoreCase()</code></h4>
+<pre><code class="language-java">// 返回值为 0 表示等于，正数表示大于，负数表示小于
+public int compareTo(String anotherString) {
+    int len1 = value.length;
+    int len2 = anotherString.value.length;
+    int lim = Math.min(len1, len2);
+    char v1[] = value;
+    char v2[] = anotherString.value;
+    int k = 0;
+    while (k &lt; lim) {
+        char c1 = v1[k];
+        char c2 = v2[k];
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        k++;
+    }
+    return len1 - len2;
+}
+</code></pre>
+<p><code>compareToIgnoreCase()</code>：比较忽略大小写</p>
+<h4 id="其他">其他</h4>
+<ul>
+<li>indexOf()：查询字符串首次出现的下标位置</li>
+<li>lastIndexOf()：查询字符串最后出现的下标位置</li>
+<li>contains()：查询字符串中是否包含另一个字符串</li>
+<li>toLowerCase()：把字符串全部转换成小写</li>
+<li>toUpperCase()：把字符串全部转换成大写</li>
+<li>trim()：去掉字符串首尾空格</li>
+<li>replace()：替换字符串中的某些字符</li>
+<li>split()：把字符串分割并返回字符串数组</li>
+<li>join()：把字符串数组转为字符串</li>
+</ul>
+<h2 id="参考">参考：</h2>
+<ul>
+<li><a href="https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html">深入解析String#intern</a></li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Web 安全拾遗]]></title>
+        <id>https://panson.top/post/web-an-quan-shi-yi/</id>
+        <link href="https://panson.top/post/web-an-quan-shi-yi/">
+        </link>
+        <updated>2019-03-01T03:04:35.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
 ]]></content>
     </entry>
 </feed>

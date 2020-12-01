@@ -6,7 +6,7 @@
 
 <title>Redis 核心原理总结 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606809137170">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606810260600">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606809137170" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606810260600" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -119,6 +119,30 @@
 <li><a href="#23-%E6%80%BB%E7%BB%93">2.3 总结</a></li>
 </ul>
 </li>
+<li><a href="#3-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3 缓存雪崩、缓存击穿、缓存穿透</a>
+<ul>
+<li><a href="#31-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1 缓存雪崩</a>
+<ul>
+<li><a href="#311-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1.1 什么是缓存雪崩</a></li>
+<li><a href="#311-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.1.1 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#32-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2 缓存穿透</a>
+<ul>
+<li><a href="#321-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2.1 什么是缓存穿透？</a></li>
+<li><a href="#322-%E7%A9%BF%E9%80%8F%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98">3.2.2 穿透带来的问题</a></li>
+<li><a href="#323-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.2.3 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#33-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3 缓存击穿</a>
+<ul>
+<li><a href="#331-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3.1 什么是缓存击穿</a></li>
+<li><a href="#332-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.3.2 解决办法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#4-%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5">4 过期策略</a></li>
 </ul>
 </p>
 <h1 id="1-底层数据结构">1 底层数据结构</h1>
@@ -168,6 +192,112 @@ Sorted Set这四种数据类型，都有两种底层实现结构。<br>
 <p><strong>Redis 的多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。</strong> 之所以这么设计是不想 Redis 因为多线程而变得复杂，需要去控制 key、lua、事务、LPUSH/LPOP 等等的并发问题。</p>
 <h2 id="23-总结">2.3 总结</h2>
 <p>Redis 选择使用单线程模型处理客户端的请求主要还是因为** CPU 不是 Redis 服务器的瓶颈**，所以使用多线程模型带来的性能提升并不能抵消它带来的开发成本和维护成本，系统的性能瓶颈也主要在网络 I/O 操作上；而 Redis 引入多线程操作也是出于性能上的考虑，对于一些大键值对的删除操作，通过多线程非阻塞地释放内存空间也能减少对 Redis 主线程阻塞的时间，提高执行的效率。</p>
+<h1 id="3-缓存雪崩-缓存击穿-缓存穿透">3 缓存雪崩、缓存击穿、缓存穿透</h1>
+<h2 id="31-缓存雪崩">3.1 缓存雪崩</h2>
+<h3 id="311-什么是缓存雪崩">3.1.1 什么是缓存雪崩</h3>
+<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
+<h3 id="311-解决办法">3.1.1 解决办法</h3>
+<ul>
+<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
+<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
+<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
+</ul>
+<h2 id="32-缓存穿透">3.2 缓存穿透</h2>
+<h3 id="321-什么是缓存穿透">3.2.1 什么是缓存穿透？</h3>
+<p>正常情况下，我们去查询数据都是存在。<br>
+那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
+这种查询不存在数据的现象我们称为缓存穿透。</p>
+<h3 id="322-穿透带来的问题">3.2.2 穿透带来的问题</h3>
+<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
+<h3 id="323-解决办法">3.2.3 解决办法</h3>
+<ul>
+<li>缓存空值<br>
+之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
+那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
+这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
+<li>BloomFilter<br>
+这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
+</ul>
+<h2 id="33-缓存击穿">3.3 缓存击穿</h2>
+<h3 id="331-什么是缓存击穿">3.3.1 什么是缓存击穿</h3>
+<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
+<h3 id="332-解决办法">3.3.2 解决办法</h3>
+<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
+但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
+<h1 id="4-过期策略">4 过期策略</h1>
+<p>Redis 的高性能有一个原因是 Redis 使用内存做缓存，但内存是宝贵且有限的，Redis 不可能使用内存做持久化。<br>
+使用 Redis 的过程中，常见的有两个问题：</p>
+<ul>
+<li>Redis 数据丢失</li>
+<li>数据缓存过期了，但是还占用着内存</li>
+</ul>
+<p>要想理解这些问题的产生原因，就不得不了解 Redis 的过期策略。</p>
+<p>Redis 使用定期删除 + 懒惰删除的策略</p>
+<ul>
+<li>定期删除：指的是 redis 默认是每隔 100ms 就随机抽取一些设置了过期时间的 key，检查其是否过期，如果过期就删除。（因为是随机的，所以可能会有一些 key 一直没删除掉）</li>
+<li>懒惰删除：获取某个 key 的时候，redis 会检查一下 ，这个 key 如果设置了过期时间那么是否过期了，如果过期了此时就会删除，不会给你返回任何东西。</li>
+</ul>
+<p>但是如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，内存中还是会存在大量的无用数据。</p>
+<p>所以 Redis 也就有了内存淘汰机制。<br>
+redis 内存淘汰机制有以下 6 种：</p>
+<ul>
+<li>noeviction: 当内存不足以容纳新写入数据时，新写入操作会报错，这个一般没人用吧，实在是太恶心了。</li>
+<li>allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）。</li>
+<li>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个 key，这个一般没人用吧，为啥要随机，肯定是把最近最少使用的 key 给干掉啊。</li>
+<li>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的 key（这个一般不太合适）。</li>
+<li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。</li>
+<li>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。</li>
+</ul>
+<p>手写一个 LRU 算法：</p>
+<pre><code class="language-java">class LRUCache&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+    private final int CACHE_SIZE;
+
+    /**
+     * 传递进来最多能缓存多少数据
+     *
+     * @param cacheSize 缓存大小
+     */
+    public LRUCache(int cacheSize) {
+        // true 表示让 linkedHashMap 按照访问顺序来进行排序，最近访问的放在头部，最老访问的放在尾部。
+        super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        CACHE_SIZE = cacheSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+        // 当 map中的数据量大于指定的缓存个数的时候，就自动删除最老的数据。
+        return size() &gt; CACHE_SIZE;
+    }
+}
+</code></pre>
+<p>测试代码：</p>
+<pre><code class="language-java">    static LRUCache&lt;Integer, Integer&gt; lruCache = new LRUCache&lt;&gt;(16);
+
+    public static void main(String[] args) {
+        for (int i = 0; i &lt; 16; i++) {
+            lruCache.put(i, i);
+        }
+        System.out.println(lruCache.entrySet());
+        for(int i = 16; i &lt; 20; i++) {
+            lruCache.put(i, i);
+            System.out.println(lruCache.entrySet());
+        }
+
+    }
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-java">[0=0, 1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15]
+[1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16]
+[2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17]
+[3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18]
+[4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
+</code></pre>
+<p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
+</ul>
 
                 </div>
             </article>
