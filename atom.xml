@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-01T08:11:07.417Z</updated>
+    <updated>2020-12-01T09:32:27.706Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -1090,41 +1090,6 @@ redis 内存淘汰机制有以下 6 种：</p>
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[聊聊进程间通信]]></title>
-        <id>https://panson.top/post/liao-liao-jin-cheng-jian-tong-xin/</id>
-        <link href="https://panson.top/post/liao-liao-jin-cheng-jian-tong-xin/">
-        </link>
-        <updated>2020-01-11T02:25:51.000Z</updated>
-        <summary type="html"><![CDATA[<p>进程间的通信有很多种方式，比如说：管道（pipe）、命名管道（fifo）、消息队列，共享内存（System V）</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>进程间的通信有很多种方式，比如说：管道（pipe）、命名管道（fifo）、消息队列，共享内存（System V）</p>
-<!-- more -->
-<ol>
-<li>管道（pipe）<br>
-unix操作系统里面，有一个fork操作，可以创建进程的子进程，或者说是复制一个进程完全一样的子进程，共享代码空间，但是各自有独立的数据空间，不过子进程的数据空间是拷贝父进程的数据空间的。</li>
-</ol>
-<p>管道机制要求的是两个进程之间是有血缘关系的，就比如fork出来的父子进程。</p>
-<p>linux操作系统里，管道用来缓存要在进程间传输的数据，管道是一个固定大小的缓冲区，是4kb。管道中的数据一旦被读取出来，就不在管道里了。</p>
-<p>但是如果管道满了，那么写管道的操作就阻塞了，直到别人读了管道的数据；反之如果管道是空的，那么读操作就阻塞了。就这个意思。管道一边连着一个进程的输出，一边连着一个进程的输入，然后就一个进程写数据，另外一个进程读数据，两个进程都没了，管道也就没了。管道是半双工的，就是数据只能流向一个方向，比如说你架设一个管道，只能一个进程写，另外一个进程读。</p>
-<p>linux里面对管道的实现，是用了两个文件，指向了一个VFS（虚拟文件系统）的索引节点inode，然后VFS索引节点指向一个物理页面，接着一个进程通过自己关联的那个文件写数据，另外一个进程通过自己关联的那个文件读数据。</p>
-<ol start="2">
-<li>命名管道（fifo）<br>
-管道的通信，要求必须是父子关系的进程间通信，就受到了限制，所以可以用命名管理来解决这个问题。</li>
-</ol>
-<p>之前的管道，是没有名字的，所以必须是有父子关系的进程才能使用。但是这个命名管道是有名字的。这个命名管道，相当于是一个有名字的文件，是有路径的，所以没有血缘关系的进程多可以通过这个命名管道来通信，名字在文件系统上，数据在内存里。其他的跟管道一样，一个进程写，一个进程读，也是半双工的，数据只能单向流动。</p>
-<ol start="3">
-<li>
-<p>消息队列<br>
-linux的消息队列可以认为是个链表结构，linux内核有一个msgque链表，这个链表里每个指针指向一个msgid_ds结构，这个结构就描述了一个消息队列。然后进程之间就通过这个消息队列通信就可以，一样是写入数据和消费数据。消息队列的好处就是对每个消息可以指定类型，消费的时候就消费指定类型的消息就行了，功能更多一些。这种方式其实用的不多的。</p>
-</li>
-<li>
-<p>共享内存<br>
-一块物理内存被映射到两个进程的进程地址空间，所以进程之间互相都可以立即看到对方在共享内存里做出的修改，但是因为是共享内存，所以需要锁来保证同步。这个说对了很复杂，我在这里就不多说了，我觉得如果被人问到这个问题，短期内突击的话，回答到这个程度就行了，就是知道有哪些方式。如果你要深入理解各种机制，那是要好好学习linux的各种东西了。</p>
-</li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
         <title type="html"><![CDATA[老生常谈：TCP 三次握手、四次挥手]]></title>
         <id>https://panson.top/post/lao-sheng-chang-tan-tcp-san-ci-wo-shou-si-ci-hui-shou/</id>
         <link href="https://panson.top/post/lao-sheng-chang-tan-tcp-san-ci-wo-shou-si-ci-hui-shou/">
@@ -1445,10 +1410,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4076149"><label class="task-list-item-label" for="task-item-4076149">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7740009"><label class="task-list-item-label" for="task-item-7740009">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5632072"><label class="task-list-item-label" for="task-item-5632072">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6830744"><label class="task-list-item-label" for="task-item-6830744">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6266275"><label class="task-list-item-label" for="task-item-6266275">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9883785"><label class="task-list-item-label" for="task-item-9883785">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6812320"><label class="task-list-item-label" for="task-item-6812320">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1127015"><label class="task-list-item-label" for="task-item-1127015">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
@@ -1816,12 +1781,100 @@ public int compareTo(String anotherString) {
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[Web 安全拾遗]]></title>
-        <id>https://panson.top/post/web-an-quan-shi-yi/</id>
-        <link href="https://panson.top/post/web-an-quan-shi-yi/">
+        <title type="html"><![CDATA[译文：Java EE vs J2EE vs Jakarta]]></title>
+        <id>https://panson.top/post/hello-gridea/</id>
+        <link href="https://panson.top/post/hello-gridea/">
         </link>
-        <updated>2019-03-01T03:04:35.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
+        <updated>2019-02-03T16:00:00.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
+<!-- more -->
+<p>原文链接：<a href="https://www.baeldung.com/java-enterprise-evolution">JEE vs J2EE vs Jakarta</a></p>
+<p>原文作者：Rodrigo Graciano</p>
+<hr>
+<h2 id="1引言">1.引言</h2>
+<p>听说过 Java EE 吗？那关于 Java 2EE 、J2EE 或者现在的 Jakarta EE，你又是否有所耳闻呢？实际上，这些各异的术语描述的都是相同的东西：由 Java SE 扩展出的一系列企业规范。</p>
+<p>在本篇短文中，我们将讲述 Java EE 的发展史。<!-- more --></p>
+<h2 id="2历史">2.历史</h2>
+<p>在 Java 的第一个版本中，Java 企业扩展还只是核心 JDK 的一部分（译者注：核心 JDK 通常指 Java SE） 。然而到了 1999 年，Java 企业扩展已经被剥离出 Java SE，成为了 Java 2 的一部分，这也意味着 J2EE，或者说Java 2 平台企业版（Java 2 Platform Enterprise Edition）的诞生。J2EE 这个称呼一直维持到2006年。</p>
+<p>2006 年发布的 Java 5，J2EE 被重命名为 Java EE，或者说 Java 平台企业版（Java Platform Enterprise Edition）。这次改名后的称呼一直延续到 了 2017 年的 9 月。那年发生了一件重大的事，Oracle 决定将 Java EE 捐赠给 Eclipse 基金会（但 Java仍然属于 Oracle）。</p>
+<h2 id="3转变阶段">3.转变阶段</h2>
+<p>事实上，因为 Oracle 拥有 “Java” 商标权。按照法律要求，Eclipse 基金会需要对 Java EE 进行更名。</p>
+<p>经过社区的投票选择，Java EE 被更名为 Jakarta EE。从某种意义上来说，Java EE 依然叫 JEE。（译者注： 将 Java EE 首字母缩写也可简称为 JEE）。</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J2EE 1.2</td>
+<td>1999 年 12月</td>
+</tr>
+<tr>
+<td>J2EE 1.3</td>
+<td>2001 年 09 月</td>
+</tr>
+<tr>
+<td>J2EE 1.4</td>
+<td>2003 年 11 月</td>
+</tr>
+<tr>
+<td>Java EE 5</td>
+<td>2006 年 05 月</td>
+</tr>
+<tr>
+<td>Java EE 6</td>
+<td>2009 年 12 月</td>
+</tr>
+<tr>
+<td>Java EE 7</td>
+<td>2013 年 04 月</td>
+</tr>
+<tr>
+<td>Java EE 8</td>
+<td>2017 年 08 月</td>
+</tr>
+<tr>
+<td>Jakarta EE</td>
+<td>2018 年 02 月</td>
+</tr>
+</tbody>
+</table>
+<p>宣布新名字[译者注：译者怀疑此处是原文排版没排好]</p>
+<p>不过这仍然是个正在进行的故事，还未完全尘埃落定。</p>
+<p>举个例子，虽然 Oracle 开源了 Java 源代码，但却并未开源所有的文档。关于这个问题，因为涉及到一些法律事宜，导致开源一些文档（例如与 JMS、EJB相关的）非常棘手，至今仍有许多争议。</p>
+<p>现在还无法得知新的 Eclipse 基金会文档是否能够参考原文档。</p>
+<p>同样令人奇怪的是 Eclipse 基金会不能使用 javax 的命名空间来创建新的 Java 包，但是可以在现有包的下面创建新的类和子类。</p>
+<p>转变阶段也意味着对 Jakarta EE 添加规范的新流程。为了更好地理解这一点，让我们快速看一下 Oracle 添加规范的流程以及 Eclipse 基金会相应做出的改变。</p>
+<h2 id="4未来">4.未来</h2>
+<p>在过去，为了将一个特性添加进 “EE”（译者注：原文作者为了避免 Jakarta EE 历史名字的混杂性，使用“EE”来代指全部的版本，下同），我们需要 3 样东西 ：规范、参考实现与测试。社区里的任何人都可以提交这 3 样东西，之后执行委员会将会决定何时将它们整合进 Java 语言中。</p>
+<p>为了更好地理解添加规范的旧流程，让我们进一步了解 JSRs、Glassfish 和 TCK是什么 ，以及它们是如何整合新特性的。</p>
+<p>我们也将一睹在未来可以预期的事。</p>
+<h3 id="41jcp-以及现在的-efsp">4.1.JCP 以及现在的 EFSP</h3>
+<p>在过去，产生EE 新特性的流程被称为 JCP（Java Community Process）。</p>
+<p>Java SE 现在仍然采用 JCP。但是由于 EE 的所有权已经从 Oracle 移交至 Eclipse 基金会，EE 已经有了新的流程，这个流程是<a href="https://www.eclipse.org/projects/dev_process">Eclipse 开发流程</a>的扩展，与 Java SE 的流程互不干扰，我们称之为 EFSP（Eclipse Foundation Specification Process）。</p>
+<p>尽管 JCP 与 EFSP 之间有一些大的差异，但大都围绕着“透明、公开、集体负责和供应商中立”这几条准则展开。例如，EFSP 的组织者设想的合作工作团体是供应商中立的，认证流程是自助服务的，组织的运作与管理是精英化的。</p>
+<h3 id="42jsrs">4.2.JSRs</h3>
+<p>在 JCP 中，为 EE 添加新特性的第一步是创建一个 JSR（Java Specification Request）。JSR 有点类似于一个 EE 特性的接口。JCP 执行委员会会核准一个完整的 JSR，然后相应的 JSR 贡献者会编写代码，使其在社区内生效。</p>
+<p>JSR-339 或者 JAX-RS 对于阐述上面的流程是一个好例子。JAX-RS 最初于 2011 年提出，在2012年被 JCP 批准，最终在 2013 年得以发布。</p>
+<p>虽然在讨论规范时，社区可以随时加入进来，但时间表明，一个实现优先（ implementation-first）的方式更利于创建能被广泛接受的特性与 API。所谓的实现优先，类似于JSR 310中的 java.time 和 Joda Time这个例子（译者注：JDK 1.8 之前 Java 关于时间的 API 很不如人意，使用广泛的是 Joda-Tme）。</p>
+<p>因此，EFSP（Eclipse Foundation Specification Process）在其设定的目标中阐述了这个观点：“EFSP 将基于是否先进行了动手实验和编码，来判断其是否值得添加进规范中。”</p>
+<h3 id="43glassfish">4.3.Glassfish</h3>
+<p>此外，JSR 作为 JCP 的一部分，需要一个参考实现。这有点类似于实现接口的类。对于那些想要创建自己的规范实现的群体，比如说兼容库的开发人员或者其他组织，参考实现都可以给予帮助。</p>
+<p>对于 Java EE 特性，JCP 使用 Glassfish 作为参考实现。</p>
+<p>虽然 Glassfish 的中心化简化了实现者的探索过程，但是这种中心化也要求更多的管理，并且倾向于偏袒某个供应商。</p>
+<p>因此，EFSP 不要求参考实现，而只要求兼容的实现。简而言之，这种微妙的变化使得类似 Glassfish 之类的中心体系结构内的实现，不会被基金会无缘由地首选。</p>
+<h3 id="44tck">4.4.TCK</h3>
+<p>最后，JCP 要求 EE 特性需通过 TCK（Technology Compatibility Kit）的测试。</p>
+<p>TCK 是一组验证特定 EE JSR 的测试。简而言之，为了遵循 Java EE，应用服务器需要实现所有 JSR， 并通过特定 TCK 上的所有测试。</p>
+<p>与前述类似，Oracle虽然开源了TCK和EE jsr的源代码（译者注：但并没有开源相应的文档）。当然，未来所有的文档和 TCK 都将是开源的。</p>
+<h2 id="5总结">5.总结</h2>
+<p>这些年来，Java EE 无疑前进了许多。很高兴看到它继续变化与变好。</p>
+<p>前方之路充满坎坷，希望 Java 的转变能够平滑些。</p>
 ]]></content>
     </entry>
 </feed>
