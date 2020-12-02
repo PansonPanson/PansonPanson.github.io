@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读002：ArrayList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606911161096">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606920734703">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606911161096" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606920734703" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -113,7 +113,11 @@
 </ul>
 </li>
 <li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
-<li><a href="#6-fail-fast">6 Fail-Fast</a></li>
+<li><a href="#6-fail-fast">6 Fail-Fast</a>
+<ul>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
 </ul>
 </p>
 <h1 id="1-引言">1 引言</h1>
@@ -287,6 +291,10 @@ private void grow(int minCapacity) {
 <h1 id="6-fail-fast">6 Fail-Fast</h1>
 <p>modCount 用来记录 ArrayList 结构发生变化的次数。结构发生变化是指添加或者删除至少一个元素的所有操作，或者是调整内部数组的大小，仅仅只是设置元素的值不算结构发生变化。</p>
 <p>在进行序列化或者迭代等操作时，需要比较操作前后 modCount 是否改变，如果改变了需要抛出 <strong>ConcurrentModificationException</strong>。</p>
+<h2 id="参考">参考</h2>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzkxNDEyOTI0OQ==&amp;mid=2247484475&amp;idx=2&amp;sn=af21ac6a8f360c5a918053e753dbfe79&amp;source=41#wechat_redirect">ArrayList</a></li>
+</ol>
 
                 </div>
             </article>
