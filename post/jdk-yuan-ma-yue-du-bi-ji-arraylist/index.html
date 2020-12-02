@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读002：ArrayList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606891075534">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606911161096">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606891075534" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606911161096" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -113,6 +113,7 @@
 </ul>
 </li>
 <li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
+<li><a href="#6-fail-fast">6 Fail-Fast</a></li>
 </ul>
 </p>
 <h1 id="1-引言">1 引言</h1>
@@ -246,8 +247,10 @@ private void rangeCheckForAdd(int index) {
 }
 </code></pre>
 <h1 id="5-扩容机制">5 扩容机制</h1>
-<p>在添加元素的时候，可能会触发扩容机制，相关源码如下：</p>
+<p>在添加元素的时候，可能会触发扩容机制，新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)， 大约是旧容量的 1.5 倍左右。</p>
+<p>相关源码如下：</p>
 <pre><code class="language-java">public boolean add(E e) {
+  	// 
     ensureCapacityInternal(size + 1);  // Increments modCount!!
     elementData[size++] = e;
     return true;
@@ -270,6 +273,8 @@ private void ensureExplicitCapacity(int minCapacity) {
 private void grow(int minCapacity) {
     // overflow-conscious code
     int oldCapacity = elementData.length;
+  	// 新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)
+    // 大约是旧容量的 1.5 倍左右
     int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);
     if (newCapacity - minCapacity &lt; 0)
         newCapacity = minCapacity;
@@ -279,6 +284,9 @@ private void grow(int minCapacity) {
     elementData = Arrays.copyOf(elementData, newCapacity);
 }
 </code></pre>
+<h1 id="6-fail-fast">6 Fail-Fast</h1>
+<p>modCount 用来记录 ArrayList 结构发生变化的次数。结构发生变化是指添加或者删除至少一个元素的所有操作，或者是调整内部数组的大小，仅仅只是设置元素的值不算结构发生变化。</p>
+<p>在进行序列化或者迭代等操作时，需要比较操作前后 modCount 是否改变，如果改变了需要抛出 <strong>ConcurrentModificationException</strong>。</p>
 
                 </div>
             </article>

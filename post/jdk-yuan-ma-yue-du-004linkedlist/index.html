@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>RocketMQ 源码阅读总结 | Panson&#39;s Home</title>
+<title>JDK 源码阅读 003：LinkedList | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606911161096">
 
@@ -89,21 +89,32 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    RocketMQ 源码阅读总结
+                    JDK 源码阅读 003：LinkedList
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-04-13 ·
+                        · 2019-03-08 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
                     <!-- more -->
+<h2 id="1-引言">1 引言</h2>
+<p>LinkedList 底层基于链表实现，采用了一个双向队列的数据结构，插入、获取、删除，都可以从队头、队尾来实现，完全可以当做一个队列来用，offer()往队尾插入元素，poll()从队头删除元素。</p>
+<p>优点：队头、队尾、队中插入数据，哪怕是插入大量的数据，也不会出现任何的大量元素的挪动和数组扩容。在中间插入元素性能没有队头和队尾那么好，需要遍历链表到指定的位置，然后完成元素的插入。</p>
+<p>缺点：如果是要随机位置获取一个元素，get(int index)这个方法，需要遍历，如果数据很多，性能比较差的。</p>
 
                 </div>
             </article>
         </div>
 
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-bi-ji-arraylist/" class="post-title gt-a-link">
+                    JDK 源码阅读002：ArrayList
+                </a>
+            </div>
         
 
         

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-02T06:37:57.949Z</updated>
+    <updated>2020-12-02T12:12:43.067Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -539,8 +539,6 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
         <content type="html"><![CDATA[<p><em>消息队列中，最熟悉的应该就是 RocketMQ 了，Kafka 和 RabbitMQ 都不是用 Java 写的，深入研究的话，时间耗费有点大，准备先熟悉透了 RocketMQ 之后再去研究 Kafka。本文很多内容其实都参照了官方文档，有兴趣的读者也可以通读一遍<a href="https://github.com/apache/rocketmq/tree/master/docs/cn">官方文档</a>。</em></p>
 <!-- more -->
 <p><ul class="markdownIt-TOC">
-<li>
-<ul>
 <li><a href="#1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1">1 架构设计</a></li>
 <li><a href="#2-nameserver-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">2 NameServer 工作原理</a></li>
 <li><a href="#3-broker-%E7%9A%84%E4%B8%BB%E4%BB%8E%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86">3 Broker 的主从架构原理</a></li>
@@ -551,10 +549,8 @@ zk集群无论多少台机器，只能是一个leader进行写，单机写入最
 </ul>
 </li>
 </ul>
-</li>
-</ul>
 </p>
-<h2 id="1-架构设计">1 架构设计</h2>
+<h1 id="1-架构设计">1 架构设计</h1>
 <p>先来看一下 RocketMQ 的架构设计图：<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rocketmq_architecture_1.png?raw=true" alt="" loading="lazy"><br>
 RocketMQ架构上主要分为四部分，如上图所示:</p>
@@ -592,12 +588,20 @@ RocketMQ架构上主要分为四部分，如上图所示:</p>
 <p><strong>结合部署架构图，描述集群工作流程：</strong></p>
 <ol>
 <li>启动NameServer，NameServer起来后监听端口，等待Broker、Producer、Consumer连上来，相当于一个路由控制中心。</li>
-<li>Broker启动，跟所有的NameServer保持长连接，定时发送心跳包。心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息。注册成功后，NameServer集群中就有Topic跟Broker的映射关系。</li>
+<li>Broker启动，跟所有的NameServer保持长连接，定时发送心跳包。
+<ul>
+<li>心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息。注册成功后，NameServer集群中就有Topic跟Broker的映射关系。</li>
+</ul>
+</li>
 <li>收发消息前，先创建Topic，创建Topic时需要指定该Topic要存储在哪些Broker上，也可以在发送消息时自动创建Topic。</li>
-<li>Producer发送消息，启动时先跟NameServer集群中的其中一台建立长连接，并从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息。</li>
+<li>Producer发送消息。
+<ul>
+<li>启动时先跟NameServer集群中的其中一台建立长连接，并从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息。</li>
+</ul>
+</li>
 <li>Consumer跟Producer类似，跟其中一台NameServer建立长连接，获取当前订阅Topic存在哪些Broker上，然后直接跟Broker建立连接通道，开始消费消息。</li>
 </ol>
-<h2 id="2-nameserver-工作原理">2 NameServer 工作原理</h2>
+<h1 id="2-nameserver-工作原理">2 NameServer 工作原理</h1>
 <p>从架构图中可以看到 NameServer 好似一个交通枢纽，所以下面先从 NameServer 聊起。</p>
 <ul>
 <li>第一，每个 Broker（包括 master 和 slave） 启动的时候都得向所有的 NameServer 进行注册，也就是说，每个 NameServer 都会有一份集群中所有 Broker 的信息。</li>
@@ -606,7 +610,7 @@ RocketMQ架构上主要分为四部分，如上图所示:</p>
 <li>第四，Broker 与 NameServer 进行心跳注册时，还会汇报自己的数据情况，比如哪些 Topic 的哪些数据在自己这里，这些信息都是属于路由信息的一部分。</li>
 <li>第五，生产者在发送消息之前，会先确定一个 Topic, 然后在发送消息的时候指定 Topic， 发送到 master broker 上。然后生产者会与 NameServer 建立一个 TCP 长连接，然后定时从 NameServer 拉取最新的路由信息，包括集群中有哪些 Topic，每个 Topic 存储在哪些 Broker 上。</li>
 </ul>
-<h2 id="3-broker-的主从架构原理">3 Broker 的主从架构原理</h2>
+<h1 id="3-broker-的主从架构原理">3 Broker 的主从架构原理</h1>
 <ul>
 <li>第一，首先在<code>第二节 NameServer 工作原理</code>中已经讲了：每个 Broker（包括 master 和 slave） 启动的时候都得向所有的 NameServer 进行注册，也就是说，每个 NameServer 都会有一份集群中所有 Broker 的信息。</li>
 <li>第二，master 与 slave 之间的数据同步方式：slave Broker 不停地发送请求到 master Broker 中去去拉取消息。</li>
@@ -618,12 +622,12 @@ RocketMQ架构上主要分为四部分，如上图所示:</p>
 </ul>
 </li>
 </ul>
-<h2 id="4-消息写入-broker">4 消息写入 Broker</h2>
-<h3 id="41-分片机制">4.1 分片机制</h3>
+<h1 id="4-消息写入-broker">4 消息写入 Broker</h1>
+<h2 id="41-分片机制">4.1 分片机制</h2>
 <p>Topic 为了能分布式存储，引入了 MessageQueue 的概念（分片机制），如下图所示：<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/RocketMQ-producer-write.png?raw=true" alt="" loading="lazy"></p>
 <p>在 Producer 中有一个开关：sendLatencyFaultEnable，一旦打开这个开关，就会开启自动容错机制，比如说某次访问一个 broker 发现网络延迟有 500 ms，然后还会无法访问，那么就会自动回避访问这个 Broker 一段时间，比如接下来 3000 ms 内，就不会再访问这个 Broker 了。</p>
-<h3 id="42-broker-存储机制">4.2 Broker 存储机制</h3>
+<h2 id="42-broker-存储机制">4.2 Broker 存储机制</h2>
 <p>先来讲一下一串名词，这些名词都与Broker 的数据存储有关系。</p>
 <ul>
 <li>CommitLog</li>
@@ -1276,11 +1280,11 @@ synchronized(this) {
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[ JDK 源码阅读003：HashMap]]></title>
+        <title type="html"><![CDATA[ JDK 源码阅读004：HashMap]]></title>
         <id>https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/</id>
         <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
         </link>
-        <updated>2019-03-08T10:31:18.000Z</updated>
+        <updated>2019-03-10T10:31:18.000Z</updated>
         <content type="html"><![CDATA[<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
 目录：</p>
 <ol>
@@ -1469,10 +1473,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3466349"><label class="task-list-item-label" for="task-item-3466349">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5295159"><label class="task-list-item-label" for="task-item-5295159">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7012995"><label class="task-list-item-label" for="task-item-7012995">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6085991"><label class="task-list-item-label" for="task-item-6085991">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7397027"><label class="task-list-item-label" for="task-item-7397027">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6511820"><label class="task-list-item-label" for="task-item-6511820">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7858526"><label class="task-list-item-label" for="task-item-7858526">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7880633"><label class="task-list-item-label" for="task-item-7880633">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
@@ -1486,6 +1490,19 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 <li>ConcurrentHashMap的红黑树实现分析：https://www.jianshu.com/p/23b84ba9a498</li>
 <li>谈谈ConcurrentHashMap1.7和1.8的不同实现：https://www.jianshu.com/p/e694f1e868ec</li>
 </ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读 003：LinkedList]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-yue-du-004linkedlist/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-004linkedlist/">
+        </link>
+        <updated>2019-03-08T11:47:37.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<h2 id="1-引言">1 引言</h2>
+<p>LinkedList 底层基于链表实现，采用了一个双向队列的数据结构，插入、获取、删除，都可以从队头、队尾来实现，完全可以当做一个队列来用，offer()往队尾插入元素，poll()从队头删除元素。</p>
+<p>优点：队头、队尾、队中插入数据，哪怕是插入大量的数据，也不会出现任何的大量元素的挪动和数组扩容。在中间插入元素性能没有队头和队尾那么好，需要遍历链表到指定的位置，然后完成元素的插入。</p>
+<p>缺点：如果是要随机位置获取一个元素，get(int index)这个方法，需要遍历，如果数据很多，性能比较差的。</p>
 ]]></content>
     </entry>
     <entry>
@@ -1511,6 +1528,7 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </ul>
 </li>
 <li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
+<li><a href="#6-fail-fast">6 Fail-Fast</a></li>
 </ul>
 </p>
 <h1 id="1-引言">1 引言</h1>
@@ -1644,8 +1662,10 @@ private void rangeCheckForAdd(int index) {
 }
 </code></pre>
 <h1 id="5-扩容机制">5 扩容机制</h1>
-<p>在添加元素的时候，可能会触发扩容机制，相关源码如下：</p>
+<p>在添加元素的时候，可能会触发扩容机制，新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)， 大约是旧容量的 1.5 倍左右。</p>
+<p>相关源码如下：</p>
 <pre><code class="language-java">public boolean add(E e) {
+  	// 
     ensureCapacityInternal(size + 1);  // Increments modCount!!
     elementData[size++] = e;
     return true;
@@ -1668,6 +1688,8 @@ private void ensureExplicitCapacity(int minCapacity) {
 private void grow(int minCapacity) {
     // overflow-conscious code
     int oldCapacity = elementData.length;
+  	// 新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)
+    // 大约是旧容量的 1.5 倍左右
     int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);
     if (newCapacity - minCapacity &lt; 0)
         newCapacity = minCapacity;
@@ -1677,6 +1699,9 @@ private void grow(int minCapacity) {
     elementData = Arrays.copyOf(elementData, newCapacity);
 }
 </code></pre>
+<h1 id="6-fail-fast">6 Fail-Fast</h1>
+<p>modCount 用来记录 ArrayList 结构发生变化的次数。结构发生变化是指添加或者删除至少一个元素的所有操作，或者是调整内部数组的大小，仅仅只是设置元素的值不算结构发生变化。</p>
+<p>在进行序列化或者迭代等操作时，需要比较操作前后 modCount 是否改变，如果改变了需要抛出 <strong>ConcurrentModificationException</strong>。</p>
 ]]></content>
     </entry>
     <entry>
