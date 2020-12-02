@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读 003：LinkedList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606920734703">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606922083084">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606920734703" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606922083084" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -129,6 +129,7 @@ transient Node&lt;E&gt; last;
 }
 </code></pre>
 <h1 id="4-主要方法">4 主要方法</h1>
+<h2 id="41-add">4.1 add</h2>
 <ul>
 <li>
 <p>add()：默认就是在队列的尾部插入一个元素，在那个双向链表的尾部插入一个元素</p>
@@ -227,6 +228,9 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 <li>
 <p>offer() == add()：就是在队列尾部入队，将一个元素插入队列尾部，同理还有offerFirst()，offerLast()</p>
 </li>
+</ul>
+<h2 id="42-get">4.2 get</h2>
+<ul>
 <li>
 <p>poll()：从队列头部出队</p>
 <pre><code class="language-java">public E poll() {
@@ -256,6 +260,85 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 <pre><code class="language-java">public E peek() {
     final Node&lt;E&gt; f = first;
     return (f == null) ? null : f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getFirst()</p>
+<pre><code class="language-java">public E getFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getLast()</p>
+<pre><code class="language-java">public E getLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return l.item;
+}
+</code></pre>
+</li>
+<li>
+<p>get(int index)</p>
+<pre><code class="language-java">public E get(int index) {
+    checkElementIndex(index);
+    return node(index).item;
+}
+</code></pre>
+</li>
+</ul>
+<h2 id="43-remove">4.3 remove</h2>
+<ul>
+<li>
+<p>remove()：删除头结点</p>
+<pre><code class="language-java">public E remove() {
+    return removeFirst();
+}
+</code></pre>
+<pre><code class="language-java">public E removeFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return unlinkFirst(f);
+}
+</code></pre>
+<pre><code class="language-java">private E unlinkFirst(Node&lt;E&gt; f) {
+    // assert f == first &amp;&amp; f != null;
+    final E element = f.item;
+    final Node&lt;E&gt; next = f.next;
+    f.item = null;
+    f.next = null; // help GC
+    first = next;
+    if (next == null)
+        last = null;
+    else
+        next.prev = null;
+    size--;
+    modCount++;
+    return element;
+}
+</code></pre>
+</li>
+<li>
+<p>remove(int index)</p>
+<pre><code class="language-java">public E remove(int index) {
+    checkElementIndex(index);
+    return unlink(node(index));
+}
+</code></pre>
+</li>
+<li>
+<p>removeLast()</p>
+<pre><code class="language-java">public E removeLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return unlinkLast(l);
 }
 </code></pre>
 </li>

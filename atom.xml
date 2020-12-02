@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-02T15:12:34.680Z</updated>
+    <updated>2020-12-02T15:14:45.706Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -1473,10 +1473,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2810033"><label class="task-list-item-label" for="task-item-2810033">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8037348"><label class="task-list-item-label" for="task-item-8037348">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7144230"><label class="task-list-item-label" for="task-item-7144230">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6539556"><label class="task-list-item-label" for="task-item-6539556">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-530121"><label class="task-list-item-label" for="task-item-530121">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5416955"><label class="task-list-item-label" for="task-item-5416955">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8601541"><label class="task-list-item-label" for="task-item-8601541">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2840280"><label class="task-list-item-label" for="task-item-2840280">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
@@ -1529,6 +1529,7 @@ transient Node&lt;E&gt; last;
 }
 </code></pre>
 <h1 id="4-主要方法">4 主要方法</h1>
+<h2 id="41-add">4.1 add</h2>
 <ul>
 <li>
 <p>add()：默认就是在队列的尾部插入一个元素，在那个双向链表的尾部插入一个元素</p>
@@ -1627,6 +1628,9 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 <li>
 <p>offer() == add()：就是在队列尾部入队，将一个元素插入队列尾部，同理还有offerFirst()，offerLast()</p>
 </li>
+</ul>
+<h2 id="42-get">4.2 get</h2>
+<ul>
 <li>
 <p>poll()：从队列头部出队</p>
 <pre><code class="language-java">public E poll() {
@@ -1656,6 +1660,85 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 <pre><code class="language-java">public E peek() {
     final Node&lt;E&gt; f = first;
     return (f == null) ? null : f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getFirst()</p>
+<pre><code class="language-java">public E getFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getLast()</p>
+<pre><code class="language-java">public E getLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return l.item;
+}
+</code></pre>
+</li>
+<li>
+<p>get(int index)</p>
+<pre><code class="language-java">public E get(int index) {
+    checkElementIndex(index);
+    return node(index).item;
+}
+</code></pre>
+</li>
+</ul>
+<h2 id="43-remove">4.3 remove</h2>
+<ul>
+<li>
+<p>remove()：删除头结点</p>
+<pre><code class="language-java">public E remove() {
+    return removeFirst();
+}
+</code></pre>
+<pre><code class="language-java">public E removeFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return unlinkFirst(f);
+}
+</code></pre>
+<pre><code class="language-java">private E unlinkFirst(Node&lt;E&gt; f) {
+    // assert f == first &amp;&amp; f != null;
+    final E element = f.item;
+    final Node&lt;E&gt; next = f.next;
+    f.item = null;
+    f.next = null; // help GC
+    first = next;
+    if (next == null)
+        last = null;
+    else
+        next.prev = null;
+    size--;
+    modCount++;
+    return element;
+}
+</code></pre>
+</li>
+<li>
+<p>remove(int index)</p>
+<pre><code class="language-java">public E remove(int index) {
+    checkElementIndex(index);
+    return unlink(node(index));
+}
+</code></pre>
+</li>
+<li>
+<p>removeLast()</p>
+<pre><code class="language-java">public E removeLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return unlinkLast(l);
 }
 </code></pre>
 </li>
