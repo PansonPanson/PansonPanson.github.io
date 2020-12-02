@@ -6,7 +6,7 @@
 
 <title>Redis 核心原理总结 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606827475833">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606891075534">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606827475833" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606891075534" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -143,6 +143,18 @@
 </ul>
 </li>
 <li><a href="#4-%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5">4 过期策略</a></li>
+<li><a href="#5-%E6%8C%81%E4%B9%85%E5%8C%96%E4%B9%8B-aof-%E4%B8%8E-rdb">5 持久化之 AOF 与 RDB</a>
+<ul>
+<li><a href="#51-aof">5.1 AOF</a>
+<ul>
+<li><a href="#511-aof-%E7%9A%84%E5%86%99%E5%90%8E%E6%97%A5%E5%BF%97%E6%96%B9%E5%BC%8F%E7%9A%84%E4%BC%98%E7%82%B9%E4%B8%8E%E7%BC%BA%E7%82%B9">5.1.1 AOF 的写后日志方式的优点与缺点</a></li>
+<li><a href="#512-%E5%86%99%E5%9B%9E%E7%AD%96%E7%95%A5">5.1.2 写回策略</a></li>
+<li><a href="#513-aofappend-only-file-%E9%87%8D%E5%86%99%E6%9C%BA%E5%88%B6">5.1.3 AOF(Append Only File) 重写机制</a></li>
+</ul>
+</li>
+<li><a href="#52-rdbredis-database">5.2 RDB(Redis DataBase)</a></li>
+</ul>
+</li>
 </ul>
 </p>
 <h1 id="1-底层数据结构">1 底层数据结构</h1>
@@ -293,6 +305,48 @@ redis 内存淘汰机制有以下 6 种：</p>
 [4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
 </code></pre>
 <p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
+<h1 id="5-持久化之-aof-与-rdb">5 持久化之 AOF 与 RDB</h1>
+<h2 id="51-aof">5.1 AOF</h2>
+<h3 id="511-aof-的写后日志方式的优点与缺点">5.1.1 AOF 的写后日志方式的优点与缺点</h3>
+<p>我们以Redis收到“set key1 value1”命令后记录的⽇志为例，看看AOF⽇志的内容。</p>
+<pre><code class="language-java">*3
+$3
+set
+$4
+key1
+$6
+value1
+</code></pre>
+<p>其中，“*3”表⽰当前命令有三个部分，每部分都是由“$+数字”开头，后⾯紧跟着具体的命令、键或值。这⾥，“数字”表⽰这部分中的命令、键或值⼀共有多少字节。例如，“$3 set”表⽰这部分有3个字节。</p>
+<p>AOF 采用写后⽇志这种⽅式，就是先让系统执⾏命令，只有命令能执⾏成功，才会被记录到⽇志中，否则，系统就会直接向客⼾端报错。所以，Redis使⽤写后⽇志这⼀⽅式的⼀⼤好处是，<strong>可以避免出现记录错误命令的情况</strong>。</p>
+<p>不过，AOF也有两个潜在的⻛险。</p>
+<ol>
+<li>如果刚执⾏完⼀个命令，还没有来得及记⽇志就宕机了，那么这个命令和相应的数据就有丢失的⻛<br>
+险。如果此时Redis是⽤作缓存，还可以从后端数据库重新读⼊数据进⾏恢复，但是，如果Redis是直接⽤作<br>
+数据库的话，此时，因为命令没有记⼊⽇志，所以就⽆法⽤⽇志进⾏恢复了。</li>
+<li>AOF虽然避免了对当前命令的阻塞，但可能会给下⼀个操作带来阻塞⻛险。这是因为，AOF⽇志也是<br>
+在主线程中执⾏的，如果在把⽇志⽂件写⼊磁盘时，磁盘写压⼒⼤，就会导致写盘很慢，进⽽导致后续的操<br>
+作也⽆法执⾏了。</li>
+</ol>
+<h3 id="512-写回策略">5.1.2 写回策略</h3>
+<ol>
+<li><strong>Always</strong>，同步写回：每个写命令执⾏完，⽴⻢同步地将⽇志写回磁盘；</li>
+<li><strong>Everysec</strong>，每秒写回：每个写命令执⾏完，只是先把⽇志写到AOF⽂件的内存缓冲区，每隔⼀秒把缓冲区中的内容写⼊磁盘；</li>
+<li><strong>No</strong>，操作系统控制的写回：每个写命令执⾏完，只是先把⽇志写到AOF⽂件的内存缓冲区，由操作系统决定何时将缓冲区内容写回磁盘。</li>
+</ol>
+<h3 id="513-aofappend-only-file-重写机制">5.1.3 AOF(Append Only File) 重写机制</h3>
+<p>AOF 的重写根据键值对的最新状态，将中间过程省略，从而缩小日志文件大小。<br>
+和AOF⽇志由主线程写回不同，重写过程是由后台线程bgrewriteaof来完成的，这也是为了避免阻塞主线程，导致数据库性能下降。</p>
+<p>重写的过程可以总结为“⼀个拷⻉，两处⽇志”。</p>
+<p>“⼀个拷⻉”就是指，每次执⾏重写时，主线程fork出后台的bgrewriteaof⼦进程。此时，fork会把主线程的内存拷⻉⼀份给bgrewriteaof⼦进程，这⾥⾯就包含了数据库的最新数据。然后，bgrewriteaof⼦进程就可以在不影响主线程的情况下，逐⼀把拷⻉的数据写成操作，记⼊重写⽇志。</p>
+<p>“两处⽇志”⼜是什么呢？因为主线程未阻塞，仍然可以处理新来的操作。此时，如果有写操作，第⼀处⽇志就是指正在使⽤的AOF⽇志，Redis会把这个操作写到它的缓冲区。这样⼀来，即使宕机了，这个AOF⽇志的操作仍然是⻬全的，可以⽤于恢复。⽽第⼆处⽇志，就是指新的AOF重写⽇志。这个操作也会被写到重写⽇志的缓冲区。这样，重写⽇志也不会丢失最新的操作。等到拷⻉数据的所有操作记录重写完成后，重写⽇志记录的这些最新操作也会写⼊新的AOF⽂件，以保证数据库最新状态的记录。此时，我们就可以⽤新的AOF⽂件替代旧⽂件了。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-aof2.png?raw=true" alt="" loading="lazy"><br>
+总结来说，每次AOF重写时，Redis会先执⾏⼀个内存拷⻉，⽤于重写；然后，使⽤两个⽇志保证在重写过<br>
+程中，新写⼊的数据不会丢失。⽽且，因为Redis采⽤额外的线程进⾏数据重写，所以，这个过程并不会阻<br>
+塞主线程。</p>
+<h2 id="52-rdbredis-database">5.2 RDB(Redis DataBase)</h2>
+<p>Redis的数据都在内存中，为了提供所有数据的可靠性保证，RDB 执⾏的是全量快照。</p>
+<p>为了能在</p>
 <p>参考：</p>
 <ul>
 <li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
@@ -319,7 +373,7 @@ redis 内存淘汰机制有以下 6 种：</p>
         
 
         <div class="site-footer gt-c-content-color-first">
-    <div class="slogan gt-c-content-color-first">不坠青云之志</div>
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
     <div class="social-container">
         
             
