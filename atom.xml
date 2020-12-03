@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-02T15:14:45.706Z</updated>
+    <updated>2020-12-03T07:09:12.096Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -953,6 +953,21 @@ while(i &gt; 0) {
 <li><a href="#52-rdbredis-database">5.2 RDB(Redis DataBase)</a></li>
 </ul>
 </li>
+<li><a href="#6-%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5">6 主从同步</a>
+<ul>
+<li><a href="#61-%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6%E5%90%8C%E6%AD%A5%E6%B5%81%E7%A8%8B">6.1 全量复制同步流程</a>
+<ul>
+<li><a href="#611-%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5">6.1.1 第一阶段</a></li>
+<li><a href="#612-%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5">6.1.2 第二阶段</a></li>
+<li><a href="#613-%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5">6.1.3 第三阶段</a></li>
+</ul>
+</li>
+<li><a href="#62-%E4%B8%BB%E4%BB%8E%E7%BA%A7%E8%81%94%E6%A8%A1%E5%BC%8F">6.2 主从级联模式</a></li>
+<li><a href="#63-%E5%A2%9E%E9%87%8F%E5%A4%8D%E5%88%B6">6.3 增量复制</a></li>
+</ul>
+</li>
+<li><a href="#7-%E5%93%A8%E5%85%B5%E6%9C%BA%E5%88%B6">7 哨兵机制</a></li>
+<li><a href="#%E5%8F%82%E8%80%83">参考：</a></li>
 </ul>
 </p>
 <h1 id="1-底层数据结构">1 底层数据结构</h1>
@@ -1143,50 +1158,107 @@ value1
 程中，新写⼊的数据不会丢失。⽽且，因为Redis采⽤额外的线程进⾏数据重写，所以，这个过程并不会阻<br>
 塞主线程。</p>
 <h2 id="52-rdbredis-database">5.2 RDB(Redis DataBase)</h2>
-<p>Redis的数据都在内存中，为了提供所有数据的可靠性保证，RDB 执⾏的是全量快照。</p>
-<p>为了能在</p>
-<p>参考：</p>
+<p>Redis的数据都在内存中，为了提供所有数据的可靠性保证，RDB 执⾏的是全量快照。<br>
+Redis提供了两个命令来⽣成RDB⽂件，分别是save和bgsave。</p>
 <ul>
+<li>save：在主线程中执⾏，会导致阻塞；</li>
+<li>bgsave：创建⼀个⼦进程，专⻔⽤于写⼊RDB⽂件，避免了主线程的阻塞，这也是Redis RDB⽂件⽣成的默认配置。</li>
+</ul>
+<p>为了快照⽽暂停写操作，肯定是不能接受的。所以这个时候，Redis就会借助操作系统提供的写时复制技术<br>
+（Copy-On-Write, COW），在执⾏快照的同时，正常处理写操作。<br>
+简单来说，bgsave⼦进程是由主线程fork⽣成的，可以共享主线程的所有内存数据。bgsave⼦进程运⾏<br>
+后，开始读取主线程的内存数据，并把它们写⼊RDB⽂件。<br>
+Redis 4.0中提出了⼀个混合使⽤AOF⽇志和内存快照的⽅法。简单来说，内存快照以⼀定的频率执⾏，在两次快照之间，使⽤AOF⽇志记录这期间的所有命令操作。<br>
+此时，如果主线程对这些数据也都是读操作（例如图中的键值对A），那么，主线程和bgsave⼦进程相互不影响。但是，如果主线程要修改⼀块数据（例如图中的键值对C），那么，这块数据就会被复制⼀份，⽣成该数据的副本。然后，bgsave⼦进程会把这个副本数据写⼊RDB⽂件，⽽在这个过程中，主线程仍然可以直接修改原来的数据。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-aof3.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="6-主从同步">6 主从同步</h1>
+<h2 id="61-全量复制同步流程">6.1 全量复制同步流程</h2>
+<h3 id="611-第一阶段">6.1.1 第一阶段</h3>
+<p>第⼀阶段是主从库间建⽴连接、协商同步的过程，主要是为全量复制做准备。在这⼀步，从库和主库建⽴起<br>
+连接，并告诉主库即将进⾏同步，主库确认回复后，主从库间就可以开始同步了。<br>
+具体来说，从库给主库发送psync命令，表⽰要进⾏数据同步，主库根据这个命令的参数来启动复制。<br>
+psync命令包含了主库的runID和复制进度offset两个参数。</p>
+<ul>
+<li>runID，是每个Redis实例启动时都会⾃动⽣成的⼀个随机ID，⽤来唯⼀标记这个实例。当从库和主库第一次复制时，因为不知道主库的runID，所以将runID设为“？”。</li>
+<li>offset，此时设为-1，表⽰第⼀次复制。<br>
+主库收到psync命令后，会⽤FULLRESYNC响应命令带上两个参数：主库runID和主库⽬前的复制进度offset，返回给从库。从库收到响应后，会记录下这两个参数。<br>
+这⾥有个地⽅需要注意，FULLRESYNC响应表⽰第⼀次复制采⽤的全量复制，也就是说，主库会把当前所<br>
+有的数据都复制给从库。</li>
+</ul>
+<h3 id="612-第二阶段">6.1.2 第二阶段</h3>
+<p>这⾥有个地⽅需要注意，FULLRESYNC响应表⽰第⼀次复制采⽤的全量复制，也就是说，主库会把当前所有的数据都复制给从库。<br>
+具体来说，主库执⾏bgsave命令，⽣成RDB⽂件，接着将⽂件发给从库。从库接收到RDB⽂件后，会先清空当前数据库，然后加载RDB⽂件。这是因为从库在通过replicaof命令开始和主库同步前，可能保存了其他数据。为了避免之前数据的影响，从库需要先把当前数据库清空。<br>
+在主库将数据同步给从库的过程中，主库不会被阻塞，仍然可以正常接收请求。否则，Redis的服务就被中断了。但是，这些请求中的写操作并没有记录到刚刚⽣成的RDB⽂件中。为了保证主从库的数据⼀致性，主库会在内存中⽤专⻔的replication buffer，记录RDB⽂件⽣成后收到的所有写操作。</p>
+<h3 id="613-第三阶段">6.1.3 第三阶段</h3>
+<p>主库会把第⼆阶段执⾏过程中新收到的写命令，再发送给从库。<br>
+具体的操作是，当主库完成RDB⽂件发送后，就会把此时replication buffer中的修改操作发给从库，从库再重新执⾏这些操作。这样⼀来，主从库就实现同步了</p>
+<h2 id="62-主从级联模式">6.2 主从级联模式</h2>
+<p>⼀次全量复制中，对于主库来说，需要完成两个耗时的操作：</p>
+<ul>
+<li>⽣成RDB⽂件</li>
+<li>传输RDB⽂件<br>
+我们可以通过“主-从-从”模式将主库⽣成RDB和传输RDB的压⼒，以级联的⽅式分散到从库上.<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-slave-slave.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h2 id="63-增量复制">6.3 增量复制</h2>
+<p>当主从库断连后，主库会把断连期间收到的写操作命令，写⼊replication buffer，同时也会把这些操作命令也写⼊repl_backlog_buffer这个缓冲区。<br>
+repl_backlog_buffer是⼀个环形缓冲区，主库会记录⾃⼰写到的位置，从库则会记录⾃⼰已经读到的位<br>
+置。<br>
+刚开始的时候，主库和从库的写读位置在⼀起，这算是它们的起始位置。随着主库不断接收新的写操作，它在缓冲区中的写位置会逐步偏离起始位置，我们通常⽤偏移量来衡量这个偏移距离的⼤⼩，对主库来说，对应的偏移量就是master_repl_offset。主库接收的新写操作越多，这个值就会越⼤。<br>
+同样，从库在复制完写操作命令后，它在缓冲区中的读位置也开始逐步偏移刚才的起始位置，此时，从库已<br>
+复制的偏移量slave_repl_offset也在不断增加。正常情况下，这两个偏移量基本相等。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-replica-buffer.png?raw=true" alt="" loading="lazy"></p>
+<p>增量复制流程如下所示：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-add-syn.png?raw=true" alt="" loading="lazy"></p>
+<p><strong>注意：</strong><br>
+因为repl_backlog_buffer是⼀个环形缓冲区，所以在缓冲区写满后，主库会继续写⼊，此时，就会覆盖掉之前写⼊的操作。如果从库的读取速度⽐较慢，就有可能导致从库还未读取的操作被主库新写的操作覆盖了，这会导致主从库间的数据不⼀致。<br>
+因此，我们要想办法避免这⼀情况，⼀般⽽⾔，我们可以调整repl_backlog_size这个参数。这个参数和所<br>
+需的缓冲空间⼤⼩有关。缓冲空间的计算公式是：缓冲空间⼤⼩ = 主库写⼊命令速度 * 操作⼤⼩ - 主从库间⽹络传输命令速度 * 操作⼤⼩。在实际应⽤中，考虑到可能存在⼀些突发的请求压⼒，我们通常需要把这个缓冲空间扩⼤⼀倍，即repl_backlog_size = 缓冲空间⼤⼩ * 2，这也就是repl_backlog_size的最终值。<br>
+举个例⼦，如果主库每秒写⼊2000个操作，每个操作的⼤⼩为2KB，⽹络每秒能传输1000个操作，那么，有1000个操作需要缓冲起来，这就⾄少需要2MB的缓冲空间。否则，新写的命令就会覆盖掉旧操作了。为了应对可能的突发压⼒，我们最终把repl_backlog_size设为4MB。</p>
+<h1 id="7-哨兵机制">7 哨兵机制</h1>
+<p>主从集群模式下，如果主库宕机，那就需要哨兵机制登场了。在Redis主从集群中，哨兵机制是实现主从库⾃动切换的关键机制，它有效地解决了主从复制模式下故障转移的三个问题：</p>
+<ol>
+<li>主库真的挂了吗？</li>
+<li>该选择哪个从库作为主库？</li>
+<li>怎么把新主库的相关信息通知给从库和客⼾端呢？<br>
+哨兵其实就是⼀个运⾏在特殊模式下的Redis进程，主从库实例运⾏的同时，它也在运⾏。哨兵主要负责的<br>
+就是三个任务：监控、选主（选择主库）和通知。</li>
+<li>监控：监控是指哨兵进程在运⾏时，周期性地给所有的主从库发送PING命令，检测它们是否仍然在线运⾏。如果从库没有在规定时间内响应哨兵的PING命令，哨兵就会把它标记为“下线状态”；同样，如果主库也没有在规定时间内响应哨兵的PING命令，哨兵就会判定主库下线，然后开始⾃动切换主库的流程。</li>
+<li>选主：主库挂了以后，哨兵就需要从很多个从库⾥，按照⼀定的规则选择⼀个从库实例，把它作为新的主库。这⼀步完成后，现在的集群⾥就有了新主库。</li>
+<li>通知：在执⾏通知任务时，哨兵会把新主库的连接信息发给其他从库，让它们执⾏replicaof命令，和新主库建⽴连接，并进⾏数据复制。同时，哨兵会把新主库的连接信息通知给客⼾端，让它们把请求操作发到新主库上。</li>
+</ol>
+<p>为了降低哨兵监控的误判率，通常会采⽤多实例组成的集群模式进⾏部署，这也被称为哨兵集群。引⼊多个哨兵实例⼀起来判断，就可以避免单个哨兵因为⾃⾝⽹络状况不好，⽽误判主库下线的情况。同时，多个哨兵的⽹络同时不稳定的概率较⼩，由它们⼀起做决策，误判率也能降低。在判断主库是否下线时，不能由⼀个哨兵说了算，只有⼤多数的哨兵实例，都判断主库已经“主观下线”了，主库才会被标记为“客观下线”。</p>
+<p>在选主时，除了要检查从库的当前<strong>在线状态</strong>，还要判断它之前的<strong>⽹络连接状态</strong>。使⽤配置项down-after-milliseconds * 10。其中，down-after-milliseconds是我们认定主从库断连的最⼤连接超时时间。如果在down-after-milliseconds毫秒内，主从节点都没有通过⽹络联系上，我们就可以认为主从节点断连了。如果发⽣断连的次数超过了10次，就说明这个从库的⽹络状况不好，不适合作为新主库。</p>
+<p>接下来就要给剩余的从库打分了。我们可以分别按照三个规则依次进⾏三轮打分，这三个规则分别是</p>
+<ol>
+<li>从库优先级</li>
+<li>从库复制进度</li>
+<li>从库ID号。</li>
+</ol>
+<p>只要在某⼀轮中，有从库得分最⾼，那么它就是主库了，选主过程到此结束。如果没有出现得分最⾼的从库，那么就继续进⾏下⼀轮。</p>
+<ol>
+<li>
+<p>第⼀轮：优先级最⾼的从库得分⾼。<br>
+⽤⼾可以通过slave-priority配置项，给不同的从库设置不同优先级。⽐如，你有两个从库，它们的内存⼤⼩不⼀样，你可以⼿动给内存⼤的实例设置⼀个⾼优先级。在选主时，哨兵会给优先级⾼的从库打⾼分，如果有⼀个从库优先级最⾼，那么它就是新主库了。如果从库的优先级都⼀样，那么哨兵开始第⼆轮打分。</p>
+</li>
+<li>
+<p>第⼆轮：和旧主库同步程度最接近的从库得分⾼。<br>
+这个规则的依据是，如果选择和旧主库同步最接近的那个从库作为主库，那么，这个新主库上就有最新的数据。<br>
+主从库同步时有个命令传播的过程。在这个过程中，主库会⽤master_repl_offset记录当前的最新写操作在repl_backlog_buffer中的位置，⽽从库会⽤slave_repl_offset这个值记录当前的复制进度。此时，我们想要找的从库，它的slave_repl_offset需要最接近master_repl_offset。如果在所有从库中，有从库的slave_repl_offset最接近master_repl_offset，那么它的得分就最⾼，可以作为新主库。</p>
+</li>
+<li>
+<p>第三轮：ID号⼩的从库得分⾼。<br>
+每个实例都会有⼀个ID，这个ID就类似于这⾥的从库的编号。⽬前，Redis在选主库时，有⼀个默认的规<br>
+定：在优先级和复制进度都相同的情况下，ID号最⼩的从库得分最⾼，会被选为新主库。</p>
+</li>
+</ol>
+<p>总结：⾸先，哨兵会按照在线状态、⽹络状态，筛选过滤掉⼀部分不符合要求的从库，然后，依次按照优先级、复制进度、ID号⼤⼩再对剩余的从库进⾏打分，只要有得分最⾼的从库出现，就把它选为新主库。</p>
+<h1 id="参考">参考：</h1>
+<ul>
+<li><a href="https://book.douban.com/subject/25900156/">《Redis 设计与实现》</a></li>
 <li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
 <li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[老生常谈：TCP 三次握手、四次挥手]]></title>
-        <id>https://panson.top/post/lao-sheng-chang-tan-tcp-san-ci-wo-shou-si-ci-hui-shou/</id>
-        <link href="https://panson.top/post/lao-sheng-chang-tan-tcp-san-ci-wo-shou-si-ci-hui-shou/">
-        </link>
-        <updated>2020-01-01T07:50:56.000Z</updated>
-        <summary type="html"><![CDATA[<p>本文图解讲述 TCP 三次握手、四次挥手流程，扩展添加了对应的高频面试题。文中所有的网格图都使用 draw.io 制作。</p>
-]]></summary>
-        <content type="html"><![CDATA[<p>本文图解讲述 TCP 三次握手、四次挥手流程，扩展添加了对应的高频面试题。文中所有的网格图都使用 draw.io 制作。</p>
-<!-- more -->
-<p>先看看 TCP 报文格式：<br>
-<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/TCP%20.jpg?raw=true" alt="" loading="lazy"></p>
-<p>TCP FLAG 位由 bit 组成，分别代表 ACK、SYN、FIN、URG、PSH、RST ，都以置 1 表示有效。在三次握手和四次挥手中我们重点关注 SYN、ACK、FIN。</p>
-<ul>
-<li>SYN ( Synchronize Sequence Numbers ）用作建立连接时的同步信号；</li>
-<li>ACK (Acknowledgement ）用于对收到的数据进行确认，所确认的数据由确认序列号表示；</li>
-<li>FIN ( Finish ）表示后面没有数据需要发送，通常意昧着所建立的连接需要关闭了。</li>
-</ul>
-<p>在三次握手中，流程如下：</p>
-<ul>
-<li>A 机器发出一个数据包并将 SYN 置为 1，表示希望建立连接。这个包中的序列号假设是 x。</li>
-<li>B 机器收到 A 机器发过来的数据包后，通过 SYN = 1 得知这是一个建立连接的请求，于是发送一个响应包并将 SYN ACK 标记都置为 1。假设这个包中的序列号是 y，而确认序列号必须是 x+1 ，表示收到了 A 发过来的 SYN。在 TCP 中， SYN 被当作数据部分的一个字节。</li>
-<li>A 收到  B 的响应包后需进行确认，确认包中将 ACK 置为 1 ，并将确认序列号置为 y + 1，表示收到了来自 B 的 SYN。</li>
-</ul>
-<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B.jpg?raw=true" alt="" loading="lazy"></figure>
-<p>为什么需要三次握手？如果是两次握手又会有什么问题？</p>
-<ul>
-<li>信息对等</li>
-<li>脏连接</li>
-</ul>
-<p>四次挥手：<br>
-四次挥手释放连接时，等待2MSL的意义？</p>
-<ul>
-<li>确认被动关闭方能够顺利进入 CLOSED 状态</li>
-<li>防止失效请求</li>
+<li><a href="https://time.geekbang.org/column/intro/100056701">Redis核心技术与实战</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -1285,31 +1357,11 @@ synchronized(this) {
         <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
         </link>
         <updated>2019-03-10T10:31:18.000Z</updated>
-        <content type="html"><![CDATA[<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
-目录：</p>
-<ol>
-<li>
-<p>底层数据结构<br>
+        <content type="html"><![CDATA[<h1 id="1-引言">1 引言</h1>
+<h2 id="11-数据结构">1.1 数据结构</h2>
+<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
-</li>
-<li>
-<p>核心成员变量</p>
-</li>
-<li>
-<p>核心方法</p>
-<ul>
-<li>put</li>
-<li>get</li>
-<li>resize</li>
-</ul>
-</li>
-<li>
-<p>并发安全</p>
-</li>
-<li>
-<p>Node</p>
-</li>
-</ol>
+<h2 id="12-node">1.2 Node</h2>
 <pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
         final int hash;    //用来定位数组索引位置
         final K key;
@@ -1325,7 +1377,8 @@ synchronized(this) {
         public final boolean equals(Object o) { ... }
 }
 </code></pre>
-<p>对应的字段：table，即哈希桶数组是一个 Node  数组</p>
+<h2 id="13-table">1.3 table</h2>
+<p>table，即哈希桶数组是一个 Node  数组</p>
 <pre><code class="language-java">/**
   * The table, initialized on first use, and resized as
   * necessary. When allocated, length is always a power of two.
@@ -1334,10 +1387,7 @@ synchronized(this) {
 */
 transient Node&lt;K,V&gt;[] table;
 </code></pre>
-<p>让我们再来看看 HashMap 的底层数据结构示意图：</p>
-<ol start="2">
-<li>核心字段：</li>
-</ol>
+<h1 id="2-核心字段">2 核心字段：</h1>
 <pre><code class="language-java">/**
      * The number of key-value mappings contained in this map.
      */
@@ -1370,10 +1420,8 @@ transient Node&lt;K,V&gt;[] table;
      */
     final float loadFactor;
 </code></pre>
-<ol start="3">
-<li>核心方法：<br>
-本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</li>
-</ol>
+<h2 id="3-核心方法">3 核心方法：</h2>
+<p>本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</p>
 <ul>
 <li>确定哈希桶数组索引位置</li>
 </ul>
@@ -1473,10 +1521,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-530121"><label class="task-list-item-label" for="task-item-530121">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5416955"><label class="task-list-item-label" for="task-item-5416955">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8601541"><label class="task-list-item-label" for="task-item-8601541">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2840280"><label class="task-list-item-label" for="task-item-2840280">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2766708"><label class="task-list-item-label" for="task-item-2766708">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1323146"><label class="task-list-item-label" for="task-item-1323146">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5482592"><label class="task-list-item-label" for="task-item-5482592">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1489531"><label class="task-list-item-label" for="task-item-1489531">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>

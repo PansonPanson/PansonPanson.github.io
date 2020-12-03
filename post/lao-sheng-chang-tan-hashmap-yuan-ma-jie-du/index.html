@@ -6,7 +6,7 @@
 
 <title> JDK 源码阅读004：HashMap | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606922083084">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1606979349933">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1606922083084" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1606979349933" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -98,31 +98,11 @@
                     
                 </div>
                 <div class="post-content">
-                    <p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
-目录：</p>
-<ol>
-<li>
-<p>底层数据结构<br>
+                    <h1 id="1-引言">1 引言</h1>
+<h2 id="11-数据结构">1.1 数据结构</h2>
+<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
-</li>
-<li>
-<p>核心成员变量</p>
-</li>
-<li>
-<p>核心方法</p>
-<ul>
-<li>put</li>
-<li>get</li>
-<li>resize</li>
-</ul>
-</li>
-<li>
-<p>并发安全</p>
-</li>
-<li>
-<p>Node</p>
-</li>
-</ol>
+<h2 id="12-node">1.2 Node</h2>
 <pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
         final int hash;    //用来定位数组索引位置
         final K key;
@@ -138,7 +118,8 @@
         public final boolean equals(Object o) { ... }
 }
 </code></pre>
-<p>对应的字段：table，即哈希桶数组是一个 Node  数组</p>
+<h2 id="13-table">1.3 table</h2>
+<p>table，即哈希桶数组是一个 Node  数组</p>
 <pre><code class="language-java">/**
   * The table, initialized on first use, and resized as
   * necessary. When allocated, length is always a power of two.
@@ -147,10 +128,7 @@
 */
 transient Node&lt;K,V&gt;[] table;
 </code></pre>
-<p>让我们再来看看 HashMap 的底层数据结构示意图：</p>
-<ol start="2">
-<li>核心字段：</li>
-</ol>
+<h1 id="2-核心字段">2 核心字段：</h1>
 <pre><code class="language-java">/**
      * The number of key-value mappings contained in this map.
      */
@@ -183,10 +161,8 @@ transient Node&lt;K,V&gt;[] table;
      */
     final float loadFactor;
 </code></pre>
-<ol start="3">
-<li>核心方法：<br>
-本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</li>
-</ol>
+<h2 id="3-核心方法">3 核心方法：</h2>
+<p>本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</p>
 <ul>
 <li>确定哈希桶数组索引位置</li>
 </ul>
@@ -286,10 +262,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-530121"><label class="task-list-item-label" for="task-item-530121">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5416955"><label class="task-list-item-label" for="task-item-5416955">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8601541"><label class="task-list-item-label" for="task-item-8601541">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2840280"><label class="task-list-item-label" for="task-item-2840280">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2766708"><label class="task-list-item-label" for="task-item-2766708">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1323146"><label class="task-list-item-label" for="task-item-1323146">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5482592"><label class="task-list-item-label" for="task-item-5482592">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1489531"><label class="task-list-item-label" for="task-item-1489531">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
