@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-03T07:44:54.437Z</updated>
+    <updated>2020-12-03T10:56:47.470Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -1073,6 +1073,10 @@ redis 内存淘汰机制有以下 6 种：</p>
 <li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。</li>
 <li>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。</li>
 </ul>
+<p>Redis lru 底层原理：Redis采用了一个近似的lru 算法，就是随机取出若干个key，然后按照访问时间排序后，淘汰掉最不经常使用的。</p>
+<ul>
+<li>Redis会基于server.maxmemory_samples配置选取固定数目的key，然后比较它们的lru访问时间，然后淘汰最近最久没有访问的key，maxmemory_samples的值越大，Redis的近似LRU算法就越接近于严格LRU算法，但是相应消耗也变高，对性能有一定影响。</li>
+</ul>
 <p>手写一个 LRU 算法：</p>
 <pre><code class="language-java">class LRUCache&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
     private final int CACHE_SIZE;
@@ -1529,10 +1533,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-846419"><label class="task-list-item-label" for="task-item-846419">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9612827"><label class="task-list-item-label" for="task-item-9612827">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6112622"><label class="task-list-item-label" for="task-item-6112622">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9317073"><label class="task-list-item-label" for="task-item-9317073">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2246049"><label class="task-list-item-label" for="task-item-2246049">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5233856"><label class="task-list-item-label" for="task-item-5233856">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6056141"><label class="task-list-item-label" for="task-item-6056141">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9664285"><label class="task-list-item-label" for="task-item-9664285">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
