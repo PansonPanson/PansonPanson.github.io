@@ -6,7 +6,7 @@
 
 <title>系统设计：TinyURL | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607067133855">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607069139909">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607067133855" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607069139909" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -99,7 +99,20 @@
                 </div>
                 <div class="post-content">
                     <p><em>最近面试问到如何设计一个 TinyURL，准备用 Java 代码实现一遍。</em></p>
-<p>// todo</p>
+<!-- more -->
+<h1 id="1-场景复现">1 场景复现</h1>
+<p>我们日常会收到类似这样的短信：</p>
+<blockquote>
+<p>【xx银行】恭喜你！免费抽xx珐琅铸铁锅、xx吸尘器，点击 tinuurl.com/abcdefg 领取。</p>
+</blockquote>
+<p>当我们点击这个链接的时候（友情提示：请不要点击短信的链接，防止恶意攻击），会重定向到原来的长网址。<br>
+这个功能的背后就是一个短网址（TinyURL） 系统。</p>
+<h1 id="2-解决方案">2 解决方案</h1>
+<h1 id="3-代码实现">3 代码实现</h1>
+<h1 id="参考资料">参考资料：</h1>
+<ol>
+<li><a href="https://wizardforcel.gitbooks.io/gainlo-interview-guide/content/sd5.html">Create a TinyURL System</a></li>
+</ol>
 
                 </div>
             </article>

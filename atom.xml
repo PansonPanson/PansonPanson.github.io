@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-04T07:32:16.344Z</updated>
+    <updated>2020-12-04T08:05:42.974Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -16,8 +16,23 @@
         <link href="https://panson.top/post/xi-tong-she-ji-tinyurl/">
         </link>
         <updated>2020-12-04T07:19:05.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>最近面试问到如何设计一个 TinyURL，准备用 Java 代码实现一遍。</em></p>
+]]></summary>
         <content type="html"><![CDATA[<p><em>最近面试问到如何设计一个 TinyURL，准备用 Java 代码实现一遍。</em></p>
-<p>// todo</p>
+<!-- more -->
+<h1 id="1-场景复现">1 场景复现</h1>
+<p>我们日常会收到类似这样的短信：</p>
+<blockquote>
+<p>【xx银行】恭喜你！免费抽xx珐琅铸铁锅、xx吸尘器，点击 tinuurl.com/abcdefg 领取。</p>
+</blockquote>
+<p>当我们点击这个链接的时候（友情提示：请不要点击短信的链接，防止恶意攻击），会重定向到原来的长网址。<br>
+这个功能的背后就是一个短网址（TinyURL） 系统。</p>
+<h1 id="2-解决方案">2 解决方案</h1>
+<h1 id="3-代码实现">3 代码实现</h1>
+<h1 id="参考资料">参考资料：</h1>
+<ol>
+<li><a href="https://wizardforcel.gitbooks.io/gainlo-interview-guide/content/sd5.html">Create a TinyURL System</a></li>
+</ol>
 ]]></content>
     </entry>
     <entry>
@@ -1581,10 +1596,10 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-618300"><label class="task-list-item-label" for="task-item-618300">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3983817"><label class="task-list-item-label" for="task-item-3983817">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3757522"><label class="task-list-item-label" for="task-item-3757522">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4415188"><label class="task-list-item-label" for="task-item-4415188">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-310817"><label class="task-list-item-label" for="task-item-310817">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3420258"><label class="task-list-item-label" for="task-item-3420258">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-850519"><label class="task-list-item-label" for="task-item-850519">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6820347"><label class="task-list-item-label" for="task-item-6820347">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
