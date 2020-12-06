@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-04T08:30:14.831Z</updated>
+    <updated>2020-12-06T07:06:28.197Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -1407,132 +1407,155 @@ synchronized(this) {
         <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
         </link>
         <updated>2019-03-10T10:31:18.000Z</updated>
-        <content type="html"><![CDATA[<h1 id="1-引言">1 引言</h1>
-<h2 id="11-数据结构">1.1 数据结构</h2>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">2 数据结构</a>
+<ul>
+<li><a href="#22-node">2.2 Node</a></li>
+<li><a href="#23-table">2.3 table</a></li>
+</ul>
+</li>
+<li><a href="#3-%E6%A0%B8%E5%BF%83%E5%AD%97%E6%AE%B5">3 核心字段</a></li>
+<li><a href="#4-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96-%E4%B8%8E-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4 hash 算法优化 与 hash 寻址优化</a>
+<ul>
+<li><a href="#41-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96">4.1  hash 算法优化</a></li>
+<li><a href="#42-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4.2 hash 寻址优化</a></li>
+</ul>
+</li>
+<li><a href="#5-put-%E8%BF%87%E7%A8%8B">5 put 过程</a>
+<ul>
+<li><a href="#51-put-%E6%96%B9%E6%B3%95%E7%9A%84%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90">5.1 put 方法的源码解析</a></li>
+<li><a href="#52-put-%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93">5.2 put 流程总结</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="1-引言">1 引言</h1>
+<p>尽管哈希表是一种非常常见的数据结构，但是具体的代码实现依旧有很多可以优化的地方，我们可以通过阅读 JDK1.8 的HashMap 源码实现来学习这些优秀的设计。</p>
+<h1 id="2-数据结构">2 数据结构</h1>
 <p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
 <img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
-<h2 id="12-node">1.2 Node</h2>
+<h2 id="22-node">2.2 Node</h2>
 <pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
-        final int hash;    //用来定位数组索引位置
+        // 用来定位数组索引位置
+        final int hash;    
         final K key;
         V value;
-        Node&lt;K,V&gt; next;   //链表的下一个node
-
-        Node(int hash, K key, V value, Node&lt;K,V&gt; next) { ... }
-        public final K getKey(){ ... }
-        public final V getValue() { ... }
-        public final String toString() { ... }
-        public final int hashCode() { ... }
-        public final V setValue(V newValue) { ... }
-        public final boolean equals(Object o) { ... }
+        // 链表的下一个node
+        Node&lt;K,V&gt; next;   
 }
 </code></pre>
-<h2 id="13-table">1.3 table</h2>
+<h2 id="23-table">2.3 table</h2>
 <p>table，即哈希桶数组是一个 Node  数组</p>
-<pre><code class="language-java">/**
-  * The table, initialized on first use, and resized as
-  * necessary. When allocated, length is always a power of two.
-  * (We also tolerate length zero in some operations to allow
-  * bootstrapping mechanics that are currently not needed.)
-*/
-transient Node&lt;K,V&gt;[] table;
+<pre><code class="language-java">transient Node&lt;K,V&gt;[] table;
 </code></pre>
-<h1 id="2-核心字段">2 核心字段：</h1>
-<pre><code class="language-java">/**
-     * The number of key-value mappings contained in this map.
-     */
-    transient int size;
-
-    /**
-     * The number of times this HashMap has been structurally modified
-     * Structural modifications are those that change the number of mappings in
-     * the HashMap or otherwise modify its internal structure (e.g.,
-     * rehash).  This field is used to make iterators on Collection-views of
-     * the HashMap fail-fast.  (See ConcurrentModificationException).
-     */
-    transient int modCount;
-
-    /**
-     * The next size value at which to resize (capacity * load factor).
-     *
-     * @serial
-     */
-    // (The javadoc description is true upon serialization.
-    // Additionally, if the table array has not been allocated, this
-    // field holds the initial array capacity, or zero signifying
-    // DEFAULT_INITIAL_CAPACITY.)
-    int threshold;
-
-    /**
-     * The load factor for the hash table.
-     *
-     * @serial
-     */
-    final float loadFactor;
+<h1 id="3-核心字段">3 核心字段</h1>
+<pre><code class="language-java">// threshold = capacity * loadFactor，扩容大小的阈值
+int threshold;
+// 负载因子
+final float loadFactor;
+// 当前 HashMap 中 &lt;key, value&gt; 的对数
+transient int size;
 </code></pre>
-<h2 id="3-核心方法">3 核心方法：</h2>
-<p>本文主要从根据key获取哈希桶数组索引位置、put方法的详细执行、扩容过程三个具有代表性的点深入展开讲解。</p>
-<ul>
-<li>确定哈希桶数组索引位置</li>
-</ul>
-<pre><code class="language-java">方法一：
-static final int hash(Object key) {   //jdk1.8 &amp; jdk1.7
-     int h;
-     // h = key.hashCode() 为第一步 取hashCode值
-     // h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算
-     return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
-}
-方法二：
-static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个方法，但是实现原理一样的
-     return h &amp; (length-1);  //第三步 取模运算
+<h1 id="4-hash-算法优化-与-hash-寻址优化">4 hash 算法优化 与 hash 寻址优化</h1>
+<h2 id="41-hash-算法优化">4.1  hash 算法优化</h2>
+<p>来看看 hash 方法的源码：</p>
+<pre><code class="language-java">static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
 }
 </code></pre>
 <ul>
-<li>put 过程</li>
+<li>如果 key 为 null，则会返回 0，否则计算出 key 的 hash 值和 hash 值无符号右移 16 位，并将两者进行异或操作，返回结果值。</li>
 </ul>
-<pre><code class="language-java">final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
-                   boolean evict) {
+<p>我们模拟一下，假设 key.hashCode(）为 ：1111 1111 1111 1111 1100  1100 1100 1100，<br>
+将其无符号右移 16 位，得到：0000 0000 0000 0000 1111 1111 1111 1111，<br>
+两者异或，得到：1111 1111 1111 1111 0011 0011 0011 0011。</p>
+<p><strong>为什么要进行异或操作呢？其实在后续进行 hash 寻址的过程中，一般都是用低 16 位进行运算。进行异或操作，可以让高 16 位也参与运算，在低 16 位同时保留原先高 16 位和低 16 位的特征，从而降低 hash 冲突的概率。</strong></p>
+<h2 id="42-hash-寻址优化">4.2 hash 寻址优化</h2>
+<p>在 putVal() 方法中，有这么一段代码：</p>
+<pre><code class="language-java">  if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+</code></pre>
+<p>这里的 <code>(n - 1) &amp; hash</code> 其实就是寻址，相当于 <code>hash / n</code>，但是位运算又比取模运算速度快。</p>
+<h1 id="5-put-过程">5 put 过程</h1>
+<h2 id="51-put-方法的源码解析">5.1 put 方法的源码解析</h2>
+<pre><code class="language-java">public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<pre><code class="language-java">final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
         Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;
+        // 1. 数组容量初始化：如果数组为 null 或者数组的长度为 0，会进行初次扩容
         if ((tab = table) == null || (n = tab.length) == 0)
             n = (tab = resize()).length;
+        // 2. Node 初始化：使用优化后的寻址算法，如果定位到的 Node 元素为 null
         if ((p = tab[i = (n - 1) &amp; hash]) == null)
             tab[i] = newNode(hash, key, value, null);
-        else {
+        else { // 定位到元素不为空，有3 个分支
             Node&lt;K,V&gt; e; K k;
-            if (p.hash == hash &amp;&amp;
-                ((k = p.key) == key || (key != null &amp;&amp; key.equals(k))))
+            //  如果桶中第一个元素的key与待插入元素的key相同，保存到e中用于后续修改value值
+            if (p.hash == hash &amp;&amp;((k = p.key) == key || (key != null &amp;&amp; key.equals(k))
                 e = p;
+            // 如果第一个元素是树节点，则调用树节点的putTreeVal插入元素
             else if (p instanceof TreeNode)
                 e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
             else {
+                // 遍历这个桶对应的链表，binCount用于存储链表中元素的个数
                 for (int binCount = 0; ; ++binCount) {
+                    // 如果链表遍历完了都没有找到相同key的元素，说明该key对应的元素不存在，则在链表最后插入一个新节点
                     if ((e = p.next) == null) {
                         p.next = newNode(hash, key, value, null);
+                        // 如果插入新节点后链表长度大于8，则判断是否需要树化
                         if (binCount &gt;= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            // 先判断table的长度是否大于64，如果小于64，就通过扩容的方式来解决，避免红黑树结构化
                             treeifyBin(tab, hash);
                         break;
                     }
+                    //  如果待插入的key在链表中找到了，则退出循环
                     if (e.hash == hash &amp;&amp;
                         ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
                         break;
                     p = e;
                 }
             }
+            // 如果找到了对应key的元素, 记录下旧值
             if (e != null) { // existing mapping for key
                 V oldValue = e.value;
+                // 判断是否需要替换旧值
                 if (!onlyIfAbsent || oldValue == null)
+                    // 替换旧值
                     e.value = value;
+                // 在节点被访问后做点什么事，在LinkedHashMap中用到
                 afterNodeAccess(e);
+                // 返回旧值
                 return oldValue;
             }
         }
+        // 到这里了说明没有找到元素，修改次数加1
         ++modCount;
+        // 元素数量加1，判断是否需要扩容
         if (++size &gt; threshold)
             resize();
+        // 在节点插入后做点什么事，在LinkedHashMap中用到
         afterNodeInsertion(evict);
+        // 没找到元素返回null
         return null;
     }
 </code></pre>
+<h2 id="52-put-流程总结">5.2 put 流程总结</h2>
+<ol>
+<li>计算key的hash值；</li>
+<li>如果桶（数组）数量为0，则初始化桶；</li>
+<li>如果key所在的桶没有元素，则直接插入；</li>
+<li>如果key所在的桶中的第一个元素的key与待插入的key相同，说明找到了元素，转后续流程 9 处理；</li>
+<li>如果第一个元素是树节点，则调用树节点的putTreeVal()寻找元素或插入树节点；</li>
+<li>如果不是以上三种情况，则遍历桶对应的链表查找key是否存在于链表中；</li>
+<li>如果找到了对应key的元素，则转后续流程 9 处理；</li>
+<li>如果没找到对应key的元素，则在链表最后插入一个新节点并判断是否需要树化；</li>
+<li>如果找到了对应key的元素，则判断是否需要替换旧值，并直接返回旧值；</li>
+<li>如果插入了元素，则数量加1并判断是否需要扩容；</li>
+</ol>
 <ul>
 <li>扩容机制</li>
 </ul>
@@ -1571,13 +1594,14 @@ static int indexFor(int h, int length) {  //jdk1.7的源码，jdk1.8没有这个
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3093933"><label class="task-list-item-label" for="task-item-3093933">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1304743"><label class="task-list-item-label" for="task-item-1304743">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1557446"><label class="task-list-item-label" for="task-item-1557446">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4797809"><label class="task-list-item-label" for="task-item-4797809">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3003465"><label class="task-list-item-label" for="task-item-3003465">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4186832"><label class="task-list-item-label" for="task-item-4186832">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7513927"><label class="task-list-item-label" for="task-item-7513927">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2119110"><label class="task-list-item-label" for="task-item-2119110">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
+<li>Java中的移位运算符：https://zhuanlan.zhihu.com/p/30108890</li>
 <li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
 <li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
 <li>https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
