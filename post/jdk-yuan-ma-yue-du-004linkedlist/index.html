@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读 003：LinkedList | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607324654935">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607325379115">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607324654935" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607325379115" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -99,14 +99,14 @@
                 </div>
                 <div class="post-content">
                     <!-- more -->
-<h1 id="1-引言">1 引言</h1>
+<h2 id="1-引言">1 引言</h2>
 <p>LinkedList 底层基于双向链表实现，插入、获取、删除，都可以从队头、队尾来实现，完全可以当做一个队列来用，offer()往队尾插入元素，poll()从队头删除元素。</p>
 <p>优点：队头、队尾、队中插入数据，哪怕是插入大量的数据，也不会出现任何的大量元素的挪动和数组扩容。在中间插入元素性能没有队头和队尾那么好，需要遍历链表到指定的位置，然后完成元素的插入。</p>
 <p>缺点：如果是要随机位置获取一个元素，get(int index)这个方法，需要遍历，如果数据很多，性能比较差的。</p>
-<h1 id="2-类继承关系">2 类继承关系</h1>
+<h2 id="2-类继承关系">2 类继承关系</h2>
 <p>LinkedList不仅实现了List接口，还实现了Queue和Deque接口，所以它既能作为List使用，也能作为双端队列使用，当然也可以作为栈使用。</p>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/linkedlist.png?raw=true" alt="" loading="lazy"></figure>
-<h1 id="3-主要属性与内部类">3 主要属性与内部类</h1>
+<h2 id="3-主要属性与内部类">3 主要属性与内部类</h2>
 <pre><code class="language-java">// 元素个数
 transient int size = 0;
 // 链表首节点
@@ -128,8 +128,8 @@ transient Node&lt;E&gt; last;
         }
 }
 </code></pre>
-<h1 id="4-主要方法">4 主要方法</h1>
-<h2 id="41-add">4.1 add</h2>
+<h2 id="4-主要方法">4 主要方法</h2>
+<h3 id="41-add">4.1 add</h3>
 <ul>
 <li>
 <p>add()：默认就是在队列的尾部插入一个元素，在那个双向链表的尾部插入一个元素</p>
@@ -229,7 +229,7 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 <p>offer() == add()：就是在队列尾部入队，将一个元素插入队列尾部，同理还有offerFirst()，offerLast()</p>
 </li>
 </ul>
-<h2 id="42-get">4.2 get</h2>
+<h3 id="42-get">4.2 get</h3>
 <ul>
 <li>
 <p>poll()：从队列头部出队</p>
@@ -292,7 +292,7 @@ void linkBefore(E e, Node&lt;E&gt; succ) {
 </code></pre>
 </li>
 </ul>
-<h2 id="43-remove">4.3 remove</h2>
+<h3 id="43-remove">4.3 remove</h3>
 <ul>
 <li>
 <p>remove()：删除头结点</p>
