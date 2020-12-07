@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-07T13:07:03.103Z</updated>
+    <updated>2020-12-07T14:25:56.526Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -1416,6 +1416,116 @@ synchronized(this) {
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[JDK 源码解析005：LinkedHashMap]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-jie-xi-005linkedhashmap/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-jie-xi-005linkedhashmap/">
+        </link>
+        <updated>2019-05-15T13:09:32.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-引言">1 引言</h2>
+<p>HashMap 的遍历顺序与插入顺序不一定是一致的，LinkedHashMap 继承了 HashMap，扩展了一些功能，用于维护插入顺序。</p>
+<pre><code class="language-java">public class LinkedHashMap&lt;K,V&gt;
+    extends HashMap&lt;K,V&gt;
+    implements Map&lt;K,V&gt;
+{
+</code></pre>
+<p>与 TreeMap 对比，他们相同的地方在于都可以维护 key 的顺序，只是 LinkedHashMap 底层是基于双向链表来实现顺序，TreeMap 是基于红黑树来实现。</p>
+<p>LinkedHashMap 与 HashMap 基本操作和原理相似，主要区别在于插入、覆盖、删除的时候，会使用双向链表来记录 key-value 对的顺序，在遍历的时候按照这个顺序来遍历。</p>
+<h2 id="2-核心属性">2 核心属性</h2>
+<pre><code class="language-java">// 双向链表头节点, 旧数据存在头节点。
+transient LinkedHashMap.Entry&lt;K,V&gt; head;
+
+// 双向链表尾节点，新数据存在尾节点。
+transient LinkedHashMap.Entry&lt;K,V&gt; tail;
+
+// 是否按访问顺序排序，如果为false则按插入顺序存储元素，如果是true则按访问顺序存储元素。
+final boolean accessOrder;
+</code></pre>
+<h2 id="3-核心原理">3 核心原理</h2>
+<h3 id="31-put">3.1 put</h3>
+<p>在调用 LinkedHashMap 的 put() 方法的时候，一定会调用到 HashMap 的 put() 方法里面去，调用完 put() 方法，插入一个 key-value 对之后，其实就会调用 afterNodeInsertion(evict)，这个方法就会去回调 LinkedHahsMap 里面的子类的实现。</p>
+<p>在 put 操作之后执行，当 removeEldestEntry() 方法返回 true 时会移除最晚的节点，也就是链表首部节点 first。</p>
+<p>evict 只有在构建 Map 的时候才为 false，在这里为 true。</p>
+<pre><code class="language-java">void afterNodeInsertion(boolean evict) { // possibly remove eldest
+    LinkedHashMap.Entry&lt;K,V&gt; first;
+    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) {
+        K key = first.key;
+        removeNode(hash(key), key, null, false, true);
+    }
+}
+</code></pre>
+<p>另外还有一个子类实现 afterNodeAccess(Node&lt;K,V&gt; e) 方法：</p>
+<p>当一个节点被访问时，如果 accessOrder 为 true，则会将该节点移到链表尾部。也就是说指定为 LRU 顺序之后，在每次访问一个节点时，会将这个节点移到链表尾部，保证链表尾部是最近访问的节点，那么链表首部就是最近最久未使用的节点。</p>
+<pre><code class="language-java">void afterNodeAccess(Node&lt;K,V&gt; e) { // move node to last
+    LinkedHashMap.Entry&lt;K,V&gt; last;
+    if (accessOrder &amp;&amp; (last = tail) != e) {
+        LinkedHashMap.Entry&lt;K,V&gt; p =
+            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;
+        p.after = null;
+        if (b == null)
+            head = a;
+        else
+            b.after = a;
+        if (a != null)
+            a.before = b;
+        else
+            last = b;
+        if (last == null)
+            head = p;
+        else {
+            p.before = last;
+            last.after = p;
+        }
+        tail = p;
+        ++modCount;
+    }
+}
+</code></pre>
+<p>removeEldestEntry() 默认为 false，如果需要让它为 true，需要继承 LinkedHashMap 并且覆盖这个方法的实现，这在实现 LRU 的缓存中特别有用，通过移除最近最久未使用的节点，从而保证缓存空间足够，并且缓存的数据都是热点数据。</p>
+<pre><code class="language-java">protected boolean removeEldestEntry(Map.Entry&lt;K,V&gt; eldest) {
+    return false;
+}
+</code></pre>
+<h3 id="32-accessorder">3.2 accessOrder</h3>
+<p>覆盖，如果是你再次将某个key的值覆盖一下，会怎么样呢？</p>
+<p>LinkedHashMap 有一个带参的构造函数：</p>
+<pre><code class="language-java">public LinkedHashMap(int initialCapacity,
+                     float loadFactor,
+                     boolean accessOrder) {
+    super(initialCapacity, loadFactor);
+    this.accessOrder = accessOrder;
+}
+</code></pre>
+<p>accessOrder，默认是false，此时访问这个元素，并不会改变顺序。</p>
+<p>但是如果accessOrder是true的话，那么 get 一个 key，或者是覆盖这个 key 的值，就会导致个 key-value 对顺序会在链表里改变，它会被挪动到链表的尾部去。</p>
+<h3 id="33-总结">3.3 总结</h3>
+<ul>
+<li>LinkedHashMap继承自HashMap，具有HashMap的所有特性；</li>
+<li>LinkedHashMap内部维护了一个双向链表存储所有的元素；</li>
+<li>如果accessOrder为false，则可以按插入元素的顺序遍历元素；</li>
+<li>如果accessOrder为true，则可以按访问元素的顺序遍历元素；</li>
+<li>LinkedHashMap的实现非常精妙，很多方法都是在HashMap中留的钩子（Hook），直接实现这些Hook就可以实现对应的功能了，并不需要再重写put()等方法；</li>
+<li>默认的LinkedHashMap并不会移除旧元素，如果需要移除旧元素，则需要重写removeEldestEntry()方法设定移除策略；</li>
+<li>LinkedHashMap可以用来实现LRU缓存淘汰策略；</li>
+</ul>
+<h2 id="4-使用-linkedhashmap-实现-lru">4 使用 LinkedHashMap 实现 LRU</h2>
+<pre><code class="language-java">class LRU&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+
+        private int capacity;
+
+        public LRU(int capacity, float loadFactor) {
+            super(capacity, loadFactor, true);
+            this.capacity = capacity;
+        }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+            return size() &gt; capacity;
+        }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[ JDK 源码阅读004：HashMap]]></title>
         <id>https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/</id>
         <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
@@ -2363,103 +2473,6 @@ public int compareTo(String anotherString) {
 <ul>
 <li><a href="https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html">深入解析String#intern</a></li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[译文：Java EE vs J2EE vs Jakarta]]></title>
-        <id>https://panson.top/post/hello-gridea/</id>
-        <link href="https://panson.top/post/hello-gridea/">
-        </link>
-        <updated>2019-02-03T16:00:00.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
-<!-- more -->
-<p>原文链接：<a href="https://www.baeldung.com/java-enterprise-evolution">JEE vs J2EE vs Jakarta</a></p>
-<p>原文作者：Rodrigo Graciano</p>
-<hr>
-<h2 id="1引言">1.引言</h2>
-<p>听说过 Java EE 吗？那关于 Java 2EE 、J2EE 或者现在的 Jakarta EE，你又是否有所耳闻呢？实际上，这些各异的术语描述的都是相同的东西：由 Java SE 扩展出的一系列企业规范。</p>
-<p>在本篇短文中，我们将讲述 Java EE 的发展史。<!-- more --></p>
-<h2 id="2历史">2.历史</h2>
-<p>在 Java 的第一个版本中，Java 企业扩展还只是核心 JDK 的一部分（译者注：核心 JDK 通常指 Java SE） 。然而到了 1999 年，Java 企业扩展已经被剥离出 Java SE，成为了 Java 2 的一部分，这也意味着 J2EE，或者说Java 2 平台企业版（Java 2 Platform Enterprise Edition）的诞生。J2EE 这个称呼一直维持到2006年。</p>
-<p>2006 年发布的 Java 5，J2EE 被重命名为 Java EE，或者说 Java 平台企业版（Java Platform Enterprise Edition）。这次改名后的称呼一直延续到 了 2017 年的 9 月。那年发生了一件重大的事，Oracle 决定将 Java EE 捐赠给 Eclipse 基金会（但 Java仍然属于 Oracle）。</p>
-<h2 id="3转变阶段">3.转变阶段</h2>
-<p>事实上，因为 Oracle 拥有 “Java” 商标权。按照法律要求，Eclipse 基金会需要对 Java EE 进行更名。</p>
-<p>经过社区的投票选择，Java EE 被更名为 Jakarta EE。从某种意义上来说，Java EE 依然叫 JEE。（译者注： 将 Java EE 首字母缩写也可简称为 JEE）。</p>
-<table>
-<thead>
-<tr>
-<th>版本</th>
-<th>时间</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>J2EE 1.2</td>
-<td>1999 年 12月</td>
-</tr>
-<tr>
-<td>J2EE 1.3</td>
-<td>2001 年 09 月</td>
-</tr>
-<tr>
-<td>J2EE 1.4</td>
-<td>2003 年 11 月</td>
-</tr>
-<tr>
-<td>Java EE 5</td>
-<td>2006 年 05 月</td>
-</tr>
-<tr>
-<td>Java EE 6</td>
-<td>2009 年 12 月</td>
-</tr>
-<tr>
-<td>Java EE 7</td>
-<td>2013 年 04 月</td>
-</tr>
-<tr>
-<td>Java EE 8</td>
-<td>2017 年 08 月</td>
-</tr>
-<tr>
-<td>Jakarta EE</td>
-<td>2018 年 02 月</td>
-</tr>
-</tbody>
-</table>
-<p>宣布新名字[译者注：译者怀疑此处是原文排版没排好]</p>
-<p>不过这仍然是个正在进行的故事，还未完全尘埃落定。</p>
-<p>举个例子，虽然 Oracle 开源了 Java 源代码，但却并未开源所有的文档。关于这个问题，因为涉及到一些法律事宜，导致开源一些文档（例如与 JMS、EJB相关的）非常棘手，至今仍有许多争议。</p>
-<p>现在还无法得知新的 Eclipse 基金会文档是否能够参考原文档。</p>
-<p>同样令人奇怪的是 Eclipse 基金会不能使用 javax 的命名空间来创建新的 Java 包，但是可以在现有包的下面创建新的类和子类。</p>
-<p>转变阶段也意味着对 Jakarta EE 添加规范的新流程。为了更好地理解这一点，让我们快速看一下 Oracle 添加规范的流程以及 Eclipse 基金会相应做出的改变。</p>
-<h2 id="4未来">4.未来</h2>
-<p>在过去，为了将一个特性添加进 “EE”（译者注：原文作者为了避免 Jakarta EE 历史名字的混杂性，使用“EE”来代指全部的版本，下同），我们需要 3 样东西 ：规范、参考实现与测试。社区里的任何人都可以提交这 3 样东西，之后执行委员会将会决定何时将它们整合进 Java 语言中。</p>
-<p>为了更好地理解添加规范的旧流程，让我们进一步了解 JSRs、Glassfish 和 TCK是什么 ，以及它们是如何整合新特性的。</p>
-<p>我们也将一睹在未来可以预期的事。</p>
-<h3 id="41jcp-以及现在的-efsp">4.1.JCP 以及现在的 EFSP</h3>
-<p>在过去，产生EE 新特性的流程被称为 JCP（Java Community Process）。</p>
-<p>Java SE 现在仍然采用 JCP。但是由于 EE 的所有权已经从 Oracle 移交至 Eclipse 基金会，EE 已经有了新的流程，这个流程是<a href="https://www.eclipse.org/projects/dev_process">Eclipse 开发流程</a>的扩展，与 Java SE 的流程互不干扰，我们称之为 EFSP（Eclipse Foundation Specification Process）。</p>
-<p>尽管 JCP 与 EFSP 之间有一些大的差异，但大都围绕着“透明、公开、集体负责和供应商中立”这几条准则展开。例如，EFSP 的组织者设想的合作工作团体是供应商中立的，认证流程是自助服务的，组织的运作与管理是精英化的。</p>
-<h3 id="42jsrs">4.2.JSRs</h3>
-<p>在 JCP 中，为 EE 添加新特性的第一步是创建一个 JSR（Java Specification Request）。JSR 有点类似于一个 EE 特性的接口。JCP 执行委员会会核准一个完整的 JSR，然后相应的 JSR 贡献者会编写代码，使其在社区内生效。</p>
-<p>JSR-339 或者 JAX-RS 对于阐述上面的流程是一个好例子。JAX-RS 最初于 2011 年提出，在2012年被 JCP 批准，最终在 2013 年得以发布。</p>
-<p>虽然在讨论规范时，社区可以随时加入进来，但时间表明，一个实现优先（ implementation-first）的方式更利于创建能被广泛接受的特性与 API。所谓的实现优先，类似于JSR 310中的 java.time 和 Joda Time这个例子（译者注：JDK 1.8 之前 Java 关于时间的 API 很不如人意，使用广泛的是 Joda-Tme）。</p>
-<p>因此，EFSP（Eclipse Foundation Specification Process）在其设定的目标中阐述了这个观点：“EFSP 将基于是否先进行了动手实验和编码，来判断其是否值得添加进规范中。”</p>
-<h3 id="43glassfish">4.3.Glassfish</h3>
-<p>此外，JSR 作为 JCP 的一部分，需要一个参考实现。这有点类似于实现接口的类。对于那些想要创建自己的规范实现的群体，比如说兼容库的开发人员或者其他组织，参考实现都可以给予帮助。</p>
-<p>对于 Java EE 特性，JCP 使用 Glassfish 作为参考实现。</p>
-<p>虽然 Glassfish 的中心化简化了实现者的探索过程，但是这种中心化也要求更多的管理，并且倾向于偏袒某个供应商。</p>
-<p>因此，EFSP 不要求参考实现，而只要求兼容的实现。简而言之，这种微妙的变化使得类似 Glassfish 之类的中心体系结构内的实现，不会被基金会无缘由地首选。</p>
-<h3 id="44tck">4.4.TCK</h3>
-<p>最后，JCP 要求 EE 特性需通过 TCK（Technology Compatibility Kit）的测试。</p>
-<p>TCK 是一组验证特定 EE JSR 的测试。简而言之，为了遵循 Java EE，应用服务器需要实现所有 JSR， 并通过特定 TCK 上的所有测试。</p>
-<p>与前述类似，Oracle虽然开源了TCK和EE jsr的源代码（译者注：但并没有开源相应的文档）。当然，未来所有的文档和 TCK 都将是开源的。</p>
-<h2 id="5总结">5.总结</h2>
-<p>这些年来，Java EE 无疑前进了许多。很高兴看到它继续变化与变好。</p>
-<p>前方之路充满坎坷，希望 Java 的转变能够平滑些。</p>
 ]]></content>
     </entry>
 </feed>
