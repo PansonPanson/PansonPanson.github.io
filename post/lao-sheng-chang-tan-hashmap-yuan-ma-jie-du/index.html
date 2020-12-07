@@ -6,7 +6,7 @@
 
 <title> JDK 源码阅读004：HashMap | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607325379115">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607346420544">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607325379115" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607346420544" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -100,6 +100,14 @@
                 <div class="post-content">
                     <h2 id="1-引言">1 引言</h2>
 <p>尽管哈希表是一种非常常见的数据结构，但是具体的代码实现依旧有很多可以优化的地方，我们可以通过阅读 JDK1.8 的HashMap 源码实现来学习这些优秀的设计。</p>
+<p>我们重点关注一些核心的问题：</p>
+<ul>
+<li>HashMap 底层数据结构是怎样的？</li>
+<li>hash 算法为什么要高位与低位做异或运算？</li>
+<li>hash 冲突的处理机制：链表、红黑树</li>
+<li>扩容机制：两倍扩容、rehash、rehash 的算法优化</li>
+<li>put、get 过程</li>
+</ul>
 <h2 id="2-数据结构">2 数据结构</h2>
 <h3 id="21-数据结构总览">2.1 数据结构总览</h3>
 <p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
@@ -212,7 +220,12 @@ transient int size;
         return null;
     }
 </code></pre>
-<h3 id="52-put-流程总结">5.2 put 流程总结</h3>
+<h3 id="52-什么时候会出现-hash-冲突">5.2 什么时候会出现 hash 冲突</h3>
+<ul>
+<li>key 不一样，但是 hashcode() 方法乱写，导致 hash 值一样；</li>
+<li>hash  值不一样，但是寻址之后在数组中的位置是一样的，出现了 hash 冲突。</li>
+</ul>
+<h3 id="53-put-流程总结">5.3 put 流程总结</h3>
 <ol>
 <li>计算key的hash值；</li>
 <li>如果桶（数组）数量为0，则初始化桶；</li>
@@ -225,55 +238,181 @@ transient int size;
 <li>如果找到了对应key的元素，则判断是否需要替换旧值，并直接返回旧值；</li>
 <li>如果插入了元素，则数量加1并判断是否需要扩容；</li>
 </ol>
-<ul>
-<li>扩容机制</li>
-</ul>
-<pre><code class="language-java"> void resize(int newCapacity) {   //传入新的容量
-      Entry[] oldTable = table;    //引用扩容前的Entry数组
-      int oldCapacity = oldTable.length;         
-      if (oldCapacity == MAXIMUM_CAPACITY) {  //扩容前的数组大小如果已经达到最大(2^30)了
-          threshold = Integer.MAX_VALUE; //修改阈值为int的最大值(2^31-1)，这样以后就不会扩容了
-          return;
-      }
-   
-      Entry[] newTable = new Entry[newCapacity];  //初始化一个新的Entry数组
-     transfer(newTable);                         //！！将数据转移到新的Entry数组里
-     table = newTable;                           //HashMap的table属性引用新的Entry数组
-     threshold = (int)(newCapacity * loadFactor);//修改阈值
- }
-</code></pre>
-<p>这里就是使用一个容量更大的数组来代替已有的容量小的数组，transfer()方法将原有Entry数组的元素拷贝到新的Entry数组里。</p>
-<pre><code class="language-java"> 1 void transfer(Entry[] newTable) {
- 2     Entry[] src = table;                   //src引用了旧的Entry数组
- 3     int newCapacity = newTable.length;
- 4     for (int j = 0; j &lt; src.length; j++) { //遍历旧的Entry数组
- 5         Entry&lt;K,V&gt; e = src[j];             //取得旧Entry数组的每个元素
- 6         if (e != null) {
- 7             src[j] = null;//释放旧Entry数组的对象引用（for循环后，旧的Entry数组不再引用任何对象）
- 8             do {
- 9                 Entry&lt;K,V&gt; next = e.next;
-10                 int i = indexFor(e.hash, newCapacity); //！！重新计算每个元素在数组中的位置
-11                 e.next = newTable[i]; //标记[1]
-12                 newTable[i] = e;      //将元素放在数组上
-13                 e = next;             //访问下一个Entry链上的元素
-14             } while (e != null);
-15         }
-16     }
-17 } 
-</code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
-<ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9580468"><label class="task-list-item-label" for="task-item-9580468">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1939396"><label class="task-list-item-label" for="task-item-1939396">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1120821"><label class="task-list-item-label" for="task-item-1120821">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8228826"><label class="task-list-item-label" for="task-item-8228826">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
-</ul>
+<h2 id="6-resize-扩容">6 resize  扩容</h2>
+<h3 id="61-扩容算法优化">6.1 扩容算法优化</h3>
+<p>上文已经讲过寻址的 hash 算法，将 hash &amp; n -1，可以保证扩容之后，根据 hash 值寻址到的地方要么还是原来的 index，要么就是 index + oldCap。</p>
+<p>hash &amp; n -1：判断二进制结果中是否多出一个 bit 的 1，如果没多，那么就是原来的 index，否则就是 index + oldCap。通过这种方式，就避免了 rehash 的时候，用每个 hash 对新数组的 length 取模（位运算比取模效率高一些）。</p>
+<h3 id="62-resize-方法">6.2 resize 方法</h3>
+<p>简而言之就是：两倍扩容 + rehash。</p>
+<p>每次 put 了一个新的key-value对之后，size++，比较一下 size 和 threshold（数组的长度 * 负载因子），看是否需要扩容。</p>
+<pre><code class="language-java">if (++size &gt; threshold)
+    resize();
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt;[] resize() {
+  	// 旧数组
+    Node&lt;K,V&gt;[] oldTab = table;
+  	// 旧容量
+    int oldCap = (oldTab == null) ? 0 : oldTab.length;
+  	// 旧阈值
+    int oldThr = threshold;
+    int newCap, newThr = 0;
+    if (oldCap &gt; 0) {
+      	// 如果旧容量达到了最大容量，则不再进行扩容
+        if (oldCap &gt;= MAXIMUM_CAPACITY) {
+            threshold = Integer.MAX_VALUE;
+            return oldTab;
+        }
+      	// 如果旧容量的两倍小于最大容量并且旧容量大于默认初始容量（16），则容量扩大为两倍，扩容阈值也扩大为两倍
+        else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;
+                 oldCap &gt;= DEFAULT_INITIAL_CAPACITY)
+            newThr = oldThr &lt;&lt; 1; // double threshold
+    }
+  	// 使用非默认构造方法创建的map，第一次插入元素会走到这里    
+		// 如果旧容量为0且旧扩容门槛大于0，则把新容量赋值为旧阈值
+    else if (oldThr &gt; 0) // initial capacity was placed in threshold
+        newCap = oldThr;
+    else {               // zero initial threshold signifies using defaults
+      	// 调用默认构造方法创建的map，第一次插入元素会走到这里 
+        // 如果旧容量旧扩容阈值都是0，说明还未初始化过，则初始化容量为默认容量，扩容阈值为默认容量*默认装载因子
+        newCap = DEFAULT_INITIAL_CAPACITY;
+        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+    }
+    if (newThr == 0) {
+      	// 如果新扩容为0，则计算为容量*装载因子，但不能超过最大容量
+        float ft = (float)newCap * loadFactor;
+        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?
+                  (int)ft : Integer.MAX_VALUE);
+    }
+    // 赋值扩容门槛为新门槛
+    threshold = newThr;
+    // 新建一个新容量的数组
+    @SuppressWarnings({&quot;rawtypes&quot;,&quot;unchecked&quot;})
+    Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];
+    table = newTab;
+    // 如果旧数组不为空，则搬移元素
+    if (oldTab != null) {
+        for (int j = 0; j &lt; oldCap; ++j) {
+            Node&lt;K,V&gt; e;
+          	// 如果桶中第一个元素不为空，赋值给e
+            if ((e = oldTab[j]) != null) {
+                oldTab[j] = null;   
+						    // 如果这个桶中只有一个元素，则计算它在新桶中的位置并把它搬移到新桶中
+								// 因为每次都扩容两倍，所以这里的第一个元素搬移到新桶的时候新桶肯定还没有元素
+                if (e.next == null)
+                    newTab[e.hash &amp; (newCap - 1)] = e;
+              	// 如果第一个元素是树节点，则把这颗树打散成两颗树插入到新桶中去
+                else if (e instanceof TreeNode)
+                    ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);
+                else { // preserve order
+                  	// 如果这个链表不止一个元素且不是一颗树
+										// 则分化成两个链表插入到新的桶中去
+										// 比如，假如原来容量为4，3、7、11、15这四个元素都在三号桶中
+										// 现在扩容到8，则3和11还是在三号桶，7和15要搬移到七号桶中去
+										// 也就是分化成了两个链表
+                    Node&lt;K,V&gt; loHead = null, loTail = null;
+                    Node&lt;K,V&gt; hiHead = null, hiTail = null;
+                    Node&lt;K,V&gt; next;
+                    do {
+                        next = e.next;
+                        if ((e.hash &amp; oldCap) == 0) {
+                            if (loTail == null)
+                                loHead = e;
+                            else
+                                loTail.next = e;
+                            loTail = e;
+                        }
+                        else {
+                            if (hiTail == null)
+                                hiHead = e;
+                            else
+                                hiTail.next = e;
+                            hiTail = e;
+                        }
+                    } while ((e = next) != null);
+                    if (loTail != null) {
+                        loTail.next = null;
+                        newTab[j] = loHead;
+                    }
+                    if (hiTail != null) {
+                        hiTail.next = null;
+                        newTab[j + oldCap] = hiHead;
+                    }
+                }
+            }
+        }
+    }
+    return newTab;
+}
+</code></pre>
+<h3 id="63-resize-流程总结">6.3 resize 流程总结</h3>
+<ol>
+<li>
+<p>如果使用是默认构造方法，则第一次插入元素时初始化为默认值，容量为16，扩容门槛为12；</p>
+</li>
+<li>
+<p>如果使用的是非默认构造方法，则第一次插入元素时初始化容量等于扩容门槛，扩容门槛在构造方法里等于传入容量向上最近的2的n次方；</p>
+</li>
+<li>
+<p>如果旧容量大于0，则新容量等于旧容量的2倍，但不超过最大容量2的30次方，新扩容门槛为旧扩容门槛的2倍；</p>
+</li>
+<li>
+<p>创建一个新容量的桶；</p>
+</li>
+<li>
+<p>搬移元素，原链表分化成两个链表，低位链表存储在原来桶的位置，高位链表搬移到原来桶的位置加旧容量的位置；</p>
+</li>
+</ol>
+<h2 id="7-get-方法">7 get 方法</h2>
+<pre><code class="language-java">public V get(Object key) {
+    Node&lt;K,V&gt; e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt; getNode(int hash, Object key) {
+    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;
+  	// 如果桶的数量大于0并且待查找的key所在的桶的第一个元素不为空
+    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+        (first = tab[(n - 1) &amp; hash]) != null) {
+      	// 检查第一个元素是不是要查的元素，如果是直接返回
+        if (first.hash == hash &amp;&amp; // always check first node
+            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+          	// 如果第一个元素是树节点，则按树的方式查找
+            if (first instanceof TreeNode)
+                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);
+            do {
+              	// 否则就遍历整个链表查找该元素
+                if (e.hash == hash &amp;&amp;
+                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+</code></pre>
+<ol>
+<li>
+<p>计算key的hash值；</p>
+</li>
+<li>
+<p>找到key所在的桶及其第一个元素；</p>
+</li>
+<li>
+<p>如果第一个元素的key等于待查找的key，直接返回；</p>
+</li>
+<li>
+<p>如果第一个元素是树节点就按树的方式来查找，否则按链表方式查找；</p>
+</li>
+</ol>
 <p>参考：</p>
 <ul>
 <li>Java中的移位运算符：https://zhuanlan.zhihu.com/p/30108890</li>
 <li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
 <li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
-<li>https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
+<li>死磕 java集合之HashMap源码分析：https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
 <li>https://tech.meituan.com/2016/06/24/java-hashmap.html</li>
 <li>深入浅出ConcurrentHashMap1.8：https://www.jianshu.com/p/c0642afe03e0</li>
 <li>老生常谈，HashMap的死循环：https://www.jianshu.com/p/1e9cf0ac07f4</li>
