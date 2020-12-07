@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-07T04:56:50.663Z</updated>
+    <updated>2020-12-07T05:26:53.671Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -16,9 +16,12 @@
         <link href="https://panson.top/post/hei-se-shi-yi-yue-and-wa-cai-zhong-jian-jian-club-factory-mian-jing/">
         </link>
         <updated>2020-12-07T08:52:30.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
+]]></summary>
         <content type="html"><![CDATA[<p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
+<!-- more -->
 <p>一天面完，有点累，记录一下面经。<br>
-todo</p>
+// todo</p>
 ]]></content>
     </entry>
     <entry>
@@ -1605,10 +1608,10 @@ transient int size;
 </code></pre>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4017157"><label class="task-list-item-label" for="task-item-4017157">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1368915"><label class="task-list-item-label" for="task-item-1368915">  hash 算法和寻址算法优化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6591762"><label class="task-list-item-label" for="task-item-6591762">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6972247"><label class="task-list-item-label" for="task-item-6972247">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1387429"><label class="task-list-item-label" for="task-item-1387429">  Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8505623"><label class="task-list-item-label" for="task-item-8505623">  hash 算法和寻址算法优化</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4140935"><label class="task-list-item-label" for="task-item-4140935">  hash 碰撞问题：当数量到达一定限度，无论怎么优化hash 算法，都会造成 hash 冲突，此时链表 && 红黑树 ：遍历一颗红黑树找一个元素，此时O(logn)</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2636254"><label class="task-list-item-label" for="task-item-2636254">  扩容 rehash 优化，做到扩容之后，将数据分布均匀，减少冲突</label></li>
 </ul>
 <p>参考：</p>
 <ul>
