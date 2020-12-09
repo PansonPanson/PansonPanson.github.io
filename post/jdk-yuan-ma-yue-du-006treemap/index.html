@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>about | Panson&#39;s Home</title>
+<title>JDK 源码阅读006：TreeMap | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607515622119">
 
@@ -89,18 +89,27 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    about
+                    JDK 源码阅读006：TreeMap
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2019-01-25 ·
+                        · 2019-03-18 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <p><em>&quot;我希望自己能写这样的诗。我希望自己也是一颗星星。如果我会发光，就不必害怕黑暗。如果我自己是那么美好，那么一切恐惧就可以烟消云散。于是我开始存下了一点希望—如果我能做到，那么我就战胜了寂寞的命运。&quot;</em></p>
-<hr>
-<p>徽州人，长饮新安江水，白砖青瓦下成长。</p>
+                    <p>TreeMap，顾名思义，底层是基于红黑树做的数据结构，不是传统意义上的那红HashMap，他天然就可以按照你的key的自然顺序来排序，既然人家是按照key的大小来进行排序和迭代输出的</p>
+<p>人家肯定是用了一个按照key大小排序的数据结构，我们可以想到的就是红黑树，所以他底层是基于红黑树来实现的按key排序就可以了</p>
+<p>static final class Entry&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {<br>
+K key;<br>
+V value;<br>
+Entry&lt;K,V&gt; left;<br>
+Entry&lt;K,V&gt; right;<br>
+Entry&lt;K,V&gt; parent;<br>
+boolean color = BLACK;<br>
+}</p>
+<p>面试的时候，人家问到你TreeMap，你把这套东西给他讲一下，也就差不多了</p>
+<p>透露一个面试的小秘诀，你要掌握主动性，比如人家让你聊hashmap，你直接夸夸夸，源码级别的，位运算，现场给他推算一下，显示你的JDK源码，LinkedHashMap、TreeMap，双向链表，如何基于插入顺序维护链表，迭代器是在迭代链表；底层是一颗红黑树，左小右大院里，挂成一个红黑树</p>
 
                 </div>
             </article>

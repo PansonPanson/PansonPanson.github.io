@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-07T15:26:42.444Z</updated>
+    <updated>2020-12-09T12:07:04.539Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -721,6 +721,14 @@ Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 
 <li><a href="https://leetcode-cn.com/problems/two-sum/">001.两数之和</a></li>
 <li><a href="https://leetcode-cn.com/problems/merge-sorted-array/">合并两个有序数组</a></li>
 </ol>
+<h2 id="栈">栈</h2>
+<ol>
+<li><a href="https://leetcode-cn.com/problems/valid-parentheses/">20. 有效的括号</a></li>
+<li><a href="https://leetcode-cn.com/problems/longest-valid-parentheses/">32. 最长有效括号</a></li>
+<li><a href="https://leetcode-cn.com/problems/min-stack/">155. 最小栈</a></li>
+<li><a href="https://leetcode-cn.com/problems/implement-queue-using-stacks/">232. 用栈实现队列</a></li>
+<li><a href="https://leetcode-cn.com/problems/remove-duplicate-letters/">316. 去除重复字母</a></li>
+</ol>
 <h2 id="树">树</h2>
 <ol>
 <li><a href="https://leetcode-cn.com/problems/binary-tree-inorder-traversal/">94. 二叉树的中序遍历</a></li>
@@ -1413,6 +1421,162 @@ synchronized(this) {
 <p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓自旋锁，就是不断的自旋尝试获取锁</p>
 <p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的重量级锁</p>
 <p>这个根据不同情况自动调整的过程，就是适应锁的意思</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读006：Thread]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-yue-du-006thread/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-006thread/">
+        </link>
+        <updated>2019-03-18T12:05:01.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-类继承体系">1 类继承体系</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Thread.png?raw=true" alt="" loading="lazy"></figure>
+<p>Runnable 接口只有一个核心方法：</p>
+<pre><code class="language-java">public abstract void run();
+</code></pre>
+<p>子类通过继承 Thread 并重写 run 方法实现自己的业务逻辑。</p>
+<h2 id="2-初始化">2 初始化</h2>
+<p>当我们使用<code>new Thread()</code> 的方法创建新的线程时，会调用<code>init</code>方法:</p>
+<ol>
+<li>ThreadGroup g：线程组，如果没有指定线程组，那么默认的线程组就是父线程的线程组，比如说如果你的父线程是main线程的话，那么你的线程组就是main线程的线程组（main线程组）。</li>
+<li>Runnable target：目标</li>
+<li>name：线程名字</li>
+<li>stackSize：默认是0。它的作用是控制jvm给线程分配栈内存的大小。如果这个值比JVM规定的最小值还小的话，取JVM的默认值，一般是1M。</li>
+</ol>
+<pre><code class="language-java">public Thread() {
+    init(null, null, &quot;Thread-&quot; + nextThreadNum(), 0);
+}
+</code></pre>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize) {
+    init(g, target, name, stackSize, null, true);
+}
+</code></pre>
+<p>默认情况下，如果你没有指定你是否为daemon的话，那么你的daemon的状态是由父线程决定的，就是说如果你的父线程是daemon线程，那么你也是daemon线程；同理，你的优先级如果没有指定的话，那么就跟父线程的优先级保持一致。</p>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize, AccessControlContext acc,
+                  boolean inheritThreadLocals) {
+    if (name == null) {
+        throw new NullPointerException(&quot;name cannot be null&quot;);
+    }
+    this.name = name;
+    Thread parent = currentThread();
+    SecurityManager security = System.getSecurityManager();
+    if (g == null) {
+        if (security != null) {
+            g = security.getThreadGroup();
+        }
+        if (g == null) {
+            g = parent.getThreadGroup();
+        }
+    }
+    g.checkAccess();
+    if (security != null) {
+        if (isCCLOverridden(getClass())) {
+            security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
+        }
+    }
+    g.addUnstarted();
+    this.group = g;
+    this.daemon = parent.isDaemon();
+    this.priority = parent.getPriority();
+    if (security == null || isCCLOverridden(parent.getClass()))
+        this.contextClassLoader = parent.getContextClassLoader();
+    else
+        this.contextClassLoader = parent.contextClassLoader;
+    this.inheritedAccessControlContext =
+            acc != null ? acc : AccessController.getContext();
+    this.target = target;
+    setPriority(priority);
+    if (inheritThreadLocals &amp;&amp; parent.inheritableThreadLocals != null)
+        this.inheritableThreadLocals =
+            ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
+    this.stackSize = stackSize;
+  	// 每个线程其实都有一个线程id，threadId，第一个分配的线程，它的id是1，之后的线程是2,3,4,5，依次分配各个线程的id
+    tid = nextThreadID();
+}
+</code></pre>
+<h2 id="3-初始化总结">3 初始化总结</h2>
+<ol>
+<li>
+<p>创建 A 线程的线程，就是 A 线程的父线程</p>
+</li>
+<li>
+<p>如果没有指定ThreadGroup，A 线程的ThreadGroup就是父线程的ThreadGroup</p>
+</li>
+<li>
+<p>A 线程的daemon状态默认是父线程的daemon状态</p>
+</li>
+<li>
+<p>A 线程的优先级默认是父线程的优先级</p>
+</li>
+<li>
+<p>如果没有指定线程的名称，那么默认就是 Thread-0 格式的名称</p>
+</li>
+<li>
+<p>线程id是全局递增的，从 1 开始</p>
+</li>
+</ol>
+<h2 id="4-线程启动">4 线程启动</h2>
+<p>看一下 start() 方法的源码：</p>
+<pre><code class="language-java">public synchronized void start() {
+    // 状态不为 0（对应着 NEW 状态），则抛出异常
+    if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+  	// 将线程加入线程组
+    group.add(this);
+    boolean started = false;
+    try {
+        start0();
+      	// 启动成功，标记为启动成功
+        started = true;
+    } finally {
+        try {
+            if (!started) {
+                group.threadStartFailed(this);
+            }
+        } catch (Throwable ignore) {
+        }
+    }
+}
+</code></pre>
+<h3 id="41-多次调用-start">4.1 多次调用 start()</h3>
+<p>永远都不能对一个线程多次调用和执行start()方法：</p>
+<pre><code class="language-java">if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+</code></pre>
+<p>线程一旦执行过一次以后，那么它的 threadStatus 就一定会变为非 0 的一个状态。如果是非0状态，那么再次调用 <code>start()</code>方法，会抛出一个异常<code>IllegalThreadStateException</code>（非法的线程状态的异常）。</p>
+<h3 id="42-启动成功">4.2 启动成功</h3>
+<p>一旦是<code>start0()</code>成功地启动之后，他就会去执行我们重写的<code>run()</code>方法（如果传入进去的是 <code>Runnalbe</code> 对象，就会执行那个Runnable对象的方法）。</p>
+<pre><code class="language-java">@Override
+public void run() {
+    if (target != null) {
+        target.run();
+    }
+}
+</code></pre>
+<p>如果采用如下方式：</p>
+<pre><code class="language-java">new Thread(new Runnable() {
+	public void run() {
+	}
+}).start();
+</code></pre>
+<p>传递一个 Runnable 对象（target），如果 target 不为 null 的话，那么此时就会执行 target 的 <code>run</code>方法。反之，如果你是直接自己用Thread 类继承了一个子类的话，那么你会重写这个 <code>run()</code>方法，<code>start0()</code>启动线程之后，就会来执行你的<code>run()</code>方法。</p>
+<h2 id="5-线程启动总结">5 线程启动总结</h2>
+<ol>
+<li>
+<p>一旦启动了线程之后，就不能再重新启动了。再次调用start()方法，会抛出异常。因为启动之后，threadStatus就会变成非0的状态。</p>
+</li>
+<li>
+<p>启动线程之后，这个线程就会加入之前处理好的那个线程组中。</p>
+</li>
+<li>
+<p>启动一个线程实际上走的是 native 方法，start0()，会实际的启动一个线程</p>
+</li>
+<li>
+<p>一个线程启动之后就会执行run()方法。</p>
+</li>
+</ol>
 ]]></content>
     </entry>
     <entry>
@@ -2313,166 +2477,6 @@ private void grow(int minCapacity) {
 <ol>
 <li><a href="https://mp.weixin.qq.com/s?__biz=MzkxNDEyOTI0OQ==&amp;mid=2247484475&amp;idx=2&amp;sn=af21ac6a8f360c5a918053e753dbfe79&amp;source=41#wechat_redirect">ArrayList</a></li>
 </ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[JDK 源码阅读001：String ]]></title>
-        <id>https://panson.top/post/arraylist-yuan-ma-yue-du/</id>
-        <link href="https://panson.top/post/arraylist-yuan-ma-yue-du/">
-        </link>
-        <updated>2019-03-02T06:03:26.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>本文剖析了 <code>String</code> 的源码（1.8），主要讲述了 <code>String</code> 的一些特性以及一些核心方法的设计与实现。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>本文剖析了 <code>String</code> 的源码（1.8），主要讲述了 <code>String</code> 的一些特性以及一些核心方法的设计与实现。</em></p>
-<!-- more -->
-<hr>
-<h2 id="一-string-的不可变性">一、String 的不可变性</h2>
-<pre><code class="language-java">public final class String implements java.io.Serializable, Comparable&lt;String&gt;, CharSequence {
-    /** The value is used for character storage. */
-    private final char value[];
-}
-</code></pre>
-<p>上面的String 源码解释了 String 的不可变性。</p>
-<ol>
-<li>
-<p>String 被 final 修饰，意味着该类不能被继承，也就没有子类，无法通过继承的方式覆写 String 的方法。</p>
-<p>final 修饰 class，可以参考 <a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.2">Java  虚拟机规范</a></p>
-<blockquote>
-<p>A class can be declared <code>final</code> if its definition is complete and no subclasses are desired or required. <!-- more --></p>
-<p>It is a compile-time error if the name of a <code>final</code> class appears in the <code>extends</code> clause (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.4">§8.1.4</a>) of another class declaration; this implies that a <code>final</code> class cannot have any subclasses.</p>
-<p>It is a compile-time error if a class is declared both <code>final</code> and <code>abstract</code>, because the implementation of such a class could never be completed (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.1">§8.1.1.1</a>).</p>
-<p>Because a <code>final</code> class never has any subclasses, the methods of a <code>final</code> class are never overridden (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.4.8.1">§8.4.8.1</a>).</p>
-</blockquote>
-</li>
-<li>
-<p>String 底层使用一个 value 字符数组来存储，使用 <code>private</code> 和 <code>final</code> 修饰，意味着 <code>value</code> 一旦被赋值，内存地址不会再改变(<code>final</code>)，并且不能再被修改（<code>private</code>）</p>
-</li>
-</ol>
-<h2 id="二-stringintern-方法">二、String.intern() 方法</h2>
-<p><code>String</code> 类的<code>intern()</code>方法涉及到一个叫做 “常量池“ 的概念，可以理解成 Java 系统级别的缓存。</p>
-<ul>
-<li>直接使用双引号声明出来的<code>String</code>对象会直接存储在常量池中。</li>
-<li>如果不是用双引号声明的<code>String</code>对象，可以使用<code>String</code>提供的<code>intern</code>方法。intern 方法会从字符串常量池中查询当前字符串是否存在，若不存在就会将当前字符串放入常量池中</li>
-</ul>
-<p>JAVA 使用 jni 调用c++实现的<code>StringTable</code>的<code>intern</code>方法, <code>StringTable</code>的<code>intern</code>方法跟Java中的<code>HashMap</code>的实现是差不多的, 只是不能自动扩容。默认大小是1009。<!--more--></p>
-<p>要注意的是，String的String Pool是一个固定大小的<code>Hashtable</code>，默认值大小长度是1009，如果放进String Pool的String非常多，就会造成Hash冲突严重，从而导致链表会很长，而链表长了后直接会造成的影响就是当调用<code>String.intern</code>时性能会大幅下降（因为要一个一个找）。</p>
-<p>在 jdk6中<code>StringTable</code>是固定的，就是1009的长度，所以如果常量池中的字符串过多就会导致效率下降很快。在jdk7中，<code>StringTable</code>的长度可以通过一个参数指定：</p>
-<ul>
-<li><code>-XX:StringTableSize=99991</code></li>
-</ul>
-<h2 id="三-string-的构造函数和若干重要方法">三、String 的构造函数和若干重要方法</h2>
-<h3 id="1-构造函数">1. 构造函数</h3>
-<p><code>String</code> 类有4个核心构造函数</p>
-<pre><code class="language-java">// String 为参数的构造方法
-public String(String original) {
-    this.value = original.value;
-    this.hash = original.hash;
-}
-// char[] 为参数构造方法
-public String(char value[]) {
-    this.value = Arrays.copyOf(value, value.length);
-}
-// StringBuffer 为参数的构造方法
-public String(StringBuffer buffer) {
-    synchronized(buffer) {
-        this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
-    }
-}
-// StringBuilder 为参数的构造方法
-public String(StringBuilder builder) {
-    this.value = Arrays.copyOf(builder.getValue(), builder.length());
-}
-</code></pre>
-<h3 id="2-使用频率很高的几个方法">2. 使用频率很高的几个方法</h3>
-<h4 id="length"><code>length()</code></h4>
-<pre><code class="language-java">// 字符串长度
-public int length() {
-    return value.length;
-}
-</code></pre>
-<h4 id="isempty"><code>isEmpty()</code></h4>
-<pre><code class="language-java">public boolean isEmpty() {
-    return value.length == 0;
-}
-</code></pre>
-<h4 id="charat"><code>charAt()</code></h4>
-<pre><code class="language-java">public char charAt(int index) {
-    if ((index &lt; 0) || (index &gt;= value.length)) {
-        throw new StringIndexOutOfBoundsException(index);
-    }
-    return value[index];
-}
-</code></pre>
-<h4 id="equals-和-equalsignorecase"><code>equals()</code>  和 <code>equalsIgnoreCase()</code></h4>
-<pre><code class="language-java">public boolean equals(Object anObject) {
-    // 对象引用相同直接返回 true
-    if (this == anObject) {
-        return true;
-    }
-    // 判断需要对比的值是否为 String 类型，如果不是则直接返回 false
-    if (anObject instanceof String) {
-        String anotherString = (String)anObject;
-        int n = value.length;
-        // 比较底层数组长度，长度不同，直接返回 false，长度相同，遍历字符数组，循环比较，只要有一个字符不同，返回 false
-        if (n == anotherString.value.length) {
-            char v1[] = value;
-            char v2[] = anotherString.value;
-            int i = 0;
-            while (n-- != 0) {
-                if (v1[i] != v2[i])
-                    return false;
-                i++;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-</code></pre>
-<p>直接使用 <code>equals()</code> 方法时，应该小心空指针。非空字符串放在前面，或者直接使用 apache commons 相关工具类 <code>StringUtils</code>：</p>
-<pre><code class="language-java">// StringUtils::equals
-public static boolean equals(String str1, String str2) {
-        return str1 == null ? str2 == null : str1.equals(str2);
-}
-</code></pre>
-<p><code>equalsIgnoreCase()</code>: 该方法 与 <code>equals()</code> 不同之处在于前者忽略大小写比较字符串。</p>
-<h4 id="compareto和-comparetoignorecase"><code>compareTo()</code>和 <code>compareToIgnoreCase()</code></h4>
-<pre><code class="language-java">// 返回值为 0 表示等于，正数表示大于，负数表示小于
-public int compareTo(String anotherString) {
-    int len1 = value.length;
-    int len2 = anotherString.value.length;
-    int lim = Math.min(len1, len2);
-    char v1[] = value;
-    char v2[] = anotherString.value;
-    int k = 0;
-    while (k &lt; lim) {
-        char c1 = v1[k];
-        char c2 = v2[k];
-        if (c1 != c2) {
-            return c1 - c2;
-        }
-        k++;
-    }
-    return len1 - len2;
-}
-</code></pre>
-<p><code>compareToIgnoreCase()</code>：比较忽略大小写</p>
-<h4 id="其他">其他</h4>
-<ul>
-<li>indexOf()：查询字符串首次出现的下标位置</li>
-<li>lastIndexOf()：查询字符串最后出现的下标位置</li>
-<li>contains()：查询字符串中是否包含另一个字符串</li>
-<li>toLowerCase()：把字符串全部转换成小写</li>
-<li>toUpperCase()：把字符串全部转换成大写</li>
-<li>trim()：去掉字符串首尾空格</li>
-<li>replace()：替换字符串中的某些字符</li>
-<li>split()：把字符串分割并返回字符串数组</li>
-<li>join()：把字符串数组转为字符串</li>
-</ul>
-<h2 id="参考">参考：</h2>
-<ul>
-<li><a href="https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html">深入解析String#intern</a></li>
-</ul>
 ]]></content>
     </entry>
 </feed>
