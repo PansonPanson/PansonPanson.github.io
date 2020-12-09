@@ -4,7 +4,7 @@
 <meta name="description" content=""/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<title>一文以知 JVM 类加载流程 | Panson&#39;s Home</title>
+<title>JDK 源码阅读007：volatile 关键字 | Panson&#39;s Home</title>
 
 <link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607528682321">
 
@@ -89,31 +89,93 @@
         <div class="post-detail gt-bg-theme-color-second">
             <article class="gt-post-content">
                 <h2 class="post-title">
-                    一文以知 JVM 类加载流程
+                    JDK 源码阅读007：volatile 关键字
                 </h2>
                 <div class="post-info">
                     <time class="post-time gt-c-content-color-first">
-                        · 2020-04-03 ·
+                        · 2019-03-23 ·
                     </time>
                     
                 </div>
                 <div class="post-content">
-                    <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4808282"><label class="task-list-item-label" for="task-item-4808282">  加载 -》验证 -》准备 -》 解析 -》初始化</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3104896"><label class="task-list-item-label" for="task-item-3104896">  双亲委派机制</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8306561"><label class="task-list-item-label" for="task-item-8306561">  方法区（Metaspace）、程序计数器、Java 虚拟机栈、本地方法栈、堆外内存（不属于JVM）</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7911811"><label class="task-list-item-label" for="task-item-7911811"> 垃圾回收：年轻代、老年代、永久代（永久代里放了一些常量池+类信息，常量池 -> 堆里面，类信息 -> metaspace（元区域））</label>
+                    <h2 id="1-引言">1 引言</h2>
+<p>多个线程共用一个共享变量，会遇到并发读写的问题，volatile 关键字就是来解决这个问题的。</p>
+<p>本文将会从以下几个方面来讲解 volatile：</p>
 <ul>
-<li>永久代（方法区）会不会被回收</li>
+<li>cpu 缓存模型</li>
+<li>Java 内存模型</li>
+<li>原子性、可见性、有序性</li>
+<li>volatile 的作用</li>
+<li>volatile 的底层原理</li>
 </ul>
+<h2 id="2-cpu-缓存模型">2 CPU 缓存模型</h2>
+<p>现代的计算机技术，内存的读写速度没什么突破，cpu如果要频繁的读写主内存的话，会导致性能较差，计算性能就会低，不适应现代计算机技术的发展，于是又在 CPU 中加了几层缓存，如下图所示：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/cpu%20%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<p>这样 CPU 可以直接操作自己对应的高速缓存，不需要直接频繁的跟主内存通信，这样可以保证 cpu 的计算效率。</p>
+<p>但是这样会产生并发问题：假设某个时刻 CPU a 更新了本地缓存的 flag，但此时还没更新到主内存，CPU b 此时读取到的值还是旧值。这便产生了一致性的问题。</p>
+<p>其实上述场景只是并发问题中的一个，本质上都是因为各个 CPU 的本地缓存跟主内存之间没有同步，一个数据，在各个地方，可能都不一样，这样就导致了数据的不一致。</p>
+<h2 id="3-mesi">3 MESI</h2>
+<p>对于这个缓存不一致的问题，在计算机上古时期，采用了一种总线加锁机制。简单来说就是，某个cpu如果要修改一个数据，会通过一个总线，对这个数据加一个锁，其他的cpu就没法去读和写这个数据了，只有当这个cpu修改完了以后，其他 cpu 才可以读到最新的数据。</p>
+<p>但这种总线加锁机制显然太过粗暴，可以想象的是，如果并发数比较大，那么效率肯定很低。</p>
+<p>现在计算机流行的是 MESI 协议：</p>
+<p>缓存行有4种不同的状态:</p>
+<ul>
+<li>
+<p>已修改Modified (M)</p>
+<p>缓存行是脏的（<em>dirty</em>），与主存的值不同。如果别的CPU内核要读主存这块数据，该缓存行必须回写到主存，状态变为共享(S).</p>
+</li>
+<li>
+<p>独占Exclusive (E)</p>
+<p>缓存行只在当前缓存中，但是干净的（clean）--缓存数据同于主存数据。当别的缓存读取它时，状态变为共享；当前写数据时，变为已修改状态。</p>
+</li>
+<li>
+<p>共享Shared (S)</p>
+<p>缓存行也存在于其它缓存中且是干净的。缓存行可以在任意时刻抛弃。</p>
+</li>
+<li>
+<p>无效Invalid (I)</p>
+<p>缓存行是无效的</p>
 </li>
 </ul>
-<!-- more -->
+<p>线程修改了缓存行，会刷到主内存中，CPU 会采用嗅探机制，将其他 CPU 的对应缓存行设置为无效状态，强制其他 CPU 从主内存中读取最新的值。</p>
+<p>通过这样的机制，我们才能保证线程工作内存和主内存是一致的。</p>
+<h2 id="4-java-内存模型">4 Java 内存模型</h2>
+<p>Java内存模型是跟cpu缓存模型是类似的，基于cpu缓存模型来建立的java内存模型，只不过java内存模型是标准化的，屏蔽掉底层不同的计算机的区别。</p>
+<p>首先我们来看看几个概念：</p>
+<ol>
+<li>
+<p>read：从主存读取</p>
+</li>
+<li>
+<p>load：将主存读取到的值写入工作内存</p>
+</li>
+<li>
+<p>use：从工作内存读取数据来计算</p>
+</li>
+<li>
+<p>assign：将计算好的值重新赋值到工作内存中</p>
+</li>
+<li>
+<p>store：将工作内存数据写入主存</p>
+</li>
+<li>
+<p>write：将store过去的变量值赋值给主存中的变量</p>
+</li>
+</ol>
+<p>可以参考下图来记忆：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/java%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
 
                 </div>
             </article>
         </div>
 
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-006thread/" class="post-title gt-a-link">
+                    JDK 源码阅读006：Thread
+                </a>
+            </div>
         
 
         
