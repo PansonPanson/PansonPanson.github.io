@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-10T13:02:49.451Z</updated>
+    <updated>2020-12-10T13:03:35.661Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -21,10 +21,10 @@
         <content type="html"><![CDATA[<p><em>打算从Spring 的事务聊起，聊到 RocketMQ 的分布式事务，再聊聊 RocketMQ 底层是如何实现分布式事务的。</em></p>
 <!-- more -->
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4464834"><label class="task-list-item-label" for="task-item-4464834"> 聊聊事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1141368"><label class="task-list-item-label" for="task-item-1141368"> Spring 事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6260486"><label class="task-list-item-label" for="task-item-6260486"> RocektMQ 提供的事务以及代码实战</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2009413"><label class="task-list-item-label" for="task-item-2009413"> RocketMQ 底层是如何实现分布式事务的</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2862342"><label class="task-list-item-label" for="task-item-2862342"> 聊聊事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4327628"><label class="task-list-item-label" for="task-item-4327628"> Spring 事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8341385"><label class="task-list-item-label" for="task-item-8341385"> RocektMQ 提供的事务以及代码实战</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2634211"><label class="task-list-item-label" for="task-item-2634211"> RocketMQ 底层是如何实现分布式事务的</label></li>
 </ul>
 ]]></content>
     </entry>
