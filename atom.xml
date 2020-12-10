@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-10T13:03:35.661Z</updated>
+    <updated>2020-12-10T15:04:57.272Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -21,10 +21,10 @@
         <content type="html"><![CDATA[<p><em>打算从Spring 的事务聊起，聊到 RocketMQ 的分布式事务，再聊聊 RocketMQ 底层是如何实现分布式事务的。</em></p>
 <!-- more -->
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2862342"><label class="task-list-item-label" for="task-item-2862342"> 聊聊事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4327628"><label class="task-list-item-label" for="task-item-4327628"> Spring 事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8341385"><label class="task-list-item-label" for="task-item-8341385"> RocektMQ 提供的事务以及代码实战</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2634211"><label class="task-list-item-label" for="task-item-2634211"> RocketMQ 底层是如何实现分布式事务的</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7051078"><label class="task-list-item-label" for="task-item-7051078"> 聊聊事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1113412"><label class="task-list-item-label" for="task-item-1113412"> Spring 事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4010741"><label class="task-list-item-label" for="task-item-4010741"> RocektMQ 提供的事务以及代码实战</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9393377"><label class="task-list-item-label" for="task-item-9393377"> RocketMQ 底层是如何实现分布式事务的</label></li>
 </ul>
 ]]></content>
     </entry>
@@ -1447,7 +1447,27 @@ synchronized(this) {
         <link href="https://panson.top/post/jdk-yuan-ma-yue-du-007volatile-guan-jian-zi/">
         </link>
         <updated>2019-03-23T12:57:39.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1-引言">1 引言</h2>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-cpu-%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B">2 CPU 缓存模型</a></li>
+<li><a href="#3-mesi">3 MESI</a></li>
+<li><a href="#4-java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B">4 Java 内存模型</a></li>
+<li><a href="#5-%E5%8F%AF%E8%A7%81%E6%80%A7-%E5%8E%9F%E5%AD%90%E6%80%A7-%E9%A1%BA%E5%BA%8F%E6%80%A7">5 可见性、原子性、顺序性</a></li>
+<li><a href="#6-happens-before-%E5%8E%9F%E5%88%99">6 happens-before 原则</a></li>
+<li><a href="#7-volitile-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86lock-%E6%8C%87%E4%BB%A4%E4%BB%A5%E5%8F%8A%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C">7 volitile 底层实现原理：lock 指令以及内存屏障</a>
+<ul>
+<li><a href="#71-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E7%9A%84">7.1 volatile 是如何保证可见性的</a></li>
+<li><a href="#72-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7%E7%9A%84">7.2 volatile 是如何保证有序性的</a></li>
+</ul>
+</li>
+<li><a href="#8-%E7%BB%8F%E5%85%B8%E7%9A%84%E5%8F%8C%E9%87%8D%E6%A3%80%E6%9F%A5%E9%94%81">8 经典的双重检查锁</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
 <p>多个线程共用一个共享变量，会遇到并发读写的问题，volatile 关键字就是来解决这个问题的。</p>
 <p>本文将会从以下几个方面来讲解 volatile：</p>
 <ul>
@@ -1513,6 +1533,154 @@ synchronized(this) {
 </ol>
 <p>可以参考下图来记忆：</p>
 <figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/java%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="5-可见性-原子性-顺序性">5 可见性、原子性、顺序性</h2>
+<ul>
+<li>
+<p>可见性：前述问题讲述了主内存和工作内存中最新修改的值不可见的问题，其实就是可见性的问题，voilatile 可以解决此问题。</p>
+</li>
+<li>
+<p>原子性：volatile 一般意义上并不能保证原子性（i++ 的操作不是原子性操作）。</p>
+</li>
+<li>
+<p>有序性：还有一个问题是指令重排序，编译器和指令器，有的时候为了提高代码执行效率，会将指令重排序，就是说比如下面的代码</p>
+</li>
+</ul>
+<pre><code class="language-java">flag = false;
+// 线程1:
+prepare();  // 准备资源
+flag = true;   
+
+//线程2:
+while(!flag){
+ Thread.sleep(1000);
+}
+execute(); // 基于准备好的资源执行操作
+</code></pre>
+<p>重排序之后，让<code>flag = true</code>先执行了，会导致线程2直接跳过while等待，执行某段代码，结果prepare()方法还没执行，资源还没准备好呢，此时就会导致代码逻辑出现异常。</p>
+<h2 id="6-happens-before-原则">6 happens-before 原则</h2>
+<p>上文说过，编译器、指令器可能会对代码进行重排序，但是不能乱排，要遵守一定的规则，这个规则就是 happens-before 原则，只要符合 happens-before 的原则，那么就不能胡乱重排，反之，那就可以进行重排序。</p>
+<p>happens-before原则：</p>
+<ol>
+<li>
+<p>程序次序规则：一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作</p>
+</li>
+<li>
+<p>锁定规则：一个unLock操作先行发生于后面对同一个锁额lock操作</p>
+</li>
+<li>
+<p>volatile变量规则：对一个变量的写操作先行发生于后面对这个变量的读操作。volatile变量写，再是读，必须保证是先写，再读。</p>
+</li>
+<li>
+<p>传递规则：如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C</p>
+</li>
+<li>
+<p>线程启动规则：Thread对象的start()方法先行发生于此线程的每个一个动作</p>
+</li>
+<li>
+<p>线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</p>
+</li>
+<li>
+<p>线程终结规则：线程中所有的操作都先行发生于线程的终止检测，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行</p>
+</li>
+<li>
+<p>对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始</p>
+</li>
+</ol>
+<h2 id="7-volitile-底层实现原理lock-指令以及内存屏障">7 volitile 底层实现原理：lock 指令以及内存屏障</h2>
+<p>前文已经讲述过，volatile 可以保证可见性和有序性，那么留给我们的就有两个问题：</p>
+<ol>
+<li>volatile 是如何保证可见性的？</li>
+<li>volatile 是如何保证有序性的？</li>
+</ol>
+<h3 id="71-volatile-是如何保证可见性的">7.1 volatile 是如何保证可见性的</h3>
+<p>对 volatile 修饰的变量，执行写操作的话，JVM会发送一条<strong>lock前缀指令</strong>给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探，自己本地缓存中的数据是否被别人修改。</p>
+<p>如果发现别人修改了某个缓存的数据，那么CPU就会将自己本地缓存的数据过期掉，然后这个CPU上执行的线程在读取那个变量的时候，就会从主内存重新加载最新的数据了。</p>
+<h3 id="72-volatile-是如何保证有序性的">7.2 volatile 是如何保证有序性的</h3>
+<p>Java 内存模型里有 4 种内存屏障。</p>
+<ol>
+<li>LoadLoad</li>
+<li>StoreStore</li>
+<li>LoadStore</li>
+<li>StoreLoad</li>
+</ol>
+<pre><code class="language-java">Load1：
+int localVar = this.variable
+
+LoadLoad屏障
+
+Load2：
+int localVar = this.variable2
+</code></pre>
+<p>LoadLoad屏障：Load1；LoadLoad；Load2，确保Load1数据的装载先于Load2后所有装载指令，他的意思，Load1对应的代码和Load2对应的代码，是不能指令重排的</p>
+<pre><code class="language-java">Store1：
+this.variable = 1
+
+StoreStore屏障
+
+Store2：
+this.variable2 = 2
+</code></pre>
+<p>StoreStore屏障：Store1；StoreStore；Store2，确保Store1的数据一定刷回主存，对其他cpu可见，先于Store2以及后续指令</p>
+<p>LoadStore屏障：Load1；LoadStore；Store2，确保Load1指令的数据装载，先于Store2以及后续指令</p>
+<p>StoreLoad屏障：Store1；StoreLoad；Load2，确保Store1指令的数据一定刷回主存，对其他cpu可见，先于Load2以及后续指令的数据装载。</p>
+<p>对于volatile修改变量的读写操作，都会加入内存屏障</p>
+<p>每个volatile写操作前面，加StoreStore屏障，禁止上面的普通写和他重排；每个volatile写操作后面，加StoreLoad屏障，禁止跟下面的volatile读/写重排。</p>
+<p>每个volatile读操作后面，加LoadLoad屏障，禁止下面的普通读和voaltile读重排；每个volatile读操作后面，加LoadStore屏障，禁止下面的普通写和volatile读重排。</p>
+<h2 id="8-经典的双重检查锁">8 经典的双重检查锁</h2>
+<p>不使用 volatile 的双重检查锁</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+<p>在执行这一行代码的时候：</p>
+<pre><code class="language-java">instance = new DoubleCheckSingleton();
+</code></pre>
+<p>实际上这个步骤并不是原子性的，有三个过程：</p>
+<ol>
+<li>分配内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+<li>将对象指向刚分配的内存空间</li>
+</ol>
+<p>但是有些编译器为了性能的原因，可能会将第二步和第三步进行<strong>重排序</strong>，顺序就成了：</p>
+<ol>
+<li>分配内存空间</li>
+<li>将对象指向刚分配的内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+</ol>
+<p>这样就会造成多线程在调用改方法时，有可能会得到一个未被初始化的对象，此时也就是说没有保证可见性。</p>
+<p>我们可以使用 volatile 来实现可见性。</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private volatile static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
 ]]></content>
     </entry>
     <entry>
