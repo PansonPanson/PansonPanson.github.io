@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-11T02:59:59.454Z</updated>
+    <updated>2020-12-11T03:46:55.514Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -21,10 +21,10 @@
         <content type="html"><![CDATA[<p><em>打算从Spring 的事务聊起，聊到 RocketMQ 的分布式事务，再聊聊 RocketMQ 底层是如何实现分布式事务的。</em></p>
 <!-- more -->
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2953254"><label class="task-list-item-label" for="task-item-2953254"> 聊聊事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1066609"><label class="task-list-item-label" for="task-item-1066609"> Spring 事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9782881"><label class="task-list-item-label" for="task-item-9782881"> RocektMQ 提供的事务以及代码实战</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3901248"><label class="task-list-item-label" for="task-item-3901248"> RocketMQ 底层是如何实现分布式事务的</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-842309"><label class="task-list-item-label" for="task-item-842309"> 聊聊事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4648795"><label class="task-list-item-label" for="task-item-4648795"> Spring 事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7755738"><label class="task-list-item-label" for="task-item-7755738"> RocektMQ 提供的事务以及代码实战</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-370282"><label class="task-list-item-label" for="task-item-370282"> RocketMQ 底层是如何实现分布式事务的</label></li>
 </ul>
 ]]></content>
     </entry>
@@ -38,8 +38,32 @@
 ]]></summary>
         <content type="html"><![CDATA[<p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
 <!-- more -->
-<p>一天面完，有点累，记录一下面经。<br>
-// todo</p>
+<p>一天全部面完，有点累，记录一下面经，已剔除业务相关敏感信息。</p>
+<ol>
+<li>MySQL 存储引擎有哪些，Innodb 与 MyISAM 的区别，MyISAM 底层索引机制，Innodb 的底层索引机制</li>
+<li>Dubbo 工作流程，序列化协议与通信协议了解哪些</li>
+<li>NIO 与 BIO，BIO 是否绝对比 NIO 好，Tomcat 中使用的是哪一种</li>
+<li>用过哪些设计模式，设计模式原则</li>
+<li>JVM 调优，怎么调优的，使用了什么命令，排查的流程是什么，后来怎么解决的</li>
+<li>Dubbo 注册中心挂了会怎样，新加的服务能调用吗，老的服务呢</li>
+<li>Kafka 的核心概念，如何做到高可用的，如何做到吞吐量达到 10 几万，消费者组</li>
+<li>RocketMQ 的核心概念，两者的区别，为什么这样选型</li>
+<li>MySQL 的流程</li>
+<li>Redis 用过哪些，怎么用的，底层的数据结构</li>
+<li>编程题：
+<ul>
+<li>读取某个文件目录下，以 .txt 结尾的文件，并统计所有字符出现的次数，根据出现频率，由高到低依次打印，要求使用多线程。</li>
+</ul>
+</li>
+<li>讲一下 Zookeeper 运行流程，Zookeeper 数据一致性问题，Zookeeper 是如何处理的
+<ul>
+<li>Leader收到了过半的follower的ack，接着leader自己commit了，还没来得及发送commit给所有follower自己就挂了。</li>
+<li>leader可能会自己收到了一个请求，结果没来得及发送proposal给所有follower之前就宕机了。</li>
+</ul>
+</li>
+<li>Zookeeper 分布式锁，Redis 分布式锁，Redis 分布式锁原理，如何实现的</li>
+<li>为什么出来看机会，谈期望薪水。</li>
+</ol>
 ]]></content>
     </entry>
     <entry>
