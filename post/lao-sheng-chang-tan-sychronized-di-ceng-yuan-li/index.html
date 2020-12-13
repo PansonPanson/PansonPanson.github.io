@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读008：synchronized 关键字 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607770317065">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607870026605">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607770317065" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607870026605" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -113,9 +113,10 @@
 <li><a href="#21-%E4%BB%8E%E5%AD%97%E8%8A%82%E7%A0%81%E8%A7%92%E5%BA%A6%E8%81%8A%E8%81%8A-synchronized-%E5%85%B3%E9%94%AE%E5%AD%97">2.1 从字节码角度聊聊 synchronized 关键字</a></li>
 <li><a href="#22-synchronized-%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7%E5%9C%A8%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8A%E7%9A%84%E8%A1%A8%E7%8E%B0%E5%BD%A2%E5%BC%8F">2.2 synchronized 可重入性在字节码上的表现形式</a></li>
 <li><a href="#23-synchronized-%E5%8F%AF%E9%87%8D%E5%85%A5%E7%9A%84%E5%8A%A0%E9%94%81%E4%B8%8E%E9%87%8A%E6%94%BE%E9%94%81%E6%B5%81%E7%A8%8B">2.3 synchronized 可重入的加锁与释放锁流程</a></li>
+<li><a href="#24-monitor-%E5%AF%B9-wait-%E5%92%8C-notify-%E7%9A%84%E6%94%AF%E6%8C%81">2.4 monitor 对 wait 和 notify 的支持</a></li>
 </ul>
 </li>
-<li><a href="#%E4%BA%8C-%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E5%92%8C%E6%9C%89%E5%BA%8F%E6%80%A7">二、保证可见性和有序性</a></li>
+<li><a href="#3-%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E5%92%8C%E6%9C%89%E5%BA%8F%E6%80%A7">3 保证可见性和有序性</a></li>
 </ul>
 </li>
 </ul>
@@ -292,7 +293,8 @@ monitorexit
 <p>然后后面block住阻塞的线程，会再次尝试获取锁，但是只有一个线程可以获取到锁。</p>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/synchronized001.jpg?raw=true" alt="" loading="lazy"></figure>
 <p><strong>总结：sychronized 从底层来说，就是在进入加锁代码块的时候加一个monitorenter的指令，然后针对锁对象关联的monitor累加加锁计数器，同时标识自己这个线程加了锁，同时通过monitor里的加锁计数器可以实现可重入的加锁。</strong></p>
-<p>然后wait和notify关键字的实现也是依托于monitor实现的，有线程执行wait之后，自己会加入一个waitset中等待唤醒获取锁，notifyall操作会从monitor的waitset中唤醒所有的线程，让他们竞争获取锁。</p>
+<h3 id="24-monitor-对-wait-和-notify-的支持">2.4 monitor 对 wait 和 notify 的支持</h3>
+<p>其实wait和notify关键字的实现也是依托于monitor实现的，有线程执行wait之后，自己会加入一个waitset中等待唤醒获取锁，notifyall操作会从monitor的waitset中唤醒所有的线程，让他们竞争获取锁。</p>
 <pre><code class="language-java">MyObject lock = new MyObject();
 synchronized(lock) {
 
@@ -305,7 +307,7 @@ synchronized(lock) {
 <p>然后释放锁的时候，先是对_count计数器递减1，如果为0了就会设置_owner为null，不再指向自己，代表自己彻底释放锁。</p>
 <p>如果获取锁的线程执行wait，就会将计数器递减，同时_owner设置为null，然后自己进入waitset中等待唤醒，别人获取了锁执行notify的时候就会唤醒waitset中的线程竞争尝试获取锁。</p>
 <p>有人会问，那尝试加锁这个过程，也就是对_count计数器累加操作，是怎么执行的？如何保证多线程并发的原子性呢？很简单，JDk 1.6之后，对synchronized内的加锁机制做了大量的优化，这里就是优化为CAS加锁的。</p>
-<h2 id="二-保证可见性和有序性">二、保证可见性和有序性</h2>
+<h2 id="3-保证可见性和有序性">3 保证可见性和有序性</h2>
 <pre><code class="language-java">int b = 0;
 int c = 0;
 
