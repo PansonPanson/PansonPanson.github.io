@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读009：AtomicInteger | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607877241148">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607877546686">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607877241148" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607877546686" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -116,8 +116,18 @@
   
 }
 </code></pre>
-<p>首先人家的构造函数是私有化，不能自己手动去实例化他，其次，如果用Unsafe.getUnsafe()方法来获取一个实例</p>
-<p>是不行的，在那个源码里，他会判断一下，如果当前是属于我们的用户的应用系统，识别到有我们的那个类加载器以后，就会报错，不让我们来获取实例</p>
+<p>构造函数是私有的，不可以直接进行实例化，其次，如果用Unsafe.getUnsafe()方法来获取一个实例是不行的，它会判断一下，如果当前是属于我们的用户的应用系统，识别到有用户的类加载器以后，就会报错，不让获取实例。</p>
+<p>当然，我们其实可以使用反射来改变访问权限。</p>
+<pre><code class="language-java">@CallerSensitive
+public static Unsafe getUnsafe() {
+    Class var0 = Reflection.getCallerClass();
+    if (!VM.isSystemDomainLoader(var0.getClassLoader())) {
+        throw new SecurityException(&quot;Unsafe&quot;);
+    } else {
+        return theUnsafe;
+    }
+}
+</code></pre>
 <p>JDK源码里面，JDK自己内部来使用，不是对外的</p>
 <p>Unsafe，封装了一些不安全的操作，指针相关的一些操作，就是比较底层了，主要就是Atomic原子类底层大量的运用了Unsafe</p>
 <p>（1）volatile value</p>
