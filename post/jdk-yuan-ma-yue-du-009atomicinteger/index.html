@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读009：AtomicInteger | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607877546686">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607921303033">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607877546686" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1607921303033" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -103,6 +103,20 @@
 <ul>
 <li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
 <li><a href="#2-%E5%85%88%E8%81%8A%E8%81%8A-unsafe-%E7%B1%BB">2 先聊聊 Unsafe 类</a></li>
+<li><a href="#3-%E6%A0%B8%E5%BF%83%E5%B1%9E%E6%80%A7">3 核心属性</a></li>
+<li><a href="#4-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95">4 核心方法</a>
+<ul>
+<li><a href="#41-compareandset%E6%96%B9%E6%B3%95">4.1 compareAndSet()方法</a></li>
+<li><a href="#42-getandincrement%E6%96%B9%E6%B3%95">4.2 getAndIncrement()方法</a></li>
+</ul>
+</li>
+<li><a href="#5-cas-%E7%9A%84%E7%BC%BA%E9%99%B7">5 CAS 的缺陷</a>
+<ul>
+<li><a href="#51-aba-%E9%97%AE%E9%A2%98">5.1 ABA 问题</a></li>
+<li><a href="#52-%E6%97%A0%E9%99%90%E5%BE%AA%E7%8E%AF%E9%97%AE%E9%A2%98">5.2 无限循环问题</a></li>
+<li><a href="#53-%E5%A4%9A%E5%8F%98%E9%87%8F%E5%8E%9F%E5%AD%90%E9%97%AE%E9%A2%98">5.3 多变量原子问题</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -128,11 +142,80 @@ public static Unsafe getUnsafe() {
     }
 }
 </code></pre>
-<p>JDK源码里面，JDK自己内部来使用，不是对外的</p>
-<p>Unsafe，封装了一些不安全的操作，指针相关的一些操作，就是比较底层了，主要就是Atomic原子类底层大量的运用了Unsafe</p>
-<p>（1）volatile value</p>
-<p>（2）Unsafe：核心类，负责执行CAS操作</p>
-<p>（3）API接口：Atomic原子类的各种使用方式</p>
+<p>Unsafe 类是JDK自己内部使用的，不是对外的。</p>
+<p>Unsafe，封装了一些不安全的操作，指针相关的一些操作，就是比较底层了，Atomic原子类底层大量的运用了Unsafe。</p>
+<p>JUC下面大量使用了CAS操作，它们的底层是调用的Unsafe的 <code>CompareAndSwapXXX()</code>方法。这种方式广泛运用于无锁算法，与java中标准的悲观锁机制相比，它可以利用CAS处理器指令提供极大的加速。</p>
+<h2 id="3-核心属性">3 核心属性</h2>
+<p>AtomicInteger 核心属性主要包括：</p>
+<ul>
+<li>unsafe 实例</li>
+<li>valueOffset：标识value字段的偏移量</li>
+<li>value：存储int类型值的地方，使用volatile修饰</li>
+</ul>
+<pre><code class="language-java">// setup to use Unsafe.compareAndSwapInt for updates
+private static final Unsafe unsafe = Unsafe.getUnsafe();
+private static final long valueOffset;
+private volatile int value;
+</code></pre>
+<p>Unsafe 类中使用静态代码块来初始化 valueOffset，valueOffset 表示 value 这个字段具体是在 AtomicInteger 这个类的哪个位置，offset 即偏移量，底层是通过unsafe来实现的。在类初始化的时候，就会完成这个操作，一旦初始化完毕，就不会再变更了。</p>
+<pre><code class="language-java">static {
+    try {
+        valueOffset = unsafe.objectFieldOffset
+            (AtomicInteger.class.getDeclaredField(&quot;value&quot;));
+    } catch (Exception ex) { throw new Error(ex); }
+}
+</code></pre>
+<h2 id="4-核心方法">4 核心方法</h2>
+<h3 id="41-compareandset方法">4.1 compareAndSet()方法</h3>
+<pre><code class="language-java">public final boolean compareAndSet(int expect, int update) {
+    return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
+}
+</code></pre>
+<pre><code class="language-java">// Unsafe 类中的方法
+public final native boolean compareAndSwapInt(Object var1, long var2, int var4, int var5);
+</code></pre>
+<p>调用Unsafe.compareAndSwapInt()方法实现，这个方法有四个参数：</p>
+<p>（1）操作的对象；</p>
+<p>（2）对象中字段的偏移量；</p>
+<p>（3）原来的值，即期望的值；</p>
+<p>（4）要修改的值；</p>
+<p>可以看到，这是一个native方法，底层是使用C/C++写的，主要是调用CPU的CAS指令来实现，它能够保证只有当对应偏移量处的字段值是期望值时才更新，即类似下面这样的两步操作：</p>
+<pre><code class="language-java">if(value == expect) {
+    value = newValue;
+}
+</code></pre>
+<p>通过CPU的CAS指令可以保证这两步操作是一个整体，也就不会出现多线程环境中可能比较的时候value值是a，而到真正赋值的时候value值可能已经变成b了的问题。</p>
+<h3 id="42-getandincrement方法">4.2 getAndIncrement()方法</h3>
+<pre><code class="language-java">public final int getAndIncrement() {
+    return unsafe.getAndAddInt(this, valueOffset, 1);
+}
+</code></pre>
+<pre><code class="language-java">// Unsafe 类中的方法
+public final int getAndAddInt(Object var1, long var2, int var4) {
+    int var5;
+    do {
+        var5 = this.getIntVolatile(var1, var2);
+    } while(!this.compareAndSwapInt(var1, var2, var5, var5 + var4));
+
+    return var5;
+}
+</code></pre>
+<p>getAndIncrement()方法底层是调用的Unsafe的getAndAddInt()方法，这个方法有三个参数：</p>
+<p>（1）操作的对象；</p>
+<p>（2）对象中字段的偏移量；</p>
+<p>（3）要增加的值；</p>
+<p>查看Unsafe的getAndAddInt()方法的源码，可以看到它是先获取当前的值，然后再调用compareAndSwapInt()尝试更新对应偏移量处的值，如果成功了就跳出循环，如果不成功就再重新尝试，直到成功为止，这可不就是（CAS+自旋）的乐观锁机制么^^</p>
+<p>AtomicInteger中的其它方法几乎都是类似的，最终会调用到Unsafe的compareAndSwapInt()来保证对value值更新的原子性。</p>
+<h2 id="5-cas-的缺陷">5 CAS 的缺陷</h2>
+<h3 id="51-aba-问题">5.1 ABA 问题</h3>
+<p>如果某个值一开始是A，后来变成了B，然后又变成了A，你本来期望的是值如果是第一个A才会设置新值，结果第二个A一比较也符合条件，也设置了新值，这跟期望是不符合的。所以atomic包里有 AtomicStampedReference 类，就是会比较两个值的引用是否一致，如果一致，才会设置新值。</p>
+<p>举个例子：假设一开始变量i = 1，你先获取这个i的值是1，然后累加了1，变成了2。但是在此期间，别的线程将i -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 1。这个期间，这个值是被人改过的，只不过最后将这个值改成了跟你最早看到的值一样的值。结果你后来去compareAndSet的时候，会发现这个i还是1，就将它设置成了2，就设置成功了。</p>
+<p>不过 AtomicInteger 常见使用场景的是计数，所以说一般是不断累加的，所以ABA问题比较少见</p>
+<h3 id="52-无限循环问题">5.2 无限循环问题</h3>
+<p>大家看源码就知道Atomic类设置值的时候会进入一个无限循环，只要不成功，就不停循环再次尝试，这个在高并发修改一个值的时候其实挺常见的，比如你用AtomicInteger在内存里搞一个原子变量，然后高并发下，多线程频繁修改，其实可能会导致这个compareAndSet()里要循环N次才设置成功，所以还是要考虑到的。</p>
+<p>JDK 1.8引入的LongAdder来解决，采用了分段 CAS 思路。</p>
+<h3 id="53-多变量原子问题">5.3 多变量原子问题</h3>
+<p>一般的AtomicInteger，只能保证一个变量的原子性，但是如果多个变量呢？你可以用 AtomicReference，这个是封装自定义对象的，多个变量可以放一个自定义对象里，然后他会检查这个对象的引用是不是一个。</p>
 
                 </div>
             </article>
