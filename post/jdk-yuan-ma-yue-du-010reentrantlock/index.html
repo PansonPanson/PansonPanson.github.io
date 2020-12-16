@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读010：ReentrantLock  | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1607928962561">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1608105307599">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1607928962561" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1608105307599" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -99,6 +99,155 @@
                 </div>
                 <div class="post-content">
                     <h2 id="1-引言">1 引言</h2>
+<p>关于 ReentrantLock，其实应该知道以下几点：</p>
+<ul>
+<li>ReentrantLock 底层基于 AQS 实现</li>
+<li>AQS 底层又是基于 CAS 实现的</li>
+<li>可重入锁的实现原理</li>
+</ul>
+<h2 id="2-构造函数">2 构造函数</h2>
+<pre><code class="language-java">public ReentrantLock() {
+    sync = new NonfairSync();
+}
+
+public ReentrantLock(boolean fair) {
+    sync = fair ? new FairSync() : new NonfairSync();
+}
+</code></pre>
+<p>默认的构造函数这里，创建了一个Sync，NonfairSync，看起来是一个非常关键的组件，很可能是底层专门用于加锁和释放锁的核心组件。</p>
+<h2 id="3-lock-方法">3 Lock 方法</h2>
+<p>再看一下加锁的 lock 方法：</p>
+<pre><code class="language-java">public void lock() {
+	 sync.lock();
+}
+</code></pre>
+<p>ReentrantLock在进行加锁的时候，他其实是直接基于底层的 Sync 来实现的 lock 操作，这样看来，我们还需要再看看 Sync 的底层源码实现。</p>
+<pre><code class="language-java">abstract static class Sync extends AbstractQueuedSynchronizer {
+  // ……
+} 
+</code></pre>
+<p>Sync是 一个抽象的静态内部类，也是AQS 的子类，AQS是 Java 并发包各种并发工具（锁、同步器）的底层的基础性的组件</p>
+<p>AQS 里关键的一些东西，一个是Node（自定义数据结构，可以组成一个双向链表，也就是所谓的一个队列），另一个是 state（核心变量，加锁、释放锁都是基于state来完成的）。</p>
+<p>Sync 就是 AQS（子类实现，多线程同步组件的意思）。</p>
+<p>NonfairSync 是 Sync的一个子类，覆盖重写了几个方法，没什么特别的东西在里面，大概代表了一个Sync的具体实现。</p>
+<p>AQS底层加锁、释放锁，都是大量的基于CAS的操作来实现的，底层是基于 NonfairSync的 lock操作来实现加锁的</p>
+<pre><code class="language-java">final void lock() {
+    if (compareAndSetState(0, 1))
+        setExclusiveOwnerThread(Thread.currentThread());
+    else
+        acquire(1);
+}
+</code></pre>
+<p><code>if (compareAndSetState(0, 1))</code>：AQS里有一个核心的变量，state，代表了锁的状态；看一下state是否是0？如果是0的话，代表没人加过锁，此时当前线程就可以加锁，把这个state设置为1。 CAS 可以无锁化地保证一个数值修改的原子性。</p>
+<p><code>compareAndSetState(0, 1)</code>：相当于是在尝试加锁，底层原来是基于Unsafe来实现的，JDK内部使用的API，指针操作，基于cpu指令实现原子性的CAS，Atomic原子类底层也是基于Unsafe来实现的CAS操作</p>
+<pre><code class="language-java">return unsafe.compareAndSwapInt(this, stateOffset, expect, update);
+</code></pre>
+<p>上面这行代码可以保证：在一个原子操作中，如果发现值是我们期望的这个expect值，说明符合要求，没人修改过，此时可以将这个值设置为update，state如果是0的话，就修改为1，代表加锁成功了，这个操作是CAS原子性的。</p>
+<p>如果加锁成功了，compareAndSetState(0, 1)返回的是true，此时就说明加锁成功，他需要设置一下自己是当前加锁的线程。</p>
+<p><code>setExclusiveOwnerThread(Thread.currentThread())</code>：设置当前线程自己是加了一个独占锁的线程，标识出来自己是加锁的线程。</p>
+<p>CAS -&gt; AQS的state变量 -&gt; exclusiveOwnerThread（当前加锁线程），Lock API性能比较好，CAS无锁化，乐观锁的思路，反复的比较</p>
+<h2 id="4-可重入性实现原理">4 可重入性实现原理</h2>
+<p>假如说此时，线程1再次进入，可重入的来加锁</p>
+<p>如果是一个线程可重入的加锁会是什么样子呢？是如何来实现的呢？</p>
+<p><code>compareAndSetState(0, 1)</code>：这个方法一定是false，会失败，此时state = 1，不是0，CAS操作会失败，返回false，此时会执行acquire(1)</p>
+<p><code>acquire(1)</code>：会走到AQS的方法里</p>
+<p><code>tryAcquire(1)</code>：此时首先会走这个方法，传递进去一个值是1，AQS的父类 实现是一个空，其实是留给子类来实现的</p>
+<pre><code class="language-java">protected final boolean tryAcquire(int acquires) {
+      return nonfairTryAcquire(acquires);
+}
+</code></pre>
+<p><code>nonfairTryAcquire(1)</code>：这个方法会走到Sync（父类）</p>
+<pre><code class="language-java">final boolean nonfairTryAcquire(int acquires) {
+   		// 先获取到当前的线程 -&gt; 线程1
+     final Thread current = Thread.currentThread();
+   		// 获取state变量值的过程，JDK源码里大量的运用了volatile，可见性的问题，保证一些关键变量，修改 -&gt; 读取的可见性
+     int c = getState();
+   		// 为什么会有这段代码呢？其实进入到这里，代表他之前一定是看到state != 0，才会进入到这里
+   		// 就是人家代码的健壮性，怕的是之前state != 0，所以加锁失败了，但是进入到这里，人家再次判断一下，如果state是0，那么再次尝试加锁，就怕中间有人释放了锁
+     if (c == 0) {
+       if (compareAndSetState(0, acquires)) {
+         setExclusiveOwnerThread(current);
+         return true;
+       }
+     }
+   		// 也就是说没有人释放锁，state != 0
+   		// 再次判断，如果执行这个方法的线程 = exclusiveOwnerThread（加锁的线程）
+   		// 代表的就是一个线程在可重入的加锁
+   		// 之前他自己加过锁，然后在这里他就再次加锁
+     else if (current == getExclusiveOwnerThread()) {
+   		// 此时，c = 1
+   		// nextc = c(1) + acquires(1) = 2
+   		// 其实就是代表了一个线程可重入加锁了1次，2代表了加锁的次数
+       int nextc = c + acquires;
+       if (nextc &lt; 0) // overflow
+         throw new Error(&quot;Maximum lock count exceeded&quot;);
+   				// 修改这个state的值，volatile保证了可见性
+       setState(nextc);
+       return true;
+     }
+     return false;
+}
+</code></pre>
+<p>假设线程2过来尝试加锁，此时的源码会如何走向呢？</p>
+<pre><code class="language-java">final boolean nonfairTryAcquire(int acquires) {
+   		// 先获取到当前的线程 -&gt; 线程1
+     final Thread current = Thread.currentThread();
+   		// 获取state变量值的过程，JDK源码里大量的运用了volatile，可见性的问题，保证一些关键变量，修改 -&gt; 读取的可见性
+     int c = getState();
+   		// 为什么会有这段代码呢？其实进入到这里，代表他之前一定是看到state != 0，才会进入到这里
+   		// 就是人家代码的健壮性，怕的是之前state != 0，所以加锁失败了，但是进入到这里，人家再次判断一下，如果state是0，那么再次尝试加锁，就怕中间有人释放了锁
+     if (c == 0) {
+       if (compareAndSetState(0, acquires)) {
+         setExclusiveOwnerThread(current);
+         return true;
+       }
+     }
+   		// 也就是说没有人释放锁，state != 0
+   		// 再次判断，如果执行这个方法的线程 = exclusiveOwnerThread（加锁的线程）
+   		// 代表的就是一个线程在可重入的加锁
+   		// 之前他自己加过锁，然后在这里他就再次加锁
+     else if (current == getExclusiveOwnerThread()) {
+   		// 此时，c = 1
+   		// nextc = c(1) + acquires(1) = 2
+   		// 其实就是代表了一个线程可重入加锁了1次，2代表了加锁的次数
+       int nextc = c + acquires;
+       if (nextc &lt; 0) // overflow
+         throw new Error(&quot;Maximum lock count exceeded&quot;);
+   			// 修改这个state的值，volatile保证了可见性
+       setState(nextc);
+       return true;
+     }
+   		// 如果已经有一个线程加了锁，其他线程此时会走到这里
+   		// 此时方法认为加锁失败，返回false
+     return false;
+   }
+</code></pre>
+<pre><code class="language-java">public final void acquire(int arg) {
+// 此时加锁失败，第一个条件是false
+// 开始走第二个条件，调用acquireQueued()方法
+// 将当前线程入队阻塞等待
+    if (!tryAcquire(arg) &amp;&amp;
+      acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+      selfInterrupt();
+  }
+</code></pre>
+<p>​</p>
+<p>addWaiter(Node.EXCLUSIVE)：EXCLUSIVE（排他性，独占锁，同一时间只能有一个线程获取到锁，此时是排他锁，独占锁）</p>
+<p>Node node = new Node(Thread.currentThread(), mode);</p>
+<p>将当前线程（线程2）封装成了一个Node，mode = EXCLUSIVE（排他锁，尝试获取一个排他锁，但是失败了），研究一下Node里面包含了一些什么东西？</p>
+<p>// 如果一个线程无法获取到锁的话，会进入一个阻塞等待的状态</p>
+<p>// 卡住不动，线程挂起，阻塞状态又细分为很多种不同的阻塞状态：</p>
+<p>// CANCELED、SIGNAL、CONDITION、PROPAGATE</p>
+<p>volatile int waitStatus;</p>
+<p>// 一个节点可以有上一个节点，prev指针，指向了Node的上一个Node</p>
+<p>volatile Node prev;</p>
+<p>// 一个节点还可以有下一个节点，next指针，指向了Node的下一个Node</p>
+<p>volatile Node next;</p>
+<p>// Node里面封装了一个线程</p>
+<p>volatile Thread thread;</p>
+<p>// 可以认为是下一个等待线程</p>
+<p>Node nextWaiter;</p>
+<p>获取不到锁，处于等待状态的线程，会封装为一个Node，而且有指针，最后多个处于阻塞等待状态的线程可以封装为一个Node双向链表，JDK集合源码，就可以作为一个队列来实现了</p>
 
                 </div>
             </article>
