@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-16T07:55:13.113Z</updated>
+    <updated>2020-12-17T16:50:59.367Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -10,6 +10,20 @@
     <logo>https://panson.top/images/avatar.png</logo>
     <icon>https://panson.top/favicon.ico</icon>
     <rights>All rights reserved 2020, Panson&apos;s Home</rights>
+    <entry>
+        <title type="html"><![CDATA[酷家乐面经记录]]></title>
+        <id>https://panson.top/post/ku-jia-le-mian-jing-ji-lu/</id>
+        <link href="https://panson.top/post/ku-jia-le-mian-jing-ji-lu/">
+        </link>
+        <updated>2020-12-17T16:42:15.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>酷家乐一共五面，一轮电话技术面，三轮现场面，一轮 hr 面，现场面的时候从三点多面到六点多……出莱茵矩阵的时候，天已经彻底黑了~</em><br>
+// todo</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>酷家乐一共五面，一轮电话技术面，三轮现场面，一轮 hr 面，现场面的时候从三点多面到六点多……出莱茵矩阵的时候，天已经彻底黑了~</em><br>
+// todo</p>
+<!-- more -->
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[涂鸦智能 & 海拍客面经]]></title>
         <id>https://panson.top/post/tu-ya-zhi-neng-and-hai-pai-ke-mian-jing/</id>
@@ -34,10 +48,10 @@
         <content type="html"><![CDATA[<p><em>打算从Spring 的事务聊起，聊到 RocketMQ 的分布式事务，再聊聊 RocketMQ 底层是如何实现分布式事务的。</em></p>
 <!-- more -->
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1940687"><label class="task-list-item-label" for="task-item-1940687"> 聊聊事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-480493"><label class="task-list-item-label" for="task-item-480493"> Spring 事务</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-2086675"><label class="task-list-item-label" for="task-item-2086675"> RocektMQ 提供的事务以及代码实战</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5112006"><label class="task-list-item-label" for="task-item-5112006"> RocketMQ 底层是如何实现分布式事务的</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6827857"><label class="task-list-item-label" for="task-item-6827857"> 聊聊事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-1477838"><label class="task-list-item-label" for="task-item-1477838"> Spring 事务</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8078046"><label class="task-list-item-label" for="task-item-8078046"> RocektMQ 提供的事务以及代码实战</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8308978"><label class="task-list-item-label" for="task-item-8308978"> RocketMQ 底层是如何实现分布式事务的</label></li>
 </ul>
 ]]></content>
     </entry>
@@ -2183,162 +2197,6 @@ this.variable2 = 2
     }
 }
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[JDK 源码阅读006：Thread]]></title>
-        <id>https://panson.top/post/jdk-yuan-ma-yue-du-006thread/</id>
-        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-006thread/">
-        </link>
-        <updated>2019-03-18T12:05:01.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1-类继承体系">1 类继承体系</h2>
-<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Thread.png?raw=true" alt="" loading="lazy"></figure>
-<p>Runnable 接口只有一个核心方法：</p>
-<pre><code class="language-java">public abstract void run();
-</code></pre>
-<p>子类通过继承 Thread 并重写 run 方法实现自己的业务逻辑。</p>
-<h2 id="2-初始化">2 初始化</h2>
-<p>当我们使用<code>new Thread()</code> 的方法创建新的线程时，会调用<code>init</code>方法:</p>
-<ol>
-<li>ThreadGroup g：线程组，如果没有指定线程组，那么默认的线程组就是父线程的线程组，比如说如果你的父线程是main线程的话，那么你的线程组就是main线程的线程组（main线程组）。</li>
-<li>Runnable target：目标</li>
-<li>name：线程名字</li>
-<li>stackSize：默认是0。它的作用是控制jvm给线程分配栈内存的大小。如果这个值比JVM规定的最小值还小的话，取JVM的默认值，一般是1M。</li>
-</ol>
-<pre><code class="language-java">public Thread() {
-    init(null, null, &quot;Thread-&quot; + nextThreadNum(), 0);
-}
-</code></pre>
-<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
-                  long stackSize) {
-    init(g, target, name, stackSize, null, true);
-}
-</code></pre>
-<p>默认情况下，如果你没有指定你是否为daemon的话，那么你的daemon的状态是由父线程决定的，就是说如果你的父线程是daemon线程，那么你也是daemon线程；同理，你的优先级如果没有指定的话，那么就跟父线程的优先级保持一致。</p>
-<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
-                  long stackSize, AccessControlContext acc,
-                  boolean inheritThreadLocals) {
-    if (name == null) {
-        throw new NullPointerException(&quot;name cannot be null&quot;);
-    }
-    this.name = name;
-    Thread parent = currentThread();
-    SecurityManager security = System.getSecurityManager();
-    if (g == null) {
-        if (security != null) {
-            g = security.getThreadGroup();
-        }
-        if (g == null) {
-            g = parent.getThreadGroup();
-        }
-    }
-    g.checkAccess();
-    if (security != null) {
-        if (isCCLOverridden(getClass())) {
-            security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
-        }
-    }
-    g.addUnstarted();
-    this.group = g;
-    this.daemon = parent.isDaemon();
-    this.priority = parent.getPriority();
-    if (security == null || isCCLOverridden(parent.getClass()))
-        this.contextClassLoader = parent.getContextClassLoader();
-    else
-        this.contextClassLoader = parent.contextClassLoader;
-    this.inheritedAccessControlContext =
-            acc != null ? acc : AccessController.getContext();
-    this.target = target;
-    setPriority(priority);
-    if (inheritThreadLocals &amp;&amp; parent.inheritableThreadLocals != null)
-        this.inheritableThreadLocals =
-            ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
-    this.stackSize = stackSize;
-  	// 每个线程其实都有一个线程id，threadId，第一个分配的线程，它的id是1，之后的线程是2,3,4,5，依次分配各个线程的id
-    tid = nextThreadID();
-}
-</code></pre>
-<h2 id="3-初始化总结">3 初始化总结</h2>
-<ol>
-<li>
-<p>创建 A 线程的线程，就是 A 线程的父线程</p>
-</li>
-<li>
-<p>如果没有指定ThreadGroup，A 线程的ThreadGroup就是父线程的ThreadGroup</p>
-</li>
-<li>
-<p>A 线程的daemon状态默认是父线程的daemon状态</p>
-</li>
-<li>
-<p>A 线程的优先级默认是父线程的优先级</p>
-</li>
-<li>
-<p>如果没有指定线程的名称，那么默认就是 Thread-0 格式的名称</p>
-</li>
-<li>
-<p>线程id是全局递增的，从 1 开始</p>
-</li>
-</ol>
-<h2 id="4-线程启动">4 线程启动</h2>
-<p>看一下 start() 方法的源码：</p>
-<pre><code class="language-java">public synchronized void start() {
-    // 状态不为 0（对应着 NEW 状态），则抛出异常
-    if (threadStatus != 0)
-        throw new IllegalThreadStateException();
-  	// 将线程加入线程组
-    group.add(this);
-    boolean started = false;
-    try {
-        start0();
-      	// 启动成功，标记为启动成功
-        started = true;
-    } finally {
-        try {
-            if (!started) {
-                group.threadStartFailed(this);
-            }
-        } catch (Throwable ignore) {
-        }
-    }
-}
-</code></pre>
-<h3 id="41-多次调用-start">4.1 多次调用 start()</h3>
-<p>永远都不能对一个线程多次调用和执行start()方法：</p>
-<pre><code class="language-java">if (threadStatus != 0)
-        throw new IllegalThreadStateException();
-</code></pre>
-<p>线程一旦执行过一次以后，那么它的 threadStatus 就一定会变为非 0 的一个状态。如果是非0状态，那么再次调用 <code>start()</code>方法，会抛出一个异常<code>IllegalThreadStateException</code>（非法的线程状态的异常）。</p>
-<h3 id="42-启动成功">4.2 启动成功</h3>
-<p>一旦是<code>start0()</code>成功地启动之后，他就会去执行我们重写的<code>run()</code>方法（如果传入进去的是 <code>Runnalbe</code> 对象，就会执行那个Runnable对象的方法）。</p>
-<pre><code class="language-java">@Override
-public void run() {
-    if (target != null) {
-        target.run();
-    }
-}
-</code></pre>
-<p>如果采用如下方式：</p>
-<pre><code class="language-java">new Thread(new Runnable() {
-	public void run() {
-	}
-}).start();
-</code></pre>
-<p>传递一个 Runnable 对象（target），如果 target 不为 null 的话，那么此时就会执行 target 的 <code>run</code>方法。反之，如果你是直接自己用Thread 类继承了一个子类的话，那么你会重写这个 <code>run()</code>方法，<code>start0()</code>启动线程之后，就会来执行你的<code>run()</code>方法。</p>
-<h2 id="5-线程启动总结">5 线程启动总结</h2>
-<ol>
-<li>
-<p>一旦启动了线程之后，就不能再重新启动了。再次调用start()方法，会抛出异常。因为启动之后，threadStatus就会变成非0的状态。</p>
-</li>
-<li>
-<p>启动线程之后，这个线程就会加入之前处理好的那个线程组中。</p>
-</li>
-<li>
-<p>启动一个线程实际上走的是 native 方法，start0()，会实际的启动一个线程</p>
-</li>
-<li>
-<p>一个线程启动之后就会执行run()方法。</p>
-</li>
-</ol>
 ]]></content>
     </entry>
 </feed>
