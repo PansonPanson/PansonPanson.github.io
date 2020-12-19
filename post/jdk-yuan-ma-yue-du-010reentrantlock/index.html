@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读010：ReentrantLock  | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1608359420913">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1608363728420">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1608359420913" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1608363728420" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -111,6 +111,9 @@
 </ul>
 </li>
 <li><a href="#4-%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">4 可重入性实现原理</a></li>
+<li><a href="#5-%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81%E4%B8%8E%E5%85%AC%E5%B9%B3%E9%94%81">5 非公平锁与公平锁</a></li>
+<li><a href="#6-trylock">6 tryLock()</a></li>
+<li><a href="#7-%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81%E9%87%8A%E6%94%BE%E9%94%81%E7%9A%84%E6%B5%81%E7%A8%8B">7 可重入锁释放锁的流程</a></li>
 </ul>
 </li>
 </ul>
@@ -323,7 +326,8 @@ Node nextWaiter;
 </code></pre>
 <p>对于获取不到锁，处于等待状态的线程，会被封装为一个Node，最后多个处于阻塞等待状态的线程可以封装为一个Node双向链表，这也是为什么被叫做抽象队列同步器的原因。</p>
 <figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/aqs002.jpg?raw=true" alt="" loading="lazy"></figure>
-<pre><code class="language-java">private Node addWaiter(Node mode) {
+<pre><code class="language-java">// 最后返回的事线程 2 对应的 node
+private Node addWaiter(Node mode) {
     Node node = new Node(Thread.currentThread(), mode);
     // Try the fast path of enq; backup to full enq on failure
     Node pred = tail;
@@ -339,14 +343,17 @@ Node nextWaiter;
     return node;
 }
 </code></pre>
-<pre><code class="language-java">private Node enq(final Node node) {
+<pre><code class="language-java">// pred 为 null，则无限 for 循环
+private Node enq(final Node node) {
     for (;;) {
         Node t = tail;
         if (t == null) { // Must initialize
+          	// 为 null 初始化 head，并将 tail 也指向 head
             if (compareAndSetHead(new Node()))
                 tail = head;
         } else {
             node.prev = t;
+          	// 尝试比较tail变量是否为t，如果为t的话，那么tail指针就指向传参进来的 node
             if (compareAndSetTail(t, node)) {
                 t.next = node;
                 return t;
@@ -355,35 +362,37 @@ Node nextWaiter;
     }
 }
 </code></pre>
-<p>unsafe.compareAndSwapObject(this, headOffset, null, update);</p>
+<pre><code class="language-java">private final boolean compareAndSetHead(Node update) {
+    return unsafe.compareAndSwapObject(this, headOffset, null, update);
+}
+</code></pre>
+<pre><code class="language-java">private final boolean compareAndSetTail(Node expect, Node update) {
+    return unsafe.compareAndSwapObject(this, tailOffset, expect, update);
+}
+</code></pre>
 <ul>
-<li>
-<p>headOffset -&gt; 在AQS类里，head变量所在的位置，CAS操作的，判断一下，head变量是否为null，如果是null的话，就将head设置为空Node节点</p>
-</li>
-<li>
-<p>compareAndSetTail(t, node)：尝试比较tail变量是否为t，如果为t的话，那么tail指针就指向node</p>
-</li>
+<li>headOffset -&gt; 在AQS类里，head变量所在的位置，CAS操作的，判断一下，head变量是否为null，如果是null的话，就将head设置为空Node节点</li>
+<li>compareAndSetTail(t, node)：尝试比较tail变量是否为t，如果为t的话，那么tail指针就指向node</li>
 </ul>
-<p>acquireQueued(线程2代表的Node, 1)</p>
 <pre><code class="language-java">final boolean acquireQueued(final Node node, int arg) {
        boolean failed = true;
        try {
            boolean interrupted = false;
            for (;;) {
-// 获取到node的上一个节点
-// prev指针指向的节点
+   							// 获取到node的上一个节点
+   							// prev指针指向的节点
                final Node p = node.predecessor();
-// 这个地方，其实会再次调用tryAcquire方法尝试加锁
-// 如果加锁成功，其实是会将线程2对应的Node从队列中移除
+   							// 这个地方，其实会再次调用tryAcquire方法尝试加锁
+   							// 如果加锁成功，其实是会将线程2对应的Node从队列中移除
                if (p == head &amp;&amp; tryAcquire(arg)) {
                    setHead(node);
                    p.next = null; // help GC
                    failed = false;
                    return interrupted;
                }
-// 如果说再次尝试加锁失败了
-// 那么此时会判断一下，是否需要将当前线程挂起，阻塞等待
-// 如果是需要的话，此时就会使用park操作挂起当前线程
+   							// 如果说再次尝试加锁失败了
+   							// 那么此时会判断一下，是否需要将当前线程挂起，阻塞等待
+   							// 如果是需要的话，此时就会使用park操作挂起当前线程
                if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
                    parkAndCheckInterrupt())
                    interrupted = true;
@@ -393,10 +402,10 @@ Node nextWaiter;
                cancelAcquire(node);
        }
 }
-
-private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
-// pred -&gt; 空Node
-// 默认情况下，watiStatus应该是0，或者是空
+</code></pre>
+<pre><code class="language-java">private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
+       // pred -&gt; 空Node
+       // 默认情况下，watiStatus应该是0，或者是空
        int ws = pred.waitStatus;
        if (ws == Node.SIGNAL)
            /*
@@ -419,28 +428,192 @@ private static boolean shouldParkAfterFailedAcquire(Node pred, Node node) {
             * need a signal, but don't park yet.  Caller will need to
             * retry to make sure it cannot acquire before parking.
             */
-// 将空Node的waitStatus设置为SIGNAL
+           // 将空Node的waitStatus设置为SIGNAL
            compareAndSetWaitStatus(pred, ws, Node.SIGNAL);
        }
        return false;
 }
-
-private final boolean parkAndCheckInterrupt() {
-// LockSupport的park操作，就是将一个线程进行挂起，不让你动了
-// 必须得有另外一个线程来对当前线程执行unpark操作，唤醒挂起的线程
-       LockSupport.park(this);
-       return Thread.interrupted();
-}
-
-public final void acquire(int arg) {
-// 先尝试加锁
-// 如果加锁失败，addWaiter()方法将自己挂到队列中去
-// 接着acquireQueued()方法负责park操作挂起当前线程，阻塞等待
-       if (!tryAcquire(arg) &amp;&amp;
-           acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
-           selfInterrupt();
-   }
 </code></pre>
+<pre><code class="language-java">private final boolean parkAndCheckInterrupt() {
+        // LockSupport的park操作，就是将一个线程进行挂起，不让你动了
+        // 必须得有另外一个线程来对当前线程执行unpark操作，唤醒挂起的线程
+        LockSupport.park(this);
+        return Thread.interrupted();
+}
+</code></pre>
+<pre><code class="language-java">public final void acquire(int arg) {
+        // 先尝试加锁
+        // 如果加锁失败，addWaiter()方法将自己挂到队列中去
+        // 接着acquireQueued()方法负责park操作挂起当前线程，阻塞等待
+        if (!tryAcquire(arg) &amp;&amp;
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            selfInterrupt();
+}
+</code></pre>
+<h2 id="5-非公平锁与公平锁">5 非公平锁与公平锁</h2>
+<p>ReentrantLock 默认是非公平锁。不遵循先来先加锁的原则，可以竞争。</p>
+<p>公平锁则保证先来先加锁，按照顺序排队来加锁。</p>
+<pre><code class="language-java">if (c == 0) {
+  if (!hasQueuedPredecessors() &amp;&amp; compareAndSetState(0, acquires)) {
+      setExclusiveOwnerThread(current);
+      return true;
+  }
+} 
+</code></pre>
+<p>公平锁的核心，就是一行代码，每次加锁的时候，都要先判断一下，如果前面没有排队等待的线程的话，那就尝试加锁，否则是不能尝试加锁的。</p>
+<pre><code class="language-java">public final boolean hasQueuedPredecessors() {
+        // The correctness of this depends on head being initialized
+        // before tail and on head.next being accurate if the current
+        // thread is first in queue.
+        Node t = tail; // Read fields in reverse initialization order
+        Node h = head;
+        Node s;
+  			// h != t，如果h != t，说明head和tail不一样，如果一样代表了队列里有人在排队
+        return h != t &amp;&amp;
+            ((s = h.next) == null || s.thread != Thread.currentThread());
+}
+</code></pre>
+<ol>
+<li>
+<p>h != t，如果h != t，说明head和tail不一样，如果一样还要接着判断；</p>
+</li>
+<li>
+<p>但是如果说head的下一个节点是null，说明没人在排队，因为有一个是null，所以此时也是返回true；</p>
+</li>
+<li>
+<p>或者是s，也就是排在队头的节点，队头节点的线程如果不是当前线程，所以此时也是返回true。</p>
+</li>
+</ol>
+<p>公平锁，任何一个线程过来会先判断一下，当前是否有人在排队，而且是不是自己在排队，如果不是的话，说明有别人在排队，此时自己不能尝试加锁，直接入队阻塞等待。</p>
+<h2 id="6-trylock">6 tryLock()</h2>
+<p>这一小节我们来看看 tryLock 是如何实现加锁等待一段时间过后并放弃的。</p>
+<p>方法调用流程：</p>
+<pre><code class="language-java">public boolean tryLock(long timeout, TimeUnit unit)
+        throws InterruptedException {
+    return sync.tryAcquireNanos(1, unit.toNanos(timeout));
+}
+</code></pre>
+<pre><code class="language-java">public final boolean tryAcquireNanos(int arg, long nanosTimeout)
+        throws InterruptedException {
+    if (Thread.interrupted())
+        throw new InterruptedException();
+    return tryAcquire(arg) ||
+        doAcquireNanos(arg, nanosTimeout);
+}
+</code></pre>
+<pre><code class="language-java">private boolean doAcquireNanos(int arg, long nanosTimeout)
+        throws InterruptedException {
+    if (nanosTimeout &lt;= 0L)
+        return false;
+    final long deadline = System.nanoTime() + nanosTimeout;
+    final Node node = addWaiter(Node.EXCLUSIVE);
+    boolean failed = true;
+    try {
+        for (;;) {
+            final Node p = node.predecessor();
+            if (p == head &amp;&amp; tryAcquire(arg)) {
+                setHead(node);
+                p.next = null; // help GC
+                failed = false;
+                return true;
+            }
+            nanosTimeout = deadline - System.nanoTime();
+            if (nanosTimeout &lt;= 0L)
+                return false;
+            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
+                nanosTimeout &gt; spinForTimeoutThreshold)
+                LockSupport.parkNanos(this, nanosTimeout);
+            if (Thread.interrupted())
+                throw new InterruptedException();
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+  
+</code></pre>
+<p>核心的流程是这样的：先尝试加锁，加锁失败放到队列里，并设置一个过期时间，如果过了过期时间，会尝试再次加锁，如果加锁失败，就返回 false。</p>
+<h2 id="7-可重入锁释放锁的流程">7 可重入锁释放锁的流程</h2>
+<p>方法调用链路：</p>
+<pre><code class="language-java">public void unlock() {
+    sync.release(1);
+}
+</code></pre>
+<p>走到 AQS 里面</p>
+<pre><code class="language-java">public final boolean release(int arg) {
+    if (tryRelease(arg)) {
+        Node h = head;
+        if (h != null &amp;&amp; h.waitStatus != 0)
+            unparkSuccessor(h);
+        return true;
+    }
+    return false;
+}
+</code></pre>
+<pre><code class="language-java">// ReentrantLock 的方法，核心思想是判断 state - 1 是否等于 0，等于 0 则返回 true，否则返回 false
+protected final boolean tryRelease(int releases) {
+    int c = getState() - releases;
+  	// 当前线程不等于加锁的线程，说明不是你加的锁，结果你来释放锁
+    if (Thread.currentThread() != getExclusiveOwnerThread())
+        throw new IllegalMonitorStateException();
+    boolean free = false;
+    if (c == 0) {
+        free = true;
+        setExclusiveOwnerThread(null);
+    }
+    setState(c);
+    return free;
+}
+</code></pre>
+<pre><code class="language-java">private void unparkSuccessor(Node node) {
+    /*
+     * If status is negative (i.e., possibly needing signal) try
+     * to clear in anticipation of signalling.  It is OK if this
+     * fails or if status is changed by waiting thread.
+     */
+    int ws = node.waitStatus;
+    if (ws &lt; 0)
+        compareAndSetWaitStatus(node, ws, 0);
+
+    /*
+     * Thread to unpark is held in successor, which is normally
+     * just the next node.  But if cancelled or apparently null,
+     * traverse backwards from tail to find the actual
+     * non-cancelled successor.
+     */
+    Node s = node.next;
+    if (s == null || s.waitStatus &gt; 0) {
+        s = null;
+        for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)
+            if (t.waitStatus &lt;= 0)
+                s = t;
+    }
+    if (s != null)
+        LockSupport.unpark(s.thread);
+}
+</code></pre>
+<p>此时我们可以看到，会唤醒处于队头的元素。也就是说如果一个线程来释放锁的话，他除了更新state和锁占有线程以外，他其实主要干的一个事儿就是用 LockSupport 的 unpark 操作唤醒了一个处于队头的一个线程。</p>
+<p>队头线程此时被unpark唤醒之后会干什么？我们可以看 <code>parkAndCheckInterrupt()</code> 方法：</p>
+<pre><code class="language-java">private final boolean parkAndCheckInterrupt() {
+				// 某一个线程其实是在这里会被挂起
+        LockSupport.park(this);
+        return Thread.interrupted();
+}
+</code></pre>
+<p>如果一旦被unpark唤醒之后，就会在这里苏醒过来，重新进入一个for循环里面</p>
+<pre><code class="language-java">for (;;) {
+     final Node p = node.predecessor();
+     if (p == head &amp;&amp; tryAcquire(arg)) {
+         setHead(node);
+         p.next = null; // help GC
+         failed = false;
+         return interrupted;
+     }
+     if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
+         parkAndCheckInterrupt())
+         interrupted = true;
+}
+</code></pre>
+<p>此时线程2会再次尝试去获取锁，因为他是队头线程，他的上一个节点一定就是那个head指针指向的节点了</p>
 
                 </div>
             </article>
