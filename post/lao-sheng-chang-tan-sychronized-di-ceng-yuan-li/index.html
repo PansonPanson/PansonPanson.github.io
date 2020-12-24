@@ -6,7 +6,7 @@
 
 <title>JDK 源码阅读008：synchronized 关键字 | Panson&#39;s Home</title>
 
-<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1608465682688">
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1608826798471">
 
 <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://panson.top/styles/main.css">
@@ -77,7 +77,7 @@
             
         </div>
         <div style="text-align: center">
-            <form id="gridea-search-form" style="position: relative" data-update="1608465682688" action="/search/index.html">
+            <form id="gridea-search-form" style="position: relative" data-update="1608826798471" action="/search/index.html">
                 <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
                 <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
             </form>
@@ -117,6 +117,15 @@
 </ul>
 </li>
 <li><a href="#3-%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E5%92%8C%E6%9C%89%E5%BA%8F%E6%80%A7">3 保证可见性和有序性</a></li>
+<li><a href="#4-%E9%94%81%E6%B6%88%E9%99%A4-%E9%94%81%E7%B2%97%E5%8C%96-%E5%81%8F%E5%90%91%E9%94%81-%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81-%E9%80%82%E5%BA%94%E9%94%81">4 锁消除、锁粗化、偏向锁、轻量级锁、适应锁</a>
+<ul>
+<li><a href="#41-%E9%94%81%E6%B6%88%E9%99%A4">4.1 锁消除</a></li>
+<li><a href="#42-%E9%94%81%E7%B2%97%E5%8C%96">4.2 锁粗化</a></li>
+<li><a href="#43-%E5%81%8F%E5%90%91%E9%94%81">4.3 偏向锁</a></li>
+<li><a href="#44-%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81">4.4 轻量级锁</a></li>
+<li><a href="#45-%E9%80%82%E5%BA%94%E9%94%81">4.5 适应锁</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -300,9 +309,17 @@ synchronized(lock) {
 
 }
 </code></pre>
-<p>Java对象都是分为对象头和实例变量两块的，其中实例变量就是大家平时看到的对象里的那些变量数据。然后对象头包含了两块东西，一个是Mark Word（包含hashCode、锁数据、GC数据，等等），另一个是Class Metadata Address（包含了指向类的元数据的指针）。</p>
-<p>在Mark Word里就有一个指针，是指向了这个对象实例关联的monitor的地址，这个monitor是c++实现的，不是java实现的。这个monitor实际上是c++实现的一个ObjectMonitor对象，里面包含了一个_owner指针，指向了持有锁的线程。</p>
-<p>ObjectMonitor里还有一个entrylist，想要加锁的线程全部先进入这个entrylist等待获取机会尝试加锁，实际有机会加锁的线程，就会设置_owner指针指向自己，然后对_count计数器累加1次。</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/synchronized002.jpg?raw=true" alt="" loading="lazy"></figure>
+<p>Java对象都是分为<strong>对象头</strong>和<strong>实例变量</strong>两块的，其中实例变量就是大家平时看到的对象里的那些变量数据。然后对象头包含了两块东西，一个是 <strong>Mark Word</strong>（<strong>包含hashCode、锁数据、GC数据，等等</strong>），另一个是 <strong>Class Metadata Address</strong>（<strong>包含了指向类的元数据的指针</strong>）。</p>
+<p>在Mark Word里就有一个指针，是指向了这个对象实例关联的monitor的地址，这个monitor是c++实现的，不是java实现的。这个monitor实际上是c++实现的一个<strong>ObjectMonitor</strong>对象。</p>
+<ol>
+<li>
+<p>ObjectMonitor 里面包含了一个 <strong>_owner指针，指向了持有锁的线程</strong>。</p>
+</li>
+<li>
+<p>ObjectMonitor 里还有一个 <strong>entrylist，想要加锁的线程全部先进入这个entrylist等待获取机会尝试加锁</strong>，实际有机会加锁的线程，就会设置_owner指针指向自己，然后对_count计数器累加1次。</p>
+</li>
+</ol>
 <p>各个线程尝试竞争进行加锁，此时竞争加锁是在JDK 1.6以后优化成了基于CAS来进行加锁，理解为跟之前的Lock API的加锁机制是类似的，CAS操作，操作_count计数器，比如说将_count值尝试从0变为1。</p>
 <p>然后释放锁的时候，先是对_count计数器递减1，如果为0了就会设置_owner为null，不再指向自己，代表自己彻底释放锁。</p>
 <p>如果获取锁的线程执行wait，就会将计数器递减，同时_owner设置为null，然后自己进入waitset中等待唤醒，别人获取了锁执行notify的时候就会唤醒waitset中的线程竞争尝试获取锁。</p>
@@ -326,24 +343,34 @@ Release内存屏障
 Store内存屏障
 </code></pre>
 <p>java的并发技术底层很多都对应了内存屏障的使用，包括synchronized，他底层也是依托于各种不同的内存屏障来保证可见性和有序性的。</p>
-<p>按照可见性来划分的话，内存屏障可以分为Load屏障和Store屏障。</p>
-<p>Load屏障的作用是执行refresh处理器缓存的操作，说白了就是对别的处理器更新过的变量，从其他处理器的高速缓存（或者主内存）加载数据到自己的高速缓存来，确保自己看到的是最新的数据。</p>
-<p>Store屏障的作用是执行flush处理器缓存的操作，说白了就是把自己当前处理器更新的变量的值，都刷新到高速缓存（或者主内存）里去。</p>
+<p><strong>按照可见性来划分的话，内存屏障可以分为Load屏障和Store屏障</strong>。</p>
+<ul>
+<li>
+<p><strong>Load屏障的作用是执行refresh处理器缓存的操作</strong>，说白了就是对别的处理器更新过的变量，从其他处理器的高速缓存（或者主内存）加载数据到自己的高速缓存来，确保自己看到的是最新的数据。</p>
+</li>
+<li>
+<p><strong>Store屏障的作用是执行flush处理器缓存的操作</strong>，说白了就是把自己当前处理器更新的变量的值，都刷新到高速缓存（或者主内存）里去。</p>
+</li>
+</ul>
 <p>在monitorexit指令之后，会有一个Store屏障，让线程把自己在同步代码块里修改的变量的值都执行flush处理器缓存的操作，刷到高速缓存（或者主内存）里去；然后在monitorenter指令之后会加一个Load屏障，执行refresh处理器缓存的操作，把别的处理器修改过的最新值加载到自己高速缓存里来。</p>
 <p>所以说通过Load屏障和Store屏障，就可以让synchronized保证可见性。</p>
-<p>按照有序性保障来划分的话，还可以分为Acquire屏障和Release屏障。</p>
-<p>在monitorenter指令之后，Load屏障之后，会加一个Acquire屏障，这个屏障的作用是禁止读操作和读写操作之间发生指令重排序。在monitorexit指令之前，会加一个Release屏障，这个屏障的作用是禁止写操作和读写操作之间发生重排序。</p>
+<p><strong>按照有序性保障来划分的话，还可以分为Acquire屏障和Release屏障。</strong></p>
+<ul>
+<li>在monitorenter指令之后，Load屏障之后，会加一个Acquire屏障，这个屏障的作用是禁止读操作和读写操作之间发生指令重排序。</li>
+<li>在monitorexit指令之前，会加一个Release屏障，这个屏障的作用是禁止写操作和读写操作之间发生重排序。</li>
+</ul>
 <p>所以说，通过 Acquire屏障和Release屏障，就可以让synchronzied保证有序性，只有synchronized内部的指令可以重排序，但是绝对不会跟外部的指令发生重排序。</p>
-<p>synchronized：</p>
+<p>总结 synchronized：</p>
 <ul>
 <li>原子性：加锁和释放锁，ObjectMonitor</li>
 <li>可见性：加了Load屏障和Store屏障，释放锁flush数据，加锁会refresh数据</li>
 <li>有序性：Acquire屏障和Release屏障，保证同步代码块内部的指令可以重排，但是同步代码块内部的指令和外面的指令是不能重排的</li>
 </ul>
-<p>锁消除：<br>
-锁消除是JIT编译器对synchronized锁做的优化，在编译的时候，JIT会通过逃逸分析技术，来分析synchronized锁对象，是不是只可能被一个线程来加锁，没有其他的线程来竞争加锁，这个时候编译就不用加入monitorenter和monitorexit的指令。<br>
+<h2 id="4-锁消除-锁粗化-偏向锁-轻量级锁-适应锁">4 锁消除、锁粗化、偏向锁、轻量级锁、适应锁</h2>
+<h3 id="41-锁消除">4.1 锁消除</h3>
+<p>锁消除是JIT编译器对synchronized锁做的优化，在编译的时候，JIT会通过逃逸分析技术，来分析synchronized锁对象，是不是只可能被一个线程来加锁，没有其他的线程来竞争加锁，这个时候编译就不用加入monitorenter和monitorexit的指令。<br>
 这就是，仅仅一个线程争用锁的时候，就可以消除这个锁了，提升这段代码的执行的效率，因为可能就只有一个线程会来加锁，不涉及到多个线程竞争锁。</p>
-<p>锁粗化</p>
+<h3 id="42-锁粗化">4.2 锁粗化</h3>
 <pre><code class="language-java">synchronized(this) {
 
 }
@@ -357,19 +384,15 @@ synchronized(this) {
 }
 </code></pre>
 <p>这个意思就是，JIT编译器如果发现有代码里连续多次加锁释放锁的代码，会给合并为一个锁，就是锁粗化，把一个锁给搞粗了，避免频繁多次加锁释放锁。</p>
-<p>偏向锁<br>
-这个意思就是说，monitorenter和monitorexit是要使用CAS操作加锁和释放锁的，开销较大，因此如果发现大概率只有一个线程会主要竞争一个锁，那么会给这个锁维护一个偏好（Bias），后面他加锁和释放锁，基于Bias来执行，不需要通过CAS，性能会提升很多。<br>
+<h3 id="43-偏向锁">4.3 偏向锁</h3>
+<p>这个意思就是说，monitorenter和monitorexit是要使用CAS操作加锁和释放锁的，开销较大，因此如果发现大概率只有一个线程会主要竞争一个锁，那么会给这个锁维护一个偏好（Bias），后面他加锁和释放锁，基于Bias来执行，不需要通过CAS，性能会提升很多。<br>
 但是如果有偏好之外的线程来竞争锁，就要收回之前分配的偏好。</p>
-<p>轻量级锁</p>
+<h3 id="44-轻量级锁">4.4 轻量级锁</h3>
 <p>如果偏向锁没能成功实现，就是因为不同线程竞争锁太频繁了，此时就会尝试采用轻量级锁的方式来加锁，就是将对象头的Mark Word里有一个轻量级锁指针，尝试指向持有锁的线程，然后判断一下是不是自己加的锁，如果是自己加的锁，那就执行代码就好了，如果不是自己加的锁，那就是加锁失败，说明有其他人加了锁，这个时候就是升级为重量级锁。</p>
-<p>适应锁</p>
-<p>这是JIT编译器对锁做的另外一个优化，如果各个线程持有锁的时间很短，那么一个线程竞争锁不到，就会暂停，发生上下文切换，让其他线程来执行。但是其他线程很快释放锁了，然后暂停的线程再次被唤醒</p>
-<p>也就是说在这种情况下，线程会频繁的上下文切换，导致开销过大</p>
-<p>所以对这种线程持有锁时间很短的情况，是可以采取忙等策略的，也就是一个线程没竞争到锁，进入一个while循环不停等待，不会暂停不会发生线程上下文切换，等到机会获取锁就继续执行好了</p>
-<p>再回过头来深入jvm底层的原理来剖析：偏向锁、自旋锁、轻量级锁，jvm层面的概念，栈侦，Load Record，不一定能听懂，基础的知识没有铺垫好，需要通过调节jvm的一些参数来优化底层synchronized里的各种加锁方式的使用</p>
-<p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓自旋锁，就是不断的自旋尝试获取锁</p>
-<p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的重量级锁</p>
-<p>这个根据不同情况自动调整的过程，就是适应锁的意思</p>
+<h3 id="45-适应锁">4.5 适应锁</h3>
+<p>这是JIT编译器对锁做的另外一个优化，如果各个线程持有锁的时间很短，那么一个线程竞争锁不到，就会暂停，发生上下文切换，让其他线程来执行。但是其他线程很快释放锁了，然后暂停的线程再次被唤醒。也就是说在这种情况下，线程会频繁的上下文切换，导致开销过大。所以对这种线程持有锁时间很短的情况，是可以采取忙等策略的，也就是一个线程没竞争到锁，进入一个while循环不停等待，不会暂停不会发生线程上下文切换，等到机会获取锁就继续执行好了。</p>
+<p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓<strong>自旋锁</strong>，就是不断的自旋尝试获取锁。</p>
+<p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的<strong>重量级锁</strong>。这个根据不同情况自动调整的过程，就是适应锁的意思。</p>
 
                 </div>
             </article>
