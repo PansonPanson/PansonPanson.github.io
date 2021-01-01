@@ -2,21 +2,33 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2020-12-27T15:36:27.535Z</updated>
+    <updated>2021-01-01T15:37:41.274Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
     <subtitle>清风拂山岗，明月照大江。</subtitle>
     <logo>https://panson.top/images/avatar.png</logo>
     <icon>https://panson.top/favicon.ico</icon>
-    <rights>All rights reserved 2020, Panson&apos;s Home</rights>
+    <rights>All rights reserved 2021, Panson&apos;s Home</rights>
     <entry>
         <title type="html"><![CDATA[写在二零二零年末]]></title>
         <id>https://panson.top/post/xie-zai-er-ling-er-ling-nian-mo/</id>
         <link href="https://panson.top/post/xie-zai-er-ling-er-ling-nian-mo/">
         </link>
         <updated>2020-12-24T16:12:48.000Z</updated>
-        <content type="html"><![CDATA[<!-- more -->
+        <summary type="html"><![CDATA[<p>年末赶着搬家和做一些零碎的事，以至于差点忘了要写“俗套”的年终总结。2020 真是太魔幻了，以至于小破站上各路 up 主对 2020 的创作俯拾皆是。除了大家共有的经历，我的 2020 也充满着自己独有的诸多变化，具体的生活就不再赘述，在这里记录一下自己的新年计划。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>年末赶着搬家和做一些零碎的事，以至于差点忘了要写“俗套”的年终总结。2020 真是太魔幻了，以至于小破站上各路 up 主对 2020 的创作俯拾皆是。除了大家共有的经历，我的 2020 也充满着自己独有的诸多变化，具体的生活就不再赘述，在这里记录一下自己的新年计划。</p>
+<!-- more -->
+<p>本身对 Golang 比较感兴趣，但工作中主要是用 Java，所以还是把大多数尽力都花在 Java 生态上。<br>
+<strong>TODO</strong></p>
+<ul class="contains-task-list">
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9396694"><label class="task-list-item-label" for="task-item-9396694"> 1. 再读一遍 JDK 核心源码，并整理到 GitHub 上，年底能突破到 200 star。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-204317"><label class="task-list-item-label" for="task-item-204317"> 2. 完成 PingCAP 的 Talent Plan 路径一，并对 Golang 达到熟悉的程度。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5776247"><label class="task-list-item-label" for="task-item-5776247"> 3. 读完 Eureka、Ribbon、Hystrix、Feign 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7123048"><label class="task-list-item-label" for="task-item-7123048"> 4. 读完 RocketMQ 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-3293338"><label class="task-list-item-label" for="task-item-3293338"> 5. 把高频的 200 题刷完，并再刷一遍《剑指offer》。</label></li>
+</ul>
 ]]></content>
     </entry>
     <entry>
