@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2021-01-01T16:10:40.789Z</updated>
+    <updated>2021-01-17T11:46:26.054Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -35,62 +35,12 @@
 <p>本身对 Golang 比较感兴趣，但工作中主要是用 Java，所以还是把大多数尽力都花在 Java 生态上。<br>
 <strong>TODO</strong></p>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9646996"><label class="task-list-item-label" for="task-item-9646996"> 1. 再读一遍 JDK 核心源码，并整理到 GitHub 上，年底能突破到 200 star。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-4663365"><label class="task-list-item-label" for="task-item-4663365"> 2. 完成 PingCAP 的 Talent Plan 路径一，并对 Golang 达到熟悉的程度。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6034896"><label class="task-list-item-label" for="task-item-6034896"> 3. 读完 Eureka、Ribbon、Hystrix、Feign 的源码。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8365526"><label class="task-list-item-label" for="task-item-8365526"> 4. 读完 RocketMQ 的源码。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5491784"><label class="task-list-item-label" for="task-item-5491784"> 5. 把高频的 200 题刷完，并再刷一遍《剑指offer》。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9746298"><label class="task-list-item-label" for="task-item-9746298"> 1. 再读一遍 JDK 核心源码，并整理到 GitHub 上，年底能突破到 200 star。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7232778"><label class="task-list-item-label" for="task-item-7232778"> 2. 完成 PingCAP 的 Talent Plan 路径一，并对 Golang 达到熟悉的程度。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6008295"><label class="task-list-item-label" for="task-item-6008295"> 3. 读完 Eureka、Ribbon、Hystrix、Feign 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8102215"><label class="task-list-item-label" for="task-item-8102215"> 4. 读完 RocketMQ 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-240791"><label class="task-list-item-label" for="task-item-240791"> 5. 把高频的 200 题刷完，并再刷一遍《剑指offer》。</label></li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[微博、海拍客、酷家乐、涂鸦智能面经记录]]></title>
-        <id>https://panson.top/post/wei-bo-mian-jing-ji-lu/</id>
-        <link href="https://panson.top/post/wei-bo-mian-jing-ji-lu/">
-        </link>
-        <updated>2020-12-19T06:14:34.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>微博初面 + 现场一面 + 现场二面 + 视频三面，问了很多基础知识点，现场面比较久，差不多一个半小时。酷家乐一共五面，一轮电话技术面，三轮现场面，一轮 hr 面，现场面的时候从三点多面到六点多……出莱茵矩阵的时候，天已经彻底黑了。涂鸦一共三面，海拍客先是进行了一轮 hr 面，然后电话技术面，接着两轮现场技术面，再加一轮 hr 面，流程都是一周走完，都已拿到 oc。记录一下，已剔除敏感内容。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>微博初面 + 现场一面 + 现场二面 + 视频三面，问了很多基础知识点，现场面比较久，差不多一个半小时。酷家乐一共五面，一轮电话技术面，三轮现场面，一轮 hr 面，现场面的时候从三点多面到六点多……出莱茵矩阵的时候，天已经彻底黑了。涂鸦一共三面，海拍客先是进行了一轮 hr 面，然后电话技术面，接着两轮现场技术面，再加一轮 hr 面，流程都是一周走完，都已拿到 oc。记录一下，已剔除敏感内容。</em></p>
-<!-- more -->
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[黑色十一月 and  挖财中间件、club-factory 面经]]></title>
-        <id>https://panson.top/post/hei-se-shi-yi-yue-and-wa-cai-zhong-jian-jian-club-factory-mian-jing/</id>
-        <link href="https://panson.top/post/hei-se-shi-yi-yue-and-wa-cai-zhong-jian-jian-club-factory-mian-jing/">
-        </link>
-        <updated>2020-12-07T08:52:30.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
-<!-- more -->
-<p>一天全部面完，有点累，记录一下面经，已剔除业务相关敏感信息。</p>
-<ol>
-<li>MySQL 存储引擎有哪些，Innodb 与 MyISAM 的区别，MyISAM 底层索引机制，Innodb 的底层索引机制</li>
-<li>Dubbo 工作流程，序列化协议与通信协议了解哪些</li>
-<li>NIO 与 BIO，BIO 是否绝对比 NIO 好，Tomcat 中使用的是哪一种</li>
-<li>用过哪些设计模式，设计模式原则</li>
-<li>JVM 调优，怎么调优的，使用了什么命令，排查的流程是什么，后来怎么解决的</li>
-<li>Dubbo 注册中心挂了会怎样，新加的服务能调用吗，老的服务呢</li>
-<li>Kafka 的核心概念，如何做到高可用的，如何做到吞吐量达到 10 几万，消费者组</li>
-<li>RocketMQ 的核心概念，两者的区别，为什么这样选型</li>
-<li>MySQL 的流程</li>
-<li>Redis 用过哪些，怎么用的，底层的数据结构</li>
-<li>编程题：
-<ul>
-<li>读取某个文件目录下，以 .txt 结尾的文件，并统计所有字符出现的次数，根据出现频率，由高到低依次打印，要求使用多线程。</li>
-</ul>
-</li>
-<li>讲一下 Zookeeper 运行流程，Zookeeper 数据一致性问题，Zookeeper 是如何处理的
-<ul>
-<li>Leader收到了过半的follower的ack，接着leader自己commit了，还没来得及发送commit给所有follower自己就挂了。</li>
-<li>leader可能会自己收到了一个请求，结果没来得及发送proposal给所有follower之前就宕机了。</li>
-</ul>
-</li>
-<li>Zookeeper 分布式锁，Redis 分布式锁，Redis 分布式锁原理，如何实现的</li>
-<li>为什么出来看机会，谈期望薪水。</li>
-</ol>
 ]]></content>
     </entry>
     <entry>
@@ -115,87 +65,6 @@
 <li>Gradle</li>
 </ul>
 <h2 id="三-源码阅读十一月一边交接工作一边肝-eureka顺便面试">三、源码阅读（十一月一边交接工作，一边肝 Eureka，顺便面试）</h2>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[51信用卡四面]]></title>
-        <id>https://panson.top/post/51-xin-yong-qia-gong-si-mian/</id>
-        <link href="https://panson.top/post/51-xin-yong-qia-gong-si-mian/">
-        </link>
-        <updated>2020-11-11T03:03:42.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>大数据部门，周一面了一下午，已拿 offer。</em><br>
-<em>之前有问过在 51 待过的师兄，反馈 51 是一个蛮不错的公司，虽然经历了 19 年的事，但还是建议我去试试。记录一下面试内容，已剔除敏感信息。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>大数据部门，周一面了一下午，已拿 offer。</em><br>
-<em>之前有问过在 51 待过的师兄，反馈 51 是一个蛮不错的公司，虽然经历了 19 年的事，但还是建议我去试试。记录一下面试内容，已剔除敏感信息。</em></p>
-<!-- more -->
-<ul>
-<li>结合业务聊一下 ZooKeeper 选举流程，主从同步</li>
-<li>所做的工作内容详细介绍，公司的业务介绍，问了许多和业务相关的东西</li>
-<li>任务调度系列问题，为什么不采用业界流行框架</li>
-<li>Redis 数据结构、与 Memcache 对比、高可用性、集群</li>
-<li>大数据的了解程度，MapReduce，结合业务讲解</li>
-<li>HashMap 为什么使用 8 做为链表和红黑树转化的阈值</li>
-<li>equals、hashcode、==、People 类修改，在 HashMap 中的存储过程以及会发生的问题</li>
-<li>手画 MySQL B+ 树，叶子节点、非叶子结点、数据存储具体内容</li>
-<li>聚簇索引、非聚簇索引、回表机制、慢 SQL 的排查、Explain</li>
-<li>MySQL 索引失效情景、索引的可选择性、前缀索引</li>
-<li><a href="https://zhuanlan.zhihu.com/p/81398139">数据库 Nested Loop Join 算法</a></li>
-<li>打印推拉两种模式，倾向于哪种模式，有什么问题，为什么</li>
-<li>限流算法</li>
-<li>缓存穿透、缓存雪崩、缓存击穿，应对方法</li>
-<li>数据库三范式</li>
-<li>智力题：100人，编号1到100，每次击毙所有报奇数号的人，最后活下来的人的初始编号是多少</li>
-<li>你的优、缺点</li>
-<li>你人生中最难的事</li>
-<li>谈薪水</li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[知乎与 vipkid 面经总结]]></title>
-        <id>https://panson.top/post/zhihu-vipkid-yi-mian-er-mian-zong-jie/</id>
-        <link href="https://panson.top/post/zhihu-vipkid-yi-mian-er-mian-zong-jie/">
-        </link>
-        <updated>2020-11-09T14:04:06.000Z</updated>
-        <summary type="html"><![CDATA[<p><em>虽然已经过了金九银十，但好像在工作上的自我成长开始变慢，于是想着出去看看机会。上月月末试着投了几家公司，约了这周开始面试。vipkid 的一面和二面之间隔了三天，面试过程还算顺利，总的来说一面侧重技术，二面侧重业务，面完之后趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em></p>
-]]></summary>
-        <content type="html"><![CDATA[<p><em>虽然已经过了金九银十，但好像在工作上的自我成长开始变慢，于是想着出去看看机会。上月月末试着投了几家公司，约了这周开始面试。vipkid 的一面和二面之间隔了三天，面试过程还算顺利，总的来说一面侧重技术，二面侧重业务，面完之后趁着周末，记录一下。面试的具体问题不便直接公开，这里总结一下面试的大致内容。</em></p>
-<!-- more -->
-<p>——————————————————<br>
-1、JDK 集合的类继承结构图，自顶向下（有点困，写完这篇总结就睡觉了~太晚了，IDEA 的 UML 图就不整理了）：</p>
-<ul>
-<li>Collection==============Map</li>
-<li>Set | List  | Queue================ TreeMap、HashTable、LinkedHashMap、HashMap</li>
-<li>TreeSet、HashSet、LinkedHashSet | ArrayList、Vector、LinkedList | LinkedList、PriorityQueue</li>
-</ul>
-<p>2、IO 类继承，自顶向下</p>
-<ul>
-<li>磁盘操作：File</li>
-<li>字节操作：InputStream 和 OutputStream</li>
-<li>字符操作：Reader 和 Writer</li>
-<li>对象操作：Serializable</li>
-<li>网络操作：Socket</li>
-<li>NIO</li>
-</ul>
-<p>3、JUC 核心类（AQS、线程池、同步器、并发集合类）<br>
-4、Redis 基础数据类型、高级数据结构、文件事件处理器、AOF、RDB，具体的使用<br>
-5、Java 锁机制（snchronized、Lock、CAS）<br>
-6、Kaka 重复消费、幂等性<br>
-7、zk 分布式锁、zab<br>
-8、xxl-job<br>
-9、CAP<br>
-10、JVM<br>
-11、ZooKeeper 选举流程<br>
-12、Redis 数据类型、内存淘汰策略、LRU 底层实现原理<br>
-13、Golang<br>
-14、算法题：</p>
-<ul>
-<li>一个无序整型数组，一个key，要求输出一个数组，大于 key 的元素都放在右边，小于key的元素都放在左边，左右两边都有序。</li>
-<li><a href="https://leetcode-cn.com/problems/combination-sum-ii/">40. 组合总和 II</a></li>
-<li>冒泡排序，优化<br>
-15、聊团队业务、搜索 &amp; 销售线索转换</li>
-</ul>
 ]]></content>
     </entry>
     <entry>
@@ -2498,6 +2367,881 @@ synchronized(this) {
 <p>这是JIT编译器对锁做的另外一个优化，如果各个线程持有锁的时间很短，那么一个线程竞争锁不到，就会暂停，发生上下文切换，让其他线程来执行。但是其他线程很快释放锁了，然后暂停的线程再次被唤醒。也就是说在这种情况下，线程会频繁的上下文切换，导致开销过大。所以对这种线程持有锁时间很短的情况，是可以采取忙等策略的，也就是一个线程没竞争到锁，进入一个while循环不停等待，不会暂停不会发生线程上下文切换，等到机会获取锁就继续执行好了。</p>
 <p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓<strong>自旋锁</strong>，就是不断的自旋尝试获取锁。</p>
 <p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的<strong>重量级锁</strong>。这个根据不同情况自动调整的过程，就是适应锁的意思。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读007：volatile 关键字]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-yue-du-007volatile-guan-jian-zi/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-007volatile-guan-jian-zi/">
+        </link>
+        <updated>2019-03-23T12:57:39.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-cpu-%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B">2 CPU 缓存模型</a></li>
+<li><a href="#3-mesi">3 MESI</a></li>
+<li><a href="#4-java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B">4 Java 内存模型</a></li>
+<li><a href="#5-%E5%8F%AF%E8%A7%81%E6%80%A7-%E5%8E%9F%E5%AD%90%E6%80%A7-%E9%A1%BA%E5%BA%8F%E6%80%A7">5 可见性、原子性、顺序性</a></li>
+<li><a href="#6-happens-before-%E5%8E%9F%E5%88%99">6 happens-before 原则</a></li>
+<li><a href="#7-volitile-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86lock-%E6%8C%87%E4%BB%A4%E4%BB%A5%E5%8F%8A%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C">7 volitile 底层实现原理：lock 指令以及内存屏障</a>
+<ul>
+<li><a href="#71-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E7%9A%84">7.1 volatile 是如何保证可见性的</a></li>
+<li><a href="#72-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7%E7%9A%84">7.2 volatile 是如何保证有序性的</a></li>
+</ul>
+</li>
+<li><a href="#8-%E7%BB%8F%E5%85%B8%E7%9A%84%E5%8F%8C%E9%87%8D%E6%A3%80%E6%9F%A5%E9%94%81">8 经典的双重检查锁</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
+<p>多个线程共用一个共享变量，会遇到并发读写的问题，volatile 关键字就是来解决这个问题的。</p>
+<p>本文将会从以下几个方面来讲解 volatile：</p>
+<ul>
+<li>cpu 缓存模型</li>
+<li>Java 内存模型</li>
+<li>原子性、可见性、有序性</li>
+<li>volatile 的作用</li>
+<li>volatile 的底层原理</li>
+</ul>
+<h2 id="2-cpu-缓存模型">2 CPU 缓存模型</h2>
+<p>现代的计算机技术，内存的读写速度没什么突破，cpu如果要频繁的读写主内存的话，会导致性能较差，计算性能就会低，不适应现代计算机技术的发展，于是又在 CPU 中加了几层缓存，如下图所示：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/cpu%20%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<p>这样 CPU 可以直接操作自己对应的高速缓存，不需要直接频繁的跟主内存通信，这样可以保证 cpu 的计算效率。</p>
+<p>但是这样会产生并发问题：假设某个时刻 CPU a 更新了本地缓存的 flag，但此时还没更新到主内存，CPU b 此时读取到的值还是旧值。这便产生了一致性的问题。</p>
+<p>其实上述场景只是并发问题中的一个，本质上都是因为各个 CPU 的本地缓存跟主内存之间没有同步，一个数据，在各个地方，可能都不一样，这样就导致了数据的不一致。</p>
+<h2 id="3-mesi">3 MESI</h2>
+<p>对于这个缓存不一致的问题，在计算机上古时期，采用了一种总线加锁机制。简单来说就是，某个cpu如果要修改一个数据，会通过一个总线，对这个数据加一个锁，其他的cpu就没法去读和写这个数据了，只有当这个cpu修改完了以后，其他 cpu 才可以读到最新的数据。</p>
+<p>但这种总线加锁机制显然太过粗暴，可以想象的是，如果并发数比较大，那么效率肯定很低。</p>
+<p>现在计算机流行的是 MESI 协议：</p>
+<p>缓存行有4种不同的状态:</p>
+<ul>
+<li>
+<p>已修改Modified (M)</p>
+<p>缓存行是脏的（<em>dirty</em>），与主存的值不同。如果别的CPU内核要读主存这块数据，该缓存行必须回写到主存，状态变为共享(S).</p>
+</li>
+<li>
+<p>独占Exclusive (E)</p>
+<p>缓存行只在当前缓存中，但是干净的（clean）--缓存数据同于主存数据。当别的缓存读取它时，状态变为共享；当前写数据时，变为已修改状态。</p>
+</li>
+<li>
+<p>共享Shared (S)</p>
+<p>缓存行也存在于其它缓存中且是干净的。缓存行可以在任意时刻抛弃。</p>
+</li>
+<li>
+<p>无效Invalid (I)</p>
+<p>缓存行是无效的</p>
+</li>
+</ul>
+<p>线程修改了缓存行，会刷到主内存中，CPU 会采用嗅探机制，将其他 CPU 的对应缓存行设置为无效状态，强制其他 CPU 从主内存中读取最新的值。</p>
+<p>通过这样的机制，我们才能保证线程工作内存和主内存是一致的。</p>
+<h2 id="4-java-内存模型">4 Java 内存模型</h2>
+<p>Java内存模型是跟cpu缓存模型是类似的，基于cpu缓存模型来建立的java内存模型，只不过java内存模型是标准化的，屏蔽掉底层不同的计算机的区别。</p>
+<p>首先我们来看看几个概念：</p>
+<ol>
+<li>
+<p>read：从主存读取</p>
+</li>
+<li>
+<p>load：将主存读取到的值写入工作内存</p>
+</li>
+<li>
+<p>use：从工作内存读取数据来计算</p>
+</li>
+<li>
+<p>assign：将计算好的值重新赋值到工作内存中</p>
+</li>
+<li>
+<p>store：将工作内存数据写入主存</p>
+</li>
+<li>
+<p>write：将store过去的变量值赋值给主存中的变量</p>
+</li>
+</ol>
+<p>可以参考下图来记忆：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/java%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="5-可见性-原子性-顺序性">5 可见性、原子性、顺序性</h2>
+<ul>
+<li>
+<p>可见性：前述问题讲述了主内存和工作内存中最新修改的值不可见的问题，其实就是可见性的问题，voilatile 可以解决此问题。</p>
+</li>
+<li>
+<p>原子性：volatile 一般意义上并不能保证原子性（i++ 的操作不是原子性操作）。</p>
+</li>
+<li>
+<p>有序性：还有一个问题是指令重排序，编译器和指令器，有的时候为了提高代码执行效率，会将指令重排序，就是说比如下面的代码</p>
+</li>
+</ul>
+<pre><code class="language-java">flag = false;
+// 线程1:
+prepare();  // 准备资源
+flag = true;   
+
+//线程2:
+while(!flag){
+ Thread.sleep(1000);
+}
+execute(); // 基于准备好的资源执行操作
+</code></pre>
+<p>重排序之后，让<code>flag = true</code>先执行了，会导致线程2直接跳过while等待，执行某段代码，结果prepare()方法还没执行，资源还没准备好呢，此时就会导致代码逻辑出现异常。</p>
+<h2 id="6-happens-before-原则">6 happens-before 原则</h2>
+<p>上文说过，编译器、指令器可能会对代码进行重排序，但是不能乱排，要遵守一定的规则，这个规则就是 happens-before 原则，只要符合 happens-before 的原则，那么就不能胡乱重排，反之，那就可以进行重排序。</p>
+<p>happens-before原则：</p>
+<ol>
+<li>
+<p>程序次序规则：一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作</p>
+</li>
+<li>
+<p>锁定规则：一个unLock操作先行发生于后面对同一个锁额lock操作</p>
+</li>
+<li>
+<p>volatile变量规则：对一个变量的写操作先行发生于后面对这个变量的读操作。volatile变量写，再是读，必须保证是先写，再读。</p>
+</li>
+<li>
+<p>传递规则：如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C</p>
+</li>
+<li>
+<p>线程启动规则：Thread对象的start()方法先行发生于此线程的每个一个动作</p>
+</li>
+<li>
+<p>线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</p>
+</li>
+<li>
+<p>线程终结规则：线程中所有的操作都先行发生于线程的终止检测，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行</p>
+</li>
+<li>
+<p>对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始</p>
+</li>
+</ol>
+<h2 id="7-volitile-底层实现原理lock-指令以及内存屏障">7 volitile 底层实现原理：lock 指令以及内存屏障</h2>
+<p>前文已经讲述过，volatile 可以保证可见性和有序性，那么留给我们的就有两个问题：</p>
+<ol>
+<li>volatile 是如何保证可见性的？</li>
+<li>volatile 是如何保证有序性的？</li>
+</ol>
+<h3 id="71-volatile-是如何保证可见性的">7.1 volatile 是如何保证可见性的</h3>
+<p>对 volatile 修饰的变量，执行写操作的话，JVM会发送一条<strong>lock前缀指令</strong>给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探，自己本地缓存中的数据是否被别人修改。</p>
+<p>如果发现别人修改了某个缓存的数据，那么CPU就会将自己本地缓存的数据过期掉，然后这个CPU上执行的线程在读取那个变量的时候，就会从主内存重新加载最新的数据了。</p>
+<h3 id="72-volatile-是如何保证有序性的">7.2 volatile 是如何保证有序性的</h3>
+<p>Java 内存模型里有 4 种内存屏障。</p>
+<ol>
+<li>LoadLoad</li>
+<li>StoreStore</li>
+<li>LoadStore</li>
+<li>StoreLoad</li>
+</ol>
+<pre><code class="language-java">Load1：
+int localVar = this.variable
+
+LoadLoad屏障
+
+Load2：
+int localVar = this.variable2
+</code></pre>
+<p>LoadLoad屏障：Load1；LoadLoad；Load2，确保Load1数据的装载先于Load2后所有装载指令，他的意思，Load1对应的代码和Load2对应的代码，是不能指令重排的</p>
+<pre><code class="language-java">Store1：
+this.variable = 1
+
+StoreStore屏障
+
+Store2：
+this.variable2 = 2
+</code></pre>
+<p>StoreStore屏障：Store1；StoreStore；Store2，确保Store1的数据一定刷回主存，对其他cpu可见，先于Store2以及后续指令</p>
+<p>LoadStore屏障：Load1；LoadStore；Store2，确保Load1指令的数据装载，先于Store2以及后续指令</p>
+<p>StoreLoad屏障：Store1；StoreLoad；Load2，确保Store1指令的数据一定刷回主存，对其他cpu可见，先于Load2以及后续指令的数据装载。</p>
+<p>对于volatile修改变量的读写操作，都会加入内存屏障</p>
+<p>每个volatile写操作前面，加StoreStore屏障，禁止上面的普通写和他重排；每个volatile写操作后面，加StoreLoad屏障，禁止跟下面的volatile读/写重排。</p>
+<p>每个volatile读操作后面，加LoadLoad屏障，禁止下面的普通读和voaltile读重排；每个volatile读操作后面，加LoadStore屏障，禁止下面的普通写和volatile读重排。</p>
+<h2 id="8-经典的双重检查锁">8 经典的双重检查锁</h2>
+<p>不使用 volatile 的双重检查锁</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+<p>在执行这一行代码的时候：</p>
+<pre><code class="language-java">instance = new DoubleCheckSingleton();
+</code></pre>
+<p>实际上这个步骤并不是原子性的，有三个过程：</p>
+<ol>
+<li>分配内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+<li>将对象指向刚分配的内存空间</li>
+</ol>
+<p>但是有些编译器为了性能的原因，可能会将第二步和第三步进行<strong>重排序</strong>，顺序就成了：</p>
+<ol>
+<li>分配内存空间</li>
+<li>将对象指向刚分配的内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+</ol>
+<p>这样就会造成多线程在调用改方法时，有可能会得到一个未被初始化的对象，此时也就是说没有保证可见性。</p>
+<p>我们可以使用 volatile 来实现可见性。</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private volatile static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码阅读006：Thread]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-yue-du-006thread/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-yue-du-006thread/">
+        </link>
+        <updated>2019-03-18T12:05:01.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-类继承体系">1 类继承体系</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Thread.png?raw=true" alt="" loading="lazy"></figure>
+<p>Runnable 接口只有一个核心方法：</p>
+<pre><code class="language-java">public abstract void run();
+</code></pre>
+<p>子类通过继承 Thread 并重写 run 方法实现自己的业务逻辑。</p>
+<h2 id="2-初始化">2 初始化</h2>
+<p>当我们使用<code>new Thread()</code> 的方法创建新的线程时，会调用<code>init</code>方法:</p>
+<ol>
+<li>ThreadGroup g：线程组，如果没有指定线程组，那么默认的线程组就是父线程的线程组，比如说如果你的父线程是main线程的话，那么你的线程组就是main线程的线程组（main线程组）。</li>
+<li>Runnable target：目标</li>
+<li>name：线程名字</li>
+<li>stackSize：默认是0。它的作用是控制jvm给线程分配栈内存的大小。如果这个值比JVM规定的最小值还小的话，取JVM的默认值，一般是1M。</li>
+</ol>
+<pre><code class="language-java">public Thread() {
+    init(null, null, &quot;Thread-&quot; + nextThreadNum(), 0);
+}
+</code></pre>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize) {
+    init(g, target, name, stackSize, null, true);
+}
+</code></pre>
+<p>默认情况下，如果你没有指定你是否为daemon的话，那么你的daemon的状态是由父线程决定的，就是说如果你的父线程是daemon线程，那么你也是daemon线程；同理，你的优先级如果没有指定的话，那么就跟父线程的优先级保持一致。</p>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize, AccessControlContext acc,
+                  boolean inheritThreadLocals) {
+    if (name == null) {
+        throw new NullPointerException(&quot;name cannot be null&quot;);
+    }
+    this.name = name;
+    Thread parent = currentThread();
+    SecurityManager security = System.getSecurityManager();
+    if (g == null) {
+        if (security != null) {
+            g = security.getThreadGroup();
+        }
+        if (g == null) {
+            g = parent.getThreadGroup();
+        }
+    }
+    g.checkAccess();
+    if (security != null) {
+        if (isCCLOverridden(getClass())) {
+            security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
+        }
+    }
+    g.addUnstarted();
+    this.group = g;
+    this.daemon = parent.isDaemon();
+    this.priority = parent.getPriority();
+    if (security == null || isCCLOverridden(parent.getClass()))
+        this.contextClassLoader = parent.getContextClassLoader();
+    else
+        this.contextClassLoader = parent.contextClassLoader;
+    this.inheritedAccessControlContext =
+            acc != null ? acc : AccessController.getContext();
+    this.target = target;
+    setPriority(priority);
+    if (inheritThreadLocals &amp;&amp; parent.inheritableThreadLocals != null)
+        this.inheritableThreadLocals =
+            ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
+    this.stackSize = stackSize;
+  	// 每个线程其实都有一个线程id，threadId，第一个分配的线程，它的id是1，之后的线程是2,3,4,5，依次分配各个线程的id
+    tid = nextThreadID();
+}
+</code></pre>
+<h2 id="3-初始化总结">3 初始化总结</h2>
+<ol>
+<li>
+<p>创建 A 线程的线程，就是 A 线程的父线程</p>
+</li>
+<li>
+<p>如果没有指定ThreadGroup，A 线程的ThreadGroup就是父线程的ThreadGroup</p>
+</li>
+<li>
+<p>A 线程的daemon状态默认是父线程的daemon状态</p>
+</li>
+<li>
+<p>A 线程的优先级默认是父线程的优先级</p>
+</li>
+<li>
+<p>如果没有指定线程的名称，那么默认就是 Thread-0 格式的名称</p>
+</li>
+<li>
+<p>线程id是全局递增的，从 1 开始</p>
+</li>
+</ol>
+<h2 id="4-线程启动">4 线程启动</h2>
+<p>看一下 start() 方法的源码：</p>
+<pre><code class="language-java">public synchronized void start() {
+    // 状态不为 0（对应着 NEW 状态），则抛出异常
+    if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+  	// 将线程加入线程组
+    group.add(this);
+    boolean started = false;
+    try {
+        start0();
+      	// 启动成功，标记为启动成功
+        started = true;
+    } finally {
+        try {
+            if (!started) {
+                group.threadStartFailed(this);
+            }
+        } catch (Throwable ignore) {
+        }
+    }
+}
+</code></pre>
+<h3 id="41-多次调用-start">4.1 多次调用 start()</h3>
+<p>永远都不能对一个线程多次调用和执行start()方法：</p>
+<pre><code class="language-java">if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+</code></pre>
+<p>线程一旦执行过一次以后，那么它的 threadStatus 就一定会变为非 0 的一个状态。如果是非0状态，那么再次调用 <code>start()</code>方法，会抛出一个异常<code>IllegalThreadStateException</code>（非法的线程状态的异常）。</p>
+<h3 id="42-启动成功">4.2 启动成功</h3>
+<p>一旦是<code>start0()</code>成功地启动之后，他就会去执行我们重写的<code>run()</code>方法（如果传入进去的是 <code>Runnalbe</code> 对象，就会执行那个Runnable对象的方法）。</p>
+<pre><code class="language-java">@Override
+public void run() {
+    if (target != null) {
+        target.run();
+    }
+}
+</code></pre>
+<p>如果采用如下方式：</p>
+<pre><code class="language-java">new Thread(new Runnable() {
+	public void run() {
+	}
+}).start();
+</code></pre>
+<p>传递一个 Runnable 对象（target），如果 target 不为 null 的话，那么此时就会执行 target 的 <code>run</code>方法。反之，如果你是直接自己用Thread 类继承了一个子类的话，那么你会重写这个 <code>run()</code>方法，<code>start0()</code>启动线程之后，就会来执行你的<code>run()</code>方法。</p>
+<h2 id="5-线程启动总结">5 线程启动总结</h2>
+<ol>
+<li>
+<p>一旦启动了线程之后，就不能再重新启动了。再次调用start()方法，会抛出异常。因为启动之后，threadStatus就会变成非0的状态。</p>
+</li>
+<li>
+<p>启动线程之后，这个线程就会加入之前处理好的那个线程组中。</p>
+</li>
+<li>
+<p>启动一个线程实际上走的是 native 方法，start0()，会实际的启动一个线程</p>
+</li>
+<li>
+<p>一个线程启动之后就会执行run()方法。</p>
+</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[JDK 源码解析005：LinkedHashMap]]></title>
+        <id>https://panson.top/post/jdk-yuan-ma-jie-xi-005linkedhashmap/</id>
+        <link href="https://panson.top/post/jdk-yuan-ma-jie-xi-005linkedhashmap/">
+        </link>
+        <updated>2019-03-15T13:09:32.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1-引言">1 引言</h2>
+<p>HashMap 的遍历顺序与插入顺序不一定是一致的，LinkedHashMap 继承了 HashMap，扩展了一些功能，用于维护插入顺序。</p>
+<pre><code class="language-java">public class LinkedHashMap&lt;K,V&gt;
+    extends HashMap&lt;K,V&gt;
+    implements Map&lt;K,V&gt;
+{
+</code></pre>
+<p>与 TreeMap 对比，他们相同的地方在于都可以维护 key 的顺序，只是 LinkedHashMap 底层是基于双向链表来实现顺序，TreeMap 是基于红黑树来实现。</p>
+<p>LinkedHashMap 与 HashMap 基本操作和原理相似，主要区别在于插入、覆盖、删除的时候，会使用双向链表来记录 key-value 对的顺序，在遍历的时候按照这个顺序来遍历。</p>
+<h2 id="2-核心属性">2 核心属性</h2>
+<pre><code class="language-java">// 双向链表头节点, 旧数据存在头节点。
+transient LinkedHashMap.Entry&lt;K,V&gt; head;
+
+// 双向链表尾节点，新数据存在尾节点。
+transient LinkedHashMap.Entry&lt;K,V&gt; tail;
+
+// 是否按访问顺序排序，如果为false则按插入顺序存储元素，如果是true则按访问顺序存储元素。
+final boolean accessOrder;
+</code></pre>
+<h2 id="3-核心原理">3 核心原理</h2>
+<h3 id="31-put">3.1 put</h3>
+<p>在调用 LinkedHashMap 的 put() 方法的时候，一定会调用到 HashMap 的 put() 方法里面去，调用完 put() 方法，插入一个 key-value 对之后，其实就会调用 afterNodeInsertion(evict)，这个方法就会去回调 LinkedHahsMap 里面的子类的实现。</p>
+<p>在 put 操作之后执行，当 removeEldestEntry() 方法返回 true 时会移除最晚的节点，也就是链表首部节点 first。</p>
+<p>evict 只有在构建 Map 的时候才为 false，在这里为 true。</p>
+<pre><code class="language-java">void afterNodeInsertion(boolean evict) { // possibly remove eldest
+    LinkedHashMap.Entry&lt;K,V&gt; first;
+    if (evict &amp;&amp; (first = head) != null &amp;&amp; removeEldestEntry(first)) {
+        K key = first.key;
+        removeNode(hash(key), key, null, false, true);
+    }
+}
+</code></pre>
+<p>另外还有一个子类实现 afterNodeAccess(Node&lt;K,V&gt; e) 方法：</p>
+<p>当一个节点被访问时，如果 accessOrder 为 true，则会将该节点移到链表尾部。也就是说指定为 LRU 顺序之后，在每次访问一个节点时，会将这个节点移到链表尾部，保证链表尾部是最近访问的节点，那么链表首部就是最近最久未使用的节点。</p>
+<pre><code class="language-java">void afterNodeAccess(Node&lt;K,V&gt; e) { // move node to last
+    LinkedHashMap.Entry&lt;K,V&gt; last;
+    if (accessOrder &amp;&amp; (last = tail) != e) {
+        LinkedHashMap.Entry&lt;K,V&gt; p =
+            (LinkedHashMap.Entry&lt;K,V&gt;)e, b = p.before, a = p.after;
+        p.after = null;
+        if (b == null)
+            head = a;
+        else
+            b.after = a;
+        if (a != null)
+            a.before = b;
+        else
+            last = b;
+        if (last == null)
+            head = p;
+        else {
+            p.before = last;
+            last.after = p;
+        }
+        tail = p;
+        ++modCount;
+    }
+}
+</code></pre>
+<p>removeEldestEntry() 默认为 false，如果需要让它为 true，需要继承 LinkedHashMap 并且覆盖这个方法的实现，这在实现 LRU 的缓存中特别有用，通过移除最近最久未使用的节点，从而保证缓存空间足够，并且缓存的数据都是热点数据。</p>
+<pre><code class="language-java">protected boolean removeEldestEntry(Map.Entry&lt;K,V&gt; eldest) {
+    return false;
+}
+</code></pre>
+<h3 id="32-accessorder">3.2 accessOrder</h3>
+<p>覆盖，如果是你再次将某个key的值覆盖一下，会怎么样呢？</p>
+<p>LinkedHashMap 有一个带参的构造函数：</p>
+<pre><code class="language-java">public LinkedHashMap(int initialCapacity,
+                     float loadFactor,
+                     boolean accessOrder) {
+    super(initialCapacity, loadFactor);
+    this.accessOrder = accessOrder;
+}
+</code></pre>
+<p>accessOrder，默认是false，此时访问这个元素，并不会改变顺序。</p>
+<p>但是如果accessOrder是true的话，那么 get 一个 key，或者是覆盖这个 key 的值，就会导致个 key-value 对顺序会在链表里改变，它会被挪动到链表的尾部去。</p>
+<h3 id="33-总结">3.3 总结</h3>
+<ul>
+<li>LinkedHashMap继承自HashMap，具有HashMap的所有特性；</li>
+<li>LinkedHashMap内部维护了一个双向链表存储所有的元素；</li>
+<li>如果accessOrder为false，则可以按插入元素的顺序遍历元素；</li>
+<li>如果accessOrder为true，则可以按访问元素的顺序遍历元素；</li>
+<li>LinkedHashMap的实现非常精妙，很多方法都是在HashMap中留的钩子（Hook），直接实现这些Hook就可以实现对应的功能了，并不需要再重写put()等方法；</li>
+<li>默认的LinkedHashMap并不会移除旧元素，如果需要移除旧元素，则需要重写removeEldestEntry()方法设定移除策略；</li>
+<li>LinkedHashMap可以用来实现LRU缓存淘汰策略；</li>
+</ul>
+<h2 id="4-使用-linkedhashmap-实现-lru">4 使用 LinkedHashMap 实现 LRU</h2>
+<pre><code class="language-java">class LRU&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+
+        private int capacity;
+
+        public LRU(int capacity, float loadFactor) {
+            super(capacity, loadFactor, true);
+            this.capacity = capacity;
+        }
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+            return size() &gt; capacity;
+        }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ JDK 源码阅读004：HashMap]]></title>
+        <id>https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/</id>
+        <link href="https://panson.top/post/lao-sheng-chang-tan-hashmap-yuan-ma-jie-du/">
+        </link>
+        <updated>2019-03-10T10:31:18.000Z</updated>
+        <content type="html"><![CDATA[<p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">2 数据结构</a>
+<ul>
+<li><a href="#21-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">2.1 数据结构总览</a></li>
+<li><a href="#22-node">2.2 Node</a></li>
+<li><a href="#23-table">2.3 table</a></li>
+</ul>
+</li>
+<li><a href="#3-%E6%A0%B8%E5%BF%83%E5%AD%97%E6%AE%B5">3 核心字段</a></li>
+<li><a href="#4-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96-%E4%B8%8E-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4 hash 算法优化 与 hash 寻址优化</a>
+<ul>
+<li><a href="#41-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96">4.1  hash 算法优化</a></li>
+<li><a href="#42-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4.2 hash 寻址优化</a></li>
+</ul>
+</li>
+<li><a href="#5-put-%E6%96%B9%E6%B3%95">5 put 方法</a>
+<ul>
+<li><a href="#51-put-%E6%96%B9%E6%B3%95%E7%9A%84%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90">5.1 put 方法的源码解析</a></li>
+<li><a href="#52-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BC%9A%E5%87%BA%E7%8E%B0-hash-%E5%86%B2%E7%AA%81">5.2 什么时候会出现 hash 冲突</a></li>
+<li><a href="#53-put-%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93">5.3 put 流程总结</a></li>
+</ul>
+</li>
+<li><a href="#6-resize-%E6%89%A9%E5%AE%B9">6 resize  扩容</a>
+<ul>
+<li><a href="#61-%E6%89%A9%E5%AE%B9%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96">6.1 扩容算法优化</a></li>
+<li><a href="#62-resize-%E6%96%B9%E6%B3%95">6.2 resize 方法</a></li>
+<li><a href="#63-resize-%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93">6.3 resize 流程总结</a></li>
+</ul>
+</li>
+<li><a href="#7-get-%E6%96%B9%E6%B3%95">7 get 方法</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
+<p>尽管哈希表是一种非常常见的数据结构，但是具体的代码实现依旧有很多可以优化的地方，我们可以通过阅读 JDK1.8 的HashMap 源码实现来学习这些优秀的设计。</p>
+<p>我们重点关注一些核心的问题：</p>
+<ul>
+<li>HashMap 底层数据结构是怎样的？</li>
+<li>hash 算法为什么要高位与低位做异或运算？</li>
+<li>hash 冲突的处理机制：链表、红黑树</li>
+<li>扩容机制：两倍扩容、rehash、rehash 的算法优化</li>
+<li>put、get 过程</li>
+</ul>
+<h2 id="2-数据结构">2 数据结构</h2>
+<h3 id="21-数据结构总览">2.1 数据结构总览</h3>
+<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="22-node">2.2 Node</h3>
+<pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+        // 用来定位数组索引位置
+        final int hash;    
+        final K key;
+        V value;
+        // 链表的下一个node
+        Node&lt;K,V&gt; next;   
+}
+</code></pre>
+<h3 id="23-table">2.3 table</h3>
+<p>table，即哈希桶数组是一个 Node  数组</p>
+<pre><code class="language-java">transient Node&lt;K,V&gt;[] table;
+</code></pre>
+<h2 id="3-核心字段">3 核心字段</h2>
+<pre><code class="language-java">// threshold = capacity * loadFactor，扩容大小的阈值
+int threshold;
+// 负载因子
+final float loadFactor;
+// 当前 HashMap 中 &lt;key, value&gt; 的对数
+transient int size;
+</code></pre>
+<h2 id="4-hash-算法优化-与-hash-寻址优化">4 hash 算法优化 与 hash 寻址优化</h2>
+<h3 id="41-hash-算法优化">4.1  hash 算法优化</h3>
+<p>来看看 hash 方法的源码：</p>
+<pre><code class="language-java">static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<ul>
+<li>如果 key 为 null，则会返回 0，否则计算出 key 的 hash 值和 hash 值无符号右移 16 位，并将两者进行异或操作，返回结果值。</li>
+</ul>
+<p>我们模拟一下，假设 key.hashCode(）为 ：1111 1111 1111 1111 1100  1100 1100 1100，<br>
+将其无符号右移 16 位，得到：0000 0000 0000 0000 1111 1111 1111 1111，<br>
+两者异或，得到：1111 1111 1111 1111 0011 0011 0011 0011。</p>
+<p><strong>为什么要进行异或操作呢？其实在后续进行 hash 寻址的过程中，一般都是用低 16 位进行运算。进行异或操作，可以让高 16 位也参与运算，在低 16 位同时保留原先高 16 位和低 16 位的特征，从而降低 hash 冲突的概率。</strong></p>
+<h3 id="42-hash-寻址优化">4.2 hash 寻址优化</h3>
+<p>在 putVal() 方法中，有这么一段代码：</p>
+<pre><code class="language-java">  if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+</code></pre>
+<p>这里的 <code>(n - 1) &amp; hash</code> 其实就是寻址，相当于 <code>hash / n</code>，但是位运算又比取模运算速度快。</p>
+<h2 id="5-put-方法">5 put 方法</h2>
+<h3 id="51-put-方法的源码解析">5.1 put 方法的源码解析</h3>
+<pre><code class="language-java">public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<pre><code class="language-java">final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;
+        // 1. 数组容量初始化：如果数组为 null 或者数组的长度为 0，会进行初次扩容
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        // 2. Node 初始化：使用优化后的寻址算法，如果定位到的 Node 元素为 null
+        if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else { // 定位到元素不为空，有3 个分支
+            Node&lt;K,V&gt; e; K k;
+            //  如果桶中第一个元素的key与待插入元素的key相同，保存到e中用于后续修改value值
+            if (p.hash == hash &amp;&amp;((k = p.key) == key || (key != null &amp;&amp; key.equals(k))
+                e = p;
+            // 如果第一个元素是树节点，则调用树节点的putTreeVal插入元素
+            else if (p instanceof TreeNode)
+                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                // 遍历这个桶对应的链表，binCount用于存储链表中元素的个数
+                for (int binCount = 0; ; ++binCount) {
+                    // 如果链表遍历完了都没有找到相同key的元素，说明该key对应的元素不存在，则在链表最后插入一个新节点
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        // 如果插入新节点后链表长度大于8，则判断是否需要树化
+                        if (binCount &gt;= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            // 先判断table的长度是否大于64，如果小于64，就通过扩容的方式来解决，避免红黑树结构化
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    //  如果待插入的key在链表中找到了，则退出循环
+                    if (e.hash == hash &amp;&amp;
+                        ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            // 如果找到了对应key的元素, 记录下旧值
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                // 判断是否需要替换旧值
+                if (!onlyIfAbsent || oldValue == null)
+                    // 替换旧值
+                    e.value = value;
+                // 在节点被访问后做点什么事，在LinkedHashMap中用到
+                afterNodeAccess(e);
+                // 返回旧值
+                return oldValue;
+            }
+        }
+        // 到这里了说明没有找到元素，修改次数加1
+        ++modCount;
+        // 元素数量加1，判断是否需要扩容
+        if (++size &gt; threshold)
+            resize();
+        // 在节点插入后做点什么事，在LinkedHashMap中用到
+        afterNodeInsertion(evict);
+        // 没找到元素返回null
+        return null;
+    }
+</code></pre>
+<h3 id="52-什么时候会出现-hash-冲突">5.2 什么时候会出现 hash 冲突</h3>
+<ul>
+<li>key 不一样，但是 hashcode() 方法乱写，导致 hash 值一样；</li>
+<li>hash  值不一样，但是寻址之后在数组中的位置是一样的，出现了 hash 冲突。</li>
+</ul>
+<h3 id="53-put-流程总结">5.3 put 流程总结</h3>
+<ol>
+<li>计算key的hash值；</li>
+<li>如果桶（数组）数量为0，则初始化桶；</li>
+<li>如果key所在的桶没有元素，则直接插入；</li>
+<li>如果key所在的桶中的第一个元素的key与待插入的key相同，说明找到了元素，转后续流程 9 处理；</li>
+<li>如果第一个元素是树节点，则调用树节点的putTreeVal()寻找元素或插入树节点；</li>
+<li>如果不是以上三种情况，则遍历桶对应的链表查找key是否存在于链表中；</li>
+<li>如果找到了对应key的元素，则转后续流程 9 处理；</li>
+<li>如果没找到对应key的元素，则在链表最后插入一个新节点并判断是否需要树化；</li>
+<li>如果找到了对应key的元素，则判断是否需要替换旧值，并直接返回旧值；</li>
+<li>如果插入了元素，则数量加1并判断是否需要扩容；</li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="6-resize-扩容">6 resize  扩容</h2>
+<h3 id="61-扩容算法优化">6.1 扩容算法优化</h3>
+<p>上文已经讲过寻址的 hash 算法，将 hash &amp; n -1，可以保证扩容之后，根据 hash 值寻址到的地方要么还是原来的 index，要么就是 index + oldCap。</p>
+<p>hash &amp; n -1：判断二进制结果中是否多出一个 bit 的 1，如果没多，那么就是原来的 index，否则就是 index + oldCap。通过这种方式，就避免了 rehash 的时候，用每个 hash 对新数组的 length 取模（位运算比取模效率高一些）。</p>
+<h3 id="62-resize-方法">6.2 resize 方法</h3>
+<p>简而言之就是：两倍扩容 + rehash。</p>
+<p>每次 put 了一个新的key-value对之后，size++，比较一下 size 和 threshold（数组的长度 * 负载因子），看是否需要扩容。</p>
+<pre><code class="language-java">if (++size &gt; threshold)
+    resize();
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt;[] resize() {
+  	// 旧数组
+    Node&lt;K,V&gt;[] oldTab = table;
+  	// 旧容量
+    int oldCap = (oldTab == null) ? 0 : oldTab.length;
+  	// 旧阈值
+    int oldThr = threshold;
+    int newCap, newThr = 0;
+    if (oldCap &gt; 0) {
+      	// 如果旧容量达到了最大容量，则不再进行扩容
+        if (oldCap &gt;= MAXIMUM_CAPACITY) {
+            threshold = Integer.MAX_VALUE;
+            return oldTab;
+        }
+      	// 如果旧容量的两倍小于最大容量并且旧容量大于默认初始容量（16），则容量扩大为两倍，扩容阈值也扩大为两倍
+        else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;
+                 oldCap &gt;= DEFAULT_INITIAL_CAPACITY)
+            newThr = oldThr &lt;&lt; 1; // double threshold
+    }
+  	// 使用非默认构造方法创建的map，第一次插入元素会走到这里    
+		// 如果旧容量为0且旧扩容门槛大于0，则把新容量赋值为旧阈值
+    else if (oldThr &gt; 0) // initial capacity was placed in threshold
+        newCap = oldThr;
+    else {               // zero initial threshold signifies using defaults
+      	// 调用默认构造方法创建的map，第一次插入元素会走到这里 
+        // 如果旧容量旧扩容阈值都是0，说明还未初始化过，则初始化容量为默认容量，扩容阈值为默认容量*默认装载因子
+        newCap = DEFAULT_INITIAL_CAPACITY;
+        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+    }
+    if (newThr == 0) {
+      	// 如果新扩容为0，则计算为容量*装载因子，但不能超过最大容量
+        float ft = (float)newCap * loadFactor;
+        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?
+                  (int)ft : Integer.MAX_VALUE);
+    }
+    // 赋值扩容门槛为新门槛
+    threshold = newThr;
+    // 新建一个新容量的数组
+    @SuppressWarnings({&quot;rawtypes&quot;,&quot;unchecked&quot;})
+    Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];
+    table = newTab;
+    // 如果旧数组不为空，则搬移元素
+    if (oldTab != null) {
+        for (int j = 0; j &lt; oldCap; ++j) {
+            Node&lt;K,V&gt; e;
+          	// 如果桶中第一个元素不为空，赋值给e
+            if ((e = oldTab[j]) != null) {
+                oldTab[j] = null;   
+						    // 如果这个桶中只有一个元素，则计算它在新桶中的位置并把它搬移到新桶中
+								// 因为每次都扩容两倍，所以这里的第一个元素搬移到新桶的时候新桶肯定还没有元素
+                if (e.next == null)
+                    newTab[e.hash &amp; (newCap - 1)] = e;
+              	// 如果第一个元素是树节点，则把这颗树打散成两颗树插入到新桶中去
+                else if (e instanceof TreeNode)
+                    ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);
+                else { // preserve order
+                  	// 如果这个链表不止一个元素且不是一颗树
+										// 则分化成两个链表插入到新的桶中去
+										// 比如，假如原来容量为4，3、7、11、15这四个元素都在三号桶中
+										// 现在扩容到8，则3和11还是在三号桶，7和15要搬移到七号桶中去
+										// 也就是分化成了两个链表
+                    Node&lt;K,V&gt; loHead = null, loTail = null;
+                    Node&lt;K,V&gt; hiHead = null, hiTail = null;
+                    Node&lt;K,V&gt; next;
+                    do {
+                        next = e.next;
+                        if ((e.hash &amp; oldCap) == 0) {
+                            if (loTail == null)
+                                loHead = e;
+                            else
+                                loTail.next = e;
+                            loTail = e;
+                        }
+                        else {
+                            if (hiTail == null)
+                                hiHead = e;
+                            else
+                                hiTail.next = e;
+                            hiTail = e;
+                        }
+                    } while ((e = next) != null);
+                    if (loTail != null) {
+                        loTail.next = null;
+                        newTab[j] = loHead;
+                    }
+                    if (hiTail != null) {
+                        hiTail.next = null;
+                        newTab[j + oldCap] = hiHead;
+                    }
+                }
+            }
+        }
+    }
+    return newTab;
+}
+</code></pre>
+<h3 id="63-resize-流程总结">6.3 resize 流程总结</h3>
+<ol>
+<li>
+<p>如果使用是默认构造方法，则第一次插入元素时初始化为默认值，容量为16，扩容门槛为12；</p>
+</li>
+<li>
+<p>如果使用的是非默认构造方法，则第一次插入元素时初始化容量等于扩容门槛，扩容门槛在构造方法里等于传入容量向上最近的2的n次方；</p>
+</li>
+<li>
+<p>如果旧容量大于0，则新容量等于旧容量的2倍，但不超过最大容量2的30次方，新扩容门槛为旧扩容门槛的2倍；</p>
+</li>
+<li>
+<p>创建一个新容量的桶；</p>
+</li>
+<li>
+<p>搬移元素，原链表分化成两个链表，低位链表存储在原来桶的位置，高位链表搬移到原来桶的位置加旧容量的位置；</p>
+</li>
+</ol>
+<h2 id="7-get-方法">7 get 方法</h2>
+<pre><code class="language-java">public V get(Object key) {
+    Node&lt;K,V&gt; e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt; getNode(int hash, Object key) {
+    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;
+  	// 如果桶的数量大于0并且待查找的key所在的桶的第一个元素不为空
+    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+        (first = tab[(n - 1) &amp; hash]) != null) {
+      	// 检查第一个元素是不是要查的元素，如果是直接返回
+        if (first.hash == hash &amp;&amp; // always check first node
+            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+          	// 如果第一个元素是树节点，则按树的方式查找
+            if (first instanceof TreeNode)
+                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);
+            do {
+              	// 否则就遍历整个链表查找该元素
+                if (e.hash == hash &amp;&amp;
+                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+</code></pre>
+<ol>
+<li>
+<p>计算key的hash值；</p>
+</li>
+<li>
+<p>找到key所在的桶及其第一个元素；</p>
+</li>
+<li>
+<p>如果第一个元素的key等于待查找的key，直接返回；</p>
+</li>
+<li>
+<p>如果第一个元素是树节点就按树的方式来查找，否则按链表方式查找；</p>
+</li>
+</ol>
+<p>参考：</p>
+<ul>
+<li>Java中的移位运算符：https://zhuanlan.zhihu.com/p/30108890</li>
+<li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
+<li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
+<li>死磕 java集合之HashMap源码分析：https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
+<li>https://tech.meituan.com/2016/06/24/java-hashmap.html</li>
+<li>深入浅出ConcurrentHashMap1.8：https://www.jianshu.com/p/c0642afe03e0</li>
+<li>老生常谈，HashMap的死循环：https://www.jianshu.com/p/1e9cf0ac07f4</li>
+<li>深入分析ConcurrentHashMap1.8的扩容实现：https://www.jianshu.com/p/f6730d5784ad</li>
+<li>ConcurrentHashMap的红黑树实现分析：https://www.jianshu.com/p/23b84ba9a498</li>
+<li>谈谈ConcurrentHashMap1.7和1.8的不同实现：https://www.jianshu.com/p/e694f1e868ec</li>
+</ul>
 ]]></content>
     </entry>
 </feed>
