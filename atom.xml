@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://panson.top</id>
     <title>Panson&apos;s Home</title>
-    <updated>2021-01-17T11:46:26.054Z</updated>
+    <updated>2021-02-08T14:57:54.247Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://panson.top"/>
     <link rel="self" href="https://panson.top/atom.xml"/>
@@ -20,6 +20,8 @@
 ]]></summary>
         <content type="html"><![CDATA[<p><em>新年第一弹~</em></p>
 <!-- more -->
+<h2 id="1-eureka-项目结构">1 Eureka 项目结构</h2>
+<h2 id="2-单例模式在-eureka-中的实践">2 单例模式在 Eureka 中的实践</h2>
 ]]></content>
     </entry>
     <entry>
@@ -35,11 +37,11 @@
 <p>本身对 Golang 比较感兴趣，但工作中主要是用 Java，所以还是把大多数尽力都花在 Java 生态上。<br>
 <strong>TODO</strong></p>
 <ul class="contains-task-list">
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-9746298"><label class="task-list-item-label" for="task-item-9746298"> 1. 再读一遍 JDK 核心源码，并整理到 GitHub 上，年底能突破到 200 star。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7232778"><label class="task-list-item-label" for="task-item-7232778"> 2. 完成 PingCAP 的 Talent Plan 路径一，并对 Golang 达到熟悉的程度。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6008295"><label class="task-list-item-label" for="task-item-6008295"> 3. 读完 Eureka、Ribbon、Hystrix、Feign 的源码。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8102215"><label class="task-list-item-label" for="task-item-8102215"> 4. 读完 RocketMQ 的源码。</label></li>
-<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-240791"><label class="task-list-item-label" for="task-item-240791"> 5. 把高频的 200 题刷完，并再刷一遍《剑指offer》。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-6152009"><label class="task-list-item-label" for="task-item-6152009"> 1. 再读一遍 JDK 核心源码，并整理到 GitHub 上，年底能突破到 200 star。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5296833"><label class="task-list-item-label" for="task-item-5296833"> 2. 完成 PingCAP 的 Talent Plan 路径一，并对 Golang 达到熟悉的程度。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-8025444"><label class="task-list-item-label" for="task-item-8025444"> 3. 读完 Eureka、Ribbon、Hystrix、Feign 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-5771077"><label class="task-list-item-label" for="task-item-5771077"> 4. 读完 RocketMQ 的源码。</label></li>
+<li class="task-list-item"><input class="task-list-item-checkbox" disabled="" type="checkbox" id="task-item-7091573"><label class="task-list-item-label" for="task-item-7091573"> 5. 把高频的 200 题刷完，并再刷一遍《剑指offer》。</label></li>
 </ul>
 ]]></content>
     </entry>
