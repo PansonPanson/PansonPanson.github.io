@@ -1,0 +1,1819 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://panson.top</id>
+    <title>Panson&apos;s Home</title>
+    <updated>2024-09-20T14:11:59.998Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://panson.top"/>
+    <link rel="self" href="https://panson.top/atom.xml"/>
+    <subtitle>清风拂山岗，明月照大江。</subtitle>
+    <logo>https://panson.top/images/avatar.png</logo>
+    <icon>https://panson.top/favicon.ico</icon>
+    <rights>All rights reserved 2024, Panson&apos;s Home</rights>
+    <entry>
+        <title type="html"><![CDATA[置顶帖]]></title>
+        <id>https://panson.top/post/zhi-ding-tie/</id>
+        <link href="https://panson.top/post/zhi-ding-tie/">
+        </link>
+        <updated>2100-10-14T02:48:07.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>1. 博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</em></p>
+<p><em>2.博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>，大多数图片也需要科学上网才能正常加载</em>。</p>
+<p><em>3.当然，也有部分是我自己的“摄影作品”，笑~</em></p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>1. 博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</em></p>
+<p><em>2.博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>，大多数图片也需要科学上网才能正常加载</em>。</p>
+<p><em>3.当然，也有部分是我自己的“摄影作品”，笑~</em></p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311291106687.png" alt="" loading="lazy"></figure>
+<h1 id="供应链">供应链</h1>
+<h1 id="源码阅读">源码阅读</h1>
+<h1 id="编程练习">编程练习</h1>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-043]]></title>
+        <id>https://panson.top/post/panson-weekly-043/</id>
+        <link href="https://panson.top/post/panson-weekly-043/">
+        </link>
+        <updated>2024-09-16T08:26:55.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/smallest-string-starting-from-leaf/description/">988. 从叶结点开始的最小字符串</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    String res = null;
+    StringBuilder path = new StringBuilder();
+    public String smallestFromLeaf(TreeNode root) {
+        traverse(root);
+        return res;
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        // 如果到达叶子节点
+        if(root.left == null &amp;&amp; root.right == null) {
+            path.append((char)('a' + root.val));
+            path.reverse();
+            String tmp = path.toString();
+            if(res == null || res.compareTo(tmp) &gt; 0) {
+                res = tmp;
+            }
+            path.deleteCharAt(0);
+            path.reverse();
+            return;
+        }
+        path.append((char)('a' + root.val));
+        traverse(root.left);
+        traverse(root.right);
+        path.deleteCharAt(path.length() - 1);
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/sum-of-root-to-leaf-binary-numbers/description/">1022. 从根到叶的二进制数之和</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res = 0;
+    int path = 0;
+    public int sumRootToLeaf(TreeNode root) {
+        traverse(root);
+        return res;
+    }
+
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        if(root.left == null &amp;&amp; root.right == null) {
+            res += path &lt;&lt; 1 | root.val;
+            return;
+        }
+        path = path &lt;&lt; 1 | root.val;
+        traverse(root.left);
+        traverse(root.right);
+        path = path &gt;&gt; 1;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/pseudo-palindromic-paths-in-a-binary-tree/description/">1457. 二叉树中的伪回文路径</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    int res = 0;
+    int[] count = new int[10];
+    public int pseudoPalindromicPaths (TreeNode root) {
+        traverse(root);
+        return res;
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+
+        if(root.left == null &amp;&amp; root.right == null) {
+            // 叶子节点
+            count[root.val]++;
+            int oddCount = getOddCount(count);
+            if(oddCount &lt;= 1) {
+                res++;
+            }
+            count[root.val]--;
+        }
+
+        count[root.val]++;
+        traverse(root.left);
+        traverse(root.right);
+        count[root.val]--;
+    }
+
+    public int getOddCount(int[] count) {
+        int oddCount = 0;
+        for(int num : count) {
+            if(num % 2 != 0) {
+                oddCount++;
+            }
+        }
+        return oddCount;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/sum-of-left-leaves/description/">404. 左叶子之和</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res = 0;
+    public int sumOfLeftLeaves(TreeNode root) {
+        traverse(root);
+        return res;
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        if(root.left != null &amp;&amp; root.left.left == null &amp;&amp; root.left.right == null) {
+            res += root.left.val;
+        }
+        traverse(root.left);
+        traverse(root.right);
+
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/add-one-row-to-tree/description/">623. 在二叉树中增加一行</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int curDepth = 0;
+    int nodeVal;
+    int nodeDepth;
+    public TreeNode addOneRow(TreeNode root, int val, int depth) {
+        nodeVal = val;
+        nodeDepth = depth;
+        if(depth == 1) {
+            TreeNode newNode = new TreeNode(nodeVal, root, null);
+            return newNode;
+        }
+        traverse(root);
+        return root;
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        curDepth++;
+        if(curDepth == nodeDepth - 1) {
+            TreeNode newNodeLeft = new TreeNode(nodeVal, root.left, null);
+            TreeNode newNodeRight = new TreeNode(nodeVal, null, root.right);
+            root.left = newNodeLeft;
+            root.right = newNodeRight;
+        }
+        traverse(root.left);
+        traverse(root.right);
+        curDepth--;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/flip-binary-tree-to-match-preorder-traversal/description/">971. 翻转二叉树以匹配先序遍历</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    List&lt;Integer&gt; res = new LinkedList&lt;&gt;();
+    int i = 0;
+    int[] voyage;
+    boolean canFlip = true;
+    public List&lt;Integer&gt; flipMatchVoyage(TreeNode root, int[] voyage) {
+        this.voyage = voyage;
+        traverse(root);
+        if(canFlip) {
+            return res;
+        } else {
+            return Arrays.asList(-1);
+        }
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null || !canFlip) {
+            return;
+        }
+        if(root.val != voyage[i]) {
+            canFlip = false;
+            i++;
+            return;
+        }
+        i++;
+
+        if(root.left != null &amp;&amp; root.left.val != voyage[i]) {
+            TreeNode tmp = root.left;
+            root.left = root.right;
+            root.right = tmp;
+            res.add(root.val);
+        }
+        traverse(root.left);
+        traverse(root.right);
+
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/cousins-in-binary-tree/description/">993. 二叉树的堂兄弟节点</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+    int x,y;
+    TreeNode parrentX = null;
+    TreeNode parrentY = null;
+    int depthX = 0;
+    int depthY = 0;
+
+    public boolean isCousins(TreeNode root, int x, int y) {
+        this.x = x;
+        this.y = y;
+        traverse(root, 0, null);
+        if(depthX == depthY &amp;&amp; parrentX != parrentY) {
+            return true;
+        }
+        return false;
+    }
+
+    public void traverse(TreeNode root, int depth, TreeNode parent) {
+        if(root == null) {
+            return;
+        }
+
+        if(root.val == x) {
+            parrentX = parent;
+            depthX = depth;
+        }
+
+        if(root.val == y) {
+            parrentY = parent;
+            depthY = depth;
+        }
+
+        traverse(root.left, depth + 1, root);
+        traverse(root.right, depth + 1, root);
+
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/sum-of-nodes-with-even-valued-grandparent/description/">1315. 祖父节点值为偶数的节点和</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int  sum = 0;
+
+    public int sumEvenGrandparent(TreeNode root) {
+        traverse(root);
+        return sum;
+    }
+
+    public void traverse(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        if(root.val % 2 == 0) {
+            if(root.left != null) {
+                if(root.left.left != null) {
+                    sum += root.left.left.val;
+                }
+                if(root.left.right != null) {
+                    sum += root.left.right.val;
+                }
+            }
+
+            if(root.right != null) {
+                if(root.right.left != null) {
+                    sum += root.right.left.val;
+                }
+                if(root.right.right != null) {
+                    sum += root.right.right.val;
+                }
+            }
+        }
+        traverse(root.left);
+        traverse(root.right);
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-042]]></title>
+        <id>https://panson.top/post/panson-weekly-042/</id>
+        <link href="https://panson.top/post/panson-weekly-042/">
+        </link>
+        <updated>2024-09-09T08:25:55.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/binary-tree-paths/description/">257. 二叉树的所有路径</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+
+
+    public List&lt;String&gt; binaryTreePaths(TreeNode root) {
+        List&lt;String&gt; res = new ArrayList&lt;&gt;();
+        binaryTreePaths(root, new StringBuilder(), res);
+        return res;
+    }
+
+    public void binaryTreePaths(TreeNode root, StringBuilder path, List&lt;String&gt; res) {
+        if(root == null) {
+            return;
+        }
+        StringBuilder stb = new StringBuilder(path);
+        stb.append(String.valueOf(root.val));
+        if(root.left == null &amp;&amp; root.right == null) {
+            res.add(stb.toString());
+        } else {
+            stb.append(&quot;-&gt;&quot;);
+            binaryTreePaths(root.left, stb, res);
+            binaryTreePaths(root.right, stb, res);
+        }
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/sum-root-to-leaf-numbers/description/">129. 求根节点到叶节点数字之和</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res = 0;
+    public int sumNumbers(TreeNode root) {
+        traverse(root, new StringBuilder());
+        return res;
+    }
+
+    public void traverse(TreeNode root, StringBuilder path) {
+        if(root == null) {
+            return;
+        }
+        StringBuilder stb = new StringBuilder(path);
+        stb.append(root.val);
+        if(root.left == null &amp;&amp; root.right == null) {
+            res += Integer.parseInt(stb.toString());
+        } else {
+            if(root.left != null) {
+                traverse(root.left, stb);
+            }
+            if(root.right != null) {
+                traverse(root.right, stb);
+            }
+
+        }
+    }
+} 
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-041]]></title>
+        <id>https://panson.top/post/panson-weekly-041/</id>
+        <link href="https://panson.top/post/panson-weekly-041/">
+        </link>
+        <updated>2024-09-02T08:25:10.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li><a href="https://xie.infoq.cn/article/caaaa3070c012a56fbf01fb8d">京东零售：后端开发和你聊聊 JVM 如何优化</a></li>
+<li><a href="https://xie.infoq.cn/article/e696e2ee032d89ea1ee1d576b">京东零售：看完这篇, 你的服务设计能力将再次进化!</a></li>
+<li><a href="https://www.infoq.cn/article/QjlXW9yE3uweDJdqgY3a">京东零售：动态线程池学习及实践</a></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/description/">1658. 将 x 减到 0 的最小操作数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int minOperations(int[] nums, int x) {
+        int n = nums.length, sum = 0;
+        for (int i = 0; i &lt; n; i++) {
+            sum += nums[i];
+        }
+        // 滑动窗口需要寻找的子数组目标和
+        int target = sum - x;
+
+        int left = 0, right = 0;
+        // 记录窗口内所有元素和
+        int windowSum = 0;
+        // 记录目标子数组的最大长度
+        int maxLen = Integer.MIN_VALUE;
+        // 开始执行滑动窗口框架
+        while (right &lt; nums.length) {
+            // 扩大窗口
+            windowSum += nums[right];
+            right++;
+
+            while (windowSum &gt; target &amp;&amp; left &lt; right) {
+                // 缩小窗口
+                windowSum -= nums[left];
+                left++;
+            }
+            // 寻找目标子数组
+            if (windowSum == target) {
+                maxLen = Math.max(maxLen, right - left);
+            }
+        }
+        // 目标子数组的最大长度可以推导出需要删除的字符数量
+        return maxLen == Integer.MIN_VALUE ? -1 : n - maxLen;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-product-less-than-k/description/">713. 乘积小于 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        int left = 0, right = 0;
+        // 滑动窗口，初始化为乘法单位元
+        int windowProduct = 1;
+        // 记录符合条件的子数组个数
+        int count = 0;
+
+        while (right &lt; nums.length) {
+            // 扩大窗口，并更新窗口数据
+            windowProduct = windowProduct * nums[right];
+            right++;
+
+            while (left &lt; right &amp;&amp; windowProduct &gt;= k) {
+                // 缩小窗口，并更新窗口数据
+                windowProduct = windowProduct / nums[left];
+                left++;
+            }
+
+            count += right - left;
+        }
+
+        return count;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/max-consecutive-ones-iii/description/">1004. 最大连续1的个数 III</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int longestOnes(int[] nums, int k) {
+        int left = 0, right = 0;
+        // 记录窗口中 1 的出现次数
+        int windowOneCount = 0;
+        // 记录结果长度
+        int res = 0;
+
+        // 开始滑动窗口模板
+        while (right &lt; nums.length) {
+            // 扩大窗口
+            if (nums[right] == 1) {
+                windowOneCount++;
+            }
+            right++;
+
+            while (right - left - windowOneCount &gt; k) {
+                // 当窗口中需要替换的 0 的数量大于 k，缩小窗口
+                if (nums[left] == 1) {
+                    windowOneCount--;
+                }
+                left++;
+            }
+            // 此时一定是一个合法的窗口，求最大窗口长度
+            res = Math.max(res, right - left);
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/contains-duplicate-ii/description/">219. 存在重复元素 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        int left = 0;
+        int right = 0;
+        Set&lt;Integer&gt; window = new HashSet&lt;&gt;();
+        while(right &lt; nums.length) {
+            if(right - left &lt;= k &amp;&amp; window.contains(nums[right])) {
+                return true;
+            }
+            window.add(nums[right]);
+            right++;
+            if(right - left &gt; k) {
+                window.remove(nums[left]);
+                left++;
+            }
+        }
+        return false;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/longest-repeating-character-replacement/description/">424. 替换后的最长重复字符</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int characterReplacement(String s, int k) {
+        int left = 0, right = 0;
+        // 统计窗口中每个字符的出现次数
+        int[] windowCharCount = new int[26];
+        // 记录窗口中字符的最多重复次数
+        // 记录这个值的意义在于，最划算的替换方法肯定是把其他字符替换成出现次数最多的那个字符
+        // 所以窗口大小减去 windowMaxCount 就是所需的替换次数
+        int windowMaxCount = 0;
+        // 记录结果长度
+        int res = 0;
+
+        // 开始滑动窗口模板
+        while (right &lt; s.length()) {
+            // 扩大窗口
+            windowCharCount[s.charAt(right) - 'A']++;
+            windowMaxCount = Math.max(windowMaxCount, windowCharCount[s.charAt(right) - 'A']);
+            right++;
+
+            while (right - left - windowMaxCount &gt; k) {
+                // 缩小窗口
+                windowCharCount[s.charAt(left) - 'A']--;
+                left++;
+                // 这里不用更新 windowMaxCount
+                // 因为只有 windowMaxCount 变得更大的时候才可能获得更长的重复子串，才会更新 res
+            }
+            // 此时一定是一个合法的窗口
+            res = Math.max(res, right - left);
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/count-pairs-whose-sum-is-less-than-target/description/">2824. 统计和小于目标的下标对数目</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int countPairs(List&lt;Integer&gt; nums, int target) {
+        Collections.sort(nums);
+        int left = 0;
+        int right = nums.size() - 1;
+        int res = 0;
+        while(left &lt; right) {
+            int sum = nums.get(left) + nums.get(right);
+            if(sum &lt; target) {
+                res += right - left;
+                left++;
+            } else if(sum &gt;= target) {
+                right--;
+            } else {
+                left++;
+            }
+        }
+        return res;
+    }
+} 
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-040]]></title>
+        <id>https://panson.top/post/panson-weekly-040/</id>
+        <link href="https://panson.top/post/panson-weekly-040/">
+        </link>
+        <updated>2024-08-26T08:24:19.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li><a href="https://xie.infoq.cn/article/caaaa3070c012a56fbf01fb8d">京东零售：后端开发和你聊聊 JVM 如何优化</a></li>
+<li><a href="https://xie.infoq.cn/article/e696e2ee032d89ea1ee1d576b">京东零售：看完这篇, 你的服务设计能力将再次进化!</a></li>
+<li><a href="https://www.infoq.cn/article/QjlXW9yE3uweDJdqgY3a">京东零售：动态线程池学习及实践</a></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/description/">1658. 将 x 减到 0 的最小操作数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int minOperations(int[] nums, int x) {
+        int n = nums.length, sum = 0;
+        for (int i = 0; i &lt; n; i++) {
+            sum += nums[i];
+        }
+        // 滑动窗口需要寻找的子数组目标和
+        int target = sum - x;
+
+        int left = 0, right = 0;
+        // 记录窗口内所有元素和
+        int windowSum = 0;
+        // 记录目标子数组的最大长度
+        int maxLen = Integer.MIN_VALUE;
+        // 开始执行滑动窗口框架
+        while (right &lt; nums.length) {
+            // 扩大窗口
+            windowSum += nums[right];
+            right++;
+
+            while (windowSum &gt; target &amp;&amp; left &lt; right) {
+                // 缩小窗口
+                windowSum -= nums[left];
+                left++;
+            }
+            // 寻找目标子数组
+            if (windowSum == target) {
+                maxLen = Math.max(maxLen, right - left);
+            }
+        }
+        // 目标子数组的最大长度可以推导出需要删除的字符数量
+        return maxLen == Integer.MIN_VALUE ? -1 : n - maxLen;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-product-less-than-k/description/">713. 乘积小于 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        int left = 0, right = 0;
+        // 滑动窗口，初始化为乘法单位元
+        int windowProduct = 1;
+        // 记录符合条件的子数组个数
+        int count = 0;
+
+        while (right &lt; nums.length) {
+            // 扩大窗口，并更新窗口数据
+            windowProduct = windowProduct * nums[right];
+            right++;
+
+            while (left &lt; right &amp;&amp; windowProduct &gt;= k) {
+                // 缩小窗口，并更新窗口数据
+                windowProduct = windowProduct / nums[left];
+                left++;
+            }
+
+            count += right - left;
+        }
+
+        return count;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/max-consecutive-ones-iii/description/">1004. 最大连续1的个数 III</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int longestOnes(int[] nums, int k) {
+        int left = 0, right = 0;
+        // 记录窗口中 1 的出现次数
+        int windowOneCount = 0;
+        // 记录结果长度
+        int res = 0;
+
+        // 开始滑动窗口模板
+        while (right &lt; nums.length) {
+            // 扩大窗口
+            if (nums[right] == 1) {
+                windowOneCount++;
+            }
+            right++;
+
+            while (right - left - windowOneCount &gt; k) {
+                // 当窗口中需要替换的 0 的数量大于 k，缩小窗口
+                if (nums[left] == 1) {
+                    windowOneCount--;
+                }
+                left++;
+            }
+            // 此时一定是一个合法的窗口，求最大窗口长度
+            res = Math.max(res, right - left);
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/contains-duplicate-ii/description/">219. 存在重复元素 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        int left = 0;
+        int right = 0;
+        Set&lt;Integer&gt; window = new HashSet&lt;&gt;();
+        while(right &lt; nums.length) {
+            if(right - left &lt;= k &amp;&amp; window.contains(nums[right])) {
+                return true;
+            }
+            window.add(nums[right]);
+            right++;
+            if(right - left &gt; k) {
+                window.remove(nums[left]);
+                left++;
+            }
+        }
+        return false;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/longest-repeating-character-replacement/description/">424. 替换后的最长重复字符</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int characterReplacement(String s, int k) {
+        int left = 0, right = 0;
+        // 统计窗口中每个字符的出现次数
+        int[] windowCharCount = new int[26];
+        // 记录窗口中字符的最多重复次数
+        // 记录这个值的意义在于，最划算的替换方法肯定是把其他字符替换成出现次数最多的那个字符
+        // 所以窗口大小减去 windowMaxCount 就是所需的替换次数
+        int windowMaxCount = 0;
+        // 记录结果长度
+        int res = 0;
+
+        // 开始滑动窗口模板
+        while (right &lt; s.length()) {
+            // 扩大窗口
+            windowCharCount[s.charAt(right) - 'A']++;
+            windowMaxCount = Math.max(windowMaxCount, windowCharCount[s.charAt(right) - 'A']);
+            right++;
+
+            while (right - left - windowMaxCount &gt; k) {
+                // 缩小窗口
+                windowCharCount[s.charAt(left) - 'A']--;
+                left++;
+                // 这里不用更新 windowMaxCount
+                // 因为只有 windowMaxCount 变得更大的时候才可能获得更长的重复子串，才会更新 res
+            }
+            // 此时一定是一个合法的窗口
+            res = Math.max(res, right - left);
+        }
+        return res;
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-039]]></title>
+        <id>https://panson.top/post/panson-weekly-039/</id>
+        <link href="https://panson.top/post/panson-weekly-039/">
+        </link>
+        <updated>2024-08-19T08:22:49.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-window-substring/description/">76. 最小覆盖子串</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public String minWindow(String s, String t) {
+        Map&lt;Character, Integer&gt; need = new HashMap&lt;&gt;();
+        Map&lt;Character, Integer&gt; window = new HashMap&lt;&gt;();
+        for(char c : t.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+        int left = 0;
+        int right = 0;
+        int valid = 0;
+        int start = 0;
+        int length = Integer.MAX_VALUE;
+        while(right &lt; s.length()) {
+            char c = s.charAt(right);
+            right++;
+            if(need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if(window.get(c).equals(need.get(c))) {
+                    valid++;
+                }
+            }
+
+            while(valid == need.size()) {
+                if(right - left &lt; length) {
+                    start = left;
+                    length = right - left;
+                }
+                char d = s.charAt(left);
+                left++;
+                if(need.containsKey(d)) {
+                    if(window.get(d).equals(need.get(d))) {
+                        valid--;
+                    }
+                    window.put(d, window.get(d) - 1);
+                }
+            }
+        }
+        return length == Integer.MAX_VALUE ? &quot;&quot; : s.substring(start, start + length);
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/permutation-in-string/description/">567. 字符串的排列</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean checkInclusion(String s1, String s2) {
+        Map&lt;Character, Integer&gt; need = new HashMap&lt;&gt;();
+        Map&lt;Character, Integer&gt; window = new HashMap&lt;&gt;();
+        for(char c : s1.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+        int left = 0;
+        int right = 0;
+        int valid = 0;
+
+        while(right &lt; s2.length()) {
+            char c = s2.charAt(right);
+            right++;
+            // 进行窗口内数据更新
+            if(need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if(window.get(c).intValue() == need.get(c).intValue()) {
+                    valid++;
+                }
+            }
+            // 判断左侧窗口是否要收缩
+            while(right - left &gt;= s1.length()) {
+                if(valid == need.size()) {
+                    return true;
+                }
+                char d = s2.charAt(left);
+                left++;
+                if(need.containsKey(d)) {
+                    if(need.get(d) == window.get(d)) {
+                        valid--;
+                    }
+                    window.put(d, window.get(d) - 1);
+                }
+            }
+        }
+        return false;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/find-all-anagrams-in-a-string/description/">438. 找到字符串中所有字母异位词</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public List&lt;Integer&gt; findAnagrams(String s, String p) {
+
+        Map&lt;Character, Integer&gt; need = new HashMap&lt;&gt;();
+        Map&lt;Character, Integer&gt; window = new HashMap&lt;&gt;();
+        for(char c : p.toCharArray()) {
+            need.put(c, need.getOrDefault(c, 0) + 1);
+        }
+        int left = 0;
+        int right = 0;
+        int valid = 0;
+        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+        while(right &lt; s.length()) {
+            char c = s.charAt(right);
+            right++;
+            // 进行窗口内数据更新
+            if(need.containsKey(c)) {
+                window.put(c, window.getOrDefault(c, 0) + 1);
+                if(window.get(c).intValue() == need.get(c).intValue()) {
+                    valid++;
+                }
+            }
+            // 判断左侧窗口是否要收缩
+            while(right - left &gt;= p.length()) {
+                if(valid == need.size()) {
+                    res.add(left);
+                }
+                char d = s.charAt(left);
+                left++;
+                if(need.containsKey(d)) {
+                    if(need.get(d).equals(window.get(d))) {
+                        valid--;
+                    }
+                    window.put(d, window.get(d) - 1);
+                }
+            }
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/">3. 无重复字符的最长子串</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        Map&lt;Character, Integer&gt; window = new HashMap&lt;&gt;();
+        int left = 0;
+        int right = 0;
+        int res = 0;
+        while(right &lt; s.length()) {
+            char c = s.charAt(right);
+            right++;
+            window.put(c, window.getOrDefault(c, 0) + 1);
+            while(window.get(c) &gt; 1) {
+                char d = s.charAt(left);
+                left++;
+                window.put(d, window.get(d) - 1);
+            }
+            res = Math.max(res, right - left);
+        }
+        return res;
+
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-038]]></title>
+        <id>https://panson.top/post/panson-weekly-038/</id>
+        <link href="https://panson.top/post/panson-weekly-038/">
+        </link>
+        <updated>2024-08-12T08:21:49.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li><a href="https://www.woshipm.com/pd/5831494.html">如何设计一个抽奖系统</a></li>
+<li><a href="https://juejin.cn/post/6844903847031226382">如何设计一个百万级用户的抽奖系统？</a></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-037]]></title>
+        <id>https://panson.top/post/panson-weekly-037/</id>
+        <link href="https://panson.top/post/panson-weekly-037/">
+        </link>
+        <updated>2024-08-05T08:20:59.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/K51ntOxUbU64kvdjnReXOw">转转技术：服了！DELETE 同一行记录也会造成死锁！！</a></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-036]]></title>
+        <id>https://panson.top/post/panson-weekly-036/</id>
+        <link href="https://panson.top/post/panson-weekly-036/">
+        </link>
+        <updated>2024-07-29T08:19:16.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/shuffle-an-array/description/">384. 打乱数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    int[] nums;
+    Random random = new Random();
+    public Solution(int[] nums) {
+        this.nums = nums;
+    }
+
+    public int[] reset() {
+        return nums;
+    }
+
+    public int[] shuffle() {
+        int n = nums.length;
+        int[] copy = Arrays.copyOf(nums, n);
+        for(int i = 0; i &lt; n; i++) {
+            int next = i + random.nextInt(n - i);
+            int tmp = copy[i];
+            copy[i] = copy[next];
+            copy[next] = tmp;
+        }
+        return copy;
+    }
+}
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(nums);
+ * int[] param_1 = obj.reset();
+ * int[] param_2 = obj.shuffle();
+ */
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/linked-list-random-node/description/">382. 链表随机节点</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    ListNode head;
+    Random random = new Random(20220116);
+    public Solution(ListNode _head) {
+        head = _head;
+    }
+    public int getRandom() {
+        int i = 0, res = 0;
+        ListNode p = head;
+        // while 循环遍历链表
+        while (p != null) {
+            i++;
+            // 生成一个 [0, i) 之间的整数
+            // 这个整数等于 0 的概率就是 1/i
+            if (0 == random.nextInt(i)) {
+                res = p.val;
+            }
+            p = p.next;
+        }
+        return res;
+    }
+}
+ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/random-pick-index/description/">398. 随机数索引</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+
+    Random random;
+    Map&lt;Integer, List&lt;Integer&gt;&gt; map;
+    public Solution(int[] nums) {
+        map = new HashMap&lt;&gt;();
+        random = new Random();
+        for(int i = 0; i &lt; nums.length; i++) {
+            map.putIfAbsent(nums[i], new ArrayList&lt;Integer&gt;());
+            map.get(nums[i]).add(i);
+        }
+    }
+
+    public int pick(int target) {
+        List&lt;Integer&gt; indices = map.get(target);
+        return indices.get(random.nextInt(indices.size()));
+    }
+}
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(nums);
+ * int param_1 = obj.pick(target);
+ */ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/factorial-trailing-zeroes/description/">172. 阶乘后的零</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int trailingZeroes(int n) {
+        if(n &lt; 5) {
+            return 0;
+        }
+        int res = 0;
+        while(n &gt; 0) {
+            n /= 5;
+            res += n;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/preimage-size-of-factorial-zeroes-function/description/">793. 阶乘函数后 K 个零</a></li>
+</ul>
+<pre><code class="language-java">
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    /* 主函数 */
+    public int preimageSizeFZF(int K) {
+        // 左边界和右边界之差 + 1 就是答案
+        return (int)(rightBound(K) - leftBound(K) + 1);
+    }
+
+    /* 搜索 trailingZeroes(n) == K 的左侧边界 */
+    long leftBound(int target) {
+        long lo = 0, hi = Long.MAX_VALUE;
+        while (lo &lt; hi) {
+            long mid = lo + (hi - lo) / 2;
+            if (trailingZeroes(mid) &lt; target) {
+                lo = mid + 1;
+            } else if (trailingZeroes(mid) &gt; target) {
+                hi = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        return lo;
+    }
+
+    /* 搜索 trailingZeroes(n) == K 的右侧边界 */
+    long rightBound(int target) {
+        long lo = 0, hi = Long.MAX_VALUE;
+        while (lo &lt; hi) {
+            long mid = lo + (hi - lo) / 2;
+            if (trailingZeroes(mid) &lt; target) {
+                lo = mid + 1;
+            } else if (trailingZeroes(mid) &gt; target) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo - 1;
+    }
+
+    // 逻辑不变，数据类型全部改成 long
+    long trailingZeroes(long n) {
+        long res = 0;
+        while(n &gt; 0) {
+            n /= 5;
+            res += n;
+        }
+        return res;
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/count-primes/description/">204. 计数质数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int countPrimes(int n) {
+        boolean[] isPrime = new boolean[n];
+        Arrays.fill(isPrime, true);
+        for(int i = 2; i * i &lt; n; i++) {
+            if(isPrime[i]) {
+                for(int j = i * i; j &lt; n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+        int count = 0;
+        for(int i = 2; i &lt; n; i++) {
+            if(isPrime[i]) {
+                count++;
+            }
+        }
+        return count;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/super-pow/description/">372. 超级次方</a></li>
+</ul>
+<pre><code class="language-java"> class Solution {
+    int MOD = 1337;
+    public int superPow(int a, int[] b) {
+        return dfs(a, b, b.length - 1);
+    }
+    int dfs(int a, int[] b, int u) {
+        if (u == -1) return 1;
+        return qpow(dfs(a, b, u - 1), 10) * qpow(a, b[u]) % MOD;
+    }
+    int qpow(int a, int b) {
+        int ans = 1;
+        a %= MOD;
+        while (b != 0) {
+            if ((b &amp; 1) != 0) ans = ans * a % MOD;
+            a = a * a % MOD;
+            b &gt;&gt;= 1;
+        }
+        return ans;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/set-mismatch/description/">645. 错误的集合</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] findErrorNums(int[] nums) {
+        int n = nums.length;
+        for(int i = 0; i &lt; n; i++) {
+            // 4321
+            // 0123
+            while(nums[i] != i + 1 &amp;&amp; nums[nums[i] - 1] != nums[i]) {
+                swap(nums, i, nums[i] - 1);
+            }
+        }
+        int a = -1, b = -1;
+        for(int i = 0; i &lt; n; i++) {
+            if(nums[i] != i + 1) {
+                a = nums[i];
+                b = i == 0 ? 1 : nums[i - 1] + 1;
+            }
+        }
+        return new int[]{a, b};
+    }
+
+    void swap(int[] nums, int i, int j) {
+        int tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+
+} 
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Panson-Weekly-035]]></title>
+        <id>https://panson.top/post/panson-weekly-035/</id>
+        <link href="https://panson.top/post/panson-weekly-035/">
+        </link>
+        <updated>2024-07-22T08:18:12.000Z</updated>
+        <content type="html"><![CDATA[<p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/product-of-array-except-self/description/">238. 除自身以外数组的乘积</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] pre = new int[n];
+        pre[0] = 1;
+        int[] post = new int[n];
+        post[n - 1] = 1;
+
+        int[] res = new int[n];
+        // 维护一个前缀积 和 后缀积
+        for(int i = 1; i &lt; n; i++) {
+            pre[i] = pre[i - 1] * nums[i - 1];
+        }
+
+        for(int i = n - 2; i &gt;= 0; i--) {
+            post[i] = post[i + 1] * nums[i + 1];
+        }
+
+        res[0] = post[0];
+        res[n - 1] = pre[n - 1];
+        for(int i = 1; i &lt; n - 1; i++) {
+            res[i] = pre[i] * post[i];
+        }
+        return res;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/contiguous-array/description/">525. 连续数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int findMaxLength(int[] nums) {
+
+        int res = 0;
+        int n = nums.length;
+
+        int[] preSum = new int[n + 1];
+        preSum[0] = 0;
+        Map&lt;Integer, Integer&gt; val2Index = new HashMap&lt;&gt;();
+
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + (nums[i] == 0 ? -1 : 1);
+        }
+        for(int i = 0; i &lt; preSum.length; i++) {
+            if(!val2Index.containsKey(preSum[i])) {
+                val2Index.put(preSum[i], i);
+            } else {
+                res = Math.max(res, i - val2Index.get(preSum[i]));
+            }
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/longest-well-performing-interval/description/">1124. 表现良好的最长时间段</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int longestWPI(int[] hours) {
+        int n = hours.length;
+        for(int i = 0; i &lt; n; i++) {
+            hours[i] = hours[i] &gt; 8 ? 1 : -1;
+        }
+        int[] preSum = new int[n + 1];
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + hours[i];
+        }
+
+        int res = 0;
+        Map&lt;Integer, Integer&gt; val2Index = new HashMap&lt;&gt;();
+
+        for(int i = 0; i &lt; n; i++) {
+
+            if(preSum[i + 1] &gt; 0) {
+                res = Math.max(res, i + 1);
+            } else {
+                if(val2Index.containsKey(preSum[i + 1] - 1)) {
+                    res = Math.max(res, i - val2Index.get(preSum[i + 1] - 1));
+                }
+            }
+            if (!val2Index.containsKey(preSum[i + 1])) {
+                val2Index.put(preSum[i + 1], i);
+            }
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/continuous-subarray-sum/description/">523. 连续的子数组和</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean checkSubarraySum(int[] nums, int k) {
+        int n = nums.length;
+        int[] preSum = new int[n + 1];
+        preSum[0] = 0;
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + nums[i];
+        }
+        System.out.println(Arrays.toString(preSum));
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        for(int i = 1; i &lt; preSum.length; i++) {
+            int remain = preSum[i] % k;
+            if(remain == 0 &amp;&amp; i &gt;= 2) {
+                return true;
+            } else {
+                if(map.containsKey(remain) &amp;&amp; (i - map.get(remain)) &gt;= 2) {
+                    return true;
+                }
+            }
+
+            map.putIfAbsent(remain, i);
+
+        }
+        return false;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-sum-equals-k/description/">560. 和为 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int subarraySum(int[] nums, int k) {
+        int n = nums.length;
+        int[] preSum = new int[n + 1];
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + nums[i];
+        }
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        map.put(0, 1);
+        int res = 0;
+        for(int i = 1; i &lt; preSum.length; i++) {
+            if(map.containsKey(preSum[i] - k)) {
+                res += map.get(preSum[i] - k);
+
+            }
+            map.put(preSum[i], map.getOrDefault(preSum[i], 0) + 1);
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/description/">1658. 将 x 减到 0 的最小操作数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int minOperations(int[] nums, int x) {
+        x = -x;
+        for (int v : nums) {
+            x += v;
+        }
+        Map&lt;Integer, Integer&gt; vis = new HashMap&lt;&gt;();
+        vis.put(0, -1);
+        int n = nums.length;
+        int ans = 1 &lt;&lt; 30;
+        for (int i = 0, s = 0; i &lt; n; ++i) {
+            s += nums[i];
+            vis.putIfAbsent(s, i);
+            if (vis.containsKey(s - x)) {
+                int j = vis.get(s - x);
+                ans = Math.min(ans, n - (i - j));
+            }
+        }
+        return ans == 1 &lt;&lt; 30 ? -1 : ans;
+    }
+}
+</code></pre>
+<ul>
+<li><a href=""></a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res;
+    long targetSumMem;
+        
+    public int pathSum(TreeNode root, long targetSum) {
+      targetSumMem = targetSum;
+      // dfs1 用于搜索所有节点
+      dfs1(root);
+      return res;
+    }
+
+    void dfs1(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        // 搜索当前搜索节点为根节点的路径的路径和
+        dfs2(root, root.val);
+        dfs1(root.left);
+        dfs1(root.right);
+    }
+
+    void dfs2(TreeNode root, long sum) {
+        if(sum == targetSumMem) {
+            res++;
+        }
+        if(root.left != null) {
+            dfs2(root.left, sum + root.left.val);
+        }
+        if(root.right != null) {
+            dfs2(root.right, sum + root.right.val);
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-product-less-than-k/description/">713. 乘积小于 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        if(k &lt;= 1) {
+            return 0;
+        }
+        int left = 0;
+        int right = 0;
+        int product = 1;
+        int ans = 0;
+        while(right &lt; nums.length) {
+            product *= nums[right];
+            while(product &gt;= k) {
+                product /= nums[left];
+                left++;
+            }
+            ans += right -left + 1;
+            right++;
+        }
+        return ans;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/description/">LCR 180. 文件组合</a></li>
+</ul>
+<pre><code class="language-java"> class Solution {
+    public int[][] fileCombination(int target) {
+        if(target &lt; 3) {
+            return new int[0][];
+        }
+        int i = 1;
+        int j = 1;
+        int sum = 0;
+        List&lt;int[]&gt; res = new ArrayList&lt;&gt;();
+        // 123  3
+        while(i &lt;= target / 2) {
+            if(sum &lt; target) {
+                sum += j;
+                j++;
+            } else if(sum &gt; target) {
+                sum -= i;
+                i++;
+            } else {
+                int[] subRes = new int[j - i];
+                for(int k = i; k &lt; j; k++) {
+                    subRes[k - i] = k;
+                }
+                res.add(subRes);
+                sum -= i;
+                i++;
+            }
+        }
+        return res.toArray(new int[res.size()][]);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/maximum-product-of-three-numbers/description/">628. 三个数的最大乘积</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int maximumProduct(int[] nums) {
+        // 没有正数，三个最大数
+        // 有正有负：一个最大正数两个最小负数
+        // 全是正数：三个最大数
+        // 所以只需要 5 个数，3 个最大数和两个最小负数
+        int max1 = -1001;
+        int max2 = -1001;
+        int max3 = -1001;
+        int min1 = 1001;
+        int min2 = 1001;
+        for(int num : nums) {
+            if(num &lt; min1) {
+                min2 = min1;
+                min1 = num;
+            } else if(num &lt; min2){
+                min2 = num;
+            }
+
+            if(num &gt; max1) {
+                max3 = max2;
+                max2 = max1;
+                max1 = num;
+            }else if(num &gt; max2) {
+                max3 = max2;
+                max2 = num;
+            } else if(num &gt; max3) {
+                max3 = num;
+            }
+        }
+        return Math.max(min1 * min2 * max1, max1 * max2 * max3);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/nim-game/description/">292. Nim 游戏</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean canWinNim(int n) {
+        return n % 4 != 0;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/stone-game/description/">877. 石子游戏</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean stoneGame(int[] piles) {
+        return true;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/bulb-switcher/description/">319. 灯泡开关</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int bulbSwitch(int n) {
+        return (int)Math.sqrt(n);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/single-number/description/">136. 只出现一次的数字</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int singleNumber(int[] nums) {
+        int res = 0;
+        for(int num : nums) {
+            res ^= num;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/number-of-1-bits/description/">191. 位1的个数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int hammingWeight(int n) {
+        int res = 0;
+        while(n != 0){
+            n &amp;= (n - 1);
+            res++;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/power-of-two/description/">231. 2 的幂</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean isPowerOfTwo(int n) {
+        if(n &lt;= 0) {
+            return false;
+        }
+        return (n &amp; (n - 1)) == 0;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/missing-number/description/">268. 丢失的数字</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int missingNumber(int[] nums) {
+        int res = nums.length;
+        for(int i = 0; i &lt; nums.length; i++) {
+            res = res ^ nums[i] ^ i;
+        }
+        return res;
+    }
+} 
+</code></pre>
+]]></content>
+    </entry>
+</feed>
