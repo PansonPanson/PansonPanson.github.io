@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://panson.top</id>
+    <title>Panson&apos;s Home</title>
+    <updated>2025-06-03T06:23:34.479Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://panson.top"/>
+    <link rel="self" href="https://panson.top/atom.xml"/>
+    <subtitle>清风拂山岗，明月照大江。</subtitle>
+    <logo>https://panson.top/images/avatar.png</logo>
+    <icon>https://panson.top/favicon.ico</icon>
+    <rights>All rights reserved 2025, Panson&apos;s Home</rights>
+    <entry>
+        <title type="html"><![CDATA[置顶帖]]></title>
+        <id>https://panson.top/post/zhi-ding-tie/</id>
+        <link href="https://panson.top/post/zhi-ding-tie/">
+        </link>
+        <updated>2100-10-14T02:48:07.000Z</updated>
+        <content type="html"><![CDATA[<p><em>1. 博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</em></p>
+<p><em>2.博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载</em>。</p>
+<p><em>3.当然，也有部分是我自己的“摄影作品”，笑~</em></p>
+<h1 id="任务调度系统">任务调度系统</h1>
+<ul>
+<li>定时任务调度框架</li>
+<li>业务任务</li>
+</ul>
+<h1 id="源码阅读">源码阅读</h1>
+<h1 id="编程练习">编程练习</h1>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311291106687.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[订单号、作业单号、任务号如何设计?]]></title>
+        <id>https://panson.top/post/01ding-dan-hao-zuo-ye-dan-hao-ren-wu-hao-ru-he-she-ji/</id>
+        <link href="https://panson.top/post/01ding-dan-hao-zuo-ye-dan-hao-ren-wu-hao-ru-he-she-ji/">
+        </link>
+        <updated>2024-11-03T06:53:58.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<h2 id="一-业务背景">一、 业务背景</h2>
+<p>在智能仓储系统（WES）中，上游下发的出库单、入库单、盘点单等单据都携带了单号，但上游业务方提供的单据号格式并不统一，因此不能直接用做 WES 中的内部调度，因此 WES 内部需要提供一套自有的单号生成逻辑。除了单号外，在 WES 的调度过程中，还存在作业单号、任务号，也都需要类似的唯一  ID 生成逻辑。</p>
+<h2 id="二-单号生成要求">二、 单号生成要求</h2>
+<ul>
+<li>唯一性：全局唯一，避免重复， JDK 提供的 UUID 不具备可读性，所以不推荐，因为智能仓的业务逻辑基本是仓内使用，所以使用雪花算法生成的唯一 id + 具体的业务类型来实现。</li>
+<li>可读性：可快速识别订单的时间、来源、类型等信息。比如说业务含义，出库单号与入库单号，两者单据业务不一致，在单号上要能体现出来。</li>
+<li>高性能：支持高并发场景下的快速生成。</li>
+</ul>
+<h2 id="三-雪花算法">三、 雪花算法</h2>
+<p>雪花算法（Snowflake）是一种 <strong>分布式唯一 ID 生成算法</strong>，最早由 Twitter 提出，目标是<strong>高性能地生成全局唯一、有时间顺序的 64 位整数 ID</strong>，广泛用于数据库主键、消息系统等场景。</p>
+<h4 id="雪花算法核心思想">雪花算法核心思想</h4>
+<p>生成的 ID 是一个 64 位的 long 类型整数，结构如下（经典版）：</p>
+<pre><code>| 1bit | 41bits      | 10bits       | 12bits      |
+|------|-------------|--------------|-------------|
+| 符号位 | 时间戳差值  | 机器标识（节点）| 序列号       |
+</code></pre>
+<h4 id="各部分含义">各部分含义</h4>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>长度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>符号位</td>
+<td>1 位</td>
+<td>永远为 0（long 是有符号数）</td>
+</tr>
+<tr>
+<td>时间戳</td>
+<td>41 位</td>
+<td>当前时间戳 - 起始时间戳（单位毫秒），可用 69 年</td>
+</tr>
+<tr>
+<td>机器ID</td>
+<td>10 位</td>
+<td>5 位数据中心ID + 5 位机器ID，可部署 1024 个节点</td>
+</tr>
+<tr>
+<td>序列号</td>
+<td>12 位</td>
+<td>每毫秒最多生成 4096 个 ID，超出则等待下一毫秒</td>
+</tr>
+</tbody>
+</table>
+<h4 id="id-示例一个实际的-long-值">ID 示例（一个实际的 long 值）</h4>
+<pre><code class="language-java">ID: 152344303535407104
+Binary: 000000000001010000000011010000110000101111000010100000000000
+</code></pre>
+<h4 id="雪花算法优缺点">雪花算法优缺点</h4>
+<ul>
+<li>
+<p>优点：</p>
+<ul>
+<li>
+<p><strong>高性能</strong>：单机每秒生成百万级 ID</p>
+</li>
+<li>
+<p><strong>趋势递增</strong>：按时间递增，便于排序</p>
+</li>
+<li>
+<p><strong>无中心节点</strong>：适合分布式部署</p>
+</li>
+<li>
+<p><strong>ID 结构可解码</strong>：能提取时间戳、机器信息等</p>
+</li>
+</ul>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>
+<p>依赖系统时间，<strong>时钟回拨会导致 ID 重复或异常</strong></p>
+</li>
+<li>
+<p>不适用于无状态架构（需保存机器标识）</p>
+</li>
+<li>
+<p>长整型不如 UUID 直观，可读性差</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>如果你想用雪花算法但解决时间回拨问题，可以考虑：</p>
+<ul>
+<li>时间回拨容忍机制</li>
+<li>引入 NTP 监控</li>
+<li>使用 Redis/Zookeeper 发号器</li>
+<li>或使用改进版如 <strong>百度 UID Generator</strong>、<strong>美团 Leaf</strong>、<strong>Sonyflake（Go）</strong></li>
+</ul>
+<hr>
+<h2 id="四-雪花算法的使用">四、雪花算法的使用</h2>
+<p>可以直接使用 Hutool 提供的 <code>IdUtil</code> 生成 id，格式参考：<br>
+业务类型 + 雪花 id + 分表（货主）</p>
+<p>单仓情况下，使用归档即可，无需分表。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[051.什么是绑箱]]></title>
+        <id>https://panson.top/post/051shi-me-shi-bang-xiang/</id>
+        <link href="https://panson.top/post/051shi-me-shi-bang-xiang/">
+        </link>
+        <updated>2024-11-02T11:59:13.000Z</updated>
+        <content type="html"><![CDATA[<p>在 WMS（仓库管理系统）中，“出库绑箱”是指<strong>在出库过程中，将拣选好的商品按照一定规则打包进箱（或托盘）并进行绑定操作</strong>，以便后续发货、追踪和核对的一种操作流程。</p>
+<hr>
+<h3 id="具体来说出库绑箱包含以下几个关键点">具体来说，“出库绑箱”包含以下几个关键点：</h3>
+<h4 id="1-拣货完成">✅ 1. 拣货完成</h4>
+<p>拣货员将订单需要的商品从仓库中拣出。</p>
+<h4 id="2-进行绑箱操作">✅ 2. 进行“绑箱”操作</h4>
+<p>拣完的商品被打包到箱子中，然后通过系统操作，将<strong>商品和箱号绑定</strong>。</p>
+<ul>
+<li>系统中记录：箱号 → 包含哪些商品、哪些订单、数量等信息。</li>
+<li>一般会贴上箱码（如二维码或条形码），用于后续扫描识别。</li>
+</ul>
+<h4 id="3-后续流程使用">✅ 3. 后续流程使用</h4>
+<ul>
+<li><strong>复核发货</strong>：发货时通过扫描箱码即可快速核对是否正确。</li>
+<li><strong>物流追踪</strong>：箱码可作为物流追踪号的一部分。</li>
+<li><strong>客户收货对账</strong>：箱内物品可通过系统记录追溯。</li>
+</ul>
+<hr>
+<h3 id="举个例子">举个例子：</h3>
+<p>一个客户下了两个订单，共10件商品。</p>
+<ul>
+<li>仓库拣货人员将这10件商品拣出。</li>
+<li>系统指示这些商品要装入两个箱子：箱 A 装 6 件，箱 B 装 4 件。</li>
+<li>操作人员将商品装箱，并在系统中进行“出库绑箱”：
+<ul>
+<li>将箱 A 绑定为包含商品1×3件，商品2×3件。</li>
+<li>将箱 B 绑定为商品3×4件。</li>
+</ul>
+</li>
+<li>每个箱子贴上一个箱码，后续发货扫描即可。</li>
+</ul>
+<hr>
+<h3 id="总结一句话">总结一句话：</h3>
+<p><strong>出库绑箱 = 出库过程中将商品与具体箱子绑定的操作，用于后续发货、追踪、对账的关键环节。</strong></p>
+<p>如果你是在设计 WMS 流程，或者要实现这块功能，我也可以帮你画出流程图或者写个简单的伪代码~</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[050.什么是缺拣]]></title>
+        <id>https://panson.top/post/050shi-me-shi-que-jian/</id>
+        <link href="https://panson.top/post/050shi-me-shi-que-jian/">
+        </link>
+        <updated>2024-11-02T08:04:27.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="缺拣short-picking是什么"><strong>缺拣（Short Picking）是什么？</strong></h3>
+<p><strong>缺拣</strong>是指<strong>订单拣选过程中，由于库存不足或操作失误，导致未能按订单要求拣选到足够的商品</strong>。</p>
+<p>在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，缺拣通常会触发<strong>补货、库存调整或异常处理</strong>，以保证订单履约率。</p>
+<hr>
+<h2 id="1-缺拣的常见原因"><strong>1. 缺拣的常见原因</strong></h2>
+<h3 id="1-实际库存-系统库存"><strong>(1) 实际库存 ≠ 系统库存</strong></h3>
+<ul>
+<li><strong>库存账实不符</strong>（例如：数据错误、漏盘点、盘亏）。</li>
+<li><strong>系统显示有库存，但实际无货</strong>（如库存损耗、商品丢失）。</li>
+</ul>
+<h3 id="2-订单需求-可用库存"><strong>(2) 订单需求 &gt; 可用库存</strong></h3>
+<ul>
+<li><strong>库存不足，无法满足订单全部需求</strong>。</li>
+<li><strong>部分商品刚被其他订单拣选，导致剩余库存不足</strong>。</li>
+</ul>
+<h3 id="3-货位或库存异常"><strong>(3) 货位或库存异常</strong></h3>
+<ul>
+<li><strong>商品存放位置错误，导致拣选员找不到</strong>。</li>
+<li><strong>库存破损或质量问题，无法拣选</strong>。</li>
+</ul>
+<h3 id="4-拣选员或机器人操作失误"><strong>(4) 拣选员或机器人操作失误</strong></h3>
+<ul>
+<li><strong>人工拣选错误，未能拿足所需数量</strong>。</li>
+<li><strong>自动拣选设备故障，未能正确拣货</strong>。</li>
+</ul>
+<hr>
+<h2 id="2-缺拣的应对措施"><strong>2. 缺拣的应对措施</strong></h2>
+<h3 id="1-触发系统补货"><strong>(1) 触发系统补货</strong></h3>
+<ul>
+<li><strong>系统发现库存不足，自动创建补货任务</strong>。</li>
+<li><strong>优先从其他库位、其他仓库或供应商调货</strong>。</li>
+</ul>
+<h3 id="2-调整订单履约策略"><strong>(2) 调整订单履约策略</strong></h3>
+<ul>
+<li><strong>缺拣商品不足时，拆分订单</strong>（部分发货）。</li>
+<li><strong>若完全缺货，则通知客户，提供替代商品或退款</strong>。</li>
+</ul>
+<h3 id="3-盘点-纠正库存"><strong>(3) 盘点 &amp; 纠正库存</strong></h3>
+<ul>
+<li><strong>定期盘点，确保账实库存一致</strong>。</li>
+<li><strong>使用 RFID、PDA 扫码等方式减少人为失误</strong>。</li>
+</ul>
+<h3 id="4-订单优先级调整"><strong>(4) 订单优先级调整</strong></h3>
+<ul>
+<li><strong>优先满足高优先级订单（如 VIP 客户）</strong>。</li>
+<li><strong>对于低优先级订单，系统可建议推迟发货或拆单处理</strong>。</li>
+</ul>
+<hr>
+<h2 id="3-缺拣的影响"><strong>3. 缺拣的影响</strong></h2>
+<p>✅ <strong>影响订单履约率，可能导致客户投诉或取消订单</strong>。<br>
+✅ <strong>增加仓库额外工作量，如补货、盘点、异常处理</strong>。<br>
+✅ <strong>可能影响供应链管理，如导致后续生产或采购计划调整</strong>。</p>
+<hr>
+<h2 id="4-总结"><strong>4. 总结</strong></h2>
+<p>📌 <strong>缺拣 = 订单商品未能完全拣选，通常因库存不足、拣选错误或数据不准</strong>。<br>
+📌 <strong>WMS/WES 可通过补货、库存调整、订单优化等方式降低缺拣影响</strong>。<br>
+📌 <strong>优化库存管理、提高拣选准确率，可减少缺拣率，提高订单履约能力</strong>。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ photograph]]></title>
+        <id>https://panson.top/post/photograph/</id>
+        <link href="https://panson.top/post/photograph/">
+        </link>
+        <updated>2024-11-02T03:19:17.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="青岛">青岛</h2>
+<h2 id="福州">福州</h2>
+<h2 id="日本札幌">日本·札幌</h2>
+<h2 id="日本函馆">日本·函馆</h2>
+<h2 id="上海辰山植物园">上海辰山植物园</h2>
+<h2 id="上海人民广场">上海人民广场</h2>
+<h2 id="杭州云浮市-灵隐寺">杭州云浮市、灵隐寺</h2>
+<h2 id="上海武康路至美罗城">上海武康路至美罗城</h2>
+<h2 id="上海华为青浦园区">上海华为青浦园区</h2>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[049.什么是热度移位]]></title>
+        <id>https://panson.top/post/049shi-me-shi-re-du-yi-wei/</id>
+        <link href="https://panson.top/post/049shi-me-shi-re-du-yi-wei/">
+        </link>
+        <updated>2024-11-01T20:39:48.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="热度移位是什么"><strong>热度移位是什么？</strong></h3>
+<p><strong>热度移位</strong>是指根据商品的<strong>热度变化</strong>（如销量、拣选次数、订单频次等）<strong>动态调整商品的存储位置</strong>，以优化仓库管理，提高拣选和补货效率。</p>
+<p>在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，热度移位主要用于<strong>减少拣选人员或机器人移动距离，提高仓库运作效率</strong>。</p>
+<hr>
+<h2 id="1-热度移位的核心逻辑"><strong>1. 热度移位的核心逻辑</strong></h2>
+<p><strong>当商品热度发生变化时，系统自动或手动调整其库位</strong>：</p>
+<ol>
+<li>
+<p><strong>高热度商品 → 移动到前排/黄金拣选区</strong></p>
+<ul>
+<li>例如，销量上升的商品从远端库位调整到拣选路径更优的位置。</li>
+<li>方便拣选员/机器人快速获取，减少拣选时间。</li>
+</ul>
+</li>
+<li>
+<p><strong>低热度商品 → 移动到后排/远端库位</strong></p>
+<ul>
+<li>例如，销量下降的商品可移至较远或高层库位，以优化仓库空间。</li>
+</ul>
+</li>
+<li>
+<p><strong>季节性商品 → 季节变更时移位</strong></p>
+<ul>
+<li>例如，冬季商品在秋末前移到前端库位，夏季商品则移到后排。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-热度移位的应用场景"><strong>2. 热度移位的应用场景</strong></h2>
+<h3 id="1-订单拣选优化"><strong>(1) 订单拣选优化</strong></h3>
+<ul>
+<li><strong>减少人工或机器人拣选路径</strong>，提升拣选效率。</li>
+<li><strong>降低订单处理时间</strong>，加快物流周转。</li>
+</ul>
+<h3 id="2-仓库空间优化"><strong>(2) 仓库空间优化</strong></h3>
+<ul>
+<li><strong>高价值库位分配给热销商品</strong>，提高库位利用率。</li>
+<li><strong>减少低热度商品占据核心库区</strong>，避免资源浪费。</li>
+</ul>
+<h3 id="3-补货-波次拣选"><strong>(3) 补货 &amp; 波次拣选</strong></h3>
+<ul>
+<li><strong>高热度商品靠近出货区，减少补货频率</strong>。</li>
+<li><strong>结合订单数据，智能调整商品位置</strong>。</li>
+</ul>
+<hr>
+<h2 id="3-热度移位的触发机制"><strong>3. 热度移位的触发机制</strong></h2>
+<h3 id="1-规则驱动定期分析-批量调整"><strong>(1) 规则驱动（定期分析 &amp; 批量调整）</strong></h3>
+<ul>
+<li>例如，每周系统自动分析商品热度，并推荐移位操作。</li>
+</ul>
+<h3 id="2-实时动态调整"><strong>(2) 实时动态调整</strong></h3>
+<ul>
+<li>结合 AI/大数据分析，<strong>实时感知订单趋势</strong>，自动调整库位。</li>
+</ul>
+<h3 id="3-手动触发"><strong>(3) 手动触发</strong></h3>
+<ul>
+<li>仓库管理人员可基于业务需求进行人工调整。</li>
+</ul>
+<hr>
+<h2 id="4-总结"><strong>4. 总结</strong></h2>
+<p>✅ <strong>热度移位 = 依据商品热度，调整存储位置，提高仓库拣选效率</strong>。<br>
+✅ <strong>高热度商品前移，低热度商品后移，优化库位资源</strong>。<br>
+✅ <strong>适用于 WMS/WES 系统，适配电商、零售、制造业仓储</strong>。<br>
+✅ <strong>结合 AI/大数据，支持自动或手动调整，实现智能仓储管理</strong>。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[048.什么是商品热度]]></title>
+        <id>https://panson.top/post/048shi-me-shi-shang-pin-re-du/</id>
+        <link href="https://panson.top/post/048shi-me-shi-shang-pin-re-du/">
+        </link>
+        <updated>2024-11-01T19:39:48.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="商品热度是什么"><strong>商品热度是什么？</strong></h3>
+<p><strong>商品热度</strong>通常指<strong>某个商品在一定时间内的销售、浏览、查询、拣选等行为的综合活跃度</strong>。在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，商品热度主要用于优化<strong>库存布局、拣选路径、补货策略</strong>，以提升仓库运营效率。</p>
+<hr>
+<h2 id="1-商品热度的衡量指标"><strong>1. 商品热度的衡量指标</strong></h2>
+<p>商品热度通常由以下几个核心指标决定：</p>
+<ol>
+<li>
+<p><strong>销量</strong> 📈</p>
+<ul>
+<li>一段时间内的销售数量（如日、周、月销量）。</li>
+<li>高销量商品一般具有较高热度。</li>
+</ul>
+</li>
+<li>
+<p><strong>订单频次</strong> 🛒</p>
+<ul>
+<li>该商品在订单中出现的次数。</li>
+<li>订单量越多，说明该商品需求量大。</li>
+</ul>
+</li>
+<li>
+<p><strong>拣选次数</strong> 🚀</p>
+<ul>
+<li>该商品在仓库内被拣选的频率。</li>
+<li>拣选频次高的商品需要放在易于取用的位置。</li>
+</ul>
+</li>
+<li>
+<p><strong>补货频率</strong> 🔄</p>
+<ul>
+<li>该商品因库存不足被补货的次数。</li>
+<li>频繁补货的商品通常为热销品。</li>
+</ul>
+</li>
+<li>
+<p><strong>库存周转率</strong> 🔄</p>
+<ul>
+<li>商品库存的更替速度，计算方式：<br>
+<strong>库存周转率 = 一段时间内的销售数量 / 平均库存量</strong></li>
+<li>周转率高的商品通常热度较高，需要更快补货。</li>
+</ul>
+</li>
+<li>
+<p><strong>浏览/查询次数</strong> 👀（适用于电商和前端系统）</p>
+<ul>
+<li>该商品在系统中被用户查询、浏览的次数。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-商品热度的应用场景"><strong>2. 商品热度的应用场景</strong></h2>
+<p><strong>在 WMS 和 WES 系统中，商品热度可用于以下场景：</strong></p>
+<h3 id="1-库存优化"><strong>(1) 库存优化</strong></h3>
+<ul>
+<li><strong>高热度商品</strong>放在<strong>拣选路径最近、最易拿取</strong>的库位，减少拣选时间，提高效率。</li>
+<li><strong>低热度商品</strong>放在库位较远或高处，以优化仓库空间利用率。</li>
+</ul>
+<h3 id="2-订单拣选优化"><strong>(2) 订单拣选优化</strong></h3>
+<ul>
+<li><strong>波次拣选</strong>（Batch Picking）：
+<ul>
+<li>根据商品热度，把常见组合的商品分配到同一波次，提高拣选效率。</li>
+</ul>
+</li>
+<li><strong>智能路径规划</strong>：
+<ul>
+<li>拣选系统可优先安排高热度商品，减少拣选员的移动距离。</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-补货策略"><strong>(3) 补货策略</strong></h3>
+<ul>
+<li>高热度商品设置<strong>较高的安全库存</strong>，避免缺货。</li>
+<li><strong>提前预警补货</strong>，防止因销量激增导致库存不足。</li>
+</ul>
+<h3 id="4-促销与策略调整"><strong>(4) 促销与策略调整</strong></h3>
+<ul>
+<li>结合商品热度数据，电商或仓库管理可：
+<ul>
+<li><strong>制定促销策略</strong>，推动低热度商品销售。</li>
+<li><strong>调整采购计划</strong>，确保热销商品有充足供应。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-商品热度的计算方式"><strong>3. 商品热度的计算方式</strong></h2>
+<p>不同系统可以有不同的计算方法，常见公式：</p>
+<ul>
+<li><strong>热度评分 = (销量 × 权重1) + (拣选次数 × 权重2) + (补货频率 × 权重3) + ...</strong></li>
+<li>例如：
+<ul>
+<li>最近 7 天销量占比 50%，拣选次数占比 30%，补货次数占比 20%：</li>
+<li><strong>热度 = (销量 × 0.5) + (拣选次数 × 0.3) + (补货次数 × 0.2)</strong></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="4-总结"><strong>4. 总结</strong></h2>
+<p>✅ <strong>商品热度</strong>衡量商品的销售和拣选活跃度，帮助优化仓库管理。<br>
+✅ <strong>高热度商品</strong>应放在拣选路径最优的位置，减少人工移动，提高拣选效率。<br>
+✅ <strong>结合补货频率、库存周转率</strong>，制定智能库存管理策略，避免缺货或积压。<br>
+✅ <strong>适用于 WMS/WES、仓储优化、电商平台等场景</strong>，提高仓库运作效率与服务质量。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[047.什么是作业地图]]></title>
+        <id>https://panson.top/post/047shi-me-shi-zuo-ye-di-tu/</id>
+        <link href="https://panson.top/post/047shi-me-shi-zuo-ye-di-tu/">
+        </link>
+        <updated>2024-11-01T18:39:48.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="作业地图是什么"><strong>作业地图是什么？</strong></h3>
+<p><strong>作业地图</strong>是<strong>WMS（仓库管理系统）或 WES（仓库执行系统）中用于可视化管理仓库作业流程和资源分布的工具</strong>。它提供了<strong>仓库布局、库存位置、任务执行状态、设备（如 AGV、机器人）实时位置等信息</strong>，帮助仓库运营人员优化作业路径，提高效率。</p>
+<hr>
+<h2 id="1-作业地图的核心功能"><strong>1. 作业地图的核心功能</strong></h2>
+<p>作业地图的主要作用是<strong>直观呈现仓库作业情况，优化仓库资源调度</strong>，常见功能包括：</p>
+<ol>
+<li>
+<p><strong>仓库布局可视化</strong></p>
+<ul>
+<li>展示仓库的区域划分，如库区、货架、库位、输送线等。</li>
+<li>实时显示库存的存放位置，辅助拣选、补货作业。</li>
+</ul>
+</li>
+<li>
+<p><strong>任务执行跟踪</strong></p>
+<ul>
+<li>显示订单拣选、补货、上架、盘点等任务的执行状态。</li>
+<li>监控任务进度，发现异常任务（如任务滞留、库存差异等）。</li>
+</ul>
+</li>
+<li>
+<p><strong>设备与人员管理</strong></p>
+<ul>
+<li>追踪 AGV（自动导引运输车）、机械臂、叉车等设备的位置及运行状态。</li>
+<li>监控操作人员的作业区域，优化作业路径，减少重复行走。</li>
+</ul>
+</li>
+<li>
+<p><strong>路径规划</strong></p>
+<ul>
+<li>计算并推荐最优拣选、补货、盘点路径，提高作业效率。</li>
+<li>支持动态调整路径，避开拥堵区域。</li>
+</ul>
+</li>
+<li>
+<p><strong>数据统计与分析</strong></p>
+<ul>
+<li>记录作业效率数据（如拣选时间、设备利用率等）。</li>
+<li>结合 AI 预测瓶颈区域，优化仓库布局。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-作业地图的应用场景"><strong>2. 作业地图的应用场景</strong></h2>
+<ul>
+<li><strong>“货到人”系统</strong>
+<ul>
+<li>监控料箱、货架的移动情况，优化机器人调度。</li>
+</ul>
+</li>
+<li><strong>智能拣选</strong>
+<ul>
+<li>结合电子标签、PDA 设备，实现可视化拣选作业。</li>
+</ul>
+</li>
+<li><strong>盘点作业</strong>
+<ul>
+<li>显示库存盘点任务的分布，辅助操作员快速盘点。</li>
+</ul>
+</li>
+<li><strong>AGV 调度</strong>
+<ul>
+<li>实时调整 AGV 路线，避免交通堵塞，提高搬运效率。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-作业地图的优势"><strong>3. 作业地图的优势</strong></h2>
+<p>✅ <strong>提高作业效率</strong>：直观展示任务分布，优化作业路径。<br>
+✅ <strong>降低错误率</strong>：减少人工查找货位、拣选错误。<br>
+✅ <strong>优化资源利用</strong>：合理调度人力、设备，减少空跑和重复作业。<br>
+✅ <strong>提升仓库可视化管理能力</strong>：实时掌握库存动态，提高响应速度。</p>
+<hr>
+<h3 id="总结"><strong>总结</strong></h3>
+<p>作业地图是现代智能仓储系统的重要组成部分，结合<strong>WMS/WES、AI 计算、实时定位技术</strong>，可以<strong>优化仓库作业流程，提高运营效率，减少人工成本</strong>。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[046.什么是 AGV]]></title>
+        <id>https://panson.top/post/046shi-me-shi-agv/</id>
+        <link href="https://panson.top/post/046shi-me-shi-agv/">
+        </link>
+        <updated>2024-11-01T17:39:59.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="agvautomated-guided-vehicle是什么"><strong>AGV（Automated Guided Vehicle）是什么？</strong></h3>
+<p><strong>AGV（自动导引运输车）</strong>，即<strong>自动搬运机器人</strong>，是一种<strong>能够沿预设路径或自主导航完成货物运输的无人驾驶设备</strong>。AGV 主要用于<strong>仓储、物流、制造、医疗等行业</strong>，用于提升运输效率和降低人工成本。</p>
+<hr>
+<h2 id="1-agv-的核心特点"><strong>1. AGV 的核心特点</strong></h2>
+<ul>
+<li><strong>无人驾驶</strong>：不需要人工操作，可自动完成搬运任务。</li>
+<li><strong>路径导航</strong>：通过磁条、激光、视觉、惯性导航等方式自主行驶。</li>
+<li><strong>智能调度</strong>：可接入 WMS（仓库管理系统）/WCS（仓库控制系统），进行任务分配和路径优化。</li>
+<li><strong>安全性高</strong>：配备避障传感器，可自动检测并规避障碍物，确保运行安全。</li>
+<li><strong>充电自主化</strong>：可在电量低时自动返回充电站补充电量。</li>
+</ul>
+<hr>
+<h2 id="2-agv-的工作原理"><strong>2. AGV 的工作原理</strong></h2>
+<p>AGV 依赖多种导航和控制技术，实现自动搬运：</p>
+<ul>
+<li><strong>导航方式</strong>
+<ul>
+<li><strong>磁条导航</strong>（Magnetic Tape）：AGV 沿地面磁条行驶，简单稳定，适用于固定路线搬运。</li>
+<li><strong>激光导航</strong>（Laser）：利用激光反射标识定位，路径灵活，可动态调整路线。</li>
+<li><strong>惯性导航</strong>（Inertial）：利用陀螺仪与加速度计进行定位，适用于复杂环境。</li>
+<li><strong>视觉导航</strong>（Vision）：使用摄像头识别环境特征点，自主调整路线，适合动态仓库环境。</li>
+<li><strong>SLAM（同步定位与建图）</strong>：结合激光、视觉等技术，实现自主导航，无需预设路径。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-agv-在仓储和物流中的应用"><strong>3. AGV 在仓储和物流中的应用</strong></h2>
+<h3 id="1仓库物流"><strong>（1）仓库物流</strong></h3>
+<ul>
+<li><strong>料箱搬运</strong>：将料箱从存储区运输到拣选站，适用于“料箱到人”系统。</li>
+<li><strong>托盘搬运</strong>：将整托货物从存储区运送到生产线或发货区。</li>
+<li><strong>自动补货</strong>：AGV 在库存低时自动将货物补充到相应区域。</li>
+</ul>
+<h3 id="2制造工厂"><strong>（2）制造工厂</strong></h3>
+<ul>
+<li><strong>生产线物料配送</strong>：AGV 负责将原材料从仓库运送到生产线，提高生产效率。</li>
+<li><strong>成品运输</strong>：将生产完成的产品运送到质检区或仓库。</li>
+</ul>
+<h3 id="3电商-物流中心"><strong>（3）电商 &amp; 物流中心</strong></h3>
+<ul>
+<li><strong>拣选与打包</strong>：AGV 在大规模电商仓库中用于拣选订单，提高订单处理速度。</li>
+<li><strong>快递分拣</strong>：AGV 搬运包裹至不同分拣站点，提高快递分拣效率。</li>
+</ul>
+<hr>
+<h2 id="4-agv-与-amr自主移动机器人的区别"><strong>4. AGV 与 AMR（自主移动机器人）的区别</strong></h2>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>AGV（Automated Guided Vehicle）</th>
+<th>AMR（Autonomous Mobile Robot）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>导航方式</strong></td>
+<td>依赖磁条、激光等固定路径</td>
+<td>具备自主路径规划能力</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>受限于预设路径，调整较困难</td>
+<td>可根据环境动态调整路线</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>适用于规则化仓储</td>
+<td>适用于复杂动态环境</td>
+</tr>
+<tr>
+<td><strong>避障能力</strong></td>
+<td>主要依赖传感器，避障能力有限</td>
+<td>具备更高级的环境感知和避障能力</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-agv-的优缺点"><strong>5. AGV 的优缺点</strong></h2>
+<h3 id="优势"><strong>✅ 优势</strong></h3>
+<ul>
+<li><strong>减少人工成本</strong>，减少人工作业，提高自动化水平。</li>
+<li><strong>提高运输效率</strong>，减少人工搬运时间。</li>
+<li><strong>提升安全性</strong>，减少人工搬运中的事故风险。</li>
+<li><strong>可 24/7 运行</strong>，不断优化仓储和生产效率。</li>
+</ul>
+<h3 id="劣势"><strong>❌ 劣势</strong></h3>
+<ul>
+<li><strong>初期投资较高</strong>，包括设备、软件及基础设施建设。</li>
+<li><strong>灵活性有限</strong>，传统 AGV 需要固定路径导航，不易变更路线。</li>
+<li><strong>维护成本</strong>，AGV 需要定期维护传感器、电池、轮子等部件。</li>
+</ul>
+<hr>
+<h2 id="6-agv-在智能仓储中的发展趋势"><strong>6. AGV 在智能仓储中的发展趋势</strong></h2>
+<ul>
+<li><strong>向 AMR（自主移动机器人）发展</strong>，具备更强的自主导航能力。</li>
+<li><strong>结合 AI 和大数据</strong>，优化任务调度，提高仓库运营效率。</li>
+<li><strong>多机器人协同作业</strong>，提升仓库吞吐量，满足大规模订单需求。</li>
+<li><strong>无缝对接 WMS/WCS 系统</strong>，智能调度 AGV 任务，实现自动化仓储管理。</li>
+</ul>
+<hr>
+<h2 id="7-结论"><strong>7. 结论</strong></h2>
+<p>AGV 在现代智能仓储和物流体系中扮演着关键角色，能够<strong>替代人工搬运，提高仓库自动化程度</strong>。随着<strong>AI、5G、视觉导航等技术的发展</strong>，AGV 逐步向更智能的 AMR 方向演进，为未来智慧物流和智能制造提供更高效的解决方案。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[045.什么是货架与库位]]></title>
+        <id>https://panson.top/post/045shi-me-shi-huo-jia-yu-ku-wei/</id>
+        <link href="https://panson.top/post/045shi-me-shi-huo-jia-yu-ku-wei/">
+        </link>
+        <updated>2024-11-01T17:39:50.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="货架shelf和库位storage-location是什么"><strong>货架（Shelf）和库位（Storage Location）是什么？</strong></h3>
+<p>在 <strong>WMS（仓库管理系统）</strong> 或 <strong>WES（仓库执行系统）</strong> 中，<strong>货架</strong> 和 <strong>库位</strong> 是仓库管理的基本单元，负责存储和定位商品，提高仓库运营效率。</p>
+<hr>
+<h2 id="1-什么是货架shelf"><strong>1. 什么是货架（Shelf）？</strong></h2>
+<p><strong>货架</strong> 指的是 <strong>仓库中用于存放商品的架子或存储设备</strong>，通常由多个层级（货架层）组成，以便分类存放不同的货物。</p>
+<h3 id="货架的作用"><strong>货架的作用</strong></h3>
+<ul>
+<li><strong>最大化利用仓库空间</strong>，提高存储密度。</li>
+<li><strong>提高拣选效率</strong>，减少人工找货时间。</li>
+<li><strong>确保货物安全</strong>，避免堆放导致损坏。</li>
+<li><strong>支持自动化作业</strong>，如 AGV（自动搬运车）、机械臂等设备取货。</li>
+</ul>
+<h3 id="常见货架类型"><strong>常见货架类型</strong></h3>
+<ol>
+<li><strong>横梁式货架</strong>：常见的标准货架，适用于托盘存储。</li>
+<li><strong>贯通式货架</strong>：适用于存储大量同类型商品（如冷库）。</li>
+<li><strong>重力式货架</strong>：利用重力滑动货物，提高拣选效率。</li>
+<li><strong>自动化立体库货架</strong>：与自动存取设备结合，实现智能化仓储。</li>
+<li><strong>悬臂式货架</strong>：适用于存放长条状物品，如管材、木材等。</li>
+<li><strong>流利式货架</strong>：利用滚筒式设计，方便先进先出的存储模式。</li>
+</ol>
+<hr>
+<h2 id="2-什么是库位storage-location"><strong>2. 什么是库位（Storage Location）？</strong></h2>
+<p><strong>库位</strong> 指的是 <strong>货物在仓库中的具体存放位置</strong>，它是仓库管理中的<strong>最小存储单元</strong>。</p>
+<h3 id="库位的作用"><strong>库位的作用</strong></h3>
+<ul>
+<li><strong>精确定位商品</strong>，减少查找时间。</li>
+<li><strong>提高库存管理的精确度</strong>，避免错放或丢失。</li>
+<li><strong>优化仓库空间利用</strong>，合理规划存储区域。</li>
+<li><strong>支持智能化仓储</strong>，结合 WMS/WES 系统进行智能调度。</li>
+</ul>
+<h3 id="库位的编号规则"><strong>库位的编号规则</strong></h3>
+<p>通常，库位的编号采用 <strong>“库区-货架-层-列”</strong> 的方式，例如：</p>
+<ul>
+<li><strong>A01-03-02</strong>
+<ul>
+<li><strong>A01</strong>：库区编号</li>
+<li><strong>03</strong>：货架编号</li>
+<li><strong>02</strong>：货架的第 2 层</li>
+<li>这个库位对应某个具体的存储空间</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-货架与库位的关系"><strong>3. 货架与库位的关系</strong></h2>
+<ul>
+<li><strong>货架</strong> 是存储货物的整体结构，一个货架上可以有多个 <strong>库位</strong>。</li>
+<li><strong>库位</strong> 是具体存放商品的物理位置，每个库位通常对应一个 SKU（商品最小管理单元）。</li>
+</ul>
+<h3 id="示例"><strong>示例</strong></h3>
+<ul>
+<li><strong>货架编号</strong>：A01
+<ul>
+<li><strong>库位 1</strong>：A01-01-01（第 1 层）</li>
+<li><strong>库位 2</strong>：A01-01-02（第 2 层）</li>
+<li><strong>库位 3</strong>：A01-01-03（第 3 层）</li>
+</ul>
+</li>
+</ul>
+<p>在 WMS 系统中，库存管理时会<strong>精确到库位级别</strong>，确保商品存放、移动、拣选都能准确无误。</p>
+<hr>
+<h2 id="4-货架与库位在-wmswes-系统中的应用"><strong>4. 货架与库位在 WMS/WES 系统中的应用</strong></h2>
+<ol>
+<li><strong>入库管理</strong>：系统根据商品属性分配合适的库位存放。</li>
+<li><strong>库存管理</strong>：实时更新每个库位的库存信息，避免库存错乱。</li>
+<li><strong>拣选作业</strong>：系统提供拣选路径，优化取货效率。</li>
+<li><strong>智能仓储</strong>：与自动化设备结合（如自动立库、AGV），提高作业效率。</li>
+</ol>
+<hr>
+<h2 id="总结"><strong>总结</strong></h2>
+<ul>
+<li><strong>货架</strong> 是存储货物的架子，可以有多个层级。</li>
+<li><strong>库位</strong> 是具体的存储位置，每个库位唯一标识一个存放点。</li>
+<li><strong>WMS/WES 系统</strong> 通过管理货架和库位，实现精准的库存管理，提高仓库运作效率。</li>
+</ul>
+<p>这样一来，仓库中的货物存放和流转都能有条不紊地进行，提高作业效率并减少错误率。</p>
+]]></content>
+    </entry>
+</feed>
