@@ -1,0 +1,1250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://panson.top</id>
+    <title>Panson</title>
+    <updated>2025-07-05T16:46:56.443Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://panson.top"/>
+    <link rel="self" href="https://panson.top/atom.xml"/>
+    <subtitle>清风拂山岗，明月照大江。</subtitle>
+    <logo>https://panson.top/images/avatar.png</logo>
+    <icon>https://panson.top/favicon.ico</icon>
+    <rights>All rights reserved 2025, Panson</rights>
+    <entry>
+        <title type="html"><![CDATA[关于本站]]></title>
+        <id>https://panson.top/post/zhi-ding-tie/</id>
+        <link href="https://panson.top/post/zhi-ding-tie/">
+        </link>
+        <updated>2100-10-14T02:48:07.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>分享自己的所见所得，后端技术、供应链、任务调度（AI阅片任务调度、渲染任务调度）、摄影相关。</em></p>
+<hr>
+<h2 id="一-关于本站">一、关于本站</h2>
+<ol>
+<li>
+<p>博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</p>
+</li>
+<li>
+<p>博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载。</p>
+</li>
+<li>
+<p>当然，也有部分是我自己的“摄影作品”。</p>
+</li>
+</ol>
+<h2 id="二-供应链">二、供应链</h2>
+<p>目前做的是供应链领域的后端开发，看过一些书和资料，结合日常工作内容，写了一个小系列。<br>
+具体可以看：https://panson.top/post/supply-chain/，也在这个站点下。</p>
+<h2 id="三-任务调度">三、任务调度</h2>
+<p>更早之前的两份工作内容都和任务调度有关，主要是关于 AI 任务调度和渲染任务调度。当然这种“任务”</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>分享自己的所见所得，后端技术、供应链、任务调度（AI阅片任务调度、渲染任务调度）、摄影相关。</em></p>
+<hr>
+<h2 id="一-关于本站">一、关于本站</h2>
+<ol>
+<li>
+<p>博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</p>
+</li>
+<li>
+<p>博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载。</p>
+</li>
+<li>
+<p>当然，也有部分是我自己的“摄影作品”。</p>
+</li>
+</ol>
+<h2 id="二-供应链">二、供应链</h2>
+<p>目前做的是供应链领域的后端开发，看过一些书和资料，结合日常工作内容，写了一个小系列。<br>
+具体可以看：https://panson.top/post/supply-chain/，也在这个站点下。</p>
+<h2 id="三-任务调度">三、任务调度</h2>
+<p>更早之前的两份工作内容都和任务调度有关，主要是关于 AI 任务调度和渲染任务调度。当然这种“任务”</p>
+<!-- more -->
+<p>和后端开发中的任务调度框架不太一样，类似 XXL-JOB 这种，我一般理解为定时任务，不带业务属性，但之前做的 AI 任务调度和渲染任务调度则更偏向于业务。下面简单介绍一下我参与做过的内容（其实本来应该写一个开源脚手架的，最近沉迷摄影，一直没时间去回想这些东西，时间过去有点久了，细节忘记了~提醒我及时记录）。</p>
+<h3 id="1-ai-任务调度系统">1. AI 任务调度系统</h3>
+<p>属于医疗领域，核心是为了将医院、体检机构拍摄的片子，借助 AI 智能阅片，并输出诊断结果，辅助治疗。</p>
+<ul>
+<li>数据来源：体检机构、大中小医院的片子</li>
+<li>文件系统：上传的片子预处理，存储文件、预处理的数据</li>
+<li>任务调度系统：
+<ul>
+<li>Master 将处理好的片子，做任务分发到各个 Slave 机器上</li>
+<li>Slave 上的算法服务会将任务做AI 分析，存储分析结果</li>
+</ul>
+</li>
+<li>其他的还有阅片系统、SSO 平台、前置机之类的，还有单机平台、一体机之类的，非调度核心系统。</li>
+</ul>
+<h3 id="2-渲染任务调度">2. 渲染任务调度</h3>
+<p>核心逻辑其实与上面讲的差不多，不过业务逻辑更加复杂，链路也更加长一些，数据量的话日均有千万级别。<br>
+负责的东西主要包括以下几个部分：</p>
+<ul>
+<li>渲染弹窗相关：渲染配置、分辨率体系、渲染券相关</li>
+<li>中台相关业务：国际版 CooHom、灯光动画、遮罩渲染相关能力的开发、对象存储迁移（阿里OSS -&gt; 腾讯 COS）等等</li>
+<li>渲染任务回归平台的开发</li>
+</ul>
+<h2 id="四-摄影">四、摄影</h2>
+<p>单独建了一个网站，买了 10 年的域名：www.timelesslens.site。<br>
+<img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311291106687.png" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[从零开始学 AI]]></title>
+        <id>https://panson.top/post/ai/</id>
+        <link href="https://panson.top/post/ai/">
+        </link>
+        <updated>2025-06-21T08:28:31.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>想多了解一点这个快速发展的世界，学习一下 AI 相关的知识。</em></p>
+<h2 id="工具篇">工具篇</h2>
+<p>本地部署试过 Ollama + DeepSeek R1 32 b，19 年的英特尔芯片已经带不动了。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>想多了解一点这个快速发展的世界，学习一下 AI 相关的知识。</em></p>
+<h2 id="工具篇">工具篇</h2>
+<p>本地部署试过 Ollama + DeepSeek R1 32 b，19 年的英特尔芯片已经带不动了。</p>
+<!-- more -->
+<p>目前主要用的是 Cherry Studio + 字节方舟的 DeepSeek R1，主要是因为当时领了几十块钱的券~<br>
+但是腾讯元宝真的很方便，而且免费。<br>
+Web 端的话各种官网混用：腾讯元宝 、ChatGpt、Claude、通义千问。<br>
+编辑器的话，用的是Trae，之前用 Trae + Hugo 搭了一个摄影小站：</p>
+<ul>
+<li>www.timelesslens.site</li>
+</ul>
+<h2 id="ai-名词">AI 名词</h2>
+<h3 id="rag">RAG</h3>
+<p>RAG 的全称是：Retrieval-Augmented Generation，翻译成中文是：检索增强生成。</p>
+<p>简而言之就是让大语言模型（比如 ChatGPT）在“生成答案”之前，先去找资料（检索）来增强它的知识，再用这些资料来生成更准确的回答。</p>
+<h4 id="为什么需要rag">为什么需要RAG？</h4>
+<p>因为对于很多大语言模型来说，他的知识是基于历史数据训练出来的，比如GPT-4是截止到2023年的数据，而在这之后发生的所有的新的事件，新的数据，他都是不知道的，那么他的回答就会有这部分的局限性。</p>
+<p>还有就是，很多大模型是基于公开的资料训练出来的，而很多私域的信息他是没有学习过的，而很多知识是私有的知识，这就需要通过资料的方式增强他原来不熟悉的知识。</p>
+<p>所以，有了RAG之后，就可以基于自己的知识构建自己的知识库，这样就能做到知识的更新和迭代，也能弥补大模型不知道一些特性领域的专业知识的不足。这样就能让大模型的回答更加的准确， 减少幻觉的发生。</p>
+<h4 id="如何构建一个rag">如何构建一个RAG？</h4>
+<p>1、前置准备</p>
+<p>首先我们需要做数据准备，把你要用的资料收集好，比如：公司内部文档（PDF、Word、Markdown）、FAQ列表、产品手册等，然后清洗这些数据，比如去掉无关信息、切分成合理的小段。</p>
+<p>然后把每一小段文本用Embedding模型转成向量，把这些向量存到向量数据库里，比如FAISS、Milvus等。</p>
+<p>2、检索查询</p>
+<p>当用户提问时，先用相同的Embedding模型把问题也转成向量。然后在向量数据库里用向量相似度搜索，找出最相关的几段资料（比如Top 5）。这些找到的内容就是上下文增强材料。</p>
+<p>3、生成回答</p>
+<p>紧接着，就可以把用户的问题 + 检索到的资料一起，作为Prompt发给大语言模型（LLM）。 这样可以保证模型只在资料范围内生成答案，降低幻觉。</p>
+<h3 id="mcp">MCP</h3>
+<p>MCP 的全称是 Model Context Protocol，下面是官网上的解释：</p>
+<blockquote>
+<p>MCP is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.</p>
+</blockquote>
+<p>MCP全称是模型上下文协议（Model Context Protocol），由Anthropic在2024年11月推出。它本质上是大模型与外部世界连接的标准化接口，就像给大模型装了个万能插座。</p>
+<p>MCP中有三个核心组件</p>
+<ul>
+<li>MCP Hosts：如Claude Desktop或IDE（比如Cursor），作为AI应用的入口，发起数据请求。</li>
+<li>MCP Servers：轻量级服务，负责对接具体数据源或工具（如GitHub API、本地文件系统），提供标准化接口。（一般是别人开发好的，你要用的工具）</li>
+<li>MCP Clients：协议客户端，维护与服务器的连接并转发请求。</li>
+</ul>
+<p>有了MCP之后，当用户提出一个问题时，就是大致下面的流程：</p>
+<ul>
+<li>客户端（Claude Desktop / Cursor）将你的问题发送给大模型（如Claude）。</li>
+<li>Claude 分析可用的工具，并决定使用哪一个（或多个）。</li>
+<li>客户端通过 MCP Server 执行所选的工具。</li>
+<li>工具的执行结果被送回给 Claude。</li>
+<li>Claude 结合执行结果构造最终的 prompt 并生成自然语言的回应。</li>
+<li>回应最终展示给用户</li>
+</ul>
+<p>我让 DeepSeek 以生动形象的语言给我解释了一下 MCP，以下是它的回答：</p>
+<p>用大白话解释，<strong>大模型中的 MCP 就像一个“万能插座”</strong>，让原本被困在知识牢笼里的 AI 大模型，突然长出了能连接现实世界的手脚。以下是生动解析：</p>
+<hr>
+<h4 id="1-大模型原本是个孤岛天才">🔌 <strong>1. 大模型原本是个“孤岛天才”</strong></h4>
+<p>想象大模型是个满腹经纶的学者，但被关在没有窗户的房间里：</p>
+<ul>
+<li><strong>知识是旧的</strong>：只能复述训练时学过的内容（比如不知道今天天气）；</li>
+<li><strong>无法动手操作</strong>：知道“怎么发邮件”，但没法真的帮你发；</li>
+<li><strong>数据隔离</strong>：你电脑里的文件、公司数据库，它都摸不着[citation:1][citation:7]。</li>
+</ul>
+<blockquote>
+<p>💡 就像让厨师背熟菜谱却不给厨房——空有理论，做不出菜！</p>
+</blockquote>
+<hr>
+<h4 id="️-2-mcp-是给大模型配的万能工具箱">🛠️ <strong>2. MCP 是给大模型配的“万能工具箱”</strong></h4>
+<p>MCP（Model Context Protocol）是一套<strong>标准化接口协议</strong>，核心功能类似 <strong>“插座+适配器”</strong>：</p>
+<ul>
+<li><strong>统一接口</strong>：所有外部工具（数据库、天气 API、微信、Excel）只要装上“MCP 插头”（即 MCP 服务器），就能被大模型即插即用[citation:4][citation:6]；</li>
+<li><strong>双向通信</strong>：大模型能查数据（如“读销售报表”），也能执行操作（如“订会议室”）[citation:2]；</li>
+<li><strong>本地安全防护</strong>：数据不用上传云端，直接在本地处理，像给插座加了保险开关[citation:1][citation:5]。</li>
+</ul>
+<blockquote>
+<p>✅ <strong>举个栗子</strong>：<br>
+你说：“把上周销售数据整理成图表，邮件发给老板。”<br>
+大模型通过 MCP 自动调用：<br>
+1️⃣ <strong>数据库插件</strong> → 拉取数据；<br>
+2️⃣ <strong>Python 插件</strong> → 生成图表；<br>
+3️⃣ <strong>邮箱插件</strong> → 发送邮件。</p>
+</blockquote>
+<hr>
+<h4 id="️-3-工作流程像ai-指挥官">⚙️ <strong>3. 工作流程像“AI 指挥官”</strong></h4>
+<ol>
+<li><strong>你下指令</strong>：“导航去公司附近最火的川菜馆。”</li>
+<li><strong>大模型分析</strong>：需要调用地图工具 + 实时路况。</li>
+<li><strong>MCP 客户端</strong>：找到“百度地图 MCP 服务器”（已装好插头）。</li>
+<li><strong>地图服务器</strong>：返回路线、排队时长、评分（数据不离开你手机）。</li>
+<li><strong>大模型整合</strong>：“推荐‘蜀香阁’，车程 15 分钟，当前不用排队哦！”。</li>
+</ol>
+<blockquote>
+<p>🌟 <strong>关键突破</strong>：</p>
+<ul>
+<li><strong>不用重复开发</strong>：每个工具只需一次适配 MCP，所有大模型都能用；</li>
+<li><strong>动态扩展能力</strong>：装个“股票插件”，AI 立刻懂炒股；装个“Git 插件”，秒变编程助手[citation:4][citation:5]。</li>
+</ul>
+</blockquote>
+<hr>
+<h4 id="4-实际效果ai-从嘴强王者变身全能助理">🚀 <strong>4. 实际效果：AI 从“嘴强王者”变身“全能助理”</strong></h4>
+<ul>
+<li><strong>查私人数据</strong>：直接问“帮我找昨天写的年终总结 PPT”；</li>
+<li><strong>操作跨平台工具</strong>：“订明早 9 点的机票，同步到日历并提醒小李”；</li>
+<li><strong>实时响应</strong>：“现在美股苹果股价多少？” → 调用金融数据插件秒回[citation:2][citation:6]。</li>
+</ul>
+<blockquote>
+<p>💡 <strong>一句话总结</strong>：<br>
+<strong>MCP 就是大模型的“手脚延伸器”——让 AI 走出虚拟牢笼，用标准化插座连接万物，从此能动手就别吵吵！</strong></p>
+</blockquote>
+<p>当前百度地图、高德、企业微信等均已支持 MCP，未来你的每一个操作指令，背后可能都是 MCP 在默默调度。</p>
+<h3 id="agent">Agent</h3>
+<p>todo</p>
+<h3 id="springai">SpringAI</h3>
+<p>todo</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[自己动手写动态线程池框架 03——基于线程池扩展点增加插件体系]]></title>
+        <id>https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-03-ji-yu-xian-cheng-chi-kuo-zhan-dian-zeng-jia-cha-jian-ti-xi/</id>
+        <link href="https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-03-ji-yu-xian-cheng-chi-kuo-zhan-dian-zeng-jia-cha-jian-ti-xi/">
+        </link>
+        <updated>2024-12-27T06:42:42.000Z</updated>
+        <summary type="html"><![CDATA[<p>JDK 线程池的生命周期中包含多个关键扩展点，通过这些扩展点我们可以实现监控、调优、报警等高级功能。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>JDK 线程池的生命周期中包含多个关键扩展点，通过这些扩展点我们可以实现监控、调优、报警等高级功能。</p>
+<!-- more -->
+<h3 id="一-核心扩展点">一、核心扩展点</h3>
+<ol>
+<li><strong>任务执行监听点</strong>
+<ul>
+<li><code>beforeExecute()</code>：任务执行前触发</li>
+<li><code>afterExecute()</code>：任务完成后触发（含异常情况）</li>
+<li>应用场景：耗时统计、超时检测、任务埋点</li>
+</ul>
+</li>
+<li><strong>线程池关闭监听点</strong>
+<ul>
+<li><code>beforeShutdown()</code>：关闭线程池前触发</li>
+<li><code>afterShutdown()</code>：关闭线程池后触发（带未完成任务）</li>
+<li><code>afterTerminated()</code>：线程池完全终止后触发</li>
+<li>应用场景：资源释放、优雅关机</li>
+</ul>
+</li>
+<li><strong>任务拒绝拦截点</strong>
+<ul>
+<li><code>beforeRejectedExecution()</code>：触发拒绝策略前执行</li>
+<li>应用场景：拒绝计数、预警通知</li>
+</ul>
+</li>
+<li><strong>任务创建/执行拦截点</strong>
+<ul>
+<li><code>beforeTaskCreate()</code>：创建任务对象前（支持Runnable/Callable）</li>
+<li><code>beforeTaskExecute()</code>：任务执行前最后处理点</li>
+<li>应用场景：任务装饰、上下文传递</li>
+</ul>
+</li>
+</ol>
+<h3 id="二-插件体系设计">二、插件体系设计</h3>
+<pre><code class="language-mermaid">classDiagram
+    class ThreadPoolPlugin {
+        &lt;&lt;Interface&gt;&gt;
+        +start() 
+        +stop()
+    }
+    
+    class ExecuteAwarePlugin {
+        +beforeExecute()
+        +afterExecute()
+    }
+    
+    class RejectedAwarePlugin {
+        +beforeRejectedExecution()
+    }
+    
+    class ShutdownAwarePlugin {
+        +beforeShutdown()
+        +afterShutdown()
+        +afterTerminated()
+    }
+    
+    class TaskAwarePlugin {
+        +beforeTaskCreate()
+        +beforeTaskExecute()
+    }
+    
+    ThreadPoolPlugin &lt;|-- ExecuteAwarePlugin
+    ThreadPoolPlugin &lt;|-- RejectedAwarePlugin
+    ThreadPoolPlugin &lt;|-- ShutdownAwarePlugin
+    ThreadPoolPlugin &lt;|-- TaskAwarePlugin
+</code></pre>
+<pre><code class="language-mermaid">classDiagram
+direction BT
+class AbstractTaskTimerPlugin {
+  + AbstractTaskTimerPlugin() 
+  + beforeExecute(Thread, Runnable) void
+  # currentTime() long
+  # processTaskTime(long) void
+  + afterExecute(Runnable, Throwable) void
+}
+class ExecuteAwarePlugin {
+&lt;&lt;Interface&gt;&gt;
+  + beforeExecute(Thread, Runnable) void
+  + afterExecute(Runnable, Throwable) void
+}
+class RejectedAwarePlugin {
+&lt;&lt;Interface&gt;&gt;
+  + beforeRejectedExecution(Runnable, ThreadPoolExecutor) void
+}
+class ShutdownAwarePlugin {
+&lt;&lt;Interface&gt;&gt;
+  + afterShutdown(ThreadPoolExecutor, List~Runnable~) void
+  + afterTerminated(ExtensibleThreadPoolExecutor) void
+  + beforeShutdown(ThreadPoolExecutor) void
+}
+class Summary {
+  + Summary(long, long, long, long) 
+  - long taskCount
+  - long minTaskTimeMillis
+  - long totalTaskTimeMillis
+  - long maxTaskTimeMillis
+   long maxTaskTimeMillis
+   long taskCount
+   long minTaskTimeMillis
+   long totalTaskTimeMillis
+   long avgTaskTimeMillis
+}
+class TaskAwarePlugin {
+&lt;&lt;Interface&gt;&gt;
+  + beforeTaskCreate(ThreadPoolExecutor, Runnable, V) Runnable
+  + beforeTaskCreate(ThreadPoolExecutor, Callable~V~) Callable~V~
+  + beforeTaskExecute(Runnable) Runnable
+}
+class TaskDecoratorPlugin {
+  + TaskDecoratorPlugin() 
+  - List~TaskDecorator~ decorators
+  + removeDecorator(TaskDecorator) void
+  + clearDecorators() void
+  + beforeTaskExecute(Runnable) Runnable
+  + addDecorator(TaskDecorator) void
+   PluginRuntime pluginRuntime
+   String id
+   List~TaskDecorator~ decorators
+}
+class TaskRejectCountRecordPlugin {
+  + TaskRejectCountRecordPlugin() 
+  - AtomicLong rejectCount
+  + beforeRejectedExecution(Runnable, ThreadPoolExecutor) void
+   PluginRuntime pluginRuntime
+   Long rejectCountNum
+   AtomicLong rejectCount
+   String id
+}
+class TaskRejectNotifyAlarmPlugin {
+  + TaskRejectNotifyAlarmPlugin() 
+  + beforeRejectedExecution(Runnable, ThreadPoolExecutor) void
+   String id
+}
+class TaskTimeRecordPlugin {
+  + TaskTimeRecordPlugin() 
+  + summarize() Summary
+  # processTaskTime(long) void
+   PluginRuntime pluginRuntime
+   String id
+}
+class TaskTimeoutNotifyAlarmPlugin {
+  + TaskTimeoutNotifyAlarmPlugin(String, Long, ThreadPoolExecutor) 
+  - Long executeTimeOut
+  # processTaskTime(long) void
+   String id
+   Long executeTimeOut
+}
+class ThreadPoolExecutorShutdownPlugin {
+  + ThreadPoolExecutorShutdownPlugin(long) 
+  + long awaitTerminationMillis
+  - awaitTerminationIfNecessary(ExtensibleThreadPoolExecutor) void
+  + beforeShutdown(ThreadPoolExecutor) void
+  # cancelRemainingTask(Runnable) void
+  + afterShutdown(ThreadPoolExecutor, List~Runnable~) void
+   PluginRuntime pluginRuntime
+   String id
+   long awaitTerminationMillis
+}
+class ThreadPoolPlugin {
+&lt;&lt;Interface&gt;&gt;
+  + start() void
+  + stop() void
+   PluginRuntime pluginRuntime
+   String id
+}
+
+AbstractTaskTimerPlugin  ..&gt;  ExecuteAwarePlugin 
+ExecuteAwarePlugin  --&gt;  ThreadPoolPlugin 
+RejectedAwarePlugin  --&gt;  ThreadPoolPlugin 
+ShutdownAwarePlugin  --&gt;  ThreadPoolPlugin 
+TaskTimeRecordPlugin  --&gt;  Summary 
+TaskAwarePlugin  --&gt;  ThreadPoolPlugin 
+TaskDecoratorPlugin  ..&gt;  TaskAwarePlugin 
+TaskRejectCountRecordPlugin  ..&gt;  RejectedAwarePlugin 
+TaskRejectNotifyAlarmPlugin  ..&gt;  RejectedAwarePlugin 
+TaskTimeRecordPlugin  --&gt;  AbstractTaskTimerPlugin 
+TaskTimeoutNotifyAlarmPlugin  --&gt;  AbstractTaskTimerPlugin 
+ThreadPoolExecutorShutdownPlugin  ..&gt;  ShutdownAwarePlugin 
+
+</code></pre>
+<h3 id="三-实用插件实现">三、实用插件实现</h3>
+<h4 id="1-监控类插件">1. 监控类插件</h4>
+<ul>
+<li>
+<p><strong>任务耗时统计插件</strong> (TaskTimeRecordPlugin)</p>
+<pre><code>public class TaskTimeRecordPlugin extends AbstractTaskTimerPlugin {
+    // 记录最小、最大、平均耗时
+    public Summary summarize() {
+        return new Summary(taskCount, minTaskTime, totalTaskTime, maxTaskTime);
+    }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>拒绝任务计数器</strong> (TaskRejectCountRecordPlugin)</p>
+<pre><code>public class TaskRejectCountRecordPlugin implements RejectedAwarePlugin {
+    private final AtomicLong rejectCount = new AtomicLong();
+    
+    public void beforeRejectedExecution(Runnable task, ThreadPoolExecutor executor) {
+        rejectCount.incrementAndGet();
+    }
+}
+</code></pre>
+</li>
+</ul>
+<h4 id="2-告警类插件">2. 告警类插件</h4>
+<ul>
+<li>
+<p><strong>任务超时报警</strong> (TaskTimeoutNotifyAlarmPlugin)</p>
+<pre><code>public class TaskTimeoutNotifyAlarmPlugin extends AbstractTaskTimerPlugin {
+    private final Long executeTimeOut; // 超时阈值
+    
+    protected void processTaskTime(long taskTime) {
+        if(taskTime &gt; executeTimeOut) {
+            // 触发告警逻辑
+        }
+    }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>拒绝任务告警</strong> (TaskRejectNotifyAlarmPlugin)</p>
+<pre><code>public class TaskRejectNotifyAlarmPlugin implements RejectedAwarePlugin {
+    public void beforeRejectedExecution(Runnable task, ThreadPoolExecutor executor) {
+        // 发送实时告警通知
+    }
+}
+</code></pre>
+</li>
+</ul>
+<h4 id="3-增强类插件">3. 增强类插件</h4>
+<ul>
+<li>
+<p><strong>任务装饰器</strong> (TaskDecoratorPlugin)</p>
+<pre><code>public class TaskDecoratorPlugin implements TaskAwarePlugin {
+    private final List&lt;TaskDecorator&gt; decorators = new ArrayList&lt;&gt;();
+    
+    public Runnable beforeTaskExecute(Runnable task) {
+        Runnable wrapped = task;
+        for(TaskDecorator decorator : decorators) {
+            wrapped = decorator.decorate(wrapped);
+        }
+        return wrapped;
+    }
+}
+</code></pre>
+</li>
+<li>
+<p><strong>优雅停机插件</strong> (ThreadPoolExecutorShutdownPlugin)</p>
+<pre><code>public class ThreadPoolExecutorShutdownPlugin implements ShutdownAwarePlugin {
+    private final long awaitTerminationMillis;
+    
+    public void afterShutdown(ThreadPoolExecutor executor, List&lt;Runnable&gt; remainingTasks) {
+        // 等待配置时间让任务完成
+        executor.awaitTermination(awaitTerminationMillis, TimeUnit.MILLISECONDS);
+    }
+}
+</code></pre>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[自己动手写动态线程池框架 02——自定义可变容量的阻塞队列]]></title>
+        <id>https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-02-zi-ding-yi-ke-bian-rong-liang-de-zu-sai-dui-lie/</id>
+        <link href="https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-02-zi-ding-yi-ke-bian-rong-liang-de-zu-sai-dui-lie/">
+        </link>
+        <updated>2024-12-26T05:38:15.000Z</updated>
+        <summary type="html"><![CDATA[<p>考虑到JDK原生阻塞队列的容量不可变性与线程池动态调参需求存在根本性冲突，动态线程池框架需要自定义可变容量的阻塞队列。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>考虑到JDK原生阻塞队列的容量不可变性与线程池动态调参需求存在根本性冲突，动态线程池框架需要自定义可变容量的阻塞队列。</p>
+<!-- more -->
+<hr>
+<h3 id="一-原生阻塞队列的致命缺陷静态容量">一、原生阻塞队列的致命缺陷：静态容量</h3>
+<p>JDK提供的常用阻塞队列（如<code>ArrayBlockingQueue</code>、<code>LinkedBlockingQueue</code>）均在构造时<strong>固定容量</strong>：</p>
+<pre><code>// 容量一旦设定即不可修改
+BlockingQueue&lt;Runnable&gt; queue = new ArrayBlockingQueue&lt;&gt;(100); 
+</code></pre>
+<p>这意味着：</p>
+<ol>
+<li><strong>无法运行时扩容</strong>：当流量突增时，即使线程池已动态调大<code>maximumPoolSize</code>，任务仍因队列满被拒绝</li>
+<li><strong>无法运行时缩容</strong>：低峰期需释放内存时，无法缩小队列占用空间</li>
+</ol>
+<hr>
+<h3 id="二-动态线程池的核心诉求资源弹性">二、动态线程池的核心诉求：资源弹性</h3>
+<p>动态线程池的核心价值在于<strong>根据系统负载实时调整资源</strong>：</p>
+<pre><code>graph LR
+A[监控指标] --&gt;|队列堆积| B(扩容线程数)
+A --&gt;|队列持续空| C(缩容线程数)
+B --&gt; D{队列满？}
+D --&gt;|是| E[需扩容队列容量] 
+</code></pre>
+<p>此时暴露矛盾：</p>
+<ul>
+<li><strong>线程数可动态调整</strong>：通过<code>setMaximumPoolSize()</code>实时生效</li>
+<li><strong>队列容量仍固定</strong>：成为系统弹性能力的瓶颈</li>
+</ul>
+<hr>
+<h3 id="三-解决方案自定义可变容量队列">三、解决方案：自定义可变容量队列</h3>
+<p>通过重写阻塞队列实现<strong>运行时动态调整容量</strong>：</p>
+<pre><code>public class ResizableBlockingQueue&lt;T&gt; extends LinkedBlockingQueue&lt;T&gt; {
+
+   // ……省略其他代码，基本与 jdk 父类一致
+   
+  // 动态更新capacity的方法
+  public void setCapacity(int capacity) {
+      final int oldCapacity = this.capacity;
+      //给capacity成员变量赋值
+      this.capacity = capacity;
+      final int size = count.get();
+      if (capacity &gt; size &amp;&amp; size &gt;= oldCapacity) {
+          //因为队列扩容了，所以可以唤醒阻塞的入队线程了
+          signalNotFull();
+      }
+  }
+
+  // 增加唤醒入队线程的方法
+  private void signalNotFull() {
+      final ReentrantLock putLock = this.putLock;
+      putLock.lock();
+      try {
+          notFull.signal();
+      } finally {
+          putLock.unlock();
+      }
+  }
+
+}
+</code></pre>
+<h4 id="动态调优过程示例">动态调优过程示例：</h4>
+<pre><code>// 初始化动态队列（初始容量=50）
+ResizableBlockingQueue queue = new ResizableBlockingQueue(50); 
+
+// 监控到队列持续满载时
+if (queue.isFull()) {
+    // 动态扩容队列（避免触发拒绝策略）
+    queue.setCapacity(100); 
+    
+    // 同步扩容线程数（双维度弹性）
+    executor.setMaximumPoolSize(200); 
+}
+</code></pre>
+<hr>
+<h3 id="四-自定义队列的核心价值">四、自定义队列的核心价值</h3>
+<h4 id="1-突破资源死锁困境">1. <strong>突破资源死锁困境</strong></h4>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>原生队列</th>
+<th>动态队列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>突发流量 + 队列满</td>
+<td>触发拒绝策略丢任务</td>
+<td>即时扩容队列避免任务丢失</td>
+</tr>
+<tr>
+<td>低峰期内存回收</td>
+<td>队列持续占用内存</td>
+<td>缩容队列释放内存</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-实现精准流量控制">2. <strong>实现精准流量控制</strong></h4>
+<pre><code>graph TD
+    F[流量探测器] --&gt;|队列使用率&gt;90%| G[队列扩容+线程扩容]
+    F --&gt;|队列使用率&lt;30%| H[队列缩容+线程缩容]
+    G --&gt; I[避免任务拒绝]
+    H --&gt; J[减少内存占用]
+</code></pre>
+<h4 id="3-保证弹性策略完整性">3. <strong>保证弹性策略完整性</strong></h4>
+<blockquote>
+<p>线程池弹性 = 线程数弹性 + 队列容量弹性<br>
+二者缺一即会导致：</p>
+<ul>
+<li>仅线程扩容 → 队列满载时新线程无用武之地</li>
+<li>仅队列扩容 → 消费者不足导致响应延迟飙升</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="五-生产环境注意事项">五、生产环境注意事项</h3>
+<ol>
+<li>
+<p><strong>容量缩容安全机制</strong></p>
+<pre><code>public synchronized void setCapacity(int newCapacity) {
+    // 禁止缩容到小于当前元素数
+    if (newCapacity &lt; this.size()) {
+        throw new IllegalStateException(&quot;Can't reduce below current size&quot;);
+    }
+    ...
+}
+</code></pre>
+</li>
+<li>
+<p><strong>避免频繁震荡</strong><br>
+增加扩容/缩容的冷却时间（如5分钟内仅允许调整1次）</p>
+</li>
+</ol>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[自己动手写动态线程池框架01——监控线程池基础信息]]></title>
+        <id>https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-01-jian-kong-xian-cheng-chi-ji-chu-xin-xi/</id>
+        <link href="https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-01-jian-kong-xian-cheng-chi-ji-chu-xin-xi/">
+        </link>
+        <updated>2024-12-25T04:55:58.000Z</updated>
+        <summary type="html"><![CDATA[<p>动态线程池线程池的价值体现在两个维度：</p>
+<ol>
+<li>状态观测：实时捕获运行时指标，绘制性能趋势；</li>
+<li>动态干预：基于流量变化动态调整参数，实现弹性伸缩。</li>
+</ol>
+<p>如果我们需要实现动态线程池，那我们就需要熟悉线程池的基础信息，了解线程池有哪些基础信息以及如何动态更新这些信息。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>动态线程池线程池的价值体现在两个维度：</p>
+<ol>
+<li>状态观测：实时捕获运行时指标，绘制性能趋势；</li>
+<li>动态干预：基于流量变化动态调整参数，实现弹性伸缩。</li>
+</ol>
+<p>如果我们需要实现动态线程池，那我们就需要熟悉线程池的基础信息，了解线程池有哪些基础信息以及如何动态更新这些信息。</p>
+<!-- more -->
+<h2 id="一-线程池源码基础信息概览">一、线程池源码基础信息概览</h2>
+<p>从线程池源码中可以发现，线程池提供了 get 方法的成员变量，是可以被收集的数据，比如：</p>
+<ul>
+<li>线程池的核心线程数 corePoolSize</li>
+<li>最大线程数 maximumPoolSize</li>
+<li>线程池线程的空闲时间 keepAliveTime</li>
+<li>核心线程是否允许超时回收 allowCoreThreadTimeOut</li>
+<li>线程池的拒绝策略 RejectedExecutionHandler</li>
+<li>任务队列 workQueue</li>
+<li>线程池当前创建的线程数量 poolSize</li>
+<li>曾经创建线程的最大数量 largestPoolSize</li>
+<li>当前活跃线程数量 activeCount</li>
+<li>线程池的执行的任务总数 taskCount</li>
+<li>已经执行完毕的任务总数 completedTaskCount</li>
+</ul>
+<p>从线程池源码中可以发现：提供了 set 方法的成员变量，是可以被更新的数据，比如：</p>
+<ul>
+<li>线程池的核心线程数量 corePoolSize</li>
+<li>线程池的最大线程数量 maximumPoolSize</li>
+<li>线程池的拒绝策略处理器 RejectedExecutionHandler 。</li>
+<li>线程池核心线程是否允许超时回收的标志 allowCoreThreadTimeOut</li>
+<li>线程池线程的最大空闲时间 keepAliveTime</li>
+</ul>
+<h2 id="二-信息总结">二、信息总结</h2>
+<p>从 <code>ThreadPoolExecutor</code> 源码中提取的核心监控参数：</p>
+<table>
+<thead>
+<tr>
+<th><strong>指标类型</strong></th>
+<th><strong>参数</strong></th>
+<th><strong>源码字段/方法</strong></th>
+<th><strong>监控意义</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>静态配置</strong></td>
+<td><code>corePoolSize</code></td>
+<td>核心线程数</td>
+<td>系统常驻处理能力基线</td>
+</tr>
+<tr>
+<td></td>
+<td><code>maximumPoolSize</code></td>
+<td>最大线程数</td>
+<td>突发流量承载上限</td>
+</tr>
+<tr>
+<td></td>
+<td><code>keepAliveTime</code></td>
+<td>空闲线程存活时间</td>
+<td>资源回收策略敏感度</td>
+</tr>
+<tr>
+<td></td>
+<td><code>allowCoreThreadTimeOut</code></td>
+<td>核心线程超时回收</td>
+<td>是否允许核心线程闲置退出（true/false）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>workQueue</code></td>
+<td>任务队列实现类</td>
+<td>队列类型（ArrayBlockingQueue, LinkedBlockingQueue等）影响排队策略</td>
+</tr>
+<tr>
+<td><strong>动态运行时</strong></td>
+<td><code>poolSize</code></td>
+<td><code>getPoolSize()</code></td>
+<td><strong>当前存活线程总数</strong>（包含空闲线程）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>activeCount</code></td>
+<td><code>getActiveCount()</code></td>
+<td><strong>正在执行任务的线程数</strong> → 真实并发负载</td>
+</tr>
+<tr>
+<td></td>
+<td><code>largestPoolSize</code></td>
+<td><code>getLargestPoolSize()</code></td>
+<td><strong>历史最大线程数</strong> → 判断线程池扩容峰值需求</td>
+</tr>
+<tr>
+<td></td>
+<td><code>taskCount</code></td>
+<td><code>getTaskCount()</code></td>
+<td><strong>总提交任务数</strong>（包括队列中未执行的任务）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>completedTaskCount</code></td>
+<td><code>getCompletedTaskCount()</code></td>
+<td><strong>已完成任务数</strong> → 结合taskCount计算吞吐量</td>
+</tr>
+<tr>
+<td><strong>拒绝策略</strong></td>
+<td><code>RejectedExecutionHandler</code></td>
+<td>拒绝策略实例</td>
+<td>当队列满且线程达上限时的处理逻辑（AbortPolicy/CallerRunsPolicy等）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🚨 <strong>备注</strong>：<br>
+<code>activeCount / maximumPoolSize &gt; 70%</code> → 提示线程资源紧张；<br>
+<code>(taskCount - completedTaskCount) &gt; queueSize</code> → 表明存在任务堆积风险。</p>
+</blockquote>
+<hr>
+<h4 id="三-动态调参运行时可修改的关键参数"><strong>三、动态调参：运行时可修改的关键参数</strong></h4>
+<p>线程池支持热更新的参数（通过 <code>setter</code> 方法）：</p>
+<pre><code>// 示例：动态调整核心线程数
+executor.setCorePoolSize(newCoreSize); 
+
+// 调整最大线程数（触发条件：newMax &gt; current threads）
+executor.setMaximumPoolSize(newMaxSize);  
+
+// 允许核心线程超时（适用于低流量时段缩容）
+executor.allowCoreThreadTimeOut(true);  
+
+// 调整空闲线程存活时间（单位：纳秒）
+executor.setKeepAliveTime(30, TimeUnit.SECONDS);  
+
+// 更换拒绝策略（无需重启）
+executor.setRejectedExecutionHandler(new CustomPolicy()); 
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>生产注意事项</strong>：</p>
+<ol>
+<li>调大 <code>corePoolSize</code> 会<strong>立即创建新线程</strong>，但调小需等待线程超时退出；</li>
+<li>修改 <code>maximumPoolSize</code> 时，若新值小于当前线程数，不会强制销毁线程；</li>
+<li>动态调参建议配合<strong>监控告警</strong>，避免频繁操作引发震荡。</li>
+</ol>
+</blockquote>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一次上游更改接口导致的百万级数据扫描引起的宕机问题]]></title>
+        <id>https://panson.top/post/yi-ci-shang-you-geng-gai-jie-kou-dao-zhi-de-bai-wan-ji-shu-ju-sao-miao-yin-qi-de-dang-ji-wen-ti-md/</id>
+        <link href="https://panson.top/post/yi-ci-shang-you-geng-gai-jie-kou-dao-zhi-de-bai-wan-ji-shu-ju-sao-miao-yin-qi-de-dang-ji-wen-ti-md/">
+        </link>
+        <updated>2024-11-05T06:25:27.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一-问题分析过程">一、问题分析过程</h2>
+<p>深圳某智能仓现场反馈报错：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E4%B8%8A%E6%B8%B8%E6%9B%B4%E6%94%B9%E6%8E%A5%E5%8F%A3%E5%AF%BC%E8%87%B4%E7%9A%84%E7%99%BE%E4%B8%87%E7%BA%A7%E6%95%B0%E6%8D%AE%E6%89%AB%E6%8F%8F%E5%BC%95%E8%B5%B7%E7%9A%84%E5%AE%95%E6%9C%BA%E9%97%AE%E9%A2%98/1749622243260-be432462-445d-431e-8040-8730e79a9d51.png?raw=true" alt="img" loading="lazy"></figure>
+<p>接着全场工作站页面无法点击。</p>
+<p>立即连接该仓库的服务器，查看 WES 服务 Docker 容器的状态，是 unhealthy 状态。考虑恢复优先，立即重启容器。现场恢复，但过一会儿，现场又反馈很卡顿。重新连线，发现容器状态又变成 unhealthy 了。</p>
+<p>执行 <code>jstat -gc pid 1000</code>：</p>
+<ul>
+<li>最近有 Full GC 过。</li>
+<li>GC 很频繁。</li>
+</ul>
+<p>而且慢 SQL 很多，一次三十秒以上的有很多。从慢 SQL 语句内容上分析：</p>
+<ul>
+<li>查询的表内容主要集中在出库单明细、出库单实操明细、反馈明细上。</li>
+<li>查询条件都是 <code>in (id1, id2……)</code>,并且都是大列表查询。</li>
+<li>状态都与待反馈或者反馈中有关。</li>
+</ul>
+<p><strong>从业务关联上猜测是发货相关逻辑出现了问题。</strong></p>
+<p>查看出库单状态：</p>
+<pre><code class="language-json">select count(*) from 出库单表 where state = 待发货状态
+</code></pre>
+<ul>
+<li>好家伙，两百多万条全是待发货。</li>
+<li>再看反馈明细，未反馈的实操明细更多，600 多万……</li>
+</ul>
+<p><strong>已经有了初步怀疑，反馈逻辑出问题了。</strong></p>
+<p><strong>扒代码，流程大概如下:</strong></p>
+<ul>
+<li>
+<p>WES 发送 MQ 消息，告知单据已拣选完成，需要反馈上游告知单据的拣选信息。</p>
+</li>
+<li>
+<p>反馈服务收到消息后，请求上游告知出库单拣选信息。</p>
+</li>
+<li>
+<p>收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</p>
+</li>
+<li>
+<p>WES 定时器逻辑：</p>
+</li>
+<li>
+<p>WES 定时器查询订单状态为待发货并且反馈状态为反馈中的订单。</p>
+</li>
+<li>
+<p>根据订单查询反馈明细。</p>
+</li>
+<li>
+<p>如果反馈明细都反馈完成了，则更新订单反馈状态为反馈完成。</p>
+</li>
+</ul>
+<p>了解上述简要逻辑之后，我们再来分析现场问题。</p>
+<p>查看反馈日志，捞了一些待发货的单子，发现所有的单子都反馈了。理论上对于上游来说，所有的流程已经走完了。</p>
+<p><strong>那只能是最后一步更新单据反馈明细状态出了问题</strong>：更新单据反馈明细为反馈完成。</p>
+<p><strong>看 log</strong>，很多 <code>response error</code>， 但是实际的 http status code 是 200。感觉不太对劲，应该是最关键的信息了。</p>
+<p>细看日志上下文，发现上游返回的 response 格式不对，理论上按约定是：</p>
+<pre><code class="language-json">{
+  &quot;一些额外信息&quot;: &quot;&quot;,
+  &quot;body&quot;: {
+    &quot;code&quot;: &quot;200&quot;,
+    &quot;data&quot;: &quot;……&quot;,
+    &quot;message&quot;: &quot;success&quot;,
+    &quot;success&quot;: false
+  }
+}
+</code></pre>
+<p>但上游实际返回的是：</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: &quot;……&quot;,
+}
+</code></pre>
+<p>导致反馈服务根据约定格式解析的时候发现获取不到 body 信息，以为出错了。</p>
+<p><strong>收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</strong><br>
+所以单据反馈明细一直是反馈中的状态，导致后续的逻辑一直无法正常执行。</p>
+<h2 id="二-故障原因总结">二、故障原因总结</h2>
+<p>上游在升级的时候，误改了接口格式，导致 WES 按照约定的格式处理接口返回数据时，拿不到指定格式的数据，导致单据无法正常完结。</p>
+<h2 id="三-如何快速恢复">三、如何快速恢复</h2>
+<ul>
+<li><strong>写 SQL 批量更新单据状态为完成，并打上特殊标记：</strong> 先避免重启一直扫表查大量数据问题，让现场恢复。</li>
+<li><strong>重启线上服务。</strong></li>
+</ul>
+<p><strong>代码层面：</strong></p>
+<ul>
+<li>
+<p><strong>增量数据：</strong></p>
+<ul>
+<li>
+<p>兼容上游数据格式。</p>
+</li>
+<li>
+<p>与上游再次沟通，约定不要随意更改接口格式。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>存量数据</strong>更改定时器逻辑：</p>
+<ul>
+<li>
+<p>记录最大 ID。</p>
+</li>
+<li>
+<p>每次根据状态加特殊标记捞取 1000 条数据。</p>
+</li>
+<li>
+<p>批量执行：收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</p>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[订单号、作业单号、任务号如何设计?]]></title>
+        <id>https://panson.top/post/01ding-dan-hao-zuo-ye-dan-hao-ren-wu-hao-ru-he-she-ji/</id>
+        <link href="https://panson.top/post/01ding-dan-hao-zuo-ye-dan-hao-ren-wu-hao-ru-he-she-ji/">
+        </link>
+        <updated>2024-11-03T06:53:58.000Z</updated>
+        <content type="html"><![CDATA[<!-- more -->
+<h2 id="一-业务背景">一、 业务背景</h2>
+<p>在智能仓储系统（WES）中，上游下发的出库单、入库单、盘点单等单据都携带了单号，但上游业务方提供的单据号格式并不统一，因此不能直接用做 WES 中的内部调度，因此 WES 内部需要提供一套自有的单号生成逻辑。除了单号外，在 WES 的调度过程中，还存在作业单号、任务号，也都需要类似的唯一  ID 生成逻辑。</p>
+<h2 id="二-单号生成要求">二、 单号生成要求</h2>
+<ul>
+<li>唯一性：全局唯一，避免重复， JDK 提供的 UUID 不具备可读性，所以不推荐，因为智能仓的业务逻辑基本是仓内使用，所以使用雪花算法生成的唯一 id + 具体的业务类型来实现。</li>
+<li>可读性：可快速识别订单的时间、来源、类型等信息。比如说业务含义，出库单号与入库单号，两者单据业务不一致，在单号上要能体现出来。</li>
+<li>高性能：支持高并发场景下的快速生成。</li>
+</ul>
+<h2 id="三-雪花算法">三、 雪花算法</h2>
+<p>雪花算法（Snowflake）是一种 <strong>分布式唯一 ID 生成算法</strong>，最早由 Twitter 提出，目标是<strong>高性能地生成全局唯一、有时间顺序的 64 位整数 ID</strong>，广泛用于数据库主键、消息系统等场景。</p>
+<h4 id="雪花算法核心思想">雪花算法核心思想</h4>
+<p>生成的 ID 是一个 64 位的 long 类型整数，结构如下（经典版）：</p>
+<pre><code>| 1bit | 41bits      | 10bits       | 12bits      |
+|------|-------------|--------------|-------------|
+| 符号位 | 时间戳差值  | 机器标识（节点）| 序列号       |
+</code></pre>
+<h4 id="各部分含义">各部分含义</h4>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>长度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>符号位</td>
+<td>1 位</td>
+<td>永远为 0（long 是有符号数）</td>
+</tr>
+<tr>
+<td>时间戳</td>
+<td>41 位</td>
+<td>当前时间戳 - 起始时间戳（单位毫秒），可用 69 年</td>
+</tr>
+<tr>
+<td>机器ID</td>
+<td>10 位</td>
+<td>5 位数据中心ID + 5 位机器ID，可部署 1024 个节点</td>
+</tr>
+<tr>
+<td>序列号</td>
+<td>12 位</td>
+<td>每毫秒最多生成 4096 个 ID，超出则等待下一毫秒</td>
+</tr>
+</tbody>
+</table>
+<h4 id="id-示例一个实际的-long-值">ID 示例（一个实际的 long 值）</h4>
+<pre><code class="language-java">ID: 152344303535407104
+Binary: 000000000001010000000011010000110000101111000010100000000000
+</code></pre>
+<h4 id="雪花算法优缺点">雪花算法优缺点</h4>
+<ul>
+<li>
+<p>优点：</p>
+<ul>
+<li>
+<p><strong>高性能</strong>：单机每秒生成百万级 ID</p>
+</li>
+<li>
+<p><strong>趋势递增</strong>：按时间递增，便于排序</p>
+</li>
+<li>
+<p><strong>无中心节点</strong>：适合分布式部署</p>
+</li>
+<li>
+<p><strong>ID 结构可解码</strong>：能提取时间戳、机器信息等</p>
+</li>
+</ul>
+</li>
+<li>
+<p>缺点：</p>
+<ul>
+<li>
+<p>依赖系统时间，<strong>时钟回拨会导致 ID 重复或异常</strong></p>
+</li>
+<li>
+<p>不适用于无状态架构（需保存机器标识）</p>
+</li>
+<li>
+<p>长整型不如 UUID 直观，可读性差</p>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>如果你想用雪花算法但解决时间回拨问题，可以考虑：</p>
+<ul>
+<li>时间回拨容忍机制</li>
+<li>引入 NTP 监控</li>
+<li>使用 Redis/Zookeeper 发号器</li>
+<li>或使用改进版如 <strong>百度 UID Generator</strong>、<strong>美团 Leaf</strong>、<strong>Sonyflake（Go）</strong></li>
+</ul>
+<hr>
+<h2 id="四-雪花算法的使用">四、雪花算法的使用</h2>
+<p>可以直接使用 Hutool 提供的 <code>IdUtil</code> 生成 id，格式参考：<br>
+业务类型 + 雪花 id + 分表（货主）</p>
+<p>单仓情况下，使用归档即可，无需分表。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一次线上 MySQL 锁超时问题记录]]></title>
+        <id>https://panson.top/post/yi-ci-xian-shang-mysql-suo-chao-shi-wen-ti-ji-lu/</id>
+        <link href="https://panson.top/post/yi-ci-xian-shang-mysql-suo-chao-shi-wen-ti-ji-lu/">
+        </link>
+        <updated>2024-11-03T03:33:33.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="一-故障现象">一、故障现象</h3>
+<p>海外仓项目入库流程出现异常，线上日志报错：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749196544203-32b80fad-12c6-48fa-b676-c5e288939db8.png?raw=true" alt="img" loading="lazy"></figure>
+<pre><code class="language-plain">org.springframework.dao.CannotAcquireLockException: 
+Lock wait timeout exceeded; try restarting transaction
+</code></pre>
+<p>从日志上看，很明显，MySQL 锁超时了。</p>
+<h3 id="二-故障定位与分析">二、故障定位与分析</h3>
+<h4 id="1-问题sql锁定已脱敏">1. 问题SQL锁定（已脱敏）</h4>
+<pre><code class="language-plain">UPDATE table1 
+SET column1 = value1, column2 = value2 
+WHERE a_id_1 = 666 AND id = 888 
+AND sku_id IS NULL  -- 问题关键点
+</code></pre>
+<h4 id="2-锁等待分析">2. 锁等待分析</h4>
+<p>有监控系统的话，可以直接看监控系统。</p>
+<p>我在本地复现了该问题，学习一下相关命令：</p>
+<pre><code class="language-sql">-- 查看当前锁等待
+SELECT * FROM information_schema.innodb_lock_waits;
+
+-- 查看持锁和等待锁的事务
+SELECT * FROM information_schema.innodb_trx;
+
+-- 查看被锁的行
+SELECT * FROM information_schema.innodb_locks;
+/* 锁等待分析语句 */
+SELECT
+    r.trx_id waiting_trx_id,
+    r.trx_mysql_thread_id waiting_thread,
+    r.trx_query waiting_query,
+    b.trx_id blocking_trx_id,
+    b.trx_mysql_thread_id blocking_thread,
+    b.trx_query blocking_query
+FROM information_schema.innodb_lock_waits w
+JOIN information_schema.innodb_trx b ON b.trx_id = w.blocking_trx_id
+JOIN information_schema.innodb_trx r ON r.trx_id = w.requesting_trx_id;
+</code></pre>
+<p>SQL 执行结果如下图：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749198922198-75d07e81-d217-4197-a646-69cb0dd22a9c.png?raw=true" alt="img" loading="lazy"></figure>
+<p>可以看出具体的 SQL 语句。</p>
+<p>看代码，简化后的逻辑：</p>
+<pre><code class="language-java">事务开启：
+
+……省略前置逻辑……
+保存新行到 table1 
+…… 省略中间逻辑……
+if 满足条件 {
+    开启异步线程池，异步更新新行
+}
+…… 省略后续逻辑……
+
+提交事务
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749206402541-d190830c-f7a7-4701-bc79-cff1f551fbfb.png?raw=true" alt="img" loading="lazy"></figure>
+<h4 id="3-根本原因分析">3. 根本原因分析</h4>
+<table>
+<thead>
+<tr>
+<th>问题维度</th>
+<th>具体原因</th>
+<th>影响程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事务边界</td>
+<td>在未提交的事务内启动异步更新</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>SQL设计</td>
+<td><code>sku_id IS NULL</code>导致额外锁定检查</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>架构设计</td>
+<td>主事务与异步操作竞争同一资源</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>超时配置</td>
+<td>默认50秒等待时间未优化</td>
+<td>⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三-故障恢复">三、故障恢复</h3>
+<h4 id="1-sql优化">1. SQL优化</h4>
+<pre><code class="language-plain">UPDATE table1 
+SET column1 = value1, column2 = value2 
+WHERE a_id_1 = 666 AND id = 888 
+- AND sku_id IS NULL
+</code></pre>
+<p><strong>优化依据</strong>：<br>
+业务验证确认<code>sku_id IS NULL</code>条件冗余（当a_id_1和id确定时记录唯一）</p>
+<h4 id="2-事务架构重构">2. 事务架构重构</h4>
+<pre><code class="language-plain">// 改造前（问题版本）
+@Transactional
+void process() {
+    save(table1); // 锁定行
+    // 在事务内启动异步
+    executor.execute(() -&gt; updateTable()); 
+    // ...其他业务逻辑
+} // 事务提交
+
+// 改造后（修复版本）
+void process() {
+    // 1. 在主事务中完成核心操作
+    transactionTemplate.execute(status -&gt; {
+        save(table1);
+        return null;
+    });
+    
+    // 2. 事务提交后启动异步
+    executor.execute(() -&gt; {
+        // 3. 异步操作使用独立事务
+        transactionTemplate.execute(status -&gt; {
+            updateTable();
+            return null;
+        });
+    });
+}
+</code></pre>
+<h4 id="3-异步处理规范">3. 异步处理规范</h4>
+<figure data-type="image" tabindex="4"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749206774540-146d6609-7e0b-4751-8981-f704bbf9a7e8.png?raw=true" alt="img" loading="lazy"></figure>
+<p><strong>关键原则</strong>：</p>
+<ol>
+<li><strong>事务分离</strong>：主事务与异步任务完全解耦</li>
+<li><strong>后置启动</strong>：确保在事务提交后才触发异步</li>
+<li><strong>独立事务</strong>：异步任务使用全新事务上下文</li>
+</ol>
+<h3 id=""></h3>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[051.什么是绑箱]]></title>
+        <id>https://panson.top/post/051shi-me-shi-bang-xiang/</id>
+        <link href="https://panson.top/post/051shi-me-shi-bang-xiang/">
+        </link>
+        <updated>2024-11-02T11:59:13.000Z</updated>
+        <content type="html"><![CDATA[<p>在 WMS（仓库管理系统）中，“出库绑箱”是指<strong>在出库过程中，将拣选好的商品按照一定规则打包进箱（或托盘）并进行绑定操作</strong>，以便后续发货、追踪和核对的一种操作流程。</p>
+<hr>
+<h3 id="具体来说出库绑箱包含以下几个关键点">具体来说，“出库绑箱”包含以下几个关键点：</h3>
+<h4 id="1-拣货完成">✅ 1. 拣货完成</h4>
+<p>拣货员将订单需要的商品从仓库中拣出。</p>
+<h4 id="2-进行绑箱操作">✅ 2. 进行“绑箱”操作</h4>
+<p>拣完的商品被打包到箱子中，然后通过系统操作，将<strong>商品和箱号绑定</strong>。</p>
+<ul>
+<li>系统中记录：箱号 → 包含哪些商品、哪些订单、数量等信息。</li>
+<li>一般会贴上箱码（如二维码或条形码），用于后续扫描识别。</li>
+</ul>
+<h4 id="3-后续流程使用">✅ 3. 后续流程使用</h4>
+<ul>
+<li><strong>复核发货</strong>：发货时通过扫描箱码即可快速核对是否正确。</li>
+<li><strong>物流追踪</strong>：箱码可作为物流追踪号的一部分。</li>
+<li><strong>客户收货对账</strong>：箱内物品可通过系统记录追溯。</li>
+</ul>
+<hr>
+<h3 id="举个例子">举个例子：</h3>
+<p>一个客户下了两个订单，共10件商品。</p>
+<ul>
+<li>仓库拣货人员将这10件商品拣出。</li>
+<li>系统指示这些商品要装入两个箱子：箱 A 装 6 件，箱 B 装 4 件。</li>
+<li>操作人员将商品装箱，并在系统中进行“出库绑箱”：
+<ul>
+<li>将箱 A 绑定为包含商品1×3件，商品2×3件。</li>
+<li>将箱 B 绑定为商品3×4件。</li>
+</ul>
+</li>
+<li>每个箱子贴上一个箱码，后续发货扫描即可。</li>
+</ul>
+<hr>
+<h3 id="总结一句话">总结一句话：</h3>
+<p><strong>出库绑箱 = 出库过程中将商品与具体箱子绑定的操作，用于后续发货、追踪、对账的关键环节。</strong></p>
+<p>如果你是在设计 WMS 流程，或者要实现这块功能，我也可以帮你画出流程图或者写个简单的伪代码~</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[050.什么是缺拣]]></title>
+        <id>https://panson.top/post/050shi-me-shi-que-jian/</id>
+        <link href="https://panson.top/post/050shi-me-shi-que-jian/">
+        </link>
+        <updated>2024-11-02T08:04:27.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="缺拣short-picking是什么"><strong>缺拣（Short Picking）是什么？</strong></h3>
+<p><strong>缺拣</strong>是指<strong>订单拣选过程中，由于库存不足或操作失误，导致未能按订单要求拣选到足够的商品</strong>。</p>
+<p>在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，缺拣通常会触发<strong>补货、库存调整或异常处理</strong>，以保证订单履约率。</p>
+<hr>
+<h2 id="1-缺拣的常见原因"><strong>1. 缺拣的常见原因</strong></h2>
+<h3 id="1-实际库存-系统库存"><strong>(1) 实际库存 ≠ 系统库存</strong></h3>
+<ul>
+<li><strong>库存账实不符</strong>（例如：数据错误、漏盘点、盘亏）。</li>
+<li><strong>系统显示有库存，但实际无货</strong>（如库存损耗、商品丢失）。</li>
+</ul>
+<h3 id="2-订单需求-可用库存"><strong>(2) 订单需求 &gt; 可用库存</strong></h3>
+<ul>
+<li><strong>库存不足，无法满足订单全部需求</strong>。</li>
+<li><strong>部分商品刚被其他订单拣选，导致剩余库存不足</strong>。</li>
+</ul>
+<h3 id="3-货位或库存异常"><strong>(3) 货位或库存异常</strong></h3>
+<ul>
+<li><strong>商品存放位置错误，导致拣选员找不到</strong>。</li>
+<li><strong>库存破损或质量问题，无法拣选</strong>。</li>
+</ul>
+<h3 id="4-拣选员或机器人操作失误"><strong>(4) 拣选员或机器人操作失误</strong></h3>
+<ul>
+<li><strong>人工拣选错误，未能拿足所需数量</strong>。</li>
+<li><strong>自动拣选设备故障，未能正确拣货</strong>。</li>
+</ul>
+<hr>
+<h2 id="2-缺拣的应对措施"><strong>2. 缺拣的应对措施</strong></h2>
+<h3 id="1-触发系统补货"><strong>(1) 触发系统补货</strong></h3>
+<ul>
+<li><strong>系统发现库存不足，自动创建补货任务</strong>。</li>
+<li><strong>优先从其他库位、其他仓库或供应商调货</strong>。</li>
+</ul>
+<h3 id="2-调整订单履约策略"><strong>(2) 调整订单履约策略</strong></h3>
+<ul>
+<li><strong>缺拣商品不足时，拆分订单</strong>（部分发货）。</li>
+<li><strong>若完全缺货，则通知客户，提供替代商品或退款</strong>。</li>
+</ul>
+<h3 id="3-盘点-纠正库存"><strong>(3) 盘点 &amp; 纠正库存</strong></h3>
+<ul>
+<li><strong>定期盘点，确保账实库存一致</strong>。</li>
+<li><strong>使用 RFID、PDA 扫码等方式减少人为失误</strong>。</li>
+</ul>
+<h3 id="4-订单优先级调整"><strong>(4) 订单优先级调整</strong></h3>
+<ul>
+<li><strong>优先满足高优先级订单（如 VIP 客户）</strong>。</li>
+<li><strong>对于低优先级订单，系统可建议推迟发货或拆单处理</strong>。</li>
+</ul>
+<hr>
+<h2 id="3-缺拣的影响"><strong>3. 缺拣的影响</strong></h2>
+<p>✅ <strong>影响订单履约率，可能导致客户投诉或取消订单</strong>。<br>
+✅ <strong>增加仓库额外工作量，如补货、盘点、异常处理</strong>。<br>
+✅ <strong>可能影响供应链管理，如导致后续生产或采购计划调整</strong>。</p>
+<hr>
+<h2 id="4-总结"><strong>4. 总结</strong></h2>
+<p>📌 <strong>缺拣 = 订单商品未能完全拣选，通常因库存不足、拣选错误或数据不准</strong>。<br>
+📌 <strong>WMS/WES 可通过补货、库存调整、订单优化等方式降低缺拣影响</strong>。<br>
+📌 <strong>优化库存管理、提高拣选准确率，可减少缺拣率，提高订单履约能力</strong>。</p>
+]]></content>
+    </entry>
+</feed>
