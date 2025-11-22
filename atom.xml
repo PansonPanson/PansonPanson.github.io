@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://panson.top</id>
+    <title>Panson</title>
+    <updated>2025-11-22T15:27:17.270Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://panson.top"/>
+    <link rel="self" href="https://panson.top/atom.xml"/>
+    <subtitle>清风拂山岗，明月照大江。</subtitle>
+    <logo>https://panson.top/images/avatar.png</logo>
+    <icon>https://panson.top/favicon.ico</icon>
+    <rights>All rights reserved 2025, Panson</rights>
+    <entry>
+        <title type="html"><![CDATA[关于本站]]></title>
+        <id>https://panson.top/post/zhi-ding-tie/</id>
+        <link href="https://panson.top/post/zhi-ding-tie/">
+        </link>
+        <updated>2100-10-14T02:48:07.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>分享自己的所见所得，后端技术、供应链、任务调度（AI阅片任务调度、渲染任务调度）、摄影相关。</em></p>
+<hr>
+<h2 id="一-关于本站">一、关于本站</h2>
+<ol>
+<li>
+<p>博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</p>
+</li>
+<li>
+<p>博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载。</p>
+</li>
+<li>
+<p>当然，也有部分是我自己的“摄影作品”。</p>
+</li>
+</ol>
+<h2 id="二-供应链">二、供应链</h2>
+<p>目前做的是供应链领域的后端开发，看过一些书和资料，结合日常工作内容，写了一个小系列。<br>
+具体可以看：<a href="https://panson.top/post/supply-chain/">https://panson.top/post/supply-chain/</a>，也在这个站点下。</p>
+<h2 id="三-任务调度">三、任务调度</h2>
+<p>更早之前的两份工作内容都和任务调度有关，主要是关于 AI 任务调度和渲染任务调度。当然这种“任务”</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>分享自己的所见所得，后端技术、供应链、任务调度（AI阅片任务调度、渲染任务调度）、摄影相关。</em></p>
+<hr>
+<h2 id="一-关于本站">一、关于本站</h2>
+<ol>
+<li>
+<p>博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</p>
+</li>
+<li>
+<p>博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载。</p>
+</li>
+<li>
+<p>当然，也有部分是我自己的“摄影作品”。</p>
+</li>
+</ol>
+<h2 id="二-供应链">二、供应链</h2>
+<p>目前做的是供应链领域的后端开发，看过一些书和资料，结合日常工作内容，写了一个小系列。<br>
+具体可以看：<a href="https://panson.top/post/supply-chain/">https://panson.top/post/supply-chain/</a>，也在这个站点下。</p>
+<h2 id="三-任务调度">三、任务调度</h2>
+<p>更早之前的两份工作内容都和任务调度有关，主要是关于 AI 任务调度和渲染任务调度。当然这种“任务”</p>
+<!-- more -->
+<p>和后端开发中的任务调度框架不太一样，类似 XXL-JOB 这种，我一般理解为定时任务，不带业务属性，但之前做的 AI 任务调度和渲染任务调度则更偏向于业务。下面简单介绍一下我参与做过的内容（其实本来应该写一个开源脚手架的，最近沉迷摄影，一直没时间去回想这些东西，时间过去有点久了，细节忘记了~提醒我及时记录）。</p>
+<h3 id="1-ai-任务调度系统">1. AI 任务调度系统</h3>
+<p>属于医疗领域，核心是为了将医院、体检机构拍摄的片子，借助 AI 智能阅片，并输出诊断结果，辅助治疗。</p>
+<ul>
+<li>数据来源：体检机构、大中小医院的片子</li>
+<li>文件系统：上传的片子预处理，存储文件、预处理的数据</li>
+<li>任务调度系统：
+<ul>
+<li>Master 将处理好的片子，做任务分发到各个 Slave 机器上</li>
+<li>Slave 上的算法服务会将任务做AI 分析，存储分析结果</li>
+</ul>
+</li>
+<li>其他的还有阅片系统、SSO 平台、前置机之类的，还有单机平台、一体机之类的，非调度核心系统。</li>
+</ul>
+<h3 id="2-渲染任务调度">2. 渲染任务调度</h3>
+<p>核心逻辑其实与上面讲的差不多，不过业务逻辑更加复杂，链路也更加长一些，数据量的话日均有千万级别。<br>
+负责的东西主要包括以下几个部分：</p>
+<ul>
+<li>渲染弹窗相关：渲染配置、分辨率体系、渲染券相关</li>
+<li>中台相关业务：国际版 CooHom、灯光动画、遮罩渲染相关能力的开发、对象存储迁移（阿里OSS -&gt; 腾讯 COS）等等</li>
+<li>渲染任务回归平台的开发</li>
+</ul>
+<h2 id="四-摄影">四、摄影</h2>
+<p>单独建了一个网站，买了 10 年的域名：www.timelesslens.site。<br>
+<img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311291106687.png" alt="" loading="lazy"></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[考虑自己写一个照片处理的分布式 AI Agent 项目]]></title>
+        <id>https://panson.top/post/kao-lu-zi-ji-xie-yi-ge-zhao-pian-chu-li-de-fen-bu-shi-ai-agent-xiang-mu/</id>
+        <link href="https://panson.top/post/kao-lu-zi-ji-xie-yi-ge-zhao-pian-chu-li-de-fen-bu-shi-ai-agent-xiang-mu/">
+        </link>
+        <updated>2025-11-17T06:52:25.000Z</updated>
+        <summary type="html"><![CDATA[<p>2019年，我入手了一台MacBook Pro，那是英特尔芯片的末代机型，配置是16GB内存和1TB硬盘。 当时我以为，这台电脑即便用到寿终正寝，磁盘空间恐怕也消耗不完。</p>
+<p>然而未来总是难以预料（充满惊喜）。去年生日，爱人送了我一台尼康相机，我的人生仿佛又增加了一个新的锚点——摄影。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>2019年，我入手了一台MacBook Pro，那是英特尔芯片的末代机型，配置是16GB内存和1TB硬盘。 当时我以为，这台电脑即便用到寿终正寝，磁盘空间恐怕也消耗不完。</p>
+<p>然而未来总是难以预料（充满惊喜）。去年生日，爱人送了我一台尼康相机，我的人生仿佛又增加了一个新的锚点——摄影。</p>
+<!-- more -->
+<p>快门的每一次开合，都意味着磁盘空间减少约30MB。摄影一周年之际，Mac的硬盘空间开始告急，我不得不将一部分照片迁移到另一台电脑上。这也促使我考虑开始整理旧照片：重复度高的，挑选一两张优质的保留，其余则可以冷归档。</p>
+<p>好的照片需要“装裱”。我在GitHub上找到了一个名为 https://github.com/leslievan/semi-utils 的Python项目，它支持照片批量添加水印、调整像素比、处理图像色彩和质量。 于是我便思考，能否采用AI Agent的方式来实现照片的自动化处理。 这主要基于两点考虑：其一，照片的二次修改和包装逻辑本质上就是任务，我有多年的分布式任务调度系统开发经验；其二，大模型相关技术如MCP、RAG、Agent正是当下的热点，我也希望借此机会实践学习。 将分布式任务调度系统与Agent结合，可谓一举多得。</p>
+<p>初步方案（思考中）</p>
+<p>若将照片的二次处理抽象为一个任务，系统大致可划分为以下几个部分：<br>
+•   任务数据上传与前置处理系统</p>
+<p>•   任务分发中心</p>
+<p>•   任务二次处理系统：与Agent交互，生成处理后的照片</p>
+<p>•   照片下载系统</p>
+<p>整体的数据流初步设想如下：<br>
+用户上传照片<br>
+→ 进行前置处理（如文件格式校验、持久化存储，并抽象为任务）<br>
+→ 任务分发中心（初期架构可简化，专注于分发）<br>
+→ 任务二次处理系统（与Agent交互，完成照片处理）<br>
+→ 用户下载最终照片</p>
+<p>当然，细节还有很多。例如前置的照片上传入口和UI交互、任务分发中心的实现（单机扫表、ZK选主、XXL-JOB，或是Redis/MQ队列等都可以考虑）。</p>
+<p>总之，先聚焦核心链路，实现数据闭环，再考虑后续演进。</p>
+<p>改天研究一下阿里通义千问和豆包的文档，看看如何对接。虽然想尽快开始，但还得准备面试，时间有些紧张。或许这个项目要等跳槽后再正式动工了，不过思路既已明确，落地便只是时间问题。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一次 JVM “神优化” 导致的日志丢失问题]]></title>
+        <id>https://panson.top/post/yi-ci-jvm-shen-you-hua-dao-zhi-de-ri-zhi-diu-shi-wen-ti/</id>
+        <link href="https://panson.top/post/yi-ci-jvm-shen-you-hua-dao-zhi-de-ri-zhi-diu-shi-wen-ti/">
+        </link>
+        <updated>2025-10-30T05:56:13.000Z</updated>
+        <summary type="html"><![CDATA[<h2 id="一-问题发生">一、问题发生</h2>
+<p>今天同事私聊我，问了我一个问题，他说在一个美国的海外仓项目中发现一个奇怪的报错日志：只有error 日志信息和一个 NPE 日常，但是没有打印出具体的堆栈。</p>
+<p>他问我有没有遇到过。</p>
+<p>我心里第一个想法：是不是打印日志的地方写得不规范，只把 Exception 的 message 打印了，类似这样：</p>
+]]></summary>
+        <content type="html"><![CDATA[<h2 id="一-问题发生">一、问题发生</h2>
+<p>今天同事私聊我，问了我一个问题，他说在一个美国的海外仓项目中发现一个奇怪的报错日志：只有error 日志信息和一个 NPE 日常，但是没有打印出具体的堆栈。</p>
+<p>他问我有没有遇到过。</p>
+<p>我心里第一个想法：是不是打印日志的地方写得不规范，只把 Exception 的 message 打印了，类似这样：</p>
+<!-- more -->
+<pre><code class="language-java">log.error(&quot;…… &quot;, exception.getMessage());
+</code></pre>
+<p>去看了一下代码，发现代码中其实是完整打印的：</p>
+<pre><code class="language-java">try {
+    // 执行调度逻辑：方法内部调用算法服务，分配库存
+} catch (Exception exception) {
+     log.error(&quot;……&quot;,  exception);
+} finally {
+     //
+}
+</code></pre>
+<h2 id="二-求助-ai">二、求助 AI</h2>
+<p>面对这个反常的现象，我一开始也向我的好帮手——AI 提问了。</p>
+<p>我尝试了各种姿势，并给了一些上下文，去问 AI，得到了一些排查方向：<br>
+​1. 确认日志框架​<br>
+确认项目使用的是 Logback, Log4j2 还是其他日志框架。<br>
+​2. 检查日志级别​<br>
+确保记录异常时使用的级别（如 ERROR）在配置中是启用的。<br>
+​3. 检查日志配置​<br>
+核对配置文件（如 logback.xml, log4j2.xml），看输出目的地（控制台、文件）是否正确。<br>
+​4. 验证日志实现​<br>
+在 catch块中增加简单输出（如 System.out.println），确认代码执行路径。<br>
+……</p>
+<p>但似乎没找到我想要的答案。</p>
+<h2 id="三-拨云见日十年前的老帖子">三、拨云见日：十年前的“老帖子”</h2>
+<p>我决定重新梳理所有上下文，包括业务的调用频率、JVM 的运行环境等等。这个定时器是高频运行的，且每次都会在<strong>同一个地方</strong>报 <strong>NPE</strong>。</p>
+<p>我抱着试一试的心态，在 Google/知乎上搜索一些“Java 异常 堆栈 丢失 性能优化”之类的关键词。结果，R 大在 <strong>十年前</strong> 的回答，瞬间击碎了所有的迷雾！</p>
+<blockquote>
+<p><strong>帖子地址：</strong> <a href="https://www.zhihu.com/question/21405047/answer/45055055">重载 Throwable.fillInStackTrace() 方法以提高Java性能这样的做法对吗？ - RednaxelaFX的回答 - 知乎</a></p>
+</blockquote>
+<p>R 大的回答里提到了一个 <strong>HotSpot VM</strong> 的“神优化”——<strong>fast throw</strong>！</p>
+<blockquote>
+<p>HotSpot VM 有个许多人觉得“匪夷所思”的优化，叫做 <strong>fast throw</strong>：有些特定的隐式异常类型（<code>NullPointerException</code>、<code>ArithmeticException</code>（ <code>/ 0</code>）之类）如果在代码里某个特定位置被抛出过多次的话，HotSpot Server Compiler（C2）会透明地决定用 <strong>fast throw</strong> 来优化这个抛出异常的地方——直接抛出一个事先分配好的、类型匹配的异常对象。这个对象的 <code>message</code> 和 <strong>stack trace 都被清空</strong>。</p>
+</blockquote>
+<p><strong>划重点：</strong> <strong><code>message</code> 和 <code>stack trace 都被清空</code>！</strong></p>
+<p><strong>简直是醍醐灌顶！</strong></p>
+<p>这种优化的目的是：<strong>抛出这个异常的速度是非常快，不但不用额外分配内存，而且也不用爬栈；</strong> 但缺点就是：<strong>可能正好是需要知道哪里出问题的时候看不到 stack trace 了。</strong></p>
+<p>这不就是我的问题吗？！！</p>
+<p>顺着这个思路，看了一下这个定时器最早的一次报错，果然是带完整的堆栈信息的。<br>
+结合我们的代码，至此可以破案了：获取库位信息并遍历的代码，它被 <strong>高频</strong> 调用，而且由于数据问题，它一直在报 <code>NPE</code>。</p>
+<p>JVM 的 C2 编译器一看：“呦，指这行代码天天抛一样的异常，怪累的，我帮他优化一下吧！” 于是，它启动了 <strong>fast throw</strong> 机制，直接抛出预先分配好的、没有堆栈的 <code>NPE</code> 对象，大大提升了抛出异常的速度，但同时也“贴心”地清空了我的日志堆栈！</p>
+<h2 id="四-反思">四、反思</h2>
+<p>这事儿说到底，是因为我们代码里的 <strong>NPE Bug</strong> 成了 JVM 优化的“燃料”。</p>
+<p>当然，知道原因后，我们首先要做的肯定是修复那个导致 NPE 的 Bug。</p>
+<p>但从 JVM 层面，如果你确实需要知道高频异常的堆栈，你可以通过一个 VM 参数来<strong>禁用</strong>这个优化：</p>
+<pre><code class="language-bash">-XX:-OmitStackTraceInFastThrow
+</code></pre>
+<p>不过，这个参数的意义是“以性能为代价，换取更完整的堆栈信息”，所以，<strong>更正确的姿势，永远是写出健壮的代码，避免高频抛出隐式异常！</strong></p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[LLM 的发展史]]></title>
+        <id>https://panson.top/post/llm-de-fa-zhan-shi/</id>
+        <link href="https://panson.top/post/llm-de-fa-zhan-shi/">
+        </link>
+        <updated>2025-06-21T14:07:06.000Z</updated>
+        <content type="html"><![CDATA[<p>大型语言模型(LLM)的发展史是一部从简单到复杂、从专用到通用、从规则驱动到数据驱动的技术进化史。<strong>这一演进过程经历了三个关键阶段：统计语言模型时代、神经网络语言模型时代和基于Transformer的大型语言模型时代</strong>。</p>
+<p>每个阶段都带来了对自然语言处理(NLP)能力的质的飞跃。从早期的简单单词预测到如今能够进行复杂推理、多模态交互的通用人工智能，LLM的发展不仅重塑了人机交互方式，也为各行业带来了革命性变革。</p>
+<h3 id="一-统计语言模型时代1950s-2010s">一、统计语言模型时代(1950s-2010s)</h3>
+<p>统计语言模型是LLM的前身，其核心思想是通过概率统计方法来建模语言的分布规律。<strong>这一阶段的技术特点是基于离散变量表示单词，依赖人工设计的规则和统计方法处理语言</strong>，主要包括 N-gram模型和隐马尔可夫模型(HMM)。</p>
+<p>N-gram 模型作为最基础的统计语言模型，最早可以追溯到 20 世纪 50 年代。它通过计算特定n个单词连续出现的概率来预测下一个单词。例如，二元语法模型(Bigram Model)计算的是当前单词和下一个单词的共现概率，三元语法模型(Trigram Model)则考虑当前单词和前两个单词的组合。这种模型结构简单、时间复杂度低，但存在明显的局限性：维度灾难、泛化能力差，以及无法处理一词多义问题  。</p>
+<p>随着计算能力的提高和大规模文本语料库的增加，统计方法在 20 世纪 80-90 年代逐渐占据主导地位，特别是在机器翻译领域 。然而，由于统计语言模型学习能力有限，需要学习的词组太多，如果训练集中缺少某些词组，模型的输出概率就会变成0，导致零概率问题。</p>
+<p>尽管研究者们通过平滑技术解决这一问题，但依然无法从根本上克服统计语言模型的局限性  。</p>
+<p><strong>这一阶段的技术突破包括：</strong></p>
+<ul>
+<li>1950年：图灵测试提出，成为衡量机器智能的重要标准</li>
+<li>1980-1990年代：统计机器翻译(SMT)成为主流，基于 n-gram 模型的系统如 IBM 的 MOSES 开始应用</li>
+<li>2001年：Google推出PageRank算法，间接推动了语言模型的语义理解能力</li>
+<li>2003年：约书亚·本吉奥提出第一个前馈神经网络语言模型(FFNNLM)，开始尝试将神经网络与语言模型结合</li>
+</ul>
+<h3 id="二-神经网络语言模型时代2010s">二、神经网络语言模型时代(2010s)</h3>
+<p>2010年代，随着深度学习的兴起，基于神经网络的语言模型逐渐取代了统计语言模型。<strong>这一阶段的核心突破是词向量表示和循环神经网络(RNN)的引入，使语言模型能够更好地捕捉语义信息</strong>  。</p>
+<p>2013年，Word2Vec和GloVe等词向量表示模型的提出实现了文本语义的分布式向量表示，解决了统计语言模型的离散变量问题。这些模型将单词映射为连续的向量空间，使得计算机能够理解单词之间的语义关系  。然而，这些静态词向量表示模型对单词的词向量表示无法随着上下文语境改变而改变，例如单词&quot;apple&quot;在苹果水果和苹果公司的语境下具有不同的含义，但静态词向量无法区分  。</p>
+<p>2014年，Seq2Seq(sequence to sequence)模型被提出，这是基于RNN的模型，首次应用于机器翻译领域  。Seq2Seq模型采用编码器-解码器架构，编码器将源句子编码为特征表示，解码器根据该特征表示生成目标句子。这一模型能够实现完全端到端训练，为生成任务提供了新思路  。然而，Seq2Seq模型主要基于RNN，存在长距离依赖问题，即当输入序列比较长时，模型容易失去对位置靠前字词的记忆。</p>
+<p><strong>为解决这一问题，2015年注意力机制(attention)被引入</strong>，用以改进Seq2Seq模型。注意力机制允许模型在处理序列时关注不同的位置，通过权重系数计算出哪些单词之间的关联性更大，提高了模型的可解释性  。这一创新为后续的Transformer架构奠定了基础。</p>
+<p>这一阶段的主要技术突破包括：</p>
+<ul>
+<li>2013年：Word2Vec和GloVe词向量模型发布，开创分布式语义表示</li>
+<li>2014年：Seq2Seq模型提出，采用RNN实现端到端序列建模</li>
+<li>2015年：注意力机制引入，改善RNN的长距离依赖问题</li>
+<li>2016年：LSTM(长短期记忆网络)在机器翻译中的应用，提升模型记忆能力</li>
+<li>2017年：Transformer架构提出，彻底解决RNN的长距离依赖问题</li>
+</ul>
+<h3 id="三-基于transformer的大型语言模型时代2017年至今">三、基于Transformer的大型语言模型时代(2017年至今)</h3>
+<p>2017年，Vaswani等人在论文《Attention Is All You Need》中提出Transformer架构，<strong>这一架构完全摒弃了传统的循环和卷积网络，仅依靠自注意力机制来处理序列数据</strong>  。</p>
+<p>Transformer的出现是LLM发展的里程碑，它通过并行计算和位置编码，能够高效捕捉长距离的依赖关系，显著提升了模型性能。</p>
+<h4 id="1-初期探索阶段2017-2019">1. 初期探索阶段(2017-2019)</h4>
+<p>Transformer架构刚提出时，主要用于机器翻译等特定任务  。2018年，Google的高级AI研究员雅各布·德夫林等人在论文《BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding》中提出BERT模型，<strong>首次将Transformer应用于双向语言建模，使模型能够同时考虑单词的前后上下文</strong>  。BERT通过掩码语言模型(MLM)和下一句预测(NSP)两个任务进行预训练，显著提升了模型在自然语言理解任务上的表现  。</p>
+<p>同年，OpenAI发布了GPT-1模型，基于Transformer的解码器架构，提出&quot;预训练+微调&quot;范式  。GPT-1有1.1亿个参数，通过在大量文本数据上进行预训练，然后针对特定任务进行微调，实现了在多种NLP任务上的出色表现  。</p>
+<p>2019年，Google推出了T5模型，<strong>首次将所有NLP任务统一为文本到文本(text-to-text)格式</strong>，使模型能够处理更广泛的任务  。T5采用跨度掩码策略，随机遮蔽输入文本中的连续跨度，然后让模型预测被遮蔽的内容，这一方法进一步提升了模型的生成能力  。</p>
+<h4 id="2-参数量爆发阶段2020-2022">2. 参数量爆发阶段(2020-2022)</h4>
+<p>2020年，OpenAI发布了GPT-3模型，<strong>拥有1750亿个参数，验证了&quot;大模型+大数据&quot;的缩放定律(Scaling Law)</strong>  。GPT-3通过大规模预训练，实现了强大的少样本学习(few-shot learning)能力，仅通过输入任务描述和少量示例，就能在翻译、问答、文本生成等任务上取得极具竞争力的表现  。</p>
+<p>同年，Google推出了PaLM模型，参数规模达到5400亿，强调多步推理能力  。PaLM在多种复杂推理任务上表现出色，超过了人类在BIG-bench基准上的平均水平  。</p>
+<p>2021年，Meta发布了LLaMA系列模型，包括7B、13B、33B和65B参数的不同变体，展示了开源大模型的潜力  。LLaMA在多种NLP任务上达到或接近闭源模型的性能，为研究者提供了重要的研究工具  。</p>
+<h4 id="3-对齐与优化阶段2022-2023">3. 对齐与优化阶段(2022-2023)</h4>
+<p>2022年，OpenAI发布了 ChatGPT 和 InstructGPT 模型，<strong>首次系统应用基于人类反馈的强化学习(RLHF)技术优化模型的指令遵循能力</strong>  。RLHF通过三阶段流程(监督微调、奖励模型训练、PPO优化)使模型输出更符合人类偏好，显著降低了幻觉和有害内容的生成概率  。</p>
+<p>同年，Google推出了LaMDA模型，专注于对话应用，进一步提升了模型的对话能力  。LaMDA采用更高效的训练策略，能够在保持高性能的同时降低计算成本  。</p>
+<p>2023年，Anthropic发布了Claude模型，强调安全对齐和推理能力。Claude采用不同的对齐方法，如通过对比人类和AI的思考过程来优化模型行为，为LLM的安全应用提供了新思路。</p>
+<h4 id="4-多模态与专业化阶段2023-2025">4. 多模态与专业化阶段(2023-2025)</h4>
+<p>2023年，OpenAI发布了GPT-4，<strong>首次将文本和图像的多模态信号整合到LLM中</strong>  。GPT-4的多模态能力使模型能够理解并生成图文结合的内容，大大扩展了应用场景  。</p>
+<p>2024年，Claude 3系列发布，包括Claude 3.5 Haiku和Sonnet，以及2025年发布的Claude 3.7 Sonnet  。Claude 3.7引入&quot;标准+扩展&quot;双模式，用户可通过API控制&quot;思考预算&quot;，在速度、成本与准确性间灵活权衡  。这一创新使模型能够在不同场景下提供最佳性能。</p>
+<p>2025年，LLM的发展呈现出两大趋势：一是多模态能力的深化，从文本+图像扩展到视频、3D生成  ；二是垂直领域的专业化，通过适配微调和技术融合，使模型更好地适应特定行业需求  。</p>
+<p><strong>这一阶段的关键技术突破包括：</strong></p>
+<ul>
+<li>2022年：RLHF技术系统化应用，优化模型指令遵循能力</li>
+<li>2023年：GPT-4多模态能力发布，整合文本和图像信号</li>
+<li>2023年：LoRA(Low-Rank Adaptation)微调技术提出，显著提升微调效率</li>
+<li>2024年：Claude 3.5系列发布，支持PDF解析和跨模态推理</li>
+<li>2025年：Claude 3.7 Sonnet引入混合推理模式，支持动态计算资源分配</li>
+</ul>
+<h3 id="四-llm的训练方法演进">四、LLM的训练方法演进</h3>
+<p>LLM的发展不仅体现在模型架构和参数规模上，其训练方法也经历了重要变革。<strong>从早期的简单预训练到如今的复杂多阶段训练流程，LLM的训练方法不断优化，以提高模型性能和降低训练成本</strong>  。</p>
+<h4 id="1-预训练技术">1. 预训练技术</h4>
+<p>预训练是LLM获取通用语言知识的基础阶段。早期的预训练目标主要是预测下一个单词，如GPT系列模型采用的自回归建模  。BERT则采用了掩码语言模型(MLM)和下一句预测(NSP)两个任务，使模型能够同时考虑单词的前后上下文  。</p>
+<p><strong>预训练数据来源也经历了从封闭到开放的转变</strong>  。早期的模型主要使用书籍和特定网站数据，如GPT-1使用了Common Crawl的网页数据和书籍数据。随着模型规模的扩大，数据量也大幅增加，如GPT-3使用了570GB的文本数据  。如今，数据清洗和处理成为预训练的关键环节，如Data-Juicer等系统专门用于大规模文本数据的清洗和预处理  。</p>
+<h4 id="2-微调技术">2. 微调技术</h4>
+<p>微调是使预训练模型适应特定任务的关键步骤。早期的微调主要是全参数微调，即更新模型的所有参数  。然而，随着模型参数量的增加，全参数微调的成本也大幅提高。</p>
+<p><strong>参数效率微调方法的出现显著降低了微调成本</strong>  。2022年，LoRA(Low-Rank Adaptation)技术提出，通过低秩矩阵分解仅更新少量参数，微调效率大幅提升  。2023年，AdaLoRA在LoRA基础上改进，能够自适应选择需要更新的参数层，进一步提升了微调效率  。2024年，LISA(Layerwise Importance Sampled Adam)策略通过分层重要性采样，随机激活少数中间层进行优化，平衡了性能与资源消耗  。</p>
+<p>此外，检索增强生成(RAG)技术也被广泛应用于提升LLM的实时性和准确性  。RAG通过结合外部知识库和LLM的能力，使模型能够生成更精确、更即时的回答，有效减少幻觉问题  。</p>
+<h4 id="3-对齐技术">3. 对齐技术</h4>
+<p>随着LLM能力的增强，如何使模型输出符合人类价值观成为重要问题。<strong>RLHF(基于人类反馈的强化学习)技术的出现为模型对齐提供了有效解决方案</strong>  。</p>
+<h2 id=""></h2>
+<p>RLHF的三阶段流程包括：监督微调(SFT)、奖励模型(RM)训练和PPO优化  。SFT阶段使模型能够理解指令并生成初步回答；RM阶段通过人工对SFT输出排序，训练能够评估模型输出质量的奖励模型；PPO阶段则使用近端策略优化算法，使模型生成的输出尽可能获得更高的奖励分数，从而更符合人类偏好  。</p>
+<p><strong>RLHF技术的改进方向包括：</strong></p>
+<ul>
+<li>FINE-GRAINED RLHF：将回答拆解为以句子为单位，分别评估事实准确性、相关性和信息完整性</li>
+<li>RAFT/RRHF：通过RM对生成模型的输出排序，再使用类似SFT的技术训练选定的样本，减少对PPO的依赖</li>
+<li>DPO(Direct Preference Optimization)：直接优化偏好而非依赖RL阶段，大幅减少计算量</li>
+</ul>
+<h3 id="五-llm的未来发展趋势">五、LLM的未来发展趋势</h3>
+<p>展望未来，LLM的发展将沿着多模态深化、垂直领域专业化、轻量化与效率提升、技术融合以及伦理治理等方向演进。</p>
+<h4 id="1-多模态能力深化">1. 多模态能力深化</h4>
+<p><strong>从文本到图像，再到视频和3D生成，LLM的多模态能力将持续深化</strong>  。目前，GPT-4和Claude 3.5已支持图文结合的内容生成，但视频和3D生成仍处于初级阶段。未来，通过更高效的跨模态注意力机制和数据处理技术，LLM将能够处理更复杂的多模态数据，如视频理解、3D场景生成等  。</p>
+<h4 id="2-垂直领域专业化">2. 垂直领域专业化</h4>
+<p><strong>通用大模型将向垂直领域专业化发展</strong>  ，通过适配微调和技术融合，使模型更好地适应特定行业需求。</p>
+<h2 id="-2"></h2>
+<p>例如，在医疗领域，LLM可以结合医学知识图谱和专业数据库，提供更准确的诊断建议和治疗方案；在法律领域，LLM可以学习法律条文和案例，辅助法律研究和文书起草；在金融领域，LLM可以分析市场数据和风险因素，提供投资建议和风险管理方案  。</p>
+<h4 id="3-轻量化与效率提升">3. 轻量化与效率提升</h4>
+<p><strong>随着模型规模的扩大，轻量化和效率提升将成为重要研究方向</strong>  。混合专家(MoE)架构、参数效率微调方法和专用硬件加速等技术将共同推动LLM的轻量化发展  。例如，Claude 3.7的混合推理模式允许用户根据需求在速度、成本与准确性间灵活权衡  ；专用AI芯片如NVIDIA Hopper将为端侧LLM轻量化提供硬件支持  。</p>
+<h4 id="4-量子计算与llm结合">4. 量子计算与LLM结合</h4>
+<p><strong>量子计算与LLM的结合将开启新的可能性</strong>。</p>
+<p>虽然目前仍处于理论探索阶段，但已有研究表明，LLM可以辅助量子电路设计，如在变分量子特征求解器(VQE)中作为控制器进行经典优化 。同时，量子机器学习框架如MAQA通过量子态制备提升计算效率，为LLM的训练和推理提供新的计算范式  。</p>
+<h4 id="5-实时学习与知识更新">5. 实时学习与知识更新</h4>
+<p><strong>解决LLM的知识过时问题将成为关键挑战</strong>  。目前，LLM主要依赖预训练和RAG技术来获取最新知识，但这一方法存在检索速度和准确性上的局限性。未来，通过增量学习、在线学习和自适应知识更新等技术，LLM将能够实时吸纳新知识，减少对模型本身已有知识的依赖  。</p>
+<h4 id="6-伦理治理与安全应用">6. 伦理治理与安全应用</h4>
+<p><strong>随着LLM能力的增强，其伦理治理和安全应用将受到更多关注</strong>  。目前，LLM仍存在非真实性和偏见性输出的问题，如编造学术文献和链接。</p>
+<p>未来，通过动态偏见检测、可解释性增强和跨法域适配等技术，LLM的安全性和可靠性将得到提升。同时，多维度评估框架如HELM和IN结构调整也将帮助更好地评估和改进模型性能  。</p>
+<h3 id="六-llm发展史的时间线">六、LLM发展史的时间线</h3>
+<table>
+<thead>
+<tr>
+<th>年份</th>
+<th>关键技术/模型</th>
+<th>参数规模</th>
+<th>主要贡献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2013</td>
+<td>Word2Vec</td>
+<td>-</td>
+<td>首个分布式词向量模型</td>
+</tr>
+<tr>
+<td>2014</td>
+<td>Seq2Seq</td>
+<td>-</td>
+<td>基于RNN的序列到序列模型</td>
+</tr>
+<tr>
+<td>2015</td>
+<td>注意力机制</td>
+<td>-</td>
+<td>解决RNN的长距离依赖问题</td>
+</tr>
+<tr>
+<td>2017</td>
+<td>Transformer</td>
+<td>-</td>
+<td>引入自注意力机制，实现并行计算</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>BERT</td>
+<td>3.5B/4B</td>
+<td>首个双向Transformer预训练模型</td>
+</tr>
+<tr>
+<td>2018</td>
+<td>GPT-1</td>
+<td>110M</td>
+<td>预训练+微调范式</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>GPT-2</td>
+<td>1.5B</td>
+<td>展示生成文本的可控性挑战</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>Megatron-LM</td>
+<td>83B</td>
+<td>验证模型规模扩展的可行性</td>
+</tr>
+<tr>
+<td>2019</td>
+<td>T5</td>
+<td>11B/3B</td>
+<td>统一文本任务为&quot;文本到文本&quot;格式</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>GPT-3</td>
+<td>175B</td>
+<td>验证少样本学习能力</td>
+</tr>
+<tr>
+<td>2020</td>
+<td>PaLM</td>
+<td>540B</td>
+<td>强调多步推理能力</td>
+</tr>
+<tr>
+<td>2021</td>
+<td>LLaMA</td>
+<td>7B-65B</td>
+<td>开源大模型系列</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>InstructGPT</td>
+<td>175B</td>
+<td>首次系统应用RLHF技术</td>
+</tr>
+<tr>
+<td>2022</td>
+<td>ChatGPT</td>
+<td>-</td>
+<td>人机对话能力突破</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>GPT-4</td>
+<td>1.8T</td>
+<td>多模态能力整合</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>Claude 1</td>
+<td>-</td>
+<td>安全对齐和推理能力</td>
+</tr>
+<tr>
+<td>2023</td>
+<td>LoRA</td>
+<td>-</td>
+<td>参数效率微调技术</td>
+</tr>
+<tr>
+<td>2024</td>
+<td>Claude 3.5</td>
+<td>-</td>
+<td>支持PDF解析和跨模态推理</td>
+</tr>
+<tr>
+<td>2025</td>
+<td>Claude 3.7 Sonnet</td>
+<td>-</td>
+<td>混合推理模式，动态计算资源分配</td>
+</tr>
+</tbody>
+</table>
+<h2 id="-3"></h2>
+<h3 id="七-llm对社会和行业的影响">七、LLM对社会和行业的影响</h3>
+<p>LLM的发展不仅推动了技术进步，也对社会和行业产生了深远影响。<strong>在内容创作领域，LLM大幅提高了内容生成效率，降低了创作门槛</strong>  ；在客户服务领域，LLM驱动的智能客服能够提供24/7的服务，显著提升用户体验  ；在教育领域，LLM可以作为个性化学习助手，帮助学生解决问题和获取知识  ；在医疗领域，LLM可以辅助诊断和治疗方案制定，提高医疗效率  ；在法律领域，LLM可以处理法律文档和研究案例，帮助律师提高工作效率  。</p>
+<p>然而，LLM也带来了新的挑战和风险。<strong>模型的非真实性和偏见性输出可能导致虚假信息传播和社会不平等</strong>  ；模型的实时自主学习能力欠缺使得知识更新滞后；模型的强依赖数据集质量和数量也限制了其在特定领域的应用  。未来，随着LLM技术的成熟和应用场景的扩展，这些挑战和风险也将得到更多关注和解决方案。</p>
+<h2 id="-4"></h2>
+<h3 id="八-结语">八、结语</h3>
+<p>从统计语言模型到基于Transformer的大型语言模型，LLM的发展史是一部技术不断突破、能力不断提升的历程。<strong>随着参数规模的扩大、训练方法的优化和多模态能力的深化，LLM正逐步向通用人工智能方向演进</strong>  。然而，这一演进过程也伴随着技术局限和安全风险，需要研究者、开发者和政策制定者共同努力，推动LLM技术的健康发展和广泛应用。</p>
+<p>未来，LLM的发展将更加注重轻量化、专业化和安全性，通过与图神经网络、量子计算等技术的融合，进一步拓展其应用边界和能力上限  。<strong>在这一过程中，LLM不仅将重塑人机交互方式，也将成为推动各行业数字化转型和智能化升级的重要力量</strong> 。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[从零开始学 AI 总集篇]]></title>
+        <id>https://panson.top/post/ai/</id>
+        <link href="https://panson.top/post/ai/">
+        </link>
+        <updated>2025-06-21T08:28:31.000Z</updated>
+        <summary type="html"><![CDATA[<p><em>想多了解一点这个快速发展的世界，学习一下 AI 相关的知识。</em></p>
+<h2 id="一-工具篇">一、工具篇</h2>
+<p>本地部署试过 Ollama + DeepSeek R1 32 b，19 年的英特尔芯片已经带不动了。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p><em>想多了解一点这个快速发展的世界，学习一下 AI 相关的知识。</em></p>
+<h2 id="一-工具篇">一、工具篇</h2>
+<p>本地部署试过 Ollama + DeepSeek R1 32 b，19 年的英特尔芯片已经带不动了。</p>
+<!-- more -->
+<p>目前主要用的是 Cherry Studio + 字节方舟的 DeepSeek R1，主要是因为当时领了几十块钱的券~<br>
+但是腾讯元宝真的很方便，而且免费。<br>
+Web 端的话各种官网混用：腾讯元宝 、ChatGpt、Claude、通义千问。<br>
+编辑器的话，用的是Trae，之前用 Trae + Hugo 搭了一个摄影小站：</p>
+<ul>
+<li>www.timelesslens.site</li>
+</ul>
+<h2 id="二-ai-名词">二、AI 名词</h2>
+<h3 id="21-rag">2.1 RAG</h3>
+<p>RAG 的全称是：Retrieval-Augmented Generation，翻译成中文是：检索增强生成。</p>
+<p>简而言之就是让大语言模型（比如 ChatGPT）在“生成答案”之前，先去找资料（检索）来增强它的知识，再用这些资料来生成更准确的回答。</p>
+<h4 id="211-为什么需要rag">2.1.1 为什么需要RAG？</h4>
+<p>因为对于很多大语言模型来说，他的知识是基于历史数据训练出来的，比如GPT-4是截止到2023年的数据，而在这之后发生的所有的新的事件，新的数据，他都是不知道的，那么他的回答就会有这部分的局限性。</p>
+<p>还有就是，很多大模型是基于公开的资料训练出来的，而很多私域的信息他是没有学习过的，而很多知识是私有的知识，这就需要通过资料的方式增强他原来不熟悉的知识。</p>
+<p>所以，有了RAG之后，就可以基于自己的知识构建自己的知识库，这样就能做到知识的更新和迭代，也能弥补大模型不知道一些特性领域的专业知识的不足。这样就能让大模型的回答更加的准确， 减少幻觉的发生。</p>
+<h4 id="212-如何构建一个rag">2.1.2 如何构建一个RAG？</h4>
+<p>1、前置准备</p>
+<p>首先我们需要做数据准备，把你要用的资料收集好，比如：公司内部文档（PDF、Word、Markdown）、FAQ列表、产品手册等，然后清洗这些数据，比如去掉无关信息、切分成合理的小段。</p>
+<p>然后把每一小段文本用Embedding模型转成向量，把这些向量存到向量数据库里，比如FAISS、Milvus等。</p>
+<p>2、检索查询</p>
+<p>当用户提问时，先用相同的Embedding模型把问题也转成向量。然后在向量数据库里用向量相似度搜索，找出最相关的几段资料（比如Top 5）。这些找到的内容就是上下文增强材料。</p>
+<p>3、生成回答</p>
+<p>紧接着，就可以把用户的问题 + 检索到的资料一起，作为Prompt发给大语言模型（LLM）。 这样可以保证模型只在资料范围内生成答案，降低幻觉。</p>
+<h3 id="22-mcp">2.2 MCP</h3>
+<p>MCP 的全称是 Model Context Protocol，下面是官网上的解释：</p>
+<blockquote>
+<p>MCP is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.</p>
+</blockquote>
+<p>MCP全称是模型上下文协议（Model Context Protocol），由Anthropic在2024年11月推出。它本质上是大模型与外部世界连接的标准化接口，就像给大模型装了个万能插座。</p>
+<p>MCP中有三个核心组件</p>
+<ul>
+<li>MCP Hosts：如Claude Desktop或IDE（比如Cursor），作为AI应用的入口，发起数据请求。</li>
+<li>MCP Servers：轻量级服务，负责对接具体数据源或工具（如GitHub API、本地文件系统），提供标准化接口。（一般是别人开发好的，你要用的工具）</li>
+<li>MCP Clients：协议客户端，维护与服务器的连接并转发请求。</li>
+</ul>
+<p>有了MCP之后，当用户提出一个问题时，就是大致下面的流程：</p>
+<ul>
+<li>客户端（Claude Desktop / Cursor）将你的问题发送给大模型（如Claude）。</li>
+<li>Claude 分析可用的工具，并决定使用哪一个（或多个）。</li>
+<li>客户端通过 MCP Server 执行所选的工具。</li>
+<li>工具的执行结果被送回给 Claude。</li>
+<li>Claude 结合执行结果构造最终的 prompt 并生成自然语言的回应。</li>
+<li>回应最终展示给用户</li>
+</ul>
+<h3 id="23-提示词工程">2.3 提示词工程</h3>
+<p><strong>Temperature：</strong> 简单来说，temperature 的参数值越小，模型就会返回越确定的一个结果。如果调高该参数值，大语言模型可能会返回更随机的结果，也就是说这可能会带来更多样化或更具创造性的产出。（调小temperature）实质上，你是在增加其他可能的 token 的权重。在实际应用方面，对于质量保障（QA）等任务，我们可以设置更低的 temperature 值，以促使模型基于事实返回更真实和简洁的结果。 对于诗歌生成或其他创造性任务，适度地调高 temperature 参数值可能会更好。</p>
+<p><strong>Top_p：</strong> 同样，使用 top_p（与 temperature 一起称为核采样（nucleus sampling）的技术），可以用来控制模型返回结果的确定性。如果你需要准确和事实的答案，就把参数值调低。如果你在寻找更多样化的响应，可以将其值调高点。</p>
+<p>使用Top_P意味着只有词元集合（tokens）中包含top_p概率质量的才会被考虑用于响应，因此较低的Top_p值会选择最有信心的响应。这意味着较高的top_p值将使模型考虑更多可能的词语，包括不太可能的词语，从而导致更多样化的输出。</p>
+<p>一般建议是改变 Temperature 和 Top P 其中一个参数就行，<strong>不用两个都调整</strong>。</p>
+<p><strong>Max Length：</strong>  可以通过调整 max length 来控制大模型生成的 token 数。指定 Max Length 有助于防止大模型生成冗长或不相关的响应并控制成本。</p>
+<p><strong>Stop Sequences：</strong>  stop sequence 是一个字符串，可以阻止模型生成 token，指定 stop sequences 是控制大模型响应长度和结构的另一种方法。例如，您可以通过添加 “11” 作为 stop sequence 来告诉模型生成不超过 10 个项的列表。</p>
+<p><strong>Frequency Penalty：</strong> frequency penalty 是对下一个生成的 token 进行惩罚，这个惩罚和 token 在响应和提示中已出现的次数成比例， frequency penalty 越高，某个词再次出现的可能性就越小，这个设置通过给 重复数量多的 Token 设置更高的惩罚来减少响应中单词的重复。</p>
+<p><strong>Presence Penalty：</strong> presence penalty 也是对重复的 token 施加惩罚，但与 frequency penalty 不同的是，惩罚对于所有重复 token 都是相同的。出现两次的 token 和出现 10 次的 token 会受到相同的惩罚。 此设置可防止模型在响应中过于频繁地生成重复的词。 如果您希望模型生成多样化或创造性的文本，可以设置更高的 presence penalty，如果您希望模型生成更专注的内容，您可以设置更低的 presence penalty。</p>
+<p>与 temperature 和 top_p 一样，一般建议是改变 frequency penalty 和 presence penalty 其中一个参数就行，不要同时调整两个。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WES 重构系列（五）：出库调度正向链路效率优化]]></title>
+        <id>https://panson.top/post/wes-chong-gou-xi-lie-wu-chu-ku-diao-du-zheng-xiang-lian-lu-xiao-lu-you-hua/</id>
+        <link href="https://panson.top/post/wes-chong-gou-xi-lie-wu-chu-ku-diao-du-zheng-xiang-lian-lu-xiao-lu-you-hua/">
+        </link>
+        <updated>2025-01-25T14:29:43.000Z</updated>
+        <content type="html"><![CDATA[<p><em>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</em><br>
+<img src="https://images.unsplash.com/photo-1761936632565-b0923577a084?q=80&amp;w=2462&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub" loading="lazy"></p>
+<h2 id="一-出库链路耗时在哪里">一、出库链路耗时在哪里？</h2>
+<p>如果想优化出库正向链路，那么首先要知道耗时在哪些地方，这样才能对症下药。<br>
+先回顾一下出库链路图：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%A2%B3%E7%90%86/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<p>类似操作系统中磁盘 IO花费时间一般由 3 个部分组成：</p>
+<ol>
+<li>寻道时间</li>
+<li>旋转延迟</li>
+<li>数据传输时间</li>
+</ol>
+<p>这三者的时间都蛮长的，尤其是两者。为什么呢？因为涉及到物理移动。<br>
+在出库链路中，耗时最长的也是如此，所以我们主要从这个方面入手。<br>
+优化主要从两个方面来讨论，业务上优化以及技术上的优化。</p>
+<h2 id="二-出库调度正向链路业务优化">二、出库调度正向链路业务优化</h2>
+<h3 id="21-热度移位">2.1 热度移位</h3>
+<p>在 WES（仓储执行系统）中， <strong>热度移位</strong>功能是一项智能的库存动态调整策略。其核心目标是让<strong>高频次出入库的商品</strong>（热销品）尽可能地靠近仓库的<strong>拣选工作站</strong>或<strong>出库区域</strong>，从而显著减少拣货员或自动化导引车（AGV）的行走或移动距离，最终提升整体仓储运营效率。</p>
+<p>看一下热度移位前后对比图，应该比较清晰一些：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122154308282.png?raw=true" alt="" loading="lazy"></figure>
+<p>我们从图中可以看到，热度移位后，高频商品（红色部分）都移动到拣选工作站附近了。<br>
+热度移位的目的本质是为了减少搬运时间，从而大幅提高出库效率。</p>
+<h3 id="22-超-a-不返库">2.2 超 A 不返库</h3>
+<p>智能仓的存储区是一个三维空间，热度移位更侧重水平坐标的优化，超 A 不返库则更侧重垂直坐标的优化。<br>
+说的有点抽象，我简单解释一下。仓储区域是一个个的货架，货架分为多层，每一层又分为多个库位，最下层是缓存层，料箱容器如果放在货架上层，则需要从上层搬到下层，再从下层搬运到拣选工作站。<br>
+超 A 不返库指的是高频超 A 商品放到货架最下面一层，也就是缓存层，减掉料箱从货架上层搬运到货架下层的流程。</p>
+<p>文字可能不太好理解，我们看张图示意图吧：</p>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122205831266.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="23-flowpick-单品单件">2.3 FlowPick 单品单件</h3>
+<p>我们组负责的一些日本海外仓，比如 Eqseek，单据类型比较特殊，单品单件订单占比近80%，为提高拣选效率，可以一次入站完成更多件数，提出flowpick产品化方案。<br>
+当然国内直播电商也有类似场景，比如直播间大主播，观众下单，大多是单品单件订单。<br>
+WES对可聚合订单做标记，交由算法组，让算法把一批订单聚合分配到同一个 flowpick 槽位中。<br>
+这样能大幅减少WES 调度和下游搬运次数。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122220042503.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="24-进站提前上报">2.4 进站提前上报</h3>
+<p>小车搬运容器即将进入工作站时，会减速，达到指定码点后，会上报到站消息。<br>
+WES 拿到搬运系统上报的到站消息后，会推送实操任务给 STATION。<br>
+我们做了提前上报功能，小车在即将进站前，到达指定码点时，就提前上报到站消息，让 WES 处理并推送实操任务，这样相当于做了并行处理：</p>
+<ul>
+<li>小车从指定码点到真正进站</li>
+<li>WES 接收到站消息并推送实操任务<br>
+这样也减少了出库链路时间。<br>
+如下图所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122221757555.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h3 id="25-提前离站">2.5 提前离站</h3>
+<p>原先的流程是拣选、封箱、点击全部分播完成后车才走，但其实拣选完之后，车就可以走了。<br>
+提前离站我们做了开关，在拣选到最大值后，车提前离站，下一个车可以直接进站。<br>
+这样我们又减少了一部分链路耗时。<br>
+这里我也画了一张流程图，如下所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122222552157.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="26-预出库">2.6 预出库</h3>
+<h3 id="27-水位拉动">2.7 水位拉动</h3>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WES 重构系列（四）：出库调度正向链路梳理]]></title>
+        <id>https://panson.top/post/wes-chong-gou-xi-lie-si-chu-ku-diao-du-lian-lu-shu-li/</id>
+        <link href="https://panson.top/post/wes-chong-gou-xi-lie-si-chu-ku-diao-du-lian-lu-shu-li/">
+        </link>
+        <updated>2025-01-20T16:40:37.000Z</updated>
+        <content type="html"><![CDATA[<p><em>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</em><br>
+<img src="https://images.unsplash.com/photo-1762112974336-756993ced290?q=80&amp;w=2682&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></p>
+<h2 id="一-wes-的出库是什么">一、WES 的出库是什么？</h2>
+<p>以电商履约链路为例，WES 在 WMS 的下游。<br>
+WES 的业务链路位置大致参考下图（做了一些简化）：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E7%94%A8%E9%93%BE%E8%B7%AF%E6%A2%B3%E7%90%86%E4%B9%8B%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF/file-20251121004900019.png?raw=true" alt="" loading="lazy"></figure>
+<p>那出库是什么呢？<br>
+简单来说就是把商品（货物）从仓库里面取出来去发货。<br>
+传统的仓储是人去仓库里面寻找货物并取货物，智能仓储（WES）是机器小车把仓库里面的货自动取出来给到人。<br>
+前者是人到货，后者是货到人。</p>
+<p>那问题来了：</p>
+<ol>
+<li>WES 如何知道上游想要出库哪些商品呢？涉及到与上游系统交互</li>
+<li>WES 如何知道库内有哪些商品呢？涉及到商品模块</li>
+<li>WES 如何知道商品在仓库内的存放位置呢？设计到库存模块，仓储中有多级库存</li>
+<li>WES 如何去通知调度小车把商品取出来呢？涉及到调度模块，与车辆调度系统对接</li>
+<li>如何更快速地完成出库呢？涉及到调度模块，与算法服务对接</li>
+<li>最终如何把出库结果反馈给上游呢？涉及到与上游的交互</li>
+<li>如果商品库存不足，缺货了，又该怎么办？涉及到内部异常机制处理，规则引擎</li>
+<li>……</li>
+</ol>
+<p>我们逐一来捋捋，内容非常多，有业务上的，也有技术上的。</p>
+<p>本文我们先来梳理一下出库链路，后面再聊聊如何优化。</p>
+<p>出库链路又分为正向链路和逆向链路，先说正向链路。</p>
+<h2 id="二-出库正向链路">二、出库正向链路</h2>
+<p>我画了一张出库正向链路图，如下所示：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E7%94%A8%E9%93%BE%E8%B7%AF%E6%A2%B3%E7%90%86%E4%B9%8B%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<ol>
+<li>上游服务会通过商品同步接口，告知 WES 需要维护的商品内容。</li>
+<li>之后会组箱（以料箱业务为例）、上架，此时库内会存在该商品的库存。</li>
+<li>接着正式来到<strong>出库单链路</strong>：出库单提交，预占二级库存，生成出库作业单。</li>
+<li>分三级库存与工作站槽位定时器：定时捞取待分配工作站的出库作业单，组装算法参数（三级库存、单据、工作站槽位信息、地图巷道……），调用算法接口，拿到库存分配与工作站分配结果，创建出库任务，预占三级库存</li>
+<li>任务下发定时器：捞取出库任务表，组转调度任务信息，下发给服务 WCS，并更新出库任务表信息</li>
+<li>WCS 和下游车辆调度系统：调度车辆和货架，搬运信息上报给 WES，WES 根据搬运上报信息更新出库任务表</li>
+<li>车辆和货架到达工作站：WES 根据到站消息，组装实操推送数据（商品、批次、任务、货架、库位、点位……）到 服务 STATION， 如果推送异常则按规则做回滚操作（调度小车离站、出库任务回滚、出库作业单回滚，生成新的出库作业单、解锁三级库存预占锁定……）</li>
+<li>STATION 加载任务，页面弹出出库实操</li>
+<li>STATION工作站拣选人员根据页面提示，扫码、拣货、封箱……全部分播完成，</li>
+<li>STATION 实操完毕，发送实操反馈消息给 WES</li>
+<li>WES 实操反馈监听收到 STATION 发来的实操反馈消息后，完结任务，通知下游车辆调度系统小车离站</li>
+<li>WCS 和下游车辆调度系统：收到离站通知，调度小车离站，并 mq 反馈料箱位置变更事件</li>
+<li>WCS 收到容器变更 mq 消息，更新库存信息</li>
+<li>WES 定时捞取出库单，按规则生成单据反馈信息，按单、按箱反馈上游，至此，正向链路完成数据闭环。</li>
+</ol>
+<p>除此之外，出库链路一般还会有热度移位、静态组播、动态组播、超 A 不返库、QuickPick等等，比较垂直，有机会再聊。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WES 重构系列（三）：系统融合支持混场业务调度]]></title>
+        <id>https://panson.top/post/wes-chong-gou-xi-lie-san-he-bing-xi-tong-zhi-chi-hun-chang-ye-wu/</id>
+        <link href="https://panson.top/post/wes-chong-gou-xi-lie-san-he-bing-xi-tong-zhi-chi-hun-chang-ye-wu/">
+        </link>
+        <updated>2025-01-05T13:20:16.000Z</updated>
+        <content type="html"><![CDATA[<p><em>文内时序图与重构前后对比图需要科学上网才能流畅查看，图床直接用了 GitHub。</em></p>
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1762621362503-c771d36f0d40?q=80&amp;w=2776&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<h2 id="一-为什么要做货架到人与料箱到人两套系统的融合">一、为什么要做货架到人与料箱到人两套系统的融合？</h2>
+<p>随着国内和海外仓业务的发展，部分智能仓要求支持货架到人与料箱到人混场调度，我们旧有的 WES 系统是各自独立的，货架到人 WES 只支持货架仓，料箱到人 WES 只支持料箱仓。</p>
+<p>出于支持混场调度，我们做了这次融合。</p>
+<h2 id="二-系统融合的规划与难点">二、系统融合的规划与难点</h2>
+<p>融合涉及的服务主要是工作站 Station 和 WES。</p>
+<p>工作站服务是独立的两套工作流，但业务逻辑有许多共性。比如拣选业务，都要经过实操亮灯、扫码拣选、拍槽位灯、封箱、全部分播完成等步骤，工作流本身支持按业务类型弹实操，这一块相对来说难点不大，主要还是细活，做代码迁移和表迁移，但话说回来，一些细活其实就是工程能力。</p>
+<p>WES 这边涉及到的内容多一些：</p>
+<ol>
+<li>
+<p>商品库存：二级库存、三级库存、批次、商品、条码、货主、包装、库存流水、库存调整单、库存快照……</p>
+</li>
+<li>
+<p>理货业务：分为货架到人理货和料箱到人理货，理货单、理货单明细、理货下架作业单、理货下架作业单明细、理货下架任务……</p>
+</li>
+<li>
+<p>盘点：也是多种业务，业务对应的表也很多</p>
+</li>
+<li>
+<p>出库：也是多种业务，业务对应的表也很多</p>
+</li>
+<li>
+<p>上架：离线和在线都有许多业务模式，对应的表也有许多</p>
+</li>
+</ol>
+<p>如果只是实现混场业务调度的目的，粗糙地做也能做，但还是想做一些优化，思考几个问题：</p>
+<ol>
+<li>
+<p>货架到人与料箱到人业务有许多相似点，数据模型（业务表）上有哪些是可以共用的？</p>
+</li>
+<li>
+<p>也有一些不同点，数据模型（业务表）上哪些最好是隔离的？</p>
+</li>
+<li>
+<p>代码层面是否可以使用设计模式抽象一些公有逻辑，减少代码复杂度？</p>
+</li>
+<li>
+<p>合并后，如果海外仓还想继续用单一模式，怎么办？</p>
+</li>
+</ol>
+<h2 id="三-如何取舍数据模型的共用与隔离">三、如何取舍数据模型的共用与隔离？</h2>
+<p>两套系统主要还是调度实体不同，我们采用了分层设计原则：上层共用、下层隔离。</p>
+<p>在上层的单据层、库存商品层，比如出库单、出库单明细、出库作业单、二级库存，其实都是一致的，两套系统可以共用。</p>
+<p>下层的调度任务两者不同，所以我们上层的数据模型不变，下层的调度任务，比如出库任务、理货任务、盘点任务、上架任务都做了分离。</p>
+<p>分层图如下：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E7%B3%BB%E7%BB%9F%E8%9E%8D%E5%90%88%E6%94%AF%E6%8C%81%E6%B7%B7%E5%9C%BA%E8%B0%83%E5%BA%A6/file-20251120003840562.png?raw=true" alt="数据模型分层图" loading="lazy"></figure>
+<h2 id="四-设计模式与代码复用优化">四、设计模式与代码复用优化</h2>
+<h3 id="41-抽出任务基类">4.1 抽出任务基类</h3>
+<p>单据调度任务一般包括：</p>
+<ul>
+<li>
+<p>唯一任务 ID</p>
+</li>
+<li>
+<p>状态</p>
+</li>
+<li>
+<p>小车编码</p>
+</li>
+<li>
+<p>小车类型</p>
+</li>
+<li>
+<p>优先级</p>
+</li>
+<li>
+<p>库区</p>
+</li>
+<li>
+<p>状态是否变化</p>
+</li>
+<li>
+<p>……</p>
+</li>
+</ul>
+<p>这些都是料箱业务和货架业务公有的内容，这样定义子类时字段会少许多，保持代码整洁性。</p>
+<p>我一直秉承的一个观点是系统的可维护性来源于细节，看似只是抽出了几个基类，但只要处处做到这种复用性，系统会变得清晰许多。</p>
+<h3 id="42-实操推送使用工厂方法-模板方法-策略模式">4.2 实操推送使用工厂方法、模板方法、策略模式</h3>
+<p>我们的实操任务类型有许多种，包括：</p>
+<ul>
+<li>
+<p>料箱到人在线出库</p>
+</li>
+<li>
+<p>货架到人在线出库</p>
+</li>
+<li>
+<p>料箱到人在线直接上架</p>
+</li>
+<li>
+<p>料箱到人在线空箱上架</p>
+</li>
+<li>
+<p>料箱到人在线空箱出库</p>
+</li>
+<li>
+<p>料箱导入在线推荐上架</p>
+</li>
+<li>
+<p>……</p>
+</li>
+</ul>
+<p>这么多的实操任务，如果写 if else 会很长，那么我们可以用经典的工厂方法 + 模板方法 + 策略模式，来组合实现这个功能。</p>
+<p>大致类图：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%89%EF%BC%89%EF%BC%9A%E7%B3%BB%E7%BB%9F%E8%9E%8D%E5%90%88%E6%94%AF%E6%8C%81%E6%B7%B7%E5%9C%BA%E8%B0%83%E5%BA%A6/file-20251120231657887.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="五-如何保证业务兼容性">五、如何保证业务兼容性？</h2>
+<p>第 3 个要考虑的点是，我们合并之后，万一仓库只想使用单一业务场景，融合后可以支持吗？<br>
+当然是可以的。</p>
+<h3 id="51-调度层面">5.1 调度层面</h3>
+<p>单据调度任务是有库区属性的，单个任务只可能命中单库区，所以在计算任务的时候把库区加上就行了。</p>
+<h3 id="52-实操页面">5.2 实操页面</h3>
+<p>station 工作流也支持，因为本来就是按调度任务的到站推送来展示的，只要下层的调度任务能区分，工作流实操也能区分。</p>
+<h3 id="53-业务模式">5.3 业务模式</h3>
+<p>上面两点式库区模式不同，如果是同一个库区，但库区业务模式不同，又该如何支持？<br>
+我们可以做配置化，工作站按需配置业务模式。</p>
+<h3 id="54-定时任务的精细化管理">5.4 定时任务的精细化管理</h3>
+<p>上述第3点 指的是业务模式的入口支持配置化，但对于下层的任务调度定时器，如果现场不启用某些业务模式，是否可以直接关闭对应的定时任务？<br>
+答案自然也是可以的，但本期重构没做，后期我们接入了 XXL-JOB，支持定时任务的管理。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WES 重构系列（二）：领域划分之理货业务上浮]]></title>
+        <id>https://panson.top/post/wes-chong-gou-xi-lie-er-ling-yu-hua-fen-zhi-li-huo-ye-wu-shang-fu/</id>
+        <link href="https://panson.top/post/wes-chong-gou-xi-lie-er-ling-yu-hua-fen-zhi-li-huo-ye-wu-shang-fu/">
+        </link>
+        <updated>2025-01-03T15:48:20.000Z</updated>
+        <content type="html"><![CDATA[<p><em>文末时序图与重构前后对比图需要科学上网才能流畅查看，图床直接用了 GitHub。</em></p>
+<h2 id="一-为什么要做业务上浮收拢到-wes">一、为什么要做业务上浮（收拢到 WES）？</h2>
+<p>早期 WES 的单据调度逻辑都在 WCS 服务里，但这样的领域划分其实存在一些问题：</p>
+<ol>
+<li>
+<p>WCS 的业务领域应该是车辆调度相关的，不应该涉及到单据调度的业务。</p>
+</li>
+<li>
+<p>WCS 的代码与单据调度的代码都在一个服务里，两个团队开发起来，会互相影响发版。</p>
+</li>
+<li>
+<p>WCS 代码量 40 多万行，代码复杂度高，单据调度的代码如果抽出去，能减少 WCS 的代码复杂度，提升编译和启动速度。</p>
+</li>
+</ol>
+<h2 id="二-业务上浮的规划">二、业务上浮的规划</h2>
+<p>2.8 版本和 2.9 版本下游硬件和车辆调度集群都是不兼容的，WES 也不要求做兼容设计，所以总体的可操作度会大许多。</p>
+<p>原先 WES 内部存在理货单与理货作业单，WES 生成理货单后，将 WES 的理货单通过Feign 接口同步到 WCS，WCS 通过一些定时任务根据商品库存状况将理货单生成理货作业单，再生成理货下架与上架任务，最终将任务流转到WCS 的搬运层相关状态，分车、顶升、搬运到工作站。</p>
+<p>先确定一下 WES 和 WCS 负责的业务领域：</p>
+<p>WES: 商品、批次、包装、库存、单据（出库、入库、盘点、理货）……</p>
+<p>WCS: 车辆、路径、地图……</p>
+<p>所以我们可以把库存、单据调度相关的都上浮到 WES，改造内容具体包括：</p>
+<ol>
+<li>
+<p>数据表迁移</p>
+</li>
+<li>
+<p>代码迁移</p>
+</li>
+<li>
+<p>WES 与 WCS 的任务对接格式</p>
+</li>
+</ol>
+<h2 id="三-数据表迁移">三、数据表迁移</h2>
+<p>以货架到人理货业务为例，涉及到的表包括：</p>
+<ol>
+<li>
+<p>理货单</p>
+</li>
+<li>
+<p>理货作业单（上架、下架共用）</p>
+</li>
+<li>
+<p>理货作业单明细</p>
+</li>
+<li>
+<p>理货作业单状态变更表</p>
+</li>
+<li>
+<p>理货任务表</p>
+</li>
+<li>
+<p>任务转态变更表</p>
+</li>
+</ol>
+<p>因为是跨版本升级，会重新开仓，所以这次升级无需考虑数据迁移的问题，直接迁移表结构就行，从 WCS 迁移至 WES 的库中。</p>
+<h2 id="四-代码迁移">四、代码迁移</h2>
+<h3 id="41-理货作业单同步接口">4.1 理货作业单同步接口</h3>
+<p>WCS 接口废弃，测试完成后，相关代码删除</p>
+<h3 id="42-定时器迁移">4.2 定时器迁移</h3>
+<p>主要涉及到以下几个定时器：</p>
+<ul>
+<li>
+<p>计算并生成理货作业单定时器</p>
+</li>
+<li>
+<p>计算理货待下架库位，创建下架任务定时器</p>
+</li>
+<li>
+<p>计算理货待上架库位，创建上架任务定时器</p>
+</li>
+</ul>
+<h3 id="43-搬运信息推送逻辑">4.3 搬运信息推送逻辑</h3>
+<p>主要涉及：</p>
+<ul>
+<li>
+<p>货架搬运状态信息上报：顶升、开始搬运以及距离相关信息</p>
+</li>
+<li>
+<p>实操推送逻辑：WES 收到到站 MQ 消息，WES 记录到站信息，并按业务分类推送实操到工作站，更新任务信息。</p>
+</li>
+</ul>
+<h3 id="44-mq-消息监听">4.4 MQ 消息监听</h3>
+<p>主要涉及：</p>
+<ul>
+<li>
+<p>工作站下线消息监听</p>
+</li>
+<li>
+<p>理货下架实操反馈消息监听</p>
+</li>
+<li>
+<p>理货上架实操反馈消息监听</p>
+</li>
+</ul>
+<h2 id="五-wes-与-wcs-的任务对接格式">五、WES 与 WCS 的任务对接格式</h2>
+<p>使用 Feign 接口下发理货下架、上架任务。</p>
+<p>不过这样的话就需要增加一个任务状态——WAITING_WCS：代表这个任务在 WES 的前置流程已经处理完毕，等待 WCS 调度搬运车辆。</p>
+<h2 id="六-业务上浮后系统数据链路时序图">六、业务上浮后系统数据链路时序图</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E9%A2%86%E5%9F%9F%E5%88%92%E5%88%86%E4%B9%8B%E7%90%86%E8%B4%A7%E4%B8%9A%E5%8A%A1%E4%B8%8A%E6%B5%AE/file-20251118220914636.png?raw=true" alt="业务上浮后系统数据链路时序图" loading="lazy"></figure>
+<h2 id="七-ddd-视角下的重构前后对比">七、DDD 视角下的重构前后对比</h2>
+<p>从 DDD 的角度分析，虽然我们没有用 DDD~</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E9%A2%86%E5%9F%9F%E5%88%92%E5%88%86%E4%B9%8B%E7%90%86%E8%B4%A7%E4%B8%9A%E5%8A%A1%E4%B8%8A%E6%B5%AE/file-20251118222737042.png?raw=true" alt="DDD 视角下的重构前后对比图" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[WES 重构系列（一）：记录一下 WES 重构历史]]></title>
+        <id>https://panson.top/post/wes-chong-gou-xi-lie-yi-ji-lu-yi-xia-wes-chong-gou-li-shi/</id>
+        <link href="https://panson.top/post/wes-chong-gou-xi-lie-yi-ji-lu-yi-xia-wes-chong-gou-li-shi/">
+        </link>
+        <updated>2025-01-02T13:12:11.000Z</updated>
+        <content type="html"><![CDATA[<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1763063462165-94125cccf210?q=80&amp;w=2472&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="封面图：开启代理后流畅展示" loading="lazy"></figure>
+<p>在 Martin Fowler 的 《重构》一书的首页里有一句古老的工程谚语：</p>
+<blockquote>
+<p>“if it works, don't fix it？”</p>
+</blockquote>
+<h2 id="一-为什么要重构">一、为什么要重构？</h2>
+<p>当时我们的智能仓储核心系统（WES）面临三个关键痛点 ：</p>
+<ol>
+<li>领域边界模糊、迭代困难，比如说单据调度业务部分逻辑存在于两个系统里面；</li>
+<li>二是核心链路是 “黑盒”，数据不一致、故障定位难，年均故障工单过万；</li>
+<li>三是公司在扩张期，尤其是海外项目（日本、东南亚、美国等）交付压力大，原有系统支撑不了多区域业务需求。所以启动了全业务分阶段重构，目标是提升系统稳定性、可维护性，支撑海外项目交付。</li>
+</ol>
+<h2 id="二-我们重构阶段历程是怎样的">二、我们重构阶段历程是怎样的？</h2>
+<p>其实主要分为三个大版本：2.9、2.10、21.11</p>
+<ul>
+<li>2.9 版本：WES 收拢了单据调度业务，将单据调度业务从 WCS 上浮到 WES</li>
+<li>2.10 版本：WES 将货架到人系统与料箱到人系统合并为一套系统，并支持多库区混合调度。</li>
+<li>2.11 版本又分为 8 个小版本，从 2.11.1 到 2.11.8，从 2.11.1 到 2.11.6 做了核心链路的梳理和重构，2.11.5 到 2.11.6 围绕核心链路做了许多补充，2.11.7 到 2.11.8 做了一些代码优化与性能优化。</li>
+</ul>
+<h2 id="三-重构的具体方法与策略">三、重构的具体方法与策略</h2>
+<h3 id="1-重构前的准备">1、重构前的准备：</h3>
+<ul>
+<li>需求与业务梳理：我们做了类似事件风暴的会议，团队内的人都聚在会议室里，上午开会交流历史业务，下午写文档，最后梳理出了几百份文档和图表，基本上把核心链路都梳理清楚了。</li>
+<li>技术选型：我们没有大改技术架构，核心框架基本上维持了 SpringCloud 这一套，MySQL 从 5.7 升级到 8.0，RocketMQ 从 4.3 升级到 4.9，引入了 XXL-JOB和动态线程池，后期我写了一个数据一致性组件以及任务流转树监控系统。</li>
+</ul>
+<h3 id="2-重构中原则和步骤">2、重构中原则和步骤：</h3>
+<ul>
+<li>模块化与解耦，领域划分：WES 这边主要负责单据调度和实操相关的内容</li>
+<li>渐进式重构：按业务模式迭代，一次新增一个主业务模式，尽量小步快跑。</li>
+<li>代码规范与可维护性：基本上按照阿里巴巴 Java 开发规范，本地使用阿里巴巴规约插件，远程使用 Sonar 扫描</li>
+<li>所有的大于一天工时的需求都要写dev design，组内阅读或评审。</li>
+<li>开发流程包括：需求评审、技术设计文档评审、测试用例评审、代码评审、研发自测、测试同学测试、仿真压测、现场真车测试、现场真车压测</li>
+</ul>
+<h2 id="四-我负责了哪些事情">四、我负责了哪些事情？</h2>
+<p>业务上：</p>
+<ul>
+<li>独立负责了 2.9 的理货单据调度业务上浮，包括表迁移，代码迁移，与下游团队沟通并确定数据交互形式。</li>
+<li>参与了 2.10 版本的系统合并，比如货架到人在线拣选与料箱到人在线拣选，做了一些表结构的共用，比如出库单表、出库单明细表、出库作业单表、出库作业单明细表，但是对于任务表依旧是分开的，考虑到任务涉及到调度实体，也就是料箱、料格和货架，混用一张表，会增加理解成本，并且单业务模式，会造成许多空字段，显得有些冗余。</li>
+<li>核心负责了 WES 多种业务模式的调度链路，比如料箱到人的组箱、上架链路，出库的全链路，理货的上架、下架链路，全盘的全链路。</li>
+</ul>
+<p>技术上：</p>
+<ul>
+<li>业务数据监控：从0 到 1 独立负责了任务流转树监控系统开发与维护。</li>
+<li>核心链路节点的数据一致性保障：从0 到 1 独立负责了数据一致性组件的开发与维护。</li>
+<li>系统性能优化与瘦身：通过解决JVM内存泄漏、清理无用代码、优化慢查询与缓存、重构代码坏味道（如长方法、循环内DB操作）等措施，使死锁、锁超时、计算错误等线上顽疾基本归零。</li>
+<li>设计模式：通过提取公共抽象、应用模板方法等设计模式，对大量重复代码进行整合与重构，提升了代码复用性和可维护性。</li>
+<li>参与接入了 XXL-JOB 和动态线程池框架。</li>
+</ul>
+]]></content>
+    </entry>
+</feed>
