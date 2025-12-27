@@ -1,0 +1,250 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>G1系列（一）： G1核心参数 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    G1系列（一）： G1核心参数
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 G1 GC 中，一些 JVM 参数对性能至关重要。本文将这些参数分为三类，并提供了生产环境下的常用配置建议。</p>
+<hr>
+<h2 id="一-必须配置的参数">一、必须配置的参数</h2>
+<p>这些参数在生产环境中几乎总是需要显式设置，否则 JVM 的默认值可能会不合适。</p>
+<h3 id="堆大小设置">堆大小设置</h3>
+<p>我们通常使用 <code>-Xms</code> 和 <code>-Xmx</code> 参数来设定 Java 堆的初始大小和最大大小。一个常见的优化建议是将这两个值设为相同，例如 <code>-Xms4g -Xmx4g</code>。这样做可以避免 JVM 在运行时动态调整堆大小，从而减少可能触发的 Full GC。</p>
+<p>在容器化部署环境中（如 Docker 和 Kubernetes），JVM 的默认行为可能会自动根据物理内存的百分比来设置堆大小，这有时会带来问题。</p>
+<ul>
+<li>
+<p><strong><code>-XX:InitialRAMPercentage</code></strong>: 当没有显式设置 <code>-Xms</code> 时，JVM 会根据此参数的值来计算初始堆大小。例如，<code>-XX:InitialRAMPercentage=50.0</code> 会将初始堆大小设为容器可用物理内存的 50%。</p>
+</li>
+<li>
+<p><strong><code>-XX:MaxRAMPercentage</code></strong>: 类似地，当没有设置 <code>-Xmx</code> 时，此参数决定了最大堆大小。默认值通常为 80%，这意味着 JVM 可能占用容器 80% 的内存，这在资源紧张的环境中可能会导致问题。</p>
+</li>
+</ul>
+<h3 id="gc-日志">GC 日志</h3>
+<p>GC 日志是排查 JVM 问题的关键。建议在生产环境中总是开启，并指定日志文件路径。</p>
+<ul>
+<li>
+<p><strong>JDK 8</strong></p>
+<pre><code>-XX:+PrintGCDetails -XX:+PrintGCDateStamps -Xloggc:/path/gc.log
+</code></pre>
+</li>
+<li>
+<p><strong>JDK 9 及更高版本</strong></p>
+<pre><code>-Xlog:gc*,gc+heap=debug:file=/path/gc.log:time,uptime,level,tags
+</code></pre>
+</li>
+</ul>
+<hr>
+<h3 id="元空间metaspace大小">元空间（Metaspace）大小</h3>
+<p>元空间用于存储类的元数据。如果应用加载的类非常多，默认的元空间大小可能会导致 <code>java.lang.OutOfMemoryError: Metaspace </code>错误。你可以通过设置 <code>-XX:MaxMetaspaceSize=&lt;size&gt; </code>来限制元空间的最大大小，防止它无限制地占用系统内存。例如，<code>-XX:MaxMetaspaceSize=512m</code> 是一个常见的设置。</p>
+<h2 id="二-强烈推荐配置的参数">二、强烈推荐配置的参数</h2>
+<p>这些参数可以让你更好地控制应用的延迟和吞吐量。</p>
+<ul>
+<li>
+<p><strong>延迟目标</strong>: 使用 <code>-XX:MaxGCPauseMillis=&lt;milliseconds&gt;</code> 来设置 G1 GC 的最大停顿时间目标。G1 会努力在运行时调整其策略以满足这个目标。默认值为 200 毫秒，但在对延迟要求高的系统中，你可以将其调小，例如设置为 100 毫秒。</p>
+</li>
+<li>
+<p><strong>GC 线程数</strong>: G1 使用并行 GC 线程（<code>ParallelGCThreads</code>）和并发 GC 线程（<code>ConcGCThreads</code>）来执行垃圾回收。通常情况下，JVM 会根据 CPU 核心数自动计算最佳线程数。但在具有大量核心（比如 64 核以上）和巨大内存的机器上，过多的 GC 线程可能会占用过多的 CPU 资源，影响应用程序的正常运行。这时，你可能需要手动调整这些参数，减少线程数量。</p>
+</li>
+</ul>
+<hr>
+<h2 id="三-仅在特殊场景下调整的参数">三、仅在特殊场景下调整的参数</h2>
+<p>这类参数通常无需配置，除非你遇到特定的性能问题。</p>
+<ul>
+<li>
+<p><strong>晋升阈值</strong>: 参数 <code>-XX:InitiatingHeapOccupancyPercent=&lt;percent&gt;</code> 决定了老年代占用堆空间的百分比。当老年代达到这个阈值时，G1 会触发并发标记周期。默认值为 45%。如果你的应用经常发生 Full GC，你可能需要将这个值调低到 30% 到 40% 之间，以提前触发并发回收，避免 Full GC。</p>
+</li>
+<li>
+<p><strong>大对象（Humongous Object）优化</strong>: G1 将超过 Region 大小一半的对象视为 Humongous 对象。这些对象会直接分配到老年代，可能导致内存碎片。如果你知道应用会产生大量此类大对象，可以尝试调整 <code>-XX:G1HeapRegionSize=&lt;size&gt;</code> 来增加 Region 的大小，以减少碎片并提高效率。</p>
+</li>
+<li>
+<p><strong>防止 Full GC</strong>: 在大内存应用中，如果因为老年代空间不足导致晋升失败，可能会触发 Full GC。<code>G1ReservePercent</code> 参数用于设置 G1 预留的老年代空间百分比，以应对这种突发情况。默认值为 10%。在某些极端场景下，你可以适当调高这个值，比如到 15%。</p>
+</li>
+</ul>
+<hr>
+<h2 id="四-总结">四、总结</h2>
+<p>对于大多数生产应用，可以重点关注以下参数：</p>
+<pre><code class="language-bash">-Xms4g -Xmx4g 
+-XX:+UseG1GC 
+-XX:MaxGCPauseMillis=200 
+-Xlog:gc*:file=/path/gc.log:time,uptime,level,tags
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-03-ji-yu-xian-cheng-chi-kuo-zhan-dian-zeng-jia-cha-jian-ti-xi/" class="post-title gt-a-link">
+                    自己动手写动态线程池框架 03——基于线程池扩展点增加插件体系
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

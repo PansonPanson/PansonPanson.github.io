@@ -1,0 +1,288 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（二）：领域划分之理货业务上浮 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（二）：领域划分之理货业务上浮
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-03 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>文末时序图与重构前后对比图需要科学上网才能流畅查看，图床直接用了 GitHub。</em></p>
+<h2 id="一-为什么要做业务上浮收拢到-wes">一、为什么要做业务上浮（收拢到 WES）？</h2>
+<p>早期 WES 的单据调度逻辑都在 WCS 服务里，但这样的领域划分其实存在一些问题：</p>
+<ol>
+<li>
+<p>WCS 的业务领域应该是车辆调度相关的，不应该涉及到单据调度的业务。</p>
+</li>
+<li>
+<p>WCS 的代码与单据调度的代码都在一个服务里，两个团队开发起来，会互相影响发版。</p>
+</li>
+<li>
+<p>WCS 代码量 40 多万行，代码复杂度高，单据调度的代码如果抽出去，能减少 WCS 的代码复杂度，提升编译和启动速度。</p>
+</li>
+</ol>
+<h2 id="二-业务上浮的规划">二、业务上浮的规划</h2>
+<p>2.8 版本和 2.9 版本下游硬件和车辆调度集群都是不兼容的，WES 也不要求做兼容设计，所以总体的可操作度会大许多。</p>
+<p>原先 WES 内部存在理货单与理货作业单，WES 生成理货单后，将 WES 的理货单通过Feign 接口同步到 WCS，WCS 通过一些定时任务根据商品库存状况将理货单生成理货作业单，再生成理货下架与上架任务，最终将任务流转到WCS 的搬运层相关状态，分车、顶升、搬运到工作站。</p>
+<p>先确定一下 WES 和 WCS 负责的业务领域：</p>
+<p>WES: 商品、批次、包装、库存、单据（出库、入库、盘点、理货）……</p>
+<p>WCS: 车辆、路径、地图……</p>
+<p>所以我们可以把库存、单据调度相关的都上浮到 WES，改造内容具体包括：</p>
+<ol>
+<li>
+<p>数据表迁移</p>
+</li>
+<li>
+<p>代码迁移</p>
+</li>
+<li>
+<p>WES 与 WCS 的任务对接格式</p>
+</li>
+</ol>
+<h2 id="三-数据表迁移">三、数据表迁移</h2>
+<p>以货架到人理货业务为例，涉及到的表包括：</p>
+<ol>
+<li>
+<p>理货单</p>
+</li>
+<li>
+<p>理货作业单（上架、下架共用）</p>
+</li>
+<li>
+<p>理货作业单明细</p>
+</li>
+<li>
+<p>理货作业单状态变更表</p>
+</li>
+<li>
+<p>理货任务表</p>
+</li>
+<li>
+<p>任务转态变更表</p>
+</li>
+</ol>
+<p>因为是跨版本升级，会重新开仓，所以这次升级无需考虑数据迁移的问题，直接迁移表结构就行，从 WCS 迁移至 WES 的库中。</p>
+<h2 id="四-代码迁移">四、代码迁移</h2>
+<h3 id="41-理货作业单同步接口">4.1 理货作业单同步接口</h3>
+<p>WCS 接口废弃，测试完成后，相关代码删除</p>
+<h3 id="42-定时器迁移">4.2 定时器迁移</h3>
+<p>主要涉及到以下几个定时器：</p>
+<ul>
+<li>
+<p>计算并生成理货作业单定时器</p>
+</li>
+<li>
+<p>计算理货待下架库位，创建下架任务定时器</p>
+</li>
+<li>
+<p>计算理货待上架库位，创建上架任务定时器</p>
+</li>
+</ul>
+<h3 id="43-搬运信息推送逻辑">4.3 搬运信息推送逻辑</h3>
+<p>主要涉及：</p>
+<ul>
+<li>
+<p>货架搬运状态信息上报：顶升、开始搬运以及距离相关信息</p>
+</li>
+<li>
+<p>实操推送逻辑：WES 收到到站 MQ 消息，WES 记录到站信息，并按业务分类推送实操到工作站，更新任务信息。</p>
+</li>
+</ul>
+<h3 id="44-mq-消息监听">4.4 MQ 消息监听</h3>
+<p>主要涉及：</p>
+<ul>
+<li>
+<p>工作站下线消息监听</p>
+</li>
+<li>
+<p>理货下架实操反馈消息监听</p>
+</li>
+<li>
+<p>理货上架实操反馈消息监听</p>
+</li>
+</ul>
+<h2 id="五-wes-与-wcs-的任务对接格式">五、WES 与 WCS 的任务对接格式</h2>
+<p>使用 Feign 接口下发理货下架、上架任务。</p>
+<p>不过这样的话就需要增加一个任务状态——WAITING_WCS：代表这个任务在 WES 的前置流程已经处理完毕，等待 WCS 调度搬运车辆。</p>
+<h2 id="六-业务上浮后系统数据链路时序图">六、业务上浮后系统数据链路时序图</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E9%A2%86%E5%9F%9F%E5%88%92%E5%88%86%E4%B9%8B%E7%90%86%E8%B4%A7%E4%B8%9A%E5%8A%A1%E4%B8%8A%E6%B5%AE/file-20251118220914636.png?raw=true" alt="业务上浮后系统数据链路时序图" loading="lazy"></figure>
+<h2 id="七-ddd-视角下的重构前后对比">七、DDD 视角下的重构前后对比</h2>
+<p>从 DDD 的角度分析，虽然我们没有用 DDD~</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%8C%EF%BC%89%EF%BC%9A%E9%A2%86%E5%9F%9F%E5%88%92%E5%88%86%E4%B9%8B%E7%90%86%E8%B4%A7%E4%B8%9A%E5%8A%A1%E4%B8%8A%E6%B5%AE/file-20251118222737042.png?raw=true" alt="DDD 视角下的重构前后对比图" loading="lazy"></figure>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-yi-ji-lu-yi-xia-wes-chong-gou-li-shi/" class="post-title gt-a-link">
+                    WES 重构系列（一）：记录一下 WES 重构历史
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>一次上游更改接口导致的百万级数据扫描引起的宕机问题 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    一次上游更改接口导致的百万级数据扫描引起的宕机问题
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-11-05 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="一-问题分析过程">一、问题分析过程</h2>
+<p>深圳某智能仓现场反馈报错：</p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E4%B8%8A%E6%B8%B8%E6%9B%B4%E6%94%B9%E6%8E%A5%E5%8F%A3%E5%AF%BC%E8%87%B4%E7%9A%84%E7%99%BE%E4%B8%87%E7%BA%A7%E6%95%B0%E6%8D%AE%E6%89%AB%E6%8F%8F%E5%BC%95%E8%B5%B7%E7%9A%84%E5%AE%95%E6%9C%BA%E9%97%AE%E9%A2%98/1749622243260-be432462-445d-431e-8040-8730e79a9d51.png?raw=true" alt="img" loading="lazy"></figure>
+<p>接着全场工作站页面无法点击。</p>
+<p>立即连接该仓库的服务器，查看 WES 服务 Docker 容器的状态，是 unhealthy 状态。考虑恢复优先，立即重启容器。现场恢复，但过一会儿，现场又反馈很卡顿。重新连线，发现容器状态又变成 unhealthy 了。</p>
+<p>执行 <code>jstat -gc pid 1000</code>：</p>
+<ul>
+<li>最近有 Full GC 过。</li>
+<li>GC 很频繁。</li>
+</ul>
+<p>而且慢 SQL 很多，一次三十秒以上的有很多。从慢 SQL 语句内容上分析：</p>
+<ul>
+<li>查询的表内容主要集中在出库单明细、出库单实操明细、反馈明细上。</li>
+<li>查询条件都是 <code>in (id1, id2……)</code>,并且都是大列表查询。</li>
+<li>状态都与待反馈或者反馈中有关。</li>
+</ul>
+<p><strong>从业务关联上猜测是发货相关逻辑出现了问题。</strong></p>
+<p>查看出库单状态：</p>
+<pre><code class="language-json">select count(*) from 出库单表 where state = 待发货状态
+</code></pre>
+<ul>
+<li>好家伙，两百多万条全是待发货。</li>
+<li>再看反馈明细，未反馈的实操明细更多，600 多万……</li>
+</ul>
+<p><strong>已经有了初步怀疑，反馈逻辑出问题了。</strong></p>
+<p><strong>扒代码，流程大概如下:</strong></p>
+<ul>
+<li>
+<p>WES 发送 MQ 消息，告知单据已拣选完成，需要反馈上游告知单据的拣选信息。</p>
+</li>
+<li>
+<p>反馈服务收到消息后，请求上游告知出库单拣选信息。</p>
+</li>
+<li>
+<p>收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</p>
+</li>
+<li>
+<p>WES 定时器逻辑：</p>
+</li>
+<li>
+<p>WES 定时器查询订单状态为待发货并且反馈状态为反馈中的订单。</p>
+</li>
+<li>
+<p>根据订单查询反馈明细。</p>
+</li>
+<li>
+<p>如果反馈明细都反馈完成了，则更新订单反馈状态为反馈完成。</p>
+</li>
+</ul>
+<p>了解上述简要逻辑之后，我们再来分析现场问题。</p>
+<p>查看反馈日志，捞了一些待发货的单子，发现所有的单子都反馈了。理论上对于上游来说，所有的流程已经走完了。</p>
+<p><strong>那只能是最后一步更新单据反馈明细状态出了问题</strong>：更新单据反馈明细为反馈完成。</p>
+<p><strong>看 log</strong>，很多 <code>response error</code>， 但是实际的 http status code 是 200。感觉不太对劲，应该是最关键的信息了。</p>
+<p>细看日志上下文，发现上游返回的 response 格式不对，理论上按约定是：</p>
+<pre><code class="language-json">{
+  &quot;一些额外信息&quot;: &quot;&quot;,
+  &quot;body&quot;: {
+    &quot;code&quot;: &quot;200&quot;,
+    &quot;data&quot;: &quot;……&quot;,
+    &quot;message&quot;: &quot;success&quot;,
+    &quot;success&quot;: false
+  }
+}
+</code></pre>
+<p>但上游实际返回的是：</p>
+<pre><code class="language-json">{
+  &quot;success&quot;: true,
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;data&quot;: &quot;……&quot;,
+}
+</code></pre>
+<p>导致反馈服务根据约定格式解析的时候发现获取不到 body 信息，以为出错了。</p>
+<p><strong>收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</strong><br>
+所以单据反馈明细一直是反馈中的状态，导致后续的逻辑一直无法正常执行。</p>
+<h2 id="二-故障原因总结">二、故障原因总结</h2>
+<p>上游在升级的时候，误改了接口格式，导致 WES 按照约定的格式处理接口返回数据时，拿不到指定格式的数据，导致单据无法正常完结。</p>
+<h2 id="三-如何快速恢复">三、如何快速恢复</h2>
+<ul>
+<li><strong>写 SQL 批量更新单据状态为完成，并打上特殊标记：</strong> 先避免重启一直扫表查大量数据问题，让现场恢复。</li>
+<li><strong>重启线上服务。</strong></li>
+</ul>
+<p><strong>代码层面：</strong></p>
+<ul>
+<li>
+<p><strong>增量数据：</strong></p>
+<ul>
+<li>
+<p>兼容上游数据格式。</p>
+</li>
+<li>
+<p>与上游再次沟通，约定不要随意更改接口格式。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>存量数据</strong>更改定时器逻辑：</p>
+<ul>
+<li>
+<p>记录最大 ID。</p>
+</li>
+<li>
+<p>每次根据状态加特殊标记捞取 1000 条数据。</p>
+</li>
+<li>
+<p>批量执行：收到上游接口成功的 response 后，调用接口，处理一些逻辑，最后更新单据反馈明细为反馈完成。</p>
+</li>
+</ul>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/01ding-dan-hao-zuo-ye-dan-hao-ren-wu-hao-ru-he-she-ji/" class="post-title gt-a-link">
+                    订单号、作业单号、任务号如何设计?
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

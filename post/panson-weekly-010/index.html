@@ -1,0 +1,480 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-010 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-010
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-01-15 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/spiral-matrix/description/">54. 螺旋矩阵</a></li>
+</ul>
+<pre><code class="language-java">
+class Solution {
+    public List&lt;Integer&gt; spiralOrder(int[][] matrix) {
+        List&lt;Integer&gt; ret = new ArrayList&lt;&gt;();
+        if(matrix.length == 0) {
+            return ret;
+        }
+        int left = 0;
+        int right = matrix[0].length - 1;
+        int top = 0;
+        int bottom = matrix.length - 1;
+        int index = 0;
+        while(true) {
+            for(int i = left; i &lt;= right; i++) {
+                ret.add(matrix[top][i]);
+                index++;
+            }
+            if(++top &gt; bottom) {
+                break;
+            }
+            for(int i = top; i &lt;= bottom; i++) {
+                ret.add(matrix[i][right]);
+                index++;
+            }
+            if(left &gt; --right) {
+                break;
+            }
+            for(int i = right; i &gt;= left; i--) {
+                ret.add(matrix[bottom][i]);
+                index++;
+            }
+            if(--bottom &lt; top) {
+                break;
+            }
+            for(int i = bottom; i &gt;= top; i--) {
+                ret.add(matrix[i][left]);
+                index++;
+            }
+            if(++left &gt; right) {
+                break;
+            }
+        }
+        return ret;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/rotate-image/description/">48. 旋转图像</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+        for(int i = 0; i &lt; n / 2; i++) {
+            for(int j = 0; j &lt; n; j++) {
+                int tmp = matrix[i][j];
+                matrix[i][j] = matrix[n - i - 1][j];
+                matrix[n - i - 1][j] = tmp;
+            }
+        }
+
+        for(int k = 0; k &lt; n; k++) {
+            for(int l = k + 1; l &lt; n; l++) {
+                int tmp1 = matrix[k][l];
+                matrix[k][l] = matrix[l][k];
+                matrix[l][k] = tmp1;
+            }
+        }
+
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/set-matrix-zeroes/">73. 矩阵置零</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public void setZeroes(int[][] matrix) {
+        int m = matrix.length;
+        int n  = matrix[0].length;
+        // 首行标记，默认为 1，表示不置零
+        int r0 = 1;
+        // 首列标记，默认为 1，表示不置零
+        int c0 = 1;
+        for(int i = 0; i &lt; n; i++) {
+            if(matrix[0][i] == 0) {
+                r0 = 0;
+                break;
+            }
+        }
+        for(int i = 0; i &lt; m; i++) {
+            if(matrix[i][0] == 0) {
+                c0 = 0;
+                break;
+            }
+        }
+        // 将首行首列作为备忘录
+        for(int i = 1; i &lt; m; i++) {
+            for(int j = 1; j &lt; n; j++) {
+                if(matrix[i][j] == 0) {
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+        
+        // 遍历第一行，如果有 0，该列置零
+        for(int j = 1; j &lt; n; j++) {
+            if(matrix[0][j] == 0) {
+                // 首行有元素被标记为 1，该列整列被置为 0
+                for(int i = 0; i &lt; m; i++) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+
+        // 从第一行开始
+        for(int i = 1; i &lt; m; i++) {
+            // 首列有元素被标记为 1， 该行整行被置为 0
+            if(matrix[i][0] == 0) {
+                for(int j = 1; j &lt; n; j++) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        
+
+        if(r0 == 0) {
+            for(int i = 0; i &lt; n; i++) {
+                matrix[0][i] = 0;
+            }
+        }
+
+        if(c0 == 0) {
+            for(int i = 0; i &lt; m; i++) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/ransom-note/description/">383. 赎金信</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean canConstruct(String ransomNote, String magazine) {
+        int[] countMem = new int[26];
+        for(char c : magazine.toCharArray()) {
+            countMem[c -'a'] += 1;
+        }
+        for(char c1 : ransomNote.toCharArray()) {
+            if(countMem[c1 - 'a'] &lt;= 0) {
+                return false;
+            }
+            countMem[c1 - 'a'] -= 1;
+        }
+        return true;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/isomorphic-strings/description/">205. 同构字符串</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean isIsomorphic(String s, String t) {
+        Map&lt;Character, Character&gt; s2t = new HashMap&lt;&gt;();
+        Map&lt;Character, Character&gt; t2s = new HashMap&lt;&gt;();
+        for(int i = 0; i &lt; s.length(); i++) {
+            char sch = s.charAt(i);
+            char tch = t.charAt(i);
+            if(s2t.containsKey(sch) &amp;&amp; s2t.get(sch) != tch || t2s.containsKey(tch) &amp;&amp; t2s.get(tch) != sch) {
+                return false;
+            }
+            s2t.put(sch, tch);
+            t2s.put(tch, sch);
+        }
+        return true;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/word-pattern/description/">290. 单词规律</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean wordPattern(String pattern, String s) {
+        String[] split = s.split(&quot; &quot;);
+        if(pattern.length() != split.length) {
+            return false;
+        }
+        Map&lt;Character, String&gt; a2b = new HashMap&lt;&gt;();
+        Map&lt;String, Character&gt; b2a = new HashMap&lt;&gt;();
+
+        for(int i = 0; i &lt; pattern.length(); i++) {
+            char ch = pattern.charAt(i);
+            String str = split[i];
+            if(a2b.containsKey(ch) &amp;&amp; !a2b.get(ch).equals(str) || b2a.containsKey(str) &amp;&amp; !b2a.get(str).equals(ch)) {
+                return false;
+            }
+            a2b.put(ch, str);
+            b2a.put(str, ch);
+        }
+        return true;
+    }
+}
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/valid-anagram/description/">242. 有效的字母异位词</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean isAnagram(String s, String t) {
+        int l1 = s.length();
+        int l2 = t.length();
+        if(l1 != l2) {
+            return false;
+        }
+        Map&lt;Character, Integer&gt; sCount = new HashMap&lt;&gt;();
+        Map&lt;Character, Integer&gt; tCount = new HashMap&lt;&gt;();
+        for(int i = 0; i &lt; l1; i++) {
+            char sch = s.charAt(i);
+            char tch = t.charAt(i);
+            if(sCount.containsKey(sch)) {
+                sCount.put(s.charAt(i), sCount.get(sch) + 1);
+            } else {
+                sCount.put(s.charAt(i), 1);
+            }
+            if(tCount.containsKey(t.charAt(i))) {
+                tCount.put(t.charAt(i), tCount.get(tch) + 1);
+            } else {
+                tCount.put(t.charAt(i), 1);
+            }
+        }
+        for(Map.Entry&lt;Character, Integer&gt; entry : sCount.entrySet()) {
+            if(!entry.getValue().equals(tCount.get(entry.getKey()))) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/multiply-strings/description/">43. 字符串相乘</a></li>
+</ul>
+<pre><code class="language-java">
+class Solution {
+    public List&lt;List&lt;String&gt;&gt; groupAnagrams(String[] strs) {
+        Map&lt;String, List&lt;String&gt;&gt; map = new HashMap&lt;&gt;();
+        for(String str : strs) {
+            char[] chs = str.toCharArray();
+            Arrays.sort(chs);
+            String strSort = new String(chs);
+            if(map.containsKey(strSort)) {
+                map.get(strSort).add(str);
+            } else {
+                List&lt;String&gt; arr = new ArrayList&lt;&gt;();
+                arr.add(str);
+                map.put(strSort, arr);
+            }
+        }
+        return new ArrayList&lt;&gt;(map.values());
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/two-sum/description/">1. 两数之和</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        for(int i = 0; i &lt; nums.length; i++) {
+            if(map.containsKey(target - nums[i])) {
+                return new int[]{i, map.get(target - nums[i])};
+            }
+            map.put(nums[i], i);
+        }
+        return new int[]{-1, -2};
+    }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-009/" class="post-title gt-a-link">
+                    Panson-Weekly-009
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

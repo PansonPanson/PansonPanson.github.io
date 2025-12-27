@@ -1,0 +1,530 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-026 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-026
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-13 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/linked-list-cycle/description/">141. 环形链表</a></li>
+</ul>
+<pre><code class="language-java">public class L0141 {
+
+    /**
+     * Definition for singly-linked list.
+     * class ListNode {
+     *     int val;
+     *     ListNode next;
+     *     ListNode(int x) {
+     *         val = x;
+     *         next = null;
+     *     }
+     * }
+     */
+    public class Solution {
+        public boolean hasCycle(ListNode head) {
+            if(head == null || head.next == null) {
+                return false;
+            }
+
+            ListNode slow = head;
+            ListNode fast = head;
+            while(fast != null &amp;&amp; fast.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+                if(slow == fast) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/linked-list-cycle-ii/description/">142. 环形链表 II</a></li>
+</ul>
+<pre><code class="language-java">public class L0142 {
+
+    /**
+     * Definition for singly-linked list.
+     * class ListNode {
+     *     int val;
+     *     ListNode next;
+     *     ListNode(int x) {
+     *         val = x;
+     *         next = null;
+     *     }
+     * }
+     */
+    public class Solution {
+        public ListNode detectCycle(ListNode head) {
+            if(head == null || head.next == null) {
+                return null;
+            }
+            ListNode slow = head;
+            ListNode fast = head;
+            boolean existCycle = false;
+            while(fast != null &amp;&amp; fast.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+
+                if(slow == fast) {
+                    existCycle = true;
+                    break;
+                }
+            }
+            if(existCycle) {
+                fast = head;
+            } else {
+                return null;
+            }
+            while(fast != slow) {
+                fast = fast.next;
+                slow = slow.next;
+            }
+            return fast;
+        }
+    }
+}
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/intersection-of-two-linked-lists/description/">160. 相交链表</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * @author Panson
+ * @create 2024-05-22
+ */
+public class L0160 {
+
+    /**
+     * Definition for singly-linked list.
+     * public class ListNode {
+     *     int val;
+     *     ListNode next;
+     *     ListNode(int x) {
+     *         val = x;
+     *         next = null;
+     *     }
+     * }
+     */
+    public class Solution {
+        public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+            if(headA == null || headB == null) {
+                return null;
+            }
+            ListNode pA = headA;
+            ListNode pB = headB;
+
+
+            while(pA !=  pB) {
+                if(pA == null) {
+                    pA = headB;
+                } else {
+                    pA = pA.next;
+                }
+                if(pB == null) {
+                    pB = headA;
+                } else {
+                    pB = pB.next;
+                }
+            }
+            return pA;
+
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/remove-nth-node-from-end-of-list/description/">19. 删除链表的倒数第 N 个结点</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode dummy = new ListNode(-1);
+        dummy.next = head;
+        ListNode pre = dummy;
+        ListNode cur = dummy;
+        while(n &gt; 0) {
+            cur = cur.next;
+            n--;
+        }
+        while(cur.next != null) {
+            cur = cur.next;
+            pre = pre.next;
+        }
+        pre.next = pre.next.next;
+        return dummy.next;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/merge-two-sorted-lists/">21. 合并两个有序链表</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode head = new ListNode(-1);
+        ListNode dummy = head;
+        while(list1 != null &amp;&amp; list2 != null) {
+            if(list1.val &lt; list2.val) {
+                head.next = list1;
+                list1 = list1.next;
+            } else {
+                head.next = list2;
+                list2 = list2.next;
+            }
+            // -1, -9, 3,
+            head = head.next;
+        }
+
+        if(list1 != null) {
+            head.next = list1;
+        }
+        if(list2 != null) {
+            head.next = list2;
+        }
+
+        return dummy.next;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/merge-k-sorted-lists/description/">23. 合并 K 个升序链表</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode mergeKLists(ListNode[] lists) {
+        if(lists == null || lists.length == 0) {
+            return null;
+        }
+        PriorityQueue&lt;ListNode&gt; queue = new PriorityQueue&lt;&gt;(lists.length, (a, b) -&gt; (a.val - b.val));
+        for(ListNode node : lists) {
+            if(node != null) {
+                queue.offer(node);
+            }
+        }
+
+        ListNode p = new ListNode(-1);
+        ListNode dummy = p;
+        while(!queue.isEmpty()) {
+            ListNode node = queue.poll();
+            p.next = node;
+            if(node.next != null) {
+                queue.offer(node.next);
+            }
+            p = p.next;
+        }
+        return dummy.next;
+    }
+}
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/partition-list/description/">86. 分隔链表</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode partition(ListNode head, int x) {
+        ListNode dummy1 = new ListNode(-1);
+        dummy1.next = head;
+        ListNode dummy2 = new ListNode(-1);
+        dummy2.next = head;
+        ListNode p1 = dummy1;
+        ListNode p2 = dummy2;
+        while(head != null) {
+            if(head.val &lt; x) {
+                p1.next = head;
+                p1 = p1.next;
+            } else {
+                p2.next = head;
+                p2 = p2.next;
+            }
+            head= head.next;
+        }
+        p2.next = null;
+        p1.next = dummy2.next;
+        return dummy1.next;
+    }
+
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/middle-of-the-linked-list/description/">876. 链表的中间结点</a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode middleNode(ListNode head) {
+        ListNode dummy = new ListNode(-1);
+        dummy.next = head;
+        ListNode p1 = dummy;
+        ListNode p2 = dummy;
+        while(p2 != null &amp;&amp; p2.next != null) {
+            p1 = p1.next;
+            p2 = p2.next.next;
+        }
+        if(p2 == null) {
+            return p1;
+        } else {
+            return p1.next;
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/two-sum-ii-input-array-is-sorted/description/">167. 两数之和 II - 输入有序数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int n = numbers.length;
+        int p1 = 0;
+        int p2 = n - 1;
+        while(p1 &lt; p2) {
+            if(numbers[p1] + numbers[p2] == target) {
+                return new int[]{p1 + 1, p2 + 1};
+            } else if(numbers[p1] + numbers[p2] &lt; target) {
+                p1++;
+            } else {
+                p2--;
+            }
+        }
+        return new int[]{-1, -1};
+    }
+} 
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/042_-shi-me-shi-liao-xiang-dao-ren-zai-xian-li-huo/" class="post-title gt-a-link">
+                    042.什么是料箱到人在线理货
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

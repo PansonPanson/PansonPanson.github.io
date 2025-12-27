@@ -1,0 +1,206 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>考虑自己写一个照片处理的分布式 AI Agent 项目 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    考虑自己写一个照片处理的分布式 AI Agent 项目
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-11-17 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>2019年，我入手了一台MacBook Pro，那是英特尔芯片的末代机型，配置是16GB内存和1TB硬盘。 当时我以为，这台电脑即便用到寿终正寝，磁盘空间恐怕也消耗不完。</p>
+<p>然而未来总是难以预料（充满惊喜）。去年生日，爱人送了我一台尼康相机，我的人生仿佛又增加了一个新的锚点——摄影。</p>
+<!-- more -->
+<p>快门的每一次开合，都意味着磁盘空间减少约30MB。摄影一周年之际，Mac的硬盘空间开始告急，我不得不将一部分照片迁移到另一台电脑上。这也促使我考虑开始整理旧照片：重复度高的，挑选一两张优质的保留，其余则可以冷归档。</p>
+<p>好的照片需要“装裱”。我在GitHub上找到了一个名为 https://github.com/leslievan/semi-utils 的Python项目，它支持照片批量添加水印、调整像素比、处理图像色彩和质量。 于是我便思考，能否采用AI Agent的方式来实现照片的自动化处理。 这主要基于两点考虑：其一，照片的二次修改和包装逻辑本质上就是任务，我有多年的分布式任务调度系统开发经验；其二，大模型相关技术如MCP、RAG、Agent正是当下的热点，我也希望借此机会实践学习。 将分布式任务调度系统与Agent结合，可谓一举多得。</p>
+<p>初步方案（思考中）</p>
+<p>若将照片的二次处理抽象为一个任务，系统大致可划分为以下几个部分：<br>
+•   任务数据上传与前置处理系统</p>
+<p>•   任务分发中心</p>
+<p>•   任务二次处理系统：与Agent交互，生成处理后的照片</p>
+<p>•   照片下载系统</p>
+<p>整体的数据流初步设想如下：<br>
+用户上传照片<br>
+→ 进行前置处理（如文件格式校验、持久化存储，并抽象为任务）<br>
+→ 任务分发中心（初期架构可简化，专注于分发）<br>
+→ 任务二次处理系统（与Agent交互，完成照片处理）<br>
+→ 用户下载最终照片</p>
+<p>当然，细节还有很多。例如前置的照片上传入口和UI交互、任务分发中心的实现（单机扫表、ZK选主、XXL-JOB，或是Redis/MQ队列等都可以考虑）。</p>
+<p>总之，先聚焦核心链路，实现数据闭环，再考虑后续演进。</p>
+<p>改天研究一下阿里通义千问和豆包的文档，看看如何对接。虽然想尽快开始，但还得准备面试，时间有些紧张。或许这个项目要等跳槽后再正式动工了，不过思路既已明确，落地便只是时间问题。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/yi-ci-jvm-shen-you-hua-dao-zhi-de-ri-zhi-diu-shi-wen-ti/" class="post-title gt-a-link">
+                    一次 JVM “神优化” 导致的日志丢失问题
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>weekly study 003 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    weekly study 003
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-30 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>from 2022-08-29 to 2022-09-04</p>
+<!-- more -->
+<p>leetcode 1470.重新排列数组</p>
+<pre><code class="language-java">class Solution {
+        public int[] shuffle(int[] nums, int n) {
+            int[] ans = new int[2 * n];
+            for (int i = 0; i &lt; n; i++) {
+                ans[2 * i] = nums[i];
+                ans[2 * i + 1] = nums[i + n];
+            }
+            return ans;
+        }
+    }
+</code></pre>
+<p>leetcode 998.最大二叉树 II</p>
+<pre><code class="language-java">class Solution {
+        public TreeNode insertIntoMaxTree(TreeNode root, int val) {
+            // val 如果是最大值，那么直接把原先的树设为新节点的左子树
+            // 否则，遍历最右子节点，寻找临界节点
+            if(root == null) {
+                return new TreeNode(val);
+            }
+            TreeNode father = null;
+            TreeNode child = root;
+            while(child != null &amp;&amp; child.val &gt; val) {
+                father = child;
+                child = child.right;
+            }
+            // val 为最大值
+            if(father == null) {
+                return new TreeNode(val, child, null);
+            } else {
+                father.right = new TreeNode(val, child, null);
+                return root;
+            }
+        }
+}
+
+</code></pre>
+<p>LeetCode 946.验证栈序列</p>
+<pre><code class="language-java">class Solution {
+    public boolean validateStackSequences(int[] pushed, int[] popped) {
+        Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+            int n = pushed.length;
+            for (int i = 0, j = 0; i &lt; n; i++) {
+                stack.push(pushed[i]);
+                while (!stack.isEmpty() &amp;&amp; stack.peek() == popped[j]) {
+                    stack.pop();
+                    j++;
+                }
+            }
+            return stack.isEmpty();
+    }
+}
+</code></pre>
+<p>leetcode 1475.商品折扣后的最终价格</p>
+<pre><code class="language-java">    class Solution {
+        public int[] finalPrices(int[] prices) {
+            int[] res = new int[prices.length];
+            for(int i = 0; i &lt; prices.length; i++) {
+                res[i] = prices[i];
+            }
+            for(int i = 0; i &lt; prices.length; i++) {
+                for(int j = i + 1; j &lt; prices.length; j++) {
+                    if(prices[j] &lt;= prices[i]) {
+                        res[i] = prices[i] - prices[j];
+                        break;
+                    }
+                }
+            }
+            return res;
+        }
+    }
+    class Solution1 {
+        public int[] finalPrices(int[] prices) {
+            int[] res = new int[prices.length];
+            for(int i = 0; i &lt; prices.length; i++) {
+                int discount = 0;
+                for(int j = i + 1; j &lt; prices.length; j++) {
+                    if(prices[j] &lt;= prices[i]) {
+                        discount = prices[j];
+                        break;
+                    }
+                }
+                res[i] = prices[i] - discount;
+            }
+            return res;
+        }
+    }
+</code></pre>
+<p>leetcode 687.最长同值路径</p>
+<pre><code class="language-java">class Solution {
+    int max = 0;
+    public int longestUnivaluePath(TreeNode root) {
+        helper(root);
+        return max;
+    }
+
+    private int helper(TreeNode root) {
+        if(root == null) {
+            return 0;
+        }
+        int lefMax = helper(root.left);
+        int rightMax = helper(root.right);
+        int left1 = 0; int right1 = 0;
+        if(root.left != null &amp;&amp; root.left.val == root.val) {
+            left1 = lefMax + 1;
+        }
+        if(root.right != null &amp;&amp; root.right.val == root.val) {
+            right1 = rightMax + 1;
+        }
+        max = Math.max(max, left1 + right1);
+        return Math.max(left1, right1);
+
+    }
+}
+</code></pre>
+<p>leetcode 646.最长数对链</p>
+<pre><code class="language-java">class Solution {
+        public int findLongestChain(int[][] pairs) {
+            int n = pairs.length;
+            Arrays.sort(pairs, (a, b) -&gt; a[0] - b[0]);
+            int[] dp = new int[n];
+            Arrays.fill(dp, 1);
+            for (int i = 0; i &lt; n; i++) {
+                for (int j = 0; j &lt; i; j++) {
+                    if (pairs[i][0] &gt; pairs[j][1]) {
+                        dp[i] = Math.max(dp[i], dp[j] + 1);
+                    }
+                }
+            }
+            return dp[n - 1];
+        }
+}
+
+</code></pre>
+<p>leetcode 1582. 二进制矩阵中的特殊位置</p>
+<pre><code class="language-java">class Solution {
+        public int numSpecial(int[][] mat) {
+            int res = 0;
+            int rowsSum[] = new int[mat.length];
+            int columSum[] = new int[mat[0].length];
+            for (int i = 0; i &lt; mat.length; i++) {
+                for (int j = 0; j &lt; mat[0].length; j++) {
+                    rowsSum[i] += mat[i][j];
+                    columSum[j] += mat[i][j];
+                }
+            }
+            for (int i = 0; i &lt; mat.length; i++) {
+                for (int j = 0; j &lt; mat[0].length; j++) {
+                    if (mat[i][j] == 1 &amp;&amp; rowsSum[i] == 1 &amp;&amp; columSum[j] == 1) {
+                        res++;
+                    }
+                }
+            }
+            return res;
+        }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/weekly-sdudy-002/" class="post-title gt-a-link">
+                    weekly sdudy 002
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

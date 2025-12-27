@@ -1,0 +1,435 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-036 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-036
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-07-29 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/shuffle-an-array/description/">384. 打乱数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    int[] nums;
+    Random random = new Random();
+    public Solution(int[] nums) {
+        this.nums = nums;
+    }
+
+    public int[] reset() {
+        return nums;
+    }
+
+    public int[] shuffle() {
+        int n = nums.length;
+        int[] copy = Arrays.copyOf(nums, n);
+        for(int i = 0; i &lt; n; i++) {
+            int next = i + random.nextInt(n - i);
+            int tmp = copy[i];
+            copy[i] = copy[next];
+            copy[next] = tmp;
+        }
+        return copy;
+    }
+}
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(nums);
+ * int[] param_1 = obj.reset();
+ * int[] param_2 = obj.shuffle();
+ */
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/linked-list-random-node/description/">382. 链表随机节点</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    ListNode head;
+    Random random = new Random(20220116);
+    public Solution(ListNode _head) {
+        head = _head;
+    }
+    public int getRandom() {
+        int i = 0, res = 0;
+        ListNode p = head;
+        // while 循环遍历链表
+        while (p != null) {
+            i++;
+            // 生成一个 [0, i) 之间的整数
+            // 这个整数等于 0 的概率就是 1/i
+            if (0 == random.nextInt(i)) {
+                res = p.val;
+            }
+            p = p.next;
+        }
+        return res;
+    }
+}
+ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/random-pick-index/description/">398. 随机数索引</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+
+    Random random;
+    Map&lt;Integer, List&lt;Integer&gt;&gt; map;
+    public Solution(int[] nums) {
+        map = new HashMap&lt;&gt;();
+        random = new Random();
+        for(int i = 0; i &lt; nums.length; i++) {
+            map.putIfAbsent(nums[i], new ArrayList&lt;Integer&gt;());
+            map.get(nums[i]).add(i);
+        }
+    }
+
+    public int pick(int target) {
+        List&lt;Integer&gt; indices = map.get(target);
+        return indices.get(random.nextInt(indices.size()));
+    }
+}
+
+/**
+ * Your Solution object will be instantiated and called as such:
+ * Solution obj = new Solution(nums);
+ * int param_1 = obj.pick(target);
+ */ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/factorial-trailing-zeroes/description/">172. 阶乘后的零</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int trailingZeroes(int n) {
+        if(n &lt; 5) {
+            return 0;
+        }
+        int res = 0;
+        while(n &gt; 0) {
+            n /= 5;
+            res += n;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/preimage-size-of-factorial-zeroes-function/description/">793. 阶乘函数后 K 个零</a></li>
+</ul>
+<pre><code class="language-java">
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+    /* 主函数 */
+    public int preimageSizeFZF(int K) {
+        // 左边界和右边界之差 + 1 就是答案
+        return (int)(rightBound(K) - leftBound(K) + 1);
+    }
+
+    /* 搜索 trailingZeroes(n) == K 的左侧边界 */
+    long leftBound(int target) {
+        long lo = 0, hi = Long.MAX_VALUE;
+        while (lo &lt; hi) {
+            long mid = lo + (hi - lo) / 2;
+            if (trailingZeroes(mid) &lt; target) {
+                lo = mid + 1;
+            } else if (trailingZeroes(mid) &gt; target) {
+                hi = mid;
+            } else {
+                hi = mid;
+            }
+        }
+        return lo;
+    }
+
+    /* 搜索 trailingZeroes(n) == K 的右侧边界 */
+    long rightBound(int target) {
+        long lo = 0, hi = Long.MAX_VALUE;
+        while (lo &lt; hi) {
+            long mid = lo + (hi - lo) / 2;
+            if (trailingZeroes(mid) &lt; target) {
+                lo = mid + 1;
+            } else if (trailingZeroes(mid) &gt; target) {
+                hi = mid;
+            } else {
+                lo = mid + 1;
+            }
+        }
+        return lo - 1;
+    }
+
+    // 逻辑不变，数据类型全部改成 long
+    long trailingZeroes(long n) {
+        long res = 0;
+        while(n &gt; 0) {
+            n /= 5;
+            res += n;
+        }
+        return res;
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+ 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/count-primes/description/">204. 计数质数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int countPrimes(int n) {
+        boolean[] isPrime = new boolean[n];
+        Arrays.fill(isPrime, true);
+        for(int i = 2; i * i &lt; n; i++) {
+            if(isPrime[i]) {
+                for(int j = i * i; j &lt; n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+        int count = 0;
+        for(int i = 2; i &lt; n; i++) {
+            if(isPrime[i]) {
+                count++;
+            }
+        }
+        return count;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/super-pow/description/">372. 超级次方</a></li>
+</ul>
+<pre><code class="language-java"> class Solution {
+    int MOD = 1337;
+    public int superPow(int a, int[] b) {
+        return dfs(a, b, b.length - 1);
+    }
+    int dfs(int a, int[] b, int u) {
+        if (u == -1) return 1;
+        return qpow(dfs(a, b, u - 1), 10) * qpow(a, b[u]) % MOD;
+    }
+    int qpow(int a, int b) {
+        int ans = 1;
+        a %= MOD;
+        while (b != 0) {
+            if ((b &amp; 1) != 0) ans = ans * a % MOD;
+            a = a * a % MOD;
+            b &gt;&gt;= 1;
+        }
+        return ans;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/set-mismatch/description/">645. 错误的集合</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] findErrorNums(int[] nums) {
+        int n = nums.length;
+        for(int i = 0; i &lt; n; i++) {
+            // 4321
+            // 0123
+            while(nums[i] != i + 1 &amp;&amp; nums[nums[i] - 1] != nums[i]) {
+                swap(nums, i, nums[i] - 1);
+            }
+        }
+        int a = -1, b = -1;
+        for(int i = 0; i &lt; n; i++) {
+            if(nums[i] != i + 1) {
+                a = nums[i];
+                b = i == 0 ? 1 : nums[i - 1] + 1;
+            }
+        }
+        return new int[]{a, b};
+    }
+
+    void swap(int[] nums, int i, int j) {
+        int tmp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = tmp;
+    }
+
+} 
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-035/" class="post-title gt-a-link">
+                    Panson-Weekly-035
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

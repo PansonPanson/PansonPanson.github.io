@@ -1,0 +1,336 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-019 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-019
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-03-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/next-greater-element-i/description/">496. 下一个更大元素 I</a></li>
+</ul>
+<pre><code class="language-java">
+class Solution {
+    public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+        int[] memory = nextGreaterElement(nums2);
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        for(int i = 0; i &lt; nums2.length; i++) {
+            map.put(nums2[i], memory[i]);
+        }
+        int[] res = new int[nums1.length];
+        for(int i = 0; i &lt; nums1.length; i++) {
+            res[i] = map.get(nums1[i]);
+        }
+        return res;
+    }
+
+    public int[] nextGreaterElement(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+        for(int i = n - 1; i &gt;= 0; i--) {
+            while(!stack.isEmpty() &amp;&amp; stack.peek() &lt;= nums[i]) {
+                stack.pop();
+            }
+            res[i] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(nums[i]);
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/daily-temperatures/description/">739. 每日温度</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] dailyTemperatures(int[] temperatures) {
+        int n = temperatures.length;
+        int[] res = new int[n];
+        Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+        for(int i = n - 1; i &gt;= 0; i--) {
+            while(!stack.isEmpty() &amp;&amp; temperatures[stack.peek()] &lt;= temperatures[i]) {
+                stack.pop();
+            }
+            res[i] = stack.isEmpty() ? 0 : stack.peek() - i;
+            stack.push(i);
+        }
+        return res;
+    }
+}
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/next-greater-element-ii/description/">503. 下一个更大元素 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] nextGreaterElements(int[] nums) {
+        int n = nums.length;
+        int[] res = new int[n];
+        Deque&lt;Integer&gt; stack = new ArrayDeque&lt;&gt;();
+        for (int i = 2 * n - 1; i &gt;= 0; i--) {
+            while(!stack.isEmpty() &amp;&amp; stack.peek() &lt;= nums[i % n]) {
+                stack.pop();
+            }
+            res[i % n] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(nums[i % n]);
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/next-greater-node-in-linked-list/description/">1019. 链表中的下一个更大节点</a></li>
+</ul>
+<pre><code class="language-java"> class Solution {
+
+    public int[] nextLargerNodes(ListNode head) {
+        ListNode p1 = head;
+        int n = getLength(p1);
+        int[] res = new int[n];
+
+        ListNode cur = head;
+        // 栈顶是最小的元素数组映射，int[0] 为链表元素值，int[1] 为链表下标索引
+        Deque&lt;int[]&gt; stack = new ArrayDeque&lt;&gt;();
+        int i = 0;
+        while(cur != null) {
+            while(!stack.isEmpty() &amp;&amp; stack.peek()[0] &lt; cur.val) {
+                int[] min = stack.pop();
+                res[min[1]] = cur.val;
+            }
+            stack.push(new int[]{cur.val, i});
+            i++;
+            cur = cur.next;
+        }
+        return res;
+    }
+
+    public int getLength(ListNode p) {
+        int res = 0;
+        while(p != null) {
+            p = p.next;
+            res++;
+        }
+        return res;
+    }
+}
+
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/sliding-window-maximum/description/">239. 滑动窗口最大值</a></li>
+</ul>
+<pre><code class="language-java">
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        // 使用大根堆，每一个元素为 &lt;index, num&gt;
+        PriorityQueue&lt;int[]&gt; priorityQueue = new PriorityQueue&lt;&gt;((a, b) -&gt; b[1] - a[1]);
+        int n = nums.length;
+        int[] res = new int[n - k + 1];
+        int index = 0;
+        int i = 0;
+        while(i &lt; k) {
+            priorityQueue.offer(new int[] {i, nums[i]});
+            i++;
+        }
+        res[index++] = priorityQueue.peek()[1];
+
+        while(i &lt; n) {
+            priorityQueue.offer(new int[] {i, nums[i]});
+            while(i - priorityQueue.peek()[0] &gt;= k) {
+                priorityQueue.poll();
+            }
+            res[index++] = priorityQueue.peek()[1]; 
+            i++;
+        }
+        return res;
+    }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-018/" class="post-title gt-a-link">
+                    Panson-Weekly-018
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

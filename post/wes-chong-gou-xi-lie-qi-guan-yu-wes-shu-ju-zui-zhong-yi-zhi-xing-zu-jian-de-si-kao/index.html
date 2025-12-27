@@ -1,0 +1,507 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（七）：关于WES 数据最终一致性组件的思考 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（七）：关于WES 数据最终一致性组件的思考
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-02-05 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><strong>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</strong></p>
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1763688506579-93d126d41ebf?q=80&amp;w=2340&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<h2 id="一-wes-与第三方系统数据不一致困境">一、WES 与第三方系统数据不一致困境</h2>
+<p>首先说一下智能仓储系统的场景：智能仓储系统的核心链路涉及多个系统，但是对于数据最终一致性有要求，且部分场景需要提供补偿机制。</p>
+<p>我们需要与诸多二方系统和三方系统对接，比如：<br>
+1、车辆调度系统，可能就会遇到：</p>
+<ul>
+<li>车不来：下发调度信息的时候，消息发送失败，导致车辆不来</li>
+<li>来错车：下发调度信息的时候，消息乱序，导致来错车</li>
+<li>车不走：下发车辆离站消息的时候，消息发送失败，导致车辆不走</li>
+</ul>
+<p>2、与算法服务对接</p>
+<ul>
+<li>离线任务下发失败</li>
+<li>调用算法计算热度</li>
+</ul>
+<p>3、与外设系统交互，可能会遇到：</p>
+<ul>
+<li>
+<p>灯不亮：</p>
+<ul>
+<li>发送亮灯消息的时候，消息发送失败，导致外设系统未接收到消息，灯不亮</li>
+<li>外设系统与物理设备交互，调用相关接口失败</li>
+</ul>
+</li>
+<li>
+<p>灯不灭：</p>
+<ul>
+<li>发送灭灯消息的时候，消息发送失败，导致外设系统未接收到消息，灯不灭</li>
+<li>外设系统与物理设备交互，调用相关接口失败，灯不灭</li>
+</ul>
+</li>
+<li>
+<p>亮错灯：</p>
+<ul>
+<li>发送亮灯消息的时候，消息乱序，导致外设系统亮灯错乱</li>
+</ul>
+</li>
+</ul>
+<p>4、与打印系统交互，可能会遇到：</p>
+<ul>
+<li>没打印：接口调用失败，导致单据打印失败</li>
+</ul>
+<p>5、与上游系统交互：</p>
+<ul>
+<li>各种单据的实操结果未正常反馈上游
+<ul>
+<li>出库单按单反馈</li>
+<li>出库单按箱反馈</li>
+<li>入库单按单反馈</li>
+<li>入库单按箱反馈</li>
+<li>盘点单按单反馈</li>
+<li>库存调整单按单反馈</li>
+<li>……<br>
+6、与基础数据系统交互</li>
+</ul>
+</li>
+<li>货架热度计算结果更新失败</li>
+<li>料箱热度计算结果更新失败</li>
+<li>容器位置更新<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/file-20251129203301152.png?raw=true" alt="" loading="lazy"><br>
+这些场景无法使用本地事务实现，因为是分布式系统。有些场景也不能纯用 MQ 的消息事务实现，因为 RocketMQ 事务消息重试机制不灵活。</li>
+</ul>
+<h2 id="二-关于重试逻辑的思考">二、关于重试逻辑的思考</h2>
+<p>一个健壮的系统是需要考虑关键节点的稳定性的，以与外部系统交互这种节点来讨论，我觉得核心的意识是不相信第三方系统，无论是数据的获取还是推送。</p>
+<p>所以需要实现重试逻辑。</p>
+<p>但二方系统、三方系统有许多，如果在每一个节点都去写重试逻辑，那么重试逻辑就会变得不可复用。比如说：</p>
+<ul>
+<li>重试次数怎么设置？</li>
+<li>每次重试的间隔如何考虑？</li>
+<li>重试逻辑是否影响主线程，需要异步化吗？</li>
+<li>是否考虑加降级呢？</li>
+<li>能不能加告警？</li>
+<li>……</li>
+</ul>
+<h2 id="三-抽象-复用与便捷">三、抽象、复用与便捷</h2>
+<p>考虑以上问题后，我在阅读了转转和得物的关于重试组件的技术博客后，开始有了新的思考。是不是可以抽取出业务需求，自定义一个 springboot starter，用户只需要引入这个 maven 包，做一些简单的配置和适配，就可以做到关键节点的自动重试呢？</p>
+<p>很幸运，我在网上找了一些类似的教程和代码，结合得物、转转的技术博客，实现了这个组件。</p>
+<p>我们可以基于SpringAOP来实现，将需要重试的逻辑抽取成 public 修饰的方法，在这个方法上加上一致性注解。<br>
+拦截所有加了一致性注解的方法，封装为一个重试任务，持久化到数据库中，再通过反射去执行这个任务。</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/chongshizujian.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="四-如何设计自定义注解">四、如何设计自定义注解</h2>
+<p>我们如果想基于反射来做，那注解必须要有反射相关的信息，另外还要有执行间隔、延迟时间、告警相关<br>
+降级相关。</p>
+<ol>
+<li>任务名称：默认取方法全限定名，因为想使用反射来执行</li>
+<li>执行间隔：任务执行间隔</li>
+<li>初始延迟时间</li>
+<li>告警表达式</li>
+<li>告警类</li>
+<li>降级类</li>
+<li>……</li>
+</ol>
+<h2 id="五-重试任务执行流程">五、重试任务执行流程</h2>
+<p>如下图所示：<br>
+<img src="https://github.com/PansonPanson/Argo/blob/main/doc/image/%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="六-如何自定义任务查询逻辑">六、如何自定义任务查询逻辑</h2>
+<p>任务失败重试是通过定时任务调⽤ <code>taskScheduleManager.performanceTask()</code> ⽅法来实现 的，底层逻辑就是根据条件从数据库中查询出来失败的任务，然后判 断是否需要重试，执行后续逻辑。</p>
+<p>在这个过程中，根据条件查询失败的任务，这⾥的条件允许⼀定程度的⾃定义。默认情况下⾏为 是： <strong>每次查询当前时间 - 1⼩时 时间范围内的1000条失败的记录</strong>。</p>
+<p>如果想要更改此逻辑，可以自定义查询类名并继承查询接口，然后在 yml 中配置全路径类名，组件接入启动时会根据自定义配置类来反射获取自定义查询配置信息。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/file-20251129204320270.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="七-指数退避重试">七、指数退避重试</h2>
+<p>指数退避重试是一种智能的容错机制，其核心思想是当操作失败后，重试的等待时间随着重试次数的增加而呈指数级增长，并通常会引入随机扰动。它能有效防止因频繁重试导致的系统压力激增，是构建稳定分布式系统和网络应用的关键策略。</p>
+<table>
+<thead>
+<tr>
+<th>重试次数</th>
+<th>基础延迟计算（示例）</th>
+<th>实际等待时间（含抖动）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1次重试</td>
+<td><code>base_delay * (2^0) = 1s</code></td>
+<td>1秒 ± 随机时间</td>
+<td>初始快速重试，希望问题已瞬时恢复</td>
+</tr>
+<tr>
+<td>第2次重试</td>
+<td><code>base_delay * (2^1) = 2s</code></td>
+<td>2秒 ± 随机时间</td>
+<td>延迟加倍，给系统更多恢复时间</td>
+</tr>
+<tr>
+<td>第3次重试</td>
+<td><code>base_delay * (2^2) = 4s</code></td>
+<td>4秒 ± 随机时间</td>
+<td>继续指数增长，进一步退让</td>
+</tr>
+<tr>
+<td>第n次重试</td>
+<td><code>base_delay * (2^(n-1))</code></td>
+<td>计算结果 ± 随机时间，但不超过 <code>max_delay</code></td>
+<td>避免等待时间无限增长</td>
+</tr>
+</tbody>
+</table>
+<p>在计算下一次执行时间时，可以按照这个指数退避重试，但一般我们设置的重试次数都很小，所以与线性重试差距不大。</p>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/file-20251129204403321.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="八-降级逻辑设计">八、降级逻辑设计</h2>
+<p>有时候我们希望重试失败之后进行降级处理，所以注解中要支持定义降级类。<br>
+如果配置了降级类，并且超过了重试次数阈值，就调用降级逻辑。<br>
+具体的实现方式就是通过反射调用指定降级类的同名方法，方法参数要与原方法一致。</p>
+<h2 id="九-告警逻辑">九、告警逻辑</h2>
+<p>告警逻辑可以自定义，在注解上可以配置自定义告警类，如果触发告警规则，则通过反射调用告警类的告警方法。<br>
+因为告警可能会比较耗时，所以做了异步化，避免影响主线程。</p>
+<h2 id="十-如何设计重试任务表">十、如何设计重试任务表</h2>
+<p><strong>数据模型：argo_task（任务表）</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段名 (Field Name)</th>
+<th>数据类型 (Data Type)</th>
+<th>允许空值 (Nullable)</th>
+<th>默认值 (Default)</th>
+<th>注释 (Comment)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>id</strong>​</td>
+<td>bigint</td>
+<td>NOT NULL</td>
+<td>AUTO_INCREMENT</td>
+<td>主键自增</td>
+</tr>
+<tr>
+<td><strong>task_id</strong>​</td>
+<td>varchar(500)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>用户自定义的任务名称，如果没有则使用方法签名</td>
+</tr>
+<tr>
+<td><strong>task_status</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>0</td>
+<td>执行状态</td>
+</tr>
+<tr>
+<td><strong>execute_times</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行次数</td>
+</tr>
+<tr>
+<td><strong>execute_time</strong>​</td>
+<td>bigint</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行时间</td>
+</tr>
+<tr>
+<td><strong>parameter_types</strong>​</td>
+<td>varchar(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>参数的类路径名称</td>
+</tr>
+<tr>
+<td><strong>method_name</strong>​</td>
+<td>varchar(100)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>方法名</td>
+</tr>
+<tr>
+<td><strong>method_sign_name</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>方法签名</td>
+</tr>
+<tr>
+<td><strong>execute_interval_sec</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>60</td>
+<td>执行间隔秒</td>
+</tr>
+<tr>
+<td><strong>delay_time</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>60</td>
+<td>延迟时间：单位秒</td>
+</tr>
+<tr>
+<td><strong>task_parameter</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>任务参数</td>
+</tr>
+<tr>
+<td><strong>performance_way</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行模式：1、立即执行 2、调度执行</td>
+</tr>
+<tr>
+<td><strong>thread_way</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>线程模型 1、异步 2、同步</td>
+</tr>
+<tr>
+<td><strong>error_msg</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>执行的error信息</td>
+</tr>
+<tr>
+<td><strong>alert_expression</strong>​</td>
+<td>varchar(100)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>告警表达式</td>
+</tr>
+<tr>
+<td><strong>alert_action_bean_name</strong>​</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>告警逻辑的执行beanName</td>
+</tr>
+<tr>
+<td><strong>fallback_class_name</strong>​</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>降级逻辑的类路径</td>
+</tr>
+<tr>
+<td><strong>fallback_error_msg</strong>​</td>
+<td>varchar(200)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>降级失败时的错误信息</td>
+</tr>
+<tr>
+<td><strong>shard_key</strong>​</td>
+<td>bigint</td>
+<td>YES</td>
+<td>0</td>
+<td>任务分片键</td>
+</tr>
+<tr>
+<td><strong>gmt_create</strong>​</td>
+<td>datetime</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td><strong>gmt_modified</strong>​</td>
+<td>datetime</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>修改时间</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p><strong>主键 (Primary Key)</strong>：<code>PRIMARY KEY (id)</code>。</p>
+</li>
+<li>
+<p><strong>唯一索引 (Unique Key)</strong>：<code>UNIQUE KEY uk_id_shard_key (id, shard_key) USING BTREE</code>。这是一个复合唯一索引，确保了 <code>id</code>和 <code>shard_key</code>组合的唯一性，常用于分库分表场景。</p>
+</li>
+<li>
+<p><strong>存储引擎与字符集 (Storage Engine &amp; Character Set)</strong>：<code>ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</code>。使用InnoDB引擎，字符集为支持更广范围字符（如emoji）的utf8mb4。</p>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-liu-lao-jiu-xi-tong-chi-xu-you-hua/" class="post-title gt-a-link">
+                    WES 重构系列（六）：老旧系统的持续性改造
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

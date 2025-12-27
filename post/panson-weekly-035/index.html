@@ -1,0 +1,591 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-035 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-035
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-07-22 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/product-of-array-except-self/description/">238. 除自身以外数组的乘积</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] pre = new int[n];
+        pre[0] = 1;
+        int[] post = new int[n];
+        post[n - 1] = 1;
+
+        int[] res = new int[n];
+        // 维护一个前缀积 和 后缀积
+        for(int i = 1; i &lt; n; i++) {
+            pre[i] = pre[i - 1] * nums[i - 1];
+        }
+
+        for(int i = n - 2; i &gt;= 0; i--) {
+            post[i] = post[i + 1] * nums[i + 1];
+        }
+
+        res[0] = post[0];
+        res[n - 1] = pre[n - 1];
+        for(int i = 1; i &lt; n - 1; i++) {
+            res[i] = pre[i] * post[i];
+        }
+        return res;
+
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/contiguous-array/description/">525. 连续数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int findMaxLength(int[] nums) {
+
+        int res = 0;
+        int n = nums.length;
+
+        int[] preSum = new int[n + 1];
+        preSum[0] = 0;
+        Map&lt;Integer, Integer&gt; val2Index = new HashMap&lt;&gt;();
+
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + (nums[i] == 0 ? -1 : 1);
+        }
+        for(int i = 0; i &lt; preSum.length; i++) {
+            if(!val2Index.containsKey(preSum[i])) {
+                val2Index.put(preSum[i], i);
+            } else {
+                res = Math.max(res, i - val2Index.get(preSum[i]));
+            }
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/longest-well-performing-interval/description/">1124. 表现良好的最长时间段</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int longestWPI(int[] hours) {
+        int n = hours.length;
+        for(int i = 0; i &lt; n; i++) {
+            hours[i] = hours[i] &gt; 8 ? 1 : -1;
+        }
+        int[] preSum = new int[n + 1];
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + hours[i];
+        }
+
+        int res = 0;
+        Map&lt;Integer, Integer&gt; val2Index = new HashMap&lt;&gt;();
+
+        for(int i = 0; i &lt; n; i++) {
+
+            if(preSum[i + 1] &gt; 0) {
+                res = Math.max(res, i + 1);
+            } else {
+                if(val2Index.containsKey(preSum[i + 1] - 1)) {
+                    res = Math.max(res, i - val2Index.get(preSum[i + 1] - 1));
+                }
+            }
+            if (!val2Index.containsKey(preSum[i + 1])) {
+                val2Index.put(preSum[i + 1], i);
+            }
+        }
+        return res;
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/continuous-subarray-sum/description/">523. 连续的子数组和</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean checkSubarraySum(int[] nums, int k) {
+        int n = nums.length;
+        int[] preSum = new int[n + 1];
+        preSum[0] = 0;
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + nums[i];
+        }
+        System.out.println(Arrays.toString(preSum));
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        for(int i = 1; i &lt; preSum.length; i++) {
+            int remain = preSum[i] % k;
+            if(remain == 0 &amp;&amp; i &gt;= 2) {
+                return true;
+            } else {
+                if(map.containsKey(remain) &amp;&amp; (i - map.get(remain)) &gt;= 2) {
+                    return true;
+                }
+            }
+
+            map.putIfAbsent(remain, i);
+
+        }
+        return false;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-sum-equals-k/description/">560. 和为 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int subarraySum(int[] nums, int k) {
+        int n = nums.length;
+        int[] preSum = new int[n + 1];
+        for(int i = 0; i &lt; n; i++) {
+            preSum[i + 1] = preSum[i] + nums[i];
+        }
+        Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+        map.put(0, 1);
+        int res = 0;
+        for(int i = 1; i &lt; preSum.length; i++) {
+            if(map.containsKey(preSum[i] - k)) {
+                res += map.get(preSum[i] - k);
+
+            }
+            map.put(preSum[i], map.getOrDefault(preSum[i], 0) + 1);
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-operations-to-reduce-x-to-zero/description/">1658. 将 x 减到 0 的最小操作数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int minOperations(int[] nums, int x) {
+        x = -x;
+        for (int v : nums) {
+            x += v;
+        }
+        Map&lt;Integer, Integer&gt; vis = new HashMap&lt;&gt;();
+        vis.put(0, -1);
+        int n = nums.length;
+        int ans = 1 &lt;&lt; 30;
+        for (int i = 0, s = 0; i &lt; n; ++i) {
+            s += nums[i];
+            vis.putIfAbsent(s, i);
+            if (vis.containsKey(s - x)) {
+                int j = vis.get(s - x);
+                ans = Math.min(ans, n - (i - j));
+            }
+        }
+        return ans == 1 &lt;&lt; 30 ? -1 : ans;
+    }
+}
+</code></pre>
+<ul>
+<li><a href=""></a></li>
+</ul>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    int res;
+    long targetSumMem;
+        
+    public int pathSum(TreeNode root, long targetSum) {
+      targetSumMem = targetSum;
+      // dfs1 用于搜索所有节点
+      dfs1(root);
+      return res;
+    }
+
+    void dfs1(TreeNode root) {
+        if(root == null) {
+            return;
+        }
+        // 搜索当前搜索节点为根节点的路径的路径和
+        dfs2(root, root.val);
+        dfs1(root.left);
+        dfs1(root.right);
+    }
+
+    void dfs2(TreeNode root, long sum) {
+        if(sum == targetSumMem) {
+            res++;
+        }
+        if(root.left != null) {
+            dfs2(root.left, sum + root.left.val);
+        }
+        if(root.right != null) {
+            dfs2(root.right, sum + root.right.val);
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subarray-product-less-than-k/description/">713. 乘积小于 K 的子数组</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        if(k &lt;= 1) {
+            return 0;
+        }
+        int left = 0;
+        int right = 0;
+        int product = 1;
+        int ans = 0;
+        while(right &lt; nums.length) {
+            product *= nums[right];
+            while(product &gt;= k) {
+                product /= nums[left];
+                left++;
+            }
+            ans += right -left + 1;
+            right++;
+        }
+        return ans;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/he-wei-sde-lian-xu-zheng-shu-xu-lie-lcof/description/">LCR 180. 文件组合</a></li>
+</ul>
+<pre><code class="language-java"> class Solution {
+    public int[][] fileCombination(int target) {
+        if(target &lt; 3) {
+            return new int[0][];
+        }
+        int i = 1;
+        int j = 1;
+        int sum = 0;
+        List&lt;int[]&gt; res = new ArrayList&lt;&gt;();
+        // 123  3
+        while(i &lt;= target / 2) {
+            if(sum &lt; target) {
+                sum += j;
+                j++;
+            } else if(sum &gt; target) {
+                sum -= i;
+                i++;
+            } else {
+                int[] subRes = new int[j - i];
+                for(int k = i; k &lt; j; k++) {
+                    subRes[k - i] = k;
+                }
+                res.add(subRes);
+                sum -= i;
+                i++;
+            }
+        }
+        return res.toArray(new int[res.size()][]);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/maximum-product-of-three-numbers/description/">628. 三个数的最大乘积</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int maximumProduct(int[] nums) {
+        // 没有正数，三个最大数
+        // 有正有负：一个最大正数两个最小负数
+        // 全是正数：三个最大数
+        // 所以只需要 5 个数，3 个最大数和两个最小负数
+        int max1 = -1001;
+        int max2 = -1001;
+        int max3 = -1001;
+        int min1 = 1001;
+        int min2 = 1001;
+        for(int num : nums) {
+            if(num &lt; min1) {
+                min2 = min1;
+                min1 = num;
+            } else if(num &lt; min2){
+                min2 = num;
+            }
+
+            if(num &gt; max1) {
+                max3 = max2;
+                max2 = max1;
+                max1 = num;
+            }else if(num &gt; max2) {
+                max3 = max2;
+                max2 = num;
+            } else if(num &gt; max3) {
+                max3 = num;
+            }
+        }
+        return Math.max(min1 * min2 * max1, max1 * max2 * max3);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/nim-game/description/">292. Nim 游戏</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean canWinNim(int n) {
+        return n % 4 != 0;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/stone-game/description/">877. 石子游戏</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean stoneGame(int[] piles) {
+        return true;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/bulb-switcher/description/">319. 灯泡开关</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int bulbSwitch(int n) {
+        return (int)Math.sqrt(n);
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/single-number/description/">136. 只出现一次的数字</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int singleNumber(int[] nums) {
+        int res = 0;
+        for(int num : nums) {
+            res ^= num;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/number-of-1-bits/description/">191. 位1的个数</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int hammingWeight(int n) {
+        int res = 0;
+        while(n != 0){
+            n &amp;= (n - 1);
+            res++;
+        }
+        return res;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/power-of-two/description/">231. 2 的幂</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean isPowerOfTwo(int n) {
+        if(n &lt;= 0) {
+            return false;
+        }
+        return (n &amp; (n - 1)) == 0;
+    }
+} 
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/missing-number/description/">268. 丢失的数字</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int missingNumber(int[] nums) {
+        int res = nums.length;
+        for(int i = 0; i &lt; nums.length; i++) {
+            res = res ^ nums[i] ^ i;
+        }
+        return res;
+    }
+} 
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-034/" class="post-title gt-a-link">
+                    Panson-Weekly-034
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

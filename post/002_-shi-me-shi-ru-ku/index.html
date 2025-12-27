@@ -1,0 +1,247 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>002.什么是入库 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    002.什么是入库
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 <strong>WMS（Warehouse Management System，仓库管理系统）</strong> 中，<strong>入库</strong> 是指商品、原材料或货物从外部进入仓库并被系统记录和管理的过程。入库是仓储管理的一个核心环节，确保仓库能够准确地接收、登记和存储货物。</p>
+<h3 id="入库的主要流程">入库的主要流程：</h3>
+<ol>
+<li>
+<p><strong>入库通知</strong>：</p>
+<ul>
+<li>仓库接收到采购订单、退货订单或其他入库需求（如生产入库、调拨入库）的通知。</li>
+<li>通知单中通常会包含入库的货物种类、数量和特殊要求。</li>
+</ul>
+</li>
+<li>
+<p><strong>货物到达</strong>：</p>
+<ul>
+<li>供应商或运输方将货物运送到仓库。</li>
+<li>仓库人员确认货物到达后进行初步核对。</li>
+</ul>
+</li>
+<li>
+<p><strong>验收</strong>：</p>
+<ul>
+<li>仓库工作人员核对货物数量、质量、规格等是否与入库单一致。</li>
+<li>如果发现问题（如数量不符、质量不合格），需要记录异常并处理。</li>
+</ul>
+</li>
+<li>
+<p><strong>上架或存放</strong>：</p>
+<ul>
+<li>验收合格的货物按照系统指引分配到指定的存储位置（货架、库区等）。</li>
+<li>WMS 系统会记录货物的存储位置，方便后续查询和调度。</li>
+</ul>
+</li>
+<li>
+<p><strong>入库确认</strong>：</p>
+<ul>
+<li>仓库人员在 WMS 系统中完成入库操作，录入相关信息（如货物类别、数量、存储位置等）。</li>
+<li>系统更新库存数据，反映最新的库存状态。</li>
+</ul>
+</li>
+</ol>
+<h3 id="入库的类型">入库的类型：</h3>
+<p>根据不同的业务需求，入库可以分为以下几种类型：</p>
+<ol>
+<li><strong>采购入库</strong>：供应商交付的货物入库。</li>
+<li><strong>生产入库</strong>：生产完成的成品或半成品入库。</li>
+<li><strong>退货入库</strong>：客户退货后重新入库。</li>
+<li><strong>调拨入库</strong>：从其他仓库调拨过来的货物入库。</li>
+<li><strong>其他入库</strong>：如赠品、临时物资等入库。</li>
+</ol>
+<h3 id="入库在-wms-系统中的意义">入库在 WMS 系统中的意义：</h3>
+<ul>
+<li><strong>库存准确性</strong>：入库环节确保仓库库存数据的更新和准确。</li>
+<li><strong>优化仓储空间</strong>：通过合理分配存储位置，提高仓库的利用率。</li>
+<li><strong>便捷后续操作</strong>：入库完成后，货物的后续操作（如拣货、发货）会更高效。</li>
+</ul>
+<h3 id="入库常见的技术支持">入库常见的技术支持：</h3>
+<ul>
+<li><strong>条形码/RFID</strong>：通过扫描条形码或 RFID 标签快速记录货物信息。</li>
+<li><strong>自动化设备</strong>：如传送带、自动分拣机等，提升入库效率。</li>
+<li><strong>移动终端/PDA</strong>：仓库人员使用手持设备操作入库，实时上传数据。</li>
+</ul>
+<p>通过 WMS 系统的支持，入库流程变得更加高效和精准，同时提升了仓储管理的整体水平。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/005_-shi-me-shi-shang-pin-rong-liang/" class="post-title gt-a-link">
+                    005.什么是商品容量
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

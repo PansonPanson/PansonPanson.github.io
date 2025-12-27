@@ -1,0 +1,218 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>MacOS 环境如何使用 GitHub + Typora + PicGo 搭建写作环境 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    MacOS 环境如何使用 GitHub + Typora + PicGo 搭建写作环境
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-03-21 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在某些方面，不得不承认自己是一个强迫症患者。比如说写作环境，本身习惯了 Typora 的简洁与即时渲染，但 Typora 本身不支持图床，我在犹豫良久之后，还是切换回了有道云笔记。</p>
+<!-- more -->
+<p>尽管有道云笔记支持 Markdown，但界面审美还停留在上个世纪，普通的笔记有没办法给我较为满意的写作体验。直到最近陆陆续续整理有道云上的笔记，才发现我在有道云上已经写了上百篇的文档，出于对数据的安全性考虑，我准备将所有的文档都备份一份，存储在本地和坚果云上（实时同步），然后不定期将本地文件上传到有道云笔记上（异步），这样的话，即使我的电脑出现损坏，也不至于丢失数据。</p>
+<p>但这样的话，问题又来了，图床呢，Markdown 文件本身仅持有图片的链接。好在可选的方案很多，最终我选择了 GitHub + PicGo 搭建。<br>
+网上的教程给出的大多是 Windows 环境下 使用 GitHub + Typora + PicGo 搭建，所以这里写一份 MacOS 环境下搭建的教程。</p>
+<p>步骤：</p>
+<ol>
+<li>软件下载：Typora 、PicGo，从官网上就可以下载
+<ul>
+<li>https://typora.io/</li>
+<li>https://github.com/Molunerfinn/PicGo</li>
+</ul>
+</li>
+<li>GitHub账号以及一个用于存储图片的仓库</li>
+<li>安装 node 环境</li>
+<li>安装 PicGo:
+<blockquote>
+<p><code>npm install picgo -g</code></p>
+</blockquote>
+</li>
+<li>PicGo 设置:
+<blockquote>
+<p><code>picgo set uploader</code><br>
+<img src="https://panson.top/post-images/1599124188700.png" alt="" loading="lazy"></p>
+</blockquote>
+</li>
+<li>Typora 设置：<br>
+<img src="https://panson.top/post-images/1599124342291.jpg" alt="" loading="lazy"></li>
+</ol>
+<p>点击 <code>Test Uploader</code> 查看测试是否配置正确。如果顺利的话，你就可以看到如下提示：<br>
+<img src="https://panson.top/post-images/1599133921557.jpg" alt="" loading="lazy"></p>
+<p>如果中途遇到问题，因为随着软件版本的迭代，可能会出现一些小问题，你可以参考官方doc获取帮助 <a href="https://support.typora.io/Upload-Image/#option-2-config-via-cli">upload image</a>。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/redis-he-xin-yuan-li-zong-jie/" class="post-title gt-a-link">
+                    Redis 核心原理总结
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

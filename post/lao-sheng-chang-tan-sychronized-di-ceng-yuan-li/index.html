@@ -1,0 +1,481 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读008：synchronized 关键字 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读008：synchronized 关键字
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-29 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-synchronized-%E5%B8%B8%E8%A7%81%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F">1 synchronized 常见使用方式</a>
+<ul>
+<li><a href="#11-synchronized-%E4%BF%AE%E9%A5%B0%E6%99%AE%E9%80%9A%E6%96%B9%E6%B3%95">1.1 synchronized 修饰普通方法</a></li>
+<li><a href="#12-synchronized-%E4%BF%AE%E9%A5%B0-this-%E5%AF%B9%E8%B1%A1">1.2 synchronized 修饰 this 对象</a></li>
+<li><a href="#13-synchronized-%E4%BF%AE%E9%A5%B0%E4%B8%80%E4%B8%AA%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95">1.3 synchronized 修饰一个静态方法</a></li>
+</ul>
+</li>
+<li><a href="#2-synchronized-%E5%BA%95%E5%B1%82%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8E%9F%E5%AD%90%E6%80%A7">2 synchronized 底层如何保证原子性</a>
+<ul>
+<li><a href="#21-%E4%BB%8E%E5%AD%97%E8%8A%82%E7%A0%81%E8%A7%92%E5%BA%A6%E8%81%8A%E8%81%8A-synchronized-%E5%85%B3%E9%94%AE%E5%AD%97">2.1 从字节码角度聊聊 synchronized 关键字</a></li>
+<li><a href="#22-synchronized-%E5%8F%AF%E9%87%8D%E5%85%A5%E6%80%A7%E5%9C%A8%E5%AD%97%E8%8A%82%E7%A0%81%E4%B8%8A%E7%9A%84%E8%A1%A8%E7%8E%B0%E5%BD%A2%E5%BC%8F">2.2 synchronized 可重入性在字节码上的表现形式</a></li>
+<li><a href="#23-synchronized-%E5%8F%AF%E9%87%8D%E5%85%A5%E7%9A%84%E5%8A%A0%E9%94%81%E4%B8%8E%E9%87%8A%E6%94%BE%E9%94%81%E6%B5%81%E7%A8%8B">2.3 synchronized 可重入的加锁与释放锁流程</a></li>
+<li><a href="#24-monitor-%E5%AF%B9-wait-%E5%92%8C-notify-%E7%9A%84%E6%94%AF%E6%8C%81">2.4 monitor 对 wait 和 notify 的支持</a></li>
+</ul>
+</li>
+<li><a href="#3-%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E5%92%8C%E6%9C%89%E5%BA%8F%E6%80%A7">3 保证可见性和有序性</a></li>
+<li><a href="#4-%E9%94%81%E6%B6%88%E9%99%A4-%E9%94%81%E7%B2%97%E5%8C%96-%E5%81%8F%E5%90%91%E9%94%81-%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81-%E9%80%82%E5%BA%94%E9%94%81">4 锁消除、锁粗化、偏向锁、轻量级锁、适应锁</a>
+<ul>
+<li><a href="#41-%E9%94%81%E6%B6%88%E9%99%A4">4.1 锁消除</a></li>
+<li><a href="#42-%E9%94%81%E7%B2%97%E5%8C%96">4.2 锁粗化</a></li>
+<li><a href="#43-%E5%81%8F%E5%90%91%E9%94%81">4.3 偏向锁</a></li>
+<li><a href="#44-%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81">4.4 轻量级锁</a></li>
+<li><a href="#45-%E9%80%82%E5%BA%94%E9%94%81">4.5 适应锁</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-synchronized-常见使用方式">1 synchronized 常见使用方式</h2>
+<p>synchronized 在使用的时候，为了更细粒度地控制加锁的范围，以达到更高的并发效率，需要开发人员熟悉 sychronized 常用的使用方式以及每种方式对应的范围。</p>
+<p>synchronized 锁包含两个方面：一种是对某个<strong>实例对象</strong>加锁，另外一种是对这个<strong>类</strong>进行加锁。对类加锁，也是在针对一个对象实例进行加锁，其实他的意思就是对那个<strong>类的Class对象</strong>进行加锁。</p>
+<p>总而言之，synchronized 可以对两种对象加锁，</p>
+<ol>
+<li>对象实例</li>
+<li>Class 对象</li>
+</ol>
+<h3 id="11-synchronized-修饰普通方法">1.1 synchronized 修饰普通方法</h3>
+<p>synchronized 修饰普通方法，那么就是对当前这个对象实例在加锁，访问同一个对象实例的synchronized方法，同一时间只有一个线程可以做到，如果是下面那种synchronized代码片段，也是这个意思。</p>
+<pre><code class="language-java">synchronized(myObject) {
+  // do something
+}
+</code></pre>
+<p>但是如果是两个线程，分别进入不同的对象的synchronized方法或者代码片段，这两个线程并不会互相干扰，因为是在不同的对象上加锁。</p>
+<h3 id="12-synchronized-修饰-this-对象">1.2 synchronized 修饰 this 对象</h3>
+<p>我们也可以使用 synchronized 来修饰 this 对象，其实意思就是基于当前这个对象实例来加锁，如下代码所示：</p>
+<pre><code class="language-java">synchronized(this) {
+	// do something
+}
+</code></pre>
+<h3 id="13-synchronized-修饰一个静态方法">1.3 synchronized 修饰一个静态方法</h3>
+<p>synchronized 修饰一个静态方法，就是对这个类的Class对象加锁，每个类都对应了一个Class对象，那么对同一个类的synchronized静态方法，同一时间只能有一个线程加锁进入其中，下面的那个代码片段，也是这个意思：</p>
+<pre><code class="language-java">synchronized(MyObject.class) {
+
+}
+</code></pre>
+<p>synchronized 能保证原子性、有序性和可见性。下面从分析一下 synchronized 是如何从底层实现这三个特性的。</p>
+<h2 id="2-synchronized-底层如何保证原子性">2 synchronized 底层如何保证原子性</h2>
+<h3 id="21-从字节码角度聊聊-synchronized-关键字">2.1 从字节码角度聊聊 synchronized 关键字</h3>
+<p>其实 synchronized 底层的原理，是跟 jvm 指令和 monitor 有关系的。先大致说几个概念，后面我们再解释。</p>
+<ul>
+<li>monitor 对象</li>
+<li>反编译工具：javap</li>
+<li>monitorenter 和 monitorexit 指令</li>
+<li>可重入锁</li>
+</ul>
+<p>你如果用到了synchronized关键字，在底层编译后的jvm指令中，会有monitorenter和monitorexit两个指令</p>
+<pre><code class="language-java"> monitorenter
+// 代码对应的指令
+monitorexit
+</code></pre>
+<p>我们可以来看个示例，如下为一个最简单的代码示例：</p>
+<pre><code class="language-java">public class Test {
+    public static void main(String[] args) {
+        synchronized (Test.class) {
+            System.out.println(&quot;hello world&quot;);
+        }
+    }
+}
+</code></pre>
+<p>编译之后得到 Test.class 文件，我们可以使用内置的反编译工具 <code>javap</code>来看看具体的内容：</p>
+<p><code>javap</code> 命令的具体使用方法我在这里也列一下，也可以使用 <code>javap -help</code> 来查看：</p>
+<pre><code class="language-java">用法: javap &lt;options&gt; &lt;classes&gt;
+其中, 可能的选项包括:
+  -help  --help  -?        输出此用法消息
+  -version                 版本信息
+  -v  -verbose             输出附加信息
+  -l                       输出行号和本地变量表
+  -public                  仅显示公共类和成员
+  -protected               显示受保护的/公共类和成员
+  -package                 显示程序包/受保护的/公共类
+                           和成员 (默认)
+  -p  -private             显示所有类和成员
+  -c                       对代码进行反汇编
+  -s                       输出内部类型签名
+  -sysinfo                 显示正在处理的类的
+                           系统信息 (路径, 大小, 日期, MD5 散列)
+  -constants               显示最终常量
+  -classpath &lt;path&gt;        指定查找用户类文件的位置
+  -cp &lt;path&gt;               指定查找用户类文件的位置
+  -bootclasspath &lt;path&gt;    覆盖引导类文件的位置
+</code></pre>
+<p>执行命令<code>javap -verbose -p Test.class</code>，这里限于篇幅我只截取了部分输出结果：</p>
+<pre><code class="language-java">public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=3, args_size=1
+         0: ldc           #2                  // class com/panson/Test
+         2: dup
+         3: astore_1
+         4: monitorenter
+         5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         8: ldc           #4                  // String hello world
+        10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        13: aload_1
+        14: monitorexit
+        15: goto          23
+        18: astore_2
+        19: aload_1
+        20: monitorexit
+        21: aload_2
+        22: athrow
+        23: return
+</code></pre>
+<p>可以定位到：</p>
+<pre><code class="language-java">				 4: monitorenter
+         5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         8: ldc           #4                  // String hello world
+        10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        13: aload_1
+        14: monitorexit
+</code></pre>
+<p>确实是使用了 monitorenter 和 monitorexit 两个指令。</p>
+<p><strong>那么monitorenter指令执行的时候会干什么呢？</strong></p>
+<p>每个对象都有一个关联的 monitor，比如一个对象实例就有一个monitor，一个类的Class对象也有一个monitor，如果要对这个对象加锁，那么必须获取这个对象关联的monitor的lock锁</p>
+<p>底层原理和思路大概是这样的：monitor里面有一个计数器，从0开始的。如果一个线程要获取monitor的锁，就看看他的计数器是不是0，如果是 0 的话，那么说明没人获取锁，他就可以获取锁了，然后对计数器加 1。</p>
+<h3 id="22-synchronized-可重入性在字节码上的表现形式">2.2 synchronized 可重入性在字节码上的表现形式</h3>
+<p>我们还是使用一个简单的代码示例，来看看反编译之后的代码有什么不一样，在该代码示例中，我们使用了两层加锁机制。</p>
+<p>代码示例：</p>
+<pre><code class="language-java">public class Test {
+    public static void main(String[] args) {
+        synchronized (Test.class) {
+            System.out.println(&quot;hello world&quot;);
+            synchronized (Test.class) {
+                System.out.println(&quot;peace&quot;);
+            }
+        }
+    }
+}
+</code></pre>
+<p>反编译之后的代码：</p>
+<pre><code class="language-java">public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=5, args_size=1
+         0: ldc           #2                  // class com/panson/Test
+         2: dup
+         3: astore_1
+         4: monitorenter
+         5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         8: ldc           #4                  // String hello world
+        10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        13: ldc           #2                  // class com/panson/Test
+        15: dup
+        16: astore_2
+        17: monitorenter
+        18: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+        21: ldc           #6                  // String peace
+        23: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+        26: aload_2
+        27: monitorexit
+        28: goto          36
+        31: astore_3
+        32: aload_2
+        33: monitorexit
+        34: aload_3
+        35: athrow
+        36: aload_1
+        37: monitorexit
+        38: goto          48
+        41: astore        4
+        43: aload_1
+        44: monitorexit
+</code></pre>
+<p>从反编译之后的代码可以看到，monitorenter 和 monitorexit 各自出现了两次，对应着两次 synchronized。可重入锁的直观展示便如上述代码所示。</p>
+<h3 id="23-synchronized-可重入的加锁与释放锁流程">2.3 synchronized 可重入的加锁与释放锁流程</h3>
+<pre><code class="language-java">synchronized(myObject) {
+	// do something
+	synchronized(myObject) {
+	// do something
+	}
+}
+</code></pre>
+<p>如果一个线程第一次synchronized那里，获取到了 myObject 对象的 monitor 的锁，计数器加 1 ，然后第二次 synchronized 那里，会再次获取 myObject 对象的 monitor 的锁，这个就是重入加锁了，然后计数器会再次加 1，变成 2。</p>
+<p>这个时候，其他的线程在第一次synchronized那里，会发现说myObject对象的monitor锁的计数器是大于0的，意味着被别人加锁了，然后此时线程就会进入block阻塞状态，什么都干不了，就是等着获取锁。</p>
+<p>接着如果出了synchronized修饰的代码片段的范围，就会有一个monitorexit的指令。此时获取锁的线程就会对那个对象的monitor的计数器减1，如果有多次重入加锁就会对应多次减1，直到最后，计数器是0。</p>
+<p>然后后面block住阻塞的线程，会再次尝试获取锁，但是只有一个线程可以获取到锁。</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/synchronized001.jpg?raw=true" alt="" loading="lazy"></figure>
+<p><strong>总结：sychronized 从底层来说，就是在进入加锁代码块的时候加一个monitorenter的指令，然后针对锁对象关联的monitor累加加锁计数器，同时标识自己这个线程加了锁，同时通过monitor里的加锁计数器可以实现可重入的加锁。</strong></p>
+<h3 id="24-monitor-对-wait-和-notify-的支持">2.4 monitor 对 wait 和 notify 的支持</h3>
+<p>其实wait和notify关键字的实现也是依托于monitor实现的，有线程执行wait之后，自己会加入一个waitset中等待唤醒获取锁，notifyall操作会从monitor的waitset中唤醒所有的线程，让他们竞争获取锁。</p>
+<pre><code class="language-java">MyObject lock = new MyObject();
+synchronized(lock) {
+
+}
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/synchronized002.jpg?raw=true" alt="" loading="lazy"></figure>
+<p>Java对象都是分为<strong>对象头</strong>和<strong>实例变量</strong>两块的，其中实例变量就是大家平时看到的对象里的那些变量数据。然后对象头包含了两块东西，一个是 <strong>Mark Word</strong>（<strong>包含hashCode、锁数据、GC数据，等等</strong>），另一个是 <strong>Class Metadata Address</strong>（<strong>包含了指向类的元数据的指针</strong>）。</p>
+<p>在Mark Word里就有一个指针，是指向了这个对象实例关联的monitor的地址，这个monitor是c++实现的，不是java实现的。这个monitor实际上是c++实现的一个<strong>ObjectMonitor</strong>对象。</p>
+<ol>
+<li>
+<p>ObjectMonitor 里面包含了一个 <strong>_owner指针，指向了持有锁的线程</strong>。</p>
+</li>
+<li>
+<p>ObjectMonitor 里还有一个 <strong>entrylist，想要加锁的线程全部先进入这个entrylist等待获取机会尝试加锁</strong>，实际有机会加锁的线程，就会设置_owner指针指向自己，然后对_count计数器累加1次。</p>
+</li>
+</ol>
+<p>各个线程尝试竞争进行加锁，此时竞争加锁是在JDK 1.6以后优化成了基于CAS来进行加锁，理解为跟之前的Lock API的加锁机制是类似的，CAS操作，操作_count计数器，比如说将_count值尝试从0变为1。</p>
+<p>然后释放锁的时候，先是对_count计数器递减1，如果为0了就会设置_owner为null，不再指向自己，代表自己彻底释放锁。</p>
+<p>如果获取锁的线程执行wait，就会将计数器递减，同时_owner设置为null，然后自己进入waitset中等待唤醒，别人获取了锁执行notify的时候就会唤醒waitset中的线程竞争尝试获取锁。</p>
+<p>有人会问，那尝试加锁这个过程，也就是对_count计数器累加操作，是怎么执行的？如何保证多线程并发的原子性呢？很简单，JDk 1.6之后，对synchronized内的加锁机制做了大量的优化，这里就是优化为CAS加锁的。</p>
+<h2 id="3-保证可见性和有序性">3 保证可见性和有序性</h2>
+<pre><code class="language-java">int b = 0;
+int c = 0;
+
+synchronized(this) { -&gt; monitorenter
+
+Load内存屏障
+Acquire内存屏障
+
+int a = b;
+c = 1; =&gt; synchronized代码块里面还是可能会发生指令重排
+
+Release内存屏障
+
+} -&gt; monitorexit
+
+Store内存屏障
+</code></pre>
+<p>java的并发技术底层很多都对应了内存屏障的使用，包括synchronized，他底层也是依托于各种不同的内存屏障来保证可见性和有序性的。</p>
+<p><strong>按照可见性来划分的话，内存屏障可以分为Load屏障和Store屏障</strong>。</p>
+<ul>
+<li>
+<p><strong>Load屏障的作用是执行refresh处理器缓存的操作</strong>，说白了就是对别的处理器更新过的变量，从其他处理器的高速缓存（或者主内存）加载数据到自己的高速缓存来，确保自己看到的是最新的数据。</p>
+</li>
+<li>
+<p><strong>Store屏障的作用是执行flush处理器缓存的操作</strong>，说白了就是把自己当前处理器更新的变量的值，都刷新到高速缓存（或者主内存）里去。</p>
+</li>
+</ul>
+<p>在monitorexit指令之后，会有一个Store屏障，让线程把自己在同步代码块里修改的变量的值都执行flush处理器缓存的操作，刷到高速缓存（或者主内存）里去；然后在monitorenter指令之后会加一个Load屏障，执行refresh处理器缓存的操作，把别的处理器修改过的最新值加载到自己高速缓存里来。</p>
+<p>所以说通过Load屏障和Store屏障，就可以让synchronized保证可见性。</p>
+<p><strong>按照有序性保障来划分的话，还可以分为Acquire屏障和Release屏障。</strong></p>
+<ul>
+<li>在monitorenter指令之后，Load屏障之后，会加一个Acquire屏障，这个屏障的作用是禁止读操作和读写操作之间发生指令重排序。</li>
+<li>在monitorexit指令之前，会加一个Release屏障，这个屏障的作用是禁止写操作和读写操作之间发生重排序。</li>
+</ul>
+<p>所以说，通过 Acquire屏障和Release屏障，就可以让synchronzied保证有序性，只有synchronized内部的指令可以重排序，但是绝对不会跟外部的指令发生重排序。</p>
+<p>总结 synchronized：</p>
+<ul>
+<li>原子性：加锁和释放锁，ObjectMonitor</li>
+<li>可见性：加了Load屏障和Store屏障，释放锁flush数据，加锁会refresh数据</li>
+<li>有序性：Acquire屏障和Release屏障，保证同步代码块内部的指令可以重排，但是同步代码块内部的指令和外面的指令是不能重排的</li>
+</ul>
+<h2 id="4-锁消除-锁粗化-偏向锁-轻量级锁-适应锁">4 锁消除、锁粗化、偏向锁、轻量级锁、适应锁</h2>
+<h3 id="41-锁消除">4.1 锁消除</h3>
+<p>锁消除是JIT编译器对synchronized锁做的优化，在编译的时候，JIT会通过逃逸分析技术，来分析synchronized锁对象，是不是只可能被一个线程来加锁，没有其他的线程来竞争加锁，这个时候编译就不用加入monitorenter和monitorexit的指令。<br>
+这就是，仅仅一个线程争用锁的时候，就可以消除这个锁了，提升这段代码的执行的效率，因为可能就只有一个线程会来加锁，不涉及到多个线程竞争锁。</p>
+<h3 id="42-锁粗化">4.2 锁粗化</h3>
+<pre><code class="language-java">synchronized(this) {
+
+}
+
+synchronized(this) {
+
+}
+
+synchronized(this) {
+
+}
+</code></pre>
+<p>这个意思就是，JIT编译器如果发现有代码里连续多次加锁释放锁的代码，会给合并为一个锁，就是锁粗化，把一个锁给搞粗了，避免频繁多次加锁释放锁。</p>
+<h3 id="43-偏向锁">4.3 偏向锁</h3>
+<p>这个意思就是说，monitorenter和monitorexit是要使用CAS操作加锁和释放锁的，开销较大，因此如果发现大概率只有一个线程会主要竞争一个锁，那么会给这个锁维护一个偏好（Bias），后面他加锁和释放锁，基于Bias来执行，不需要通过CAS，性能会提升很多。<br>
+但是如果有偏好之外的线程来竞争锁，就要收回之前分配的偏好。</p>
+<h3 id="44-轻量级锁">4.4 轻量级锁</h3>
+<p>如果偏向锁没能成功实现，就是因为不同线程竞争锁太频繁了，此时就会尝试采用轻量级锁的方式来加锁，就是将对象头的Mark Word里有一个轻量级锁指针，尝试指向持有锁的线程，然后判断一下是不是自己加的锁，如果是自己加的锁，那就执行代码就好了，如果不是自己加的锁，那就是加锁失败，说明有其他人加了锁，这个时候就是升级为重量级锁。</p>
+<h3 id="45-适应锁">4.5 适应锁</h3>
+<p>这是JIT编译器对锁做的另外一个优化，如果各个线程持有锁的时间很短，那么一个线程竞争锁不到，就会暂停，发生上下文切换，让其他线程来执行。但是其他线程很快释放锁了，然后暂停的线程再次被唤醒。也就是说在这种情况下，线程会频繁的上下文切换，导致开销过大。所以对这种线程持有锁时间很短的情况，是可以采取忙等策略的，也就是一个线程没竞争到锁，进入一个while循环不停等待，不会暂停不会发生线程上下文切换，等到机会获取锁就继续执行好了。</p>
+<p>这样可以大幅度减少线程上下文的切换，而这种自旋等待获取锁的方式，就是所谓<strong>自旋锁</strong>，就是不断的自旋尝试获取锁。</p>
+<p>如果一个线程持有锁的时间很长，那么其他线程获取不到锁，就会暂停，发生上下文切换，让其他线程来执行，这种自己暂停获取锁的方式，就是所谓的<strong>重量级锁</strong>。这个根据不同情况自动调整的过程，就是适应锁的意思。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-007volatile-guan-jian-zi/" class="post-title gt-a-link">
+                    JDK 源码阅读007：volatile 关键字
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

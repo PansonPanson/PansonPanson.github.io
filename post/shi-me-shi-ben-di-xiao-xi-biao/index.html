@@ -1,0 +1,221 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>什么是本地消息表？ | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    什么是本地消息表？
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-09-17 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>本地消息表是一种在分布式系统中，用于确保数据一致性的解决方案。其实本质上是一张状态表。</p>
+<h3 id="核心思想">核心思想</h3>
+<!-- more -->
+<p>它的核心思想是利用<strong>数据库事务</strong>来保证业务操作和发送消息这两个步骤的<strong>原子性</strong>。简单来说，就是把业务数据的变更和一条“待发送消息”的记录放在同一个本地数据库事务中。这样一来，这两个操作要么都成功，要么都失败，不会出现业务数据更新了但消息没发出去，或者反过来的情况。</p>
+<h3 id="工作流程">工作流程</h3>
+<ol>
+<li><strong>业务操作与消息写入</strong>：当你的业务逻辑需要通知其他服务时，它会执行以下操作，并且把这两个操作放在同一个数据库事务中：
+<ul>
+<li>更新业务数据。</li>
+<li>在<strong>本地消息表</strong>中插入一条新的消息记录，状态通常是“待发送”。</li>
+</ul>
+</li>
+<li><strong>消息发送</strong>：有一个独立的后台任务（例如定时任务或常驻服务）会不断扫描本地消息表，查找状态为“待发送”的消息。</li>
+<li><strong>消息消费</strong>：后台任务将这些消息发送到消息队列（如 Kafka、RabbitMQMQ）中。发送成功后，它会更新本地消息表中该消息的状态为“已发送”。</li>
+<li><strong>消费方处理</strong>：其他服务从消息队列中消费到这条消息，并执行相应的业务逻辑。</li>
+</ol>
+<hr>
+<h3 id="本地消息表解决了什么问题">本地消息表解决了什么问题？</h3>
+<p>本地消息表主要解决了<strong>分布式事务</strong>中<strong>最终一致性</strong>的问题。在微服务架构中，当一个服务需要通知另一个服务进行操作时，如果直接调用，可能因为网络问题或对方服务宕机而失败。如果使用消息队列，又可能因为业务操作成功但发送消息失败，导致数据不一致。本地消息表利用本地事务的<strong>可靠性</strong>，完美地解决了这个问题，确保了业务操作和消息通知的最终一致性。</p>
+<h3 id="优点和缺点">优点和缺点</h3>
+<ul>
+<li><strong>优点</strong>：
+<ul>
+<li><strong>实现简单</strong>：它利用了数据库本身的事务能力，逻辑清晰，易于理解和实现。</li>
+<li><strong>可靠性高</strong>：确保了业务操作和消息发送的原子性，数据不会丢失。</li>
+</ul>
+</li>
+<li><strong>缺点</strong>：
+<ul>
+<li><strong>资源占用</strong>：需要额外的数据库表来存储消息，增加了数据库的读写压力。</li>
+<li><strong>实时性弱</strong>：消息的发送不是实时的，依赖于后台任务的扫描周期，有一定的延迟。</li>
+<li><strong>代码侵入性</strong>：业务代码中需要额外加入消息表的插入逻辑。</li>
+</ul>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wei-shi-me-yao-she-ji-yi-ge-shu-ju-yi-zhi-xing-zu-jian-md/" class="post-title gt-a-link">
+                    为什么要设计一个数据一致性组件
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,545 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title> JDK 源码阅读004：HashMap | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                     JDK 源码阅读004：HashMap
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-10 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">2 数据结构</a>
+<ul>
+<li><a href="#21-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">2.1 数据结构总览</a></li>
+<li><a href="#22-node">2.2 Node</a></li>
+<li><a href="#23-table">2.3 table</a></li>
+</ul>
+</li>
+<li><a href="#3-%E6%A0%B8%E5%BF%83%E5%AD%97%E6%AE%B5">3 核心字段</a></li>
+<li><a href="#4-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96-%E4%B8%8E-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4 hash 算法优化 与 hash 寻址优化</a>
+<ul>
+<li><a href="#41-hash-%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96">4.1  hash 算法优化</a></li>
+<li><a href="#42-hash-%E5%AF%BB%E5%9D%80%E4%BC%98%E5%8C%96">4.2 hash 寻址优化</a></li>
+</ul>
+</li>
+<li><a href="#5-put-%E6%96%B9%E6%B3%95">5 put 方法</a>
+<ul>
+<li><a href="#51-put-%E6%96%B9%E6%B3%95%E7%9A%84%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90">5.1 put 方法的源码解析</a></li>
+<li><a href="#52-%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%BC%9A%E5%87%BA%E7%8E%B0-hash-%E5%86%B2%E7%AA%81">5.2 什么时候会出现 hash 冲突</a></li>
+<li><a href="#53-put-%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93">5.3 put 流程总结</a></li>
+</ul>
+</li>
+<li><a href="#6-resize-%E6%89%A9%E5%AE%B9">6 resize  扩容</a>
+<ul>
+<li><a href="#61-%E6%89%A9%E5%AE%B9%E7%AE%97%E6%B3%95%E4%BC%98%E5%8C%96">6.1 扩容算法优化</a></li>
+<li><a href="#62-resize-%E6%96%B9%E6%B3%95">6.2 resize 方法</a></li>
+<li><a href="#63-resize-%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93">6.3 resize 流程总结</a></li>
+</ul>
+</li>
+<li><a href="#7-get-%E6%96%B9%E6%B3%95">7 get 方法</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
+<p>尽管哈希表是一种非常常见的数据结构，但是具体的代码实现依旧有很多可以优化的地方，我们可以通过阅读 JDK1.8 的HashMap 源码实现来学习这些优秀的设计。</p>
+<p>我们重点关注一些核心的问题：</p>
+<ul>
+<li>HashMap 底层数据结构是怎样的？</li>
+<li>hash 算法为什么要高位与低位做异或运算？</li>
+<li>hash 冲突的处理机制：链表、红黑树</li>
+<li>扩容机制：两倍扩容、rehash、rehash 的算法优化</li>
+<li>put、get 过程</li>
+</ul>
+<h2 id="2-数据结构">2 数据结构</h2>
+<h3 id="21-数据结构总览">2.1 数据结构总览</h3>
+<p>HashMap(1.8) 底层数据结构是由数组、链表和红黑树组成的。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap001.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="22-node">2.2 Node</h3>
+<pre><code class="language-java">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+        // 用来定位数组索引位置
+        final int hash;    
+        final K key;
+        V value;
+        // 链表的下一个node
+        Node&lt;K,V&gt; next;   
+}
+</code></pre>
+<h3 id="23-table">2.3 table</h3>
+<p>table，即哈希桶数组是一个 Node  数组</p>
+<pre><code class="language-java">transient Node&lt;K,V&gt;[] table;
+</code></pre>
+<h2 id="3-核心字段">3 核心字段</h2>
+<pre><code class="language-java">// threshold = capacity * loadFactor，扩容大小的阈值
+int threshold;
+// 负载因子
+final float loadFactor;
+// 当前 HashMap 中 &lt;key, value&gt; 的对数
+transient int size;
+</code></pre>
+<h2 id="4-hash-算法优化-与-hash-寻址优化">4 hash 算法优化 与 hash 寻址优化</h2>
+<h3 id="41-hash-算法优化">4.1  hash 算法优化</h3>
+<p>来看看 hash 方法的源码：</p>
+<pre><code class="language-java">static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+}
+</code></pre>
+<ul>
+<li>如果 key 为 null，则会返回 0，否则计算出 key 的 hash 值和 hash 值无符号右移 16 位，并将两者进行异或操作，返回结果值。</li>
+</ul>
+<p>我们模拟一下，假设 key.hashCode(）为 ：1111 1111 1111 1111 1100  1100 1100 1100，<br>
+将其无符号右移 16 位，得到：0000 0000 0000 0000 1111 1111 1111 1111，<br>
+两者异或，得到：1111 1111 1111 1111 0011 0011 0011 0011。</p>
+<p><strong>为什么要进行异或操作呢？其实在后续进行 hash 寻址的过程中，一般都是用低 16 位进行运算。进行异或操作，可以让高 16 位也参与运算，在低 16 位同时保留原先高 16 位和低 16 位的特征，从而降低 hash 冲突的概率。</strong></p>
+<h3 id="42-hash-寻址优化">4.2 hash 寻址优化</h3>
+<p>在 putVal() 方法中，有这么一段代码：</p>
+<pre><code class="language-java">  if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+</code></pre>
+<p>这里的 <code> (n - 1) &amp; hash</code> 其实就是寻址，相当于 <code>hash / n</code>，但是位运算又比取模运算速度快。</p>
+<h2 id="5-put-方法">5 put 方法</h2>
+<h3 id="51-put-方法的源码解析">5.1 put 方法的源码解析</h3>
+<pre><code class="language-java">public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+}
+</code></pre>
+<pre><code class="language-java">final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict) {
+        Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; int n, i;
+        // 1. 数组容量初始化：如果数组为 null 或者数组的长度为 0，会进行初次扩容
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        // 2. Node 初始化：使用优化后的寻址算法，如果定位到的 Node 元素为 null
+        if ((p = tab[i = (n - 1) &amp; hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else { // 定位到元素不为空，有3 个分支
+            Node&lt;K,V&gt; e; K k;
+            //  如果桶中第一个元素的key与待插入元素的key相同，保存到e中用于后续修改value值
+            if (p.hash == hash &amp;&amp;((k = p.key) == key || (key != null &amp;&amp; key.equals(k))
+                e = p;
+            // 如果第一个元素是树节点，则调用树节点的putTreeVal插入元素
+            else if (p instanceof TreeNode)
+                e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                // 遍历这个桶对应的链表，binCount用于存储链表中元素的个数
+                for (int binCount = 0; ; ++binCount) {
+                    // 如果链表遍历完了都没有找到相同key的元素，说明该key对应的元素不存在，则在链表最后插入一个新节点
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        // 如果插入新节点后链表长度大于8，则判断是否需要树化
+                        if (binCount &gt;= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            // 先判断table的长度是否大于64，如果小于64，就通过扩容的方式来解决，避免红黑树结构化
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    //  如果待插入的key在链表中找到了，则退出循环
+                    if (e.hash == hash &amp;&amp;
+                        ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            // 如果找到了对应key的元素, 记录下旧值
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                // 判断是否需要替换旧值
+                if (!onlyIfAbsent || oldValue == null)
+                    // 替换旧值
+                    e.value = value;
+                // 在节点被访问后做点什么事，在LinkedHashMap中用到
+                afterNodeAccess(e);
+                // 返回旧值
+                return oldValue;
+            }
+        }
+        // 到这里了说明没有找到元素，修改次数加1
+        ++modCount;
+        // 元素数量加1，判断是否需要扩容
+        if (++size &gt; threshold)
+            resize();
+        // 在节点插入后做点什么事，在LinkedHashMap中用到
+        afterNodeInsertion(evict);
+        // 没找到元素返回null
+        return null;
+    }
+</code></pre>
+<h3 id="52-什么时候会出现-hash-冲突">5.2 什么时候会出现 hash 冲突</h3>
+<ul>
+<li>key 不一样，但是 hashcode() 方法乱写，导致 hash 值一样；</li>
+<li>hash  值不一样，但是寻址之后在数组中的位置是一样的，出现了 hash 冲突。</li>
+</ul>
+<h3 id="53-put-流程总结">5.3 put 流程总结</h3>
+<ol>
+<li>计算key的hash值；</li>
+<li>如果桶（数组）数量为0，则初始化桶；</li>
+<li>如果key所在的桶没有元素，则直接插入；</li>
+<li>如果key所在的桶中的第一个元素的key与待插入的key相同，说明找到了元素，转后续流程 9 处理；</li>
+<li>如果第一个元素是树节点，则调用树节点的putTreeVal()寻找元素或插入树节点；</li>
+<li>如果不是以上三种情况，则遍历桶对应的链表查找key是否存在于链表中；</li>
+<li>如果找到了对应key的元素，则转后续流程 9 处理；</li>
+<li>如果没找到对应key的元素，则在链表最后插入一个新节点并判断是否需要树化；</li>
+<li>如果找到了对应key的元素，则判断是否需要替换旧值，并直接返回旧值；</li>
+<li>如果插入了元素，则数量加1并判断是否需要扩容；</li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/HashMap002.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="6-resize-扩容">6 resize  扩容</h2>
+<h3 id="61-扩容算法优化">6.1 扩容算法优化</h3>
+<p>上文已经讲过寻址的 hash 算法，将 hash &amp; n -1，可以保证扩容之后，根据 hash 值寻址到的地方要么还是原来的 index，要么就是 index + oldCap。</p>
+<p>hash &amp; n -1：判断二进制结果中是否多出一个 bit 的 1，如果没多，那么就是原来的 index，否则就是 index + oldCap。通过这种方式，就避免了 rehash 的时候，用每个 hash 对新数组的 length 取模（位运算比取模效率高一些）。</p>
+<h3 id="62-resize-方法">6.2 resize 方法</h3>
+<p>简而言之就是：两倍扩容 + rehash。</p>
+<p>每次 put 了一个新的key-value对之后，size++，比较一下 size 和 threshold（数组的长度 * 负载因子），看是否需要扩容。</p>
+<pre><code class="language-java">if (++size &gt; threshold)
+    resize();
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt;[] resize() {
+  	// 旧数组
+    Node&lt;K,V&gt;[] oldTab = table;
+  	// 旧容量
+    int oldCap = (oldTab == null) ? 0 : oldTab.length;
+  	// 旧阈值
+    int oldThr = threshold;
+    int newCap, newThr = 0;
+    if (oldCap &gt; 0) {
+      	// 如果旧容量达到了最大容量，则不再进行扩容
+        if (oldCap &gt;= MAXIMUM_CAPACITY) {
+            threshold = Integer.MAX_VALUE;
+            return oldTab;
+        }
+      	// 如果旧容量的两倍小于最大容量并且旧容量大于默认初始容量（16），则容量扩大为两倍，扩容阈值也扩大为两倍
+        else if ((newCap = oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;
+                 oldCap &gt;= DEFAULT_INITIAL_CAPACITY)
+            newThr = oldThr &lt;&lt; 1; // double threshold
+    }
+  	// 使用非默认构造方法创建的map，第一次插入元素会走到这里    
+		// 如果旧容量为0且旧扩容门槛大于0，则把新容量赋值为旧阈值
+    else if (oldThr &gt; 0) // initial capacity was placed in threshold
+        newCap = oldThr;
+    else {               // zero initial threshold signifies using defaults
+      	// 调用默认构造方法创建的map，第一次插入元素会走到这里 
+        // 如果旧容量旧扩容阈值都是0，说明还未初始化过，则初始化容量为默认容量，扩容阈值为默认容量*默认装载因子
+        newCap = DEFAULT_INITIAL_CAPACITY;
+        newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+    }
+    if (newThr == 0) {
+      	// 如果新扩容为0，则计算为容量*装载因子，但不能超过最大容量
+        float ft = (float)newCap * loadFactor;
+        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (float)MAXIMUM_CAPACITY ?
+                  (int)ft : Integer.MAX_VALUE);
+    }
+    // 赋值扩容门槛为新门槛
+    threshold = newThr;
+    // 新建一个新容量的数组
+    @SuppressWarnings({&quot;rawtypes&quot;,&quot;unchecked&quot;})
+    Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])new Node[newCap];
+    table = newTab;
+    // 如果旧数组不为空，则搬移元素
+    if (oldTab != null) {
+        for (int j = 0; j &lt; oldCap; ++j) {
+            Node&lt;K,V&gt; e;
+          	// 如果桶中第一个元素不为空，赋值给e
+            if ((e = oldTab[j]) != null) {
+                oldTab[j] = null;   
+						    // 如果这个桶中只有一个元素，则计算它在新桶中的位置并把它搬移到新桶中
+								// 因为每次都扩容两倍，所以这里的第一个元素搬移到新桶的时候新桶肯定还没有元素
+                if (e.next == null)
+                    newTab[e.hash &amp; (newCap - 1)] = e;
+              	// 如果第一个元素是树节点，则把这颗树打散成两颗树插入到新桶中去
+                else if (e instanceof TreeNode)
+                    ((TreeNode&lt;K,V&gt;)e).split(this, newTab, j, oldCap);
+                else { // preserve order
+                  	// 如果这个链表不止一个元素且不是一颗树
+										// 则分化成两个链表插入到新的桶中去
+										// 比如，假如原来容量为4，3、7、11、15这四个元素都在三号桶中
+										// 现在扩容到8，则3和11还是在三号桶，7和15要搬移到七号桶中去
+										// 也就是分化成了两个链表
+                    Node&lt;K,V&gt; loHead = null, loTail = null;
+                    Node&lt;K,V&gt; hiHead = null, hiTail = null;
+                    Node&lt;K,V&gt; next;
+                    do {
+                        next = e.next;
+                        if ((e.hash &amp; oldCap) == 0) {
+                            if (loTail == null)
+                                loHead = e;
+                            else
+                                loTail.next = e;
+                            loTail = e;
+                        }
+                        else {
+                            if (hiTail == null)
+                                hiHead = e;
+                            else
+                                hiTail.next = e;
+                            hiTail = e;
+                        }
+                    } while ((e = next) != null);
+                    if (loTail != null) {
+                        loTail.next = null;
+                        newTab[j] = loHead;
+                    }
+                    if (hiTail != null) {
+                        hiTail.next = null;
+                        newTab[j + oldCap] = hiHead;
+                    }
+                }
+            }
+        }
+    }
+    return newTab;
+}
+</code></pre>
+<h3 id="63-resize-流程总结">6.3 resize 流程总结</h3>
+<ol>
+<li>
+<p>如果使用是默认构造方法，则第一次插入元素时初始化为默认值，容量为16，扩容门槛为12；</p>
+</li>
+<li>
+<p>如果使用的是非默认构造方法，则第一次插入元素时初始化容量等于扩容门槛，扩容门槛在构造方法里等于传入容量向上最近的2的n次方；</p>
+</li>
+<li>
+<p>如果旧容量大于0，则新容量等于旧容量的2倍，但不超过最大容量2的30次方，新扩容门槛为旧扩容门槛的2倍；</p>
+</li>
+<li>
+<p>创建一个新容量的桶；</p>
+</li>
+<li>
+<p>搬移元素，原链表分化成两个链表，低位链表存储在原来桶的位置，高位链表搬移到原来桶的位置加旧容量的位置；</p>
+</li>
+</ol>
+<h2 id="7-get-方法">7 get 方法</h2>
+<pre><code class="language-java">public V get(Object key) {
+    Node&lt;K,V&gt; e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+</code></pre>
+<pre><code class="language-java">final Node&lt;K,V&gt; getNode(int hash, Object key) {
+    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; int n; K k;
+  	// 如果桶的数量大于0并且待查找的key所在的桶的第一个元素不为空
+    if ((tab = table) != null &amp;&amp; (n = tab.length) &gt; 0 &amp;&amp;
+        (first = tab[(n - 1) &amp; hash]) != null) {
+      	// 检查第一个元素是不是要查的元素，如果是直接返回
+        if (first.hash == hash &amp;&amp; // always check first node
+            ((k = first.key) == key || (key != null &amp;&amp; key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+          	// 如果第一个元素是树节点，则按树的方式查找
+            if (first instanceof TreeNode)
+                return ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);
+            do {
+              	// 否则就遍历整个链表查找该元素
+                if (e.hash == hash &amp;&amp;
+                    ((k = e.key) == key || (key != null &amp;&amp; key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+</code></pre>
+<ol>
+<li>
+<p>计算key的hash值；</p>
+</li>
+<li>
+<p>找到key所在的桶及其第一个元素；</p>
+</li>
+<li>
+<p>如果第一个元素的key等于待查找的key，直接返回；</p>
+</li>
+<li>
+<p>如果第一个元素是树节点就按树的方式来查找，否则按链表方式查找；</p>
+</li>
+</ol>
+<p>参考：</p>
+<ul>
+<li>Java中的移位运算符：https://zhuanlan.zhihu.com/p/30108890</li>
+<li>红黑树：https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md</li>
+<li>HashMap &amp; ConcurrentHashMap: https://crossoverjie.top/%2F2018%2F07%2F23%2Fjava-senior%2FConcurrentHashMap%2F</li>
+<li>死磕 java集合之HashMap源码分析：https://mp.weixin.qq.com/s/UFeLHR4qtGYPODTiNJDmHQ</li>
+<li>https://tech.meituan.com/2016/06/24/java-hashmap.html</li>
+<li>深入浅出ConcurrentHashMap1.8：https://www.jianshu.com/p/c0642afe03e0</li>
+<li>老生常谈，HashMap的死循环：https://www.jianshu.com/p/1e9cf0ac07f4</li>
+<li>深入分析ConcurrentHashMap1.8的扩容实现：https://www.jianshu.com/p/f6730d5784ad</li>
+<li>ConcurrentHashMap的红黑树实现分析：https://www.jianshu.com/p/23b84ba9a498</li>
+<li>谈谈ConcurrentHashMap1.7和1.8的不同实现：https://www.jianshu.com/p/e694f1e868ec</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-004linkedlist/" class="post-title gt-a-link">
+                    JDK 源码阅读 003：LinkedList
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

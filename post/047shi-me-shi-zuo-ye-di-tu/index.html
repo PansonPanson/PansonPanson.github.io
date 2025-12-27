@@ -1,0 +1,261 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>047.什么是作业地图 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    047.什么是作业地图
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="作业地图是什么"><strong>作业地图是什么？</strong></h3>
+<p><strong>作业地图</strong>是<strong>WMS（仓库管理系统）或 WES（仓库执行系统）中用于可视化管理仓库作业流程和资源分布的工具</strong>。它提供了<strong>仓库布局、库存位置、任务执行状态、设备（如 AGV、机器人）实时位置等信息</strong>，帮助仓库运营人员优化作业路径，提高效率。</p>
+<hr>
+<h2 id="1-作业地图的核心功能"><strong>1. 作业地图的核心功能</strong></h2>
+<p>作业地图的主要作用是<strong>直观呈现仓库作业情况，优化仓库资源调度</strong>，常见功能包括：</p>
+<ol>
+<li>
+<p><strong>仓库布局可视化</strong></p>
+<ul>
+<li>展示仓库的区域划分，如库区、货架、库位、输送线等。</li>
+<li>实时显示库存的存放位置，辅助拣选、补货作业。</li>
+</ul>
+</li>
+<li>
+<p><strong>任务执行跟踪</strong></p>
+<ul>
+<li>显示订单拣选、补货、上架、盘点等任务的执行状态。</li>
+<li>监控任务进度，发现异常任务（如任务滞留、库存差异等）。</li>
+</ul>
+</li>
+<li>
+<p><strong>设备与人员管理</strong></p>
+<ul>
+<li>追踪 AGV（自动导引运输车）、机械臂、叉车等设备的位置及运行状态。</li>
+<li>监控操作人员的作业区域，优化作业路径，减少重复行走。</li>
+</ul>
+</li>
+<li>
+<p><strong>路径规划</strong></p>
+<ul>
+<li>计算并推荐最优拣选、补货、盘点路径，提高作业效率。</li>
+<li>支持动态调整路径，避开拥堵区域。</li>
+</ul>
+</li>
+<li>
+<p><strong>数据统计与分析</strong></p>
+<ul>
+<li>记录作业效率数据（如拣选时间、设备利用率等）。</li>
+<li>结合 AI 预测瓶颈区域，优化仓库布局。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-作业地图的应用场景"><strong>2. 作业地图的应用场景</strong></h2>
+<ul>
+<li><strong>“货到人”系统</strong>
+<ul>
+<li>监控料箱、货架的移动情况，优化机器人调度。</li>
+</ul>
+</li>
+<li><strong>智能拣选</strong>
+<ul>
+<li>结合电子标签、PDA 设备，实现可视化拣选作业。</li>
+</ul>
+</li>
+<li><strong>盘点作业</strong>
+<ul>
+<li>显示库存盘点任务的分布，辅助操作员快速盘点。</li>
+</ul>
+</li>
+<li><strong>AGV 调度</strong>
+<ul>
+<li>实时调整 AGV 路线，避免交通堵塞，提高搬运效率。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-作业地图的优势"><strong>3. 作业地图的优势</strong></h2>
+<p>✅ <strong>提高作业效率</strong>：直观展示任务分布，优化作业路径。<br>
+✅ <strong>降低错误率</strong>：减少人工查找货位、拣选错误。<br>
+✅ <strong>优化资源利用</strong>：合理调度人力、设备，减少空跑和重复作业。<br>
+✅ <strong>提升仓库可视化管理能力</strong>：实时掌握库存动态，提高响应速度。</p>
+<hr>
+<h3 id="总结"><strong>总结</strong></h3>
+<p>作业地图是现代智能仓储系统的重要组成部分，结合<strong>WMS/WES、AI 计算、实时定位技术</strong>，可以<strong>优化仓库作业流程，提高运营效率，减少人工成本</strong>。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/048shi-me-shi-shang-pin-re-du/" class="post-title gt-a-link">
+                    048.什么是商品热度
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

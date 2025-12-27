@@ -1,0 +1,469 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>大模型自学笔记 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    大模型自学笔记
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-27 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>这周终于稍微清闲了一些，找许多朋友一起聊了许多东西，关于关于职业、生活、旅行、健康，当然聊着聊着就会聊到大模型，看看其他公司大模型落地的现状。比起快手、美团、拼多多等公司，阿里和字节系确实在落地上更进一步，整体上对 AI 的拥抱程度是更上一个层次的。</p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1766345907386-3eff10cb9142?q=80&amp;w=2728&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<p>让我有点讶异的是腾讯，也有可能是我身边在腾讯的朋友提供的样例不具有代表性，腾讯的大模型能力建设真的很弱，混元大模型的能力与其他同等体量的公司相比，落后了许多，但腾讯的产品又做得蛮好的，我最近用的最多的两款产品，一款是腾讯元宝，一款是 ima.copilot，都是腾讯的产品。</p>
+<p>从这一点上来思考的话，产品的受欢迎程度，有时候与基座大模型的评分，不一定是正比的。阿里千问我也用了蛮多时间，虽然大模型评分很高，但在相同的提示词下，我个人体感上是不如 chatGPT 和 Gemini 的，甚至不如 deepseek R1，尤其是上下问长度变大的时候，通义千问的回答幻觉很大，甚至开始出现胡诌的现象，观感很不好，不知道是不是为了节约成本，限制了上下文长度。</p>
+<p>未来半年到一年，我的计划是社招顺利 landing 和深度学习大模型应用开发。<br>
+一方面，社招顺利 landing，深耕传统后端开发的能力建设，主要深入理解新的业务，提升自己架构设计能力，另一方面则是拥抱变化，深度学习大模型应用开发。</p>
+<p>大模型应用开发和传统的后端开发，还是有很多不同的，算是一个新的领域了。<br>
+对于新领域的学习，我觉得最难的点在于找到方向，找到正确的方向后，后续就只剩下持续学习了，一切都会水到渠成的。</p>
+<p>所以最近一直在找朋友们聊天，结合和朋友们的聊天，我列了一下未来学习计划。</p>
+<p>大体上分为以下几个大模块：</p>
+<ol>
+<li>Agent</li>
+<li>RAG</li>
+<li>提示词工程</li>
+<li>模型基础</li>
+<li>SFT/RL</li>
+<li>前沿知识</li>
+<li>模型推理</li>
+<li>项目实战</li>
+</ol>
+<p>（感觉内容还是有点多的，持续学习，也持续更新中~）</p>
+<p>再细分一下：</p>
+<h1 id="一-agent-知识架构"><strong>一、Agent 知识架构</strong></h1>
+<h4 id="1-python-基础"><strong>1. Python 基础</strong></h4>
+<ul>
+<li>学习：快速入门 Python 实战教程</li>
+</ul>
+<h4 id="2-agent-入门-了解-agent"><strong>2. Agent 入门 / 了解 Agent</strong></h4>
+<ul>
+<li>Agent 特点</li>
+<li>LLM 如何调用</li>
+<li>实战：快速跑通一个 Agent</li>
+</ul>
+<h4 id="3-mcp-协议-function-call"><strong>3. MCP 协议 / Function Call</strong></h4>
+<ul>
+<li>MCP 协议是什么 / 特点 / 两种通信模式</li>
+<li>实战：感受 / 体会 MCP</li>
+<li>Function Call 的特点</li>
+<li>实战：Agent 调用 Function Call</li>
+</ul>
+<h4 id="4-agent-框架"><strong>4. Agent 框架</strong></h4>
+<ul>
+<li>
+<p>框架了解</p>
+<ul>
+<li>LangChain</li>
+<li>LangGraph</li>
+<li>LangSmith</li>
+</ul>
+</li>
+<li>
+<p>其他平台/框架</p>
+<ul>
+<li>扣子</li>
+<li>Dify</li>
+</ul>
+</li>
+</ul>
+<h4 id="5-agent-评估方法"><strong>5. Agent 评估方法</strong></h4>
+<h4 id="6-agent-设计范式"><strong>6. Agent 设计范式</strong></h4>
+<h4 id="7-实战复杂的-agent-例子"><strong>7. 实战：复杂的 Agent 例子</strong></h4>
+<h1 id="二-rag-知识架构">二、RAG 知识架构</h1>
+<h4 id="1-rag入门-体会"><strong>1. RAG入门 / 体会</strong></h4>
+<ul>
+<li>
+<p><strong>RAG是什么？为什么要RAG</strong>：理解基本概念与价值。</p>
+</li>
+<li>
+<p><strong>RAG开发环境</strong>：搭建所需的开发环境。</p>
+</li>
+<li>
+<p><strong>实战：写一个简单的RAG</strong>：通过实践快速上手。</p>
+</li>
+</ul>
+<h4 id="2-向量数据库"><strong>2. 向量数据库</strong></h4>
+<ul>
+<li>
+<p><strong>为什么RAG要使用向量数据库</strong>：了解其必要性。</p>
+</li>
+<li>
+<p><strong>向量数据库的特点/好处</strong>：掌握其核心优势。</p>
+</li>
+<li>
+<p><strong>常见的向量数据库</strong>：认识主流工具与平台。</p>
+</li>
+</ul>
+<h4 id="3-rag的具体过程和策略"><strong>3. RAG的具体过程和策略</strong></h4>
+<ul>
+<li>
+<p><strong>概念</strong></p>
+<ul>
+<li>理解RAG涉及哪些过程：从宏观上把握核心步骤。</li>
+</ul>
+</li>
+<li>
+<p><strong>自然语言转嵌入向量</strong>：将查询和文本转化为向量的过程。</p>
+</li>
+<li>
+<p><strong>分块</strong></p>
+<ul>
+<li><strong>分块策略</strong>：掌握文本分割的方法与技巧。</li>
+</ul>
+</li>
+<li>
+<p><strong>文本召回</strong></p>
+<ul>
+<li>
+<p><strong>文本召回基础</strong>：理解召回的基本原理。</p>
+</li>
+<li>
+<p><strong>稠密向量 / 稀疏向量</strong>：了解两种主要的向量表示方法。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>效果评估</strong>：评估RAG系统性能的指标与方法。</p>
+</li>
+<li>
+<p><strong>实战：复杂RAG例子</strong>：通过一个综合案例深化理解。</p>
+</li>
+</ul>
+<h1 id="三-提示词工程">三、提示词工程</h1>
+<ol>
+<li>
+<p><strong>设计提示词的原则</strong></p>
+<ul>
+<li>明确性、具体性、提供上下文、设定角色等。</li>
+</ul>
+</li>
+<li>
+<p><strong>常见的提示词策略</strong></p>
+<ul>
+<li>零样本提示、少样本提示、思维链、指令模板等。</li>
+</ul>
+</li>
+</ol>
+<h1 id="四-模型基础">四、 模型基础</h1>
+<ol>
+<li>
+<p><strong>深度学习/机器学习基础</strong></p>
+<ul>
+<li>神经网络基本原理、训练与优化等。</li>
+</ul>
+</li>
+<li>
+<p><strong>Transformer 基础</strong></p>
+<ul>
+<li>
+<p><strong>生成式/自回归模型</strong>：GPT 等模型的原理。</p>
+</li>
+<li>
+<p><strong>词嵌入</strong>：将文本转换为向量的技术。</p>
+</li>
+<li>
+<p><strong>编码器/解码器</strong>：Transformer 的核心架构。</p>
+</li>
+<li>
+<p><strong>注意力机制</strong>：模型理解上下文的关键。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>不同模型对比</strong></p>
+<ul>
+<li>
+<p><strong>不同模型特点</strong>：对比各类大模型（如 GPT、Claude、LLaMA 等）的优劣势。</p>
+</li>
+<li>
+<p><strong>模型选型</strong>：根据任务需求选择合适模型的考量。</p>
+</li>
+<li>
+<p><strong>不同模型架构</strong>：了解自回归、编码-解码等不同架构。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>模型训练流程</strong></p>
+<ul>
+<li>
+<p><strong>预训练 / SFT</strong>：模型训练的前两个主要阶段。</p>
+</li>
+<li>
+<p><strong>强化学习 / 推理</strong>：高级优化阶段与模型应用。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="五-sft-rl-监督微调与强化学习"><strong>五、 SFT / RL (监督微调与强化学习)</strong></h1>
+<ol>
+<li>
+<p><strong>常见微调策略</strong></p>
+<ul>
+<li>
+<p>全量 / 部分参数微调</p>
+</li>
+<li>
+<p>LoRA</p>
+</li>
+<li>
+<p>Adapter Tuning</p>
+</li>
+<li>
+<p>P-Tuning</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>强化学习</strong></p>
+<ul>
+<li>
+<p><strong>概念</strong>：基本定义与原理。</p>
+</li>
+<li>
+<p><strong>方法</strong>：常用技术（如PPO、DPO等）。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>实战：DPO / LoRA</strong></p>
+<ul>
+<li>
+<p>怎么选型</p>
+</li>
+<li>
+<p>数据集准备</p>
+</li>
+<li>
+<p>用什么平台 / 怎么做的</p>
+</li>
+<li>
+<p>如何评估和部署</p>
+</li>
+</ul>
+</li>
+</ol>
+<h1 id="六-前沿知识能力"><strong>六、 前沿知识能力</strong></h1>
+<ol>
+<li>
+<p><strong>最新论文</strong>：跟踪与研究领域前沿学术成果。</p>
+</li>
+<li>
+<p><strong>Claud、 Genimi3 pro……</strong>：了解特定前沿模型。</p>
+</li>
+</ol>
+<h1 id="七-量化-推理"><strong>七、 量化 / 推理</strong></h1>
+<ol>
+<li>
+<p><strong>常见的推理框架</strong>：了解部署和运行模型的工具（如vLLM、TGI等）。</p>
+</li>
+<li>
+<p><strong>模型压缩策略</strong></p>
+<ul>
+<li>
+<p><strong>量化</strong>：降低模型数值精度以减少计算和存储开销。</p>
+</li>
+<li>
+<p>剪枝</p>
+</li>
+<li>
+<p>蒸馏</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>实战</strong></p>
+<ul>
+<li><strong>量化</strong>：具体的量化实践操作。</li>
+</ul>
+</li>
+</ol>
+<h1 id="八-设计项目实战"><strong>八、 设计项目实战</strong></h1>
+<ol>
+<li>
+<p><strong>技术点</strong>：项目所涉及的核心技术。</p>
+</li>
+<li>
+<p><strong>深度</strong>：对技术应用的深入程度。</p>
+</li>
+<li>
+<p><strong>价值</strong>：项目的实际意义与应用价值。</p>
+</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-jiagou-sheji-yu-chonggoushijian/" class="post-title gt-a-link">
+                    十万字长文深度解析 WES 架构设计与重构实践 
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

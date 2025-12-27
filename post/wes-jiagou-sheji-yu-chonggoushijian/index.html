@@ -1,0 +1,1714 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>十万字长文深度解析 WES 架构设计与重构实践  | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    十万字长文深度解析 WES 架构设计与重构实践 
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-12-11 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>朋友们好，感谢阅读，本文是一篇超长的文章，数了数，目前零零碎碎写了十余万字，还在慢慢整理中，我将系统性聊聊 WES 架构设计与重构实践，后续如果有精力，会继续增补一些内容。</p>
+<!-- more -->
+<p>注：</p>
+<ul>
+<li>本文所有技术图片图床都在GitHub，需要网络代理才能流畅访问。</li>
+<li>文章很长，因为是静态博客，所以加载速度会稍微慢一些。</li>
+<li>能力和精力有限，文章内容仅代表个人观点。</li>
+<li>有些图示画得比较粗糙~，我觉得清晰化的内容表达比图示的精美要更重要，实在是精力有限，简单图我都是让 chatGPT 帮我生成的。</li>
+<li>感谢阅读，业务存在边界，但技术没有终点，拥抱变化！</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1764014588206-3c2647a34911?q=80&amp;w=2711&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<p>目前计划写的内容主要涉及到一下几点：</p>
+<ul>
+<li>WES 在供应链、履约链路的系统定位</li>
+<li>核心功能</li>
+<li>应用架构</li>
+<li>核心链路</li>
+<li>三级库存模型</li>
+<li>出库效率优化：热度移位、flowpick、超 A 不返库……</li>
+<li>调度模型</li>
+<li>数据一致性保障</li>
+<li>策略规则治理</li>
+<li>流程引擎</li>
+<li>.……</li>
+</ul>
+<p>总览图：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/%E5%8D%81%E4%B8%87%E5%AD%97%E9%95%BF%E6%96%87%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%20WES%20%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84%E5%AE%9E%E8%B7%B5/file-20251214124240805.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="一-wes-在供应链-履约链路的系统定位">一、WES 在供应链、履约链路的系统定位</h1>
+<p>在<strong>仓储领域的 WES（Warehouse Execution System，仓储执行系统）<strong>中，</strong>“上游系统”并不是唯一的一个，而是一组业务系统</strong>。从<strong>业务流 / 数据流角度</strong>来看，WES 主要承接“计划与业务决策”，向下驱动“设备与执行”。</p>
+<h2 id="11-最典型的上游系统">1.1、最典型的上游系统</h2>
+<h3 id="wmswarehouse-management-system最核心上游">WMS（Warehouse Management System）——最核心上游</h3>
+<p><strong>WMS → WES 传什么？</strong></p>
+<ul>
+<li>出库单 / 入库单/盘点单……</li>
+<li>商品、库存调整单……</li>
+<li>作业策略（拣选规则、优先级）</li>
+</ul>
+<p><strong>WES 的角色</strong></p>
+<ul>
+<li>将 WMS 的“业务任务”拆解为可执行任务</li>
+<li>调度、控速、并发控制</li>
+<li>动态调整执行顺序</li>
+</ul>
+<h3 id="omsorder-management-system">OMS（Order Management System）</h3>
+<p>在<strong>电商 / 履约中心</strong>中非常常见。</p>
+<p><strong>OMS → WMS / WES</strong></p>
+<ul>
+<li>客户订单</li>
+<li>交付 SLA</li>
+<li>订单优先级（如加急 / 普通）</li>
+</ul>
+<p>有两种架构：</p>
+<pre><code>OMS → WMS → WES
+OMS → WES（直连，较少但存在）
+</code></pre>
+<h3 id="erp企业资源计划系统">ERP（企业资源计划系统）</h3>
+<p>更多是 <strong>宏观计划级别</strong>：</p>
+<ul>
+<li>
+<p>采购计划</p>
+</li>
+<li>
+<p>发运计划</p>
+</li>
+<li>
+<p>财务 / 主数据</p>
+</li>
+</ul>
+<p>通常 <strong>不直接驱动 WES</strong>，而是：</p>
+<pre><code>ERP → OMS / WMS → WES
+</code></pre>
+<h3 id="tms运输管理系统">TMS（运输管理系统）</h3>
+<p>在出库履约场景：</p>
+<ul>
+<li>
+<p>发车时间</p>
+</li>
+<li>
+<p>运输批次</p>
+</li>
+<li>
+<p>装车顺序</p>
+</li>
+</ul>
+<p>影响 WES 的：</p>
+<ul>
+<li>
+<p>出库任务优先级</p>
+</li>
+<li>
+<p>波次切分规则</p>
+</li>
+</ul>
+<hr>
+<h2 id="12-从职责边界看上下游">1.2、从“职责边界”看上下游</h2>
+<h3 id="业务分层视角">业务分层视角</h3>
+<pre><code>【业务决策层】
+ERP / OMS / TMS
+        ↓
+【仓储管理层】
+        WMS
+        ↓
+【执行编排层】
+        WES   
+        ↓
+【车辆调度集群层】
+        WCS（WCS、RCS集群）
+        ↓
+【物理设备层】
+    输送线 / AGV / 堆垛机 / 机械臂
+</code></pre>
+<h2 id="13-以电商履约链路为例">1.3、以电商履约链路为例</h2>
+<p>以电商履约链路为例，WES 在 WMS 的下游，不分场景下，OMS 和 ERP 也会直接对接 WES。<br>
+WES 的业务链路位置大致参考下图（做了一些简化）：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/4/file-20251121004900019.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="二-wes-核心功能">二、WES 核心功能</h1>
+<p>狭义的 WES 系统更侧重调度执行层，它不是“管业务”，也不是“控设备”，而是“把业务计划高效、稳定、实时地执行下去”， 从这个层面上来说，WES 的核心功能是：任务编排、执行调度、节拍控制、状态协同与异常恢复：</p>
+<ol>
+<li>将 WMS 的业务任务拆解并编排为可执行任务；</li>
+<li>对任务进行调度、并发与节拍控制；</li>
+<li>统一管理任务与设备状态；</li>
+<li>在异常情况下保证任务可恢复执行；</li>
+<li>作为业务系统与设备系统之间的执行中枢。</li>
+</ol>
+<p>但实际在实际的系统中，WES 还会兼管 WMS 的许多功能，比如单据管理、仓内基础数据管理、库存管理等等。</p>
+<h2 id="21-wes-调度能力的核心功能">2.1、WES 调度能力的核心功能</h2>
+<h3 id="1-任务拆解与编排task-orchestration">1 任务拆解与编排（Task Orchestration）</h3>
+<p><strong>从“业务任务”到“可执行任务”</strong></p>
+<p><strong>来源</strong></p>
+<ul>
+<li>WMS 下发：入库单、出库单、波次、移库任务</li>
+</ul>
+<p><strong>WES 要做什么</strong></p>
+<ul>
+<li>
+<p>拆单（一个出库单 → 多个拣选 / 搬运 / 输送任务）</p>
+</li>
+<li>
+<p>建 DAG / 状态机（先拣 → 再合流 → 再出库）</p>
+</li>
+<li>
+<p>任务依赖、前后置约束</p>
+</li>
+</ul>
+<h3 id="2-执行调度与并发控制scheduling">2 执行调度与并发控制（Scheduling）</h3>
+<p><strong>这是 WES 的“灵魂”</strong></p>
+<p>WES 不只是“发任务”，而是<strong>控制“怎么发、发多少、先发谁”</strong>。</p>
+<p><strong>典型能力</strong></p>
+<ul>
+<li>
+<p>多队列调度（按库区 / 设备 / 业务类型）</p>
+</li>
+<li>
+<p>优先级调度（加急单 / SLA）</p>
+</li>
+<li>
+<p>并发度控制（每秒 N 个任务）</p>
+</li>
+<li>
+<p>公平 / 抢占 / 权重调度</p>
+</li>
+</ul>
+<h3 id="3-节拍控制-控速下发throttling">3 节拍控制 / 控速下发（Throttling）</h3>
+<p><strong>防止设备被“打爆”</strong></p>
+<p>为什么要 WES？</p>
+<ul>
+<li>下游车辆调度系统和搬运系统存在能力限制</li>
+</ul>
+<p><strong>WES 能力</strong></p>
+<ul>
+<li>
+<p>QPS 控制（如：每秒最多 20 个任务）</p>
+</li>
+<li>
+<p>滑动窗口 / 漏桶 / 令牌桶</p>
+</li>
+<li>
+<p>按设备维度限流</p>
+</li>
+<li>
+<p>动态调整速率（高峰 / 低谷）</p>
+</li>
+</ul>
+<p>从这个角度讲， WES ≈ <strong>业务侧的“调度 + 限流中枢”</strong></p>
+<h3 id="4-状态管理与协同state-management">4 状态管理与协同（State Management）</h3>
+<p><strong>全链路状态可视</strong></p>
+<p><strong>WES 维护</strong></p>
+<ul>
+<li>单据状态机</li>
+<li>作业单状态机</li>
+<li>任务状态（初始状态、 待分库存、 待下发、 待推实操、 待实操、 完成、 回滚）</li>
+</ul>
+<p><strong>价值</strong></p>
+<ul>
+<li>
+<p>避免“任务丢失”</p>
+</li>
+<li>
+<p>支持失败重试、补偿</p>
+</li>
+<li>
+<p>支持暂停 / 恢复</p>
+</li>
+</ul>
+<p>📌 常见实现</p>
+<ul>
+<li>
+<p>状态机</p>
+</li>
+<li>
+<p>事件驱动（状态变更触发下一步）</p>
+</li>
+</ul>
+<h3 id="5-异常处理与恢复">5 异常处理与恢复</h3>
+<p><strong>真实生产环境最重要的一点</strong></p>
+<p>异常包括：</p>
+<ul>
+<li>
+<p>设备故障</p>
+</li>
+<li>
+<p>通道堵塞</p>
+</li>
+<li>
+<p>WCS 超时 / 无响应</p>
+</li>
+<li>
+<p>任务执行失败</p>
+</li>
+</ul>
+<p><strong>WES 的职责</strong></p>
+<ul>
+<li>
+<p>超时检测</p>
+</li>
+<li>
+<p>重试 / 改道 / 降级</p>
+</li>
+<li>
+<p>人工介入（挂起、人工确认）</p>
+</li>
+<li>
+<p>任务回滚或补偿</p>
+</li>
+</ul>
+<h2 id="22-wes-调度能力的非核心但关键能力">2.2、WES 调度能力的“非核心但关键”能力</h2>
+<h3 id="1-执行监控-可视化">1 执行监控 &amp; 可视化</h3>
+<ul>
+<li>
+<p>实时任务看板</p>
+</li>
+<li>
+<p>吞吐量 / 延迟</p>
+</li>
+<li>
+<p>堵点识别</p>
+</li>
+</ul>
+<h3 id="2-策略规则动态配置能力">2 策略规则动态配置能力</h3>
+<ul>
+<li>
+<p>调度策略可配置</p>
+</li>
+<li>
+<p>限流参数动态调整</p>
+</li>
+<li>
+<p>不同业务场景复用</p>
+</li>
+</ul>
+<h3 id="3-与-wcs-的协议适配">3 与 WCS 的协议适配</h3>
+<ul>
+<li>
+<p>REST / MQ / TCP</p>
+</li>
+<li>
+<p>幂等、ACK、重试</p>
+</li>
+</ul>
+<h2 id="23-wes-业务功能">2.3 WES 业务功能</h2>
+<p>这部分功能是兼管了 WMS 的功能。</p>
+<h3 id="231-基础数据管理系统的基石">2.3.1、 基础数据管理：系统的基石</h3>
+<p>任何智能系统的运行都依赖于准确、完整的基础数据。：</p>
+<ul>
+<li><strong>货主与商品管理</strong>：支持货主信息的新增、编辑、删除、查询、导入/导出及有效性管理。商品（SKU）管理同样全面，支持一个产品对应多个编码，并可维护商品图片、规格、供应商、ABC分类等丰富信息。</li>
+<li><strong>容量与条码管理</strong>：维护商品在不同容器（货架库位、料箱料格）中的容量数据，系统可根据上架记录自动更新。同时管理商品条码的匹配关系，确保扫描识别的准确性。</li>
+<li><strong>容器与库位管理</strong>：对货架、料箱、料格、库位等物理存储单元进行全生命周期管理，包括类型定义、有效性控制和可视化布局编排。</li>
+</ul>
+<h3 id="232-入库管理高效收货上架">2.3.2、 入库管理：高效收货上架</h3>
+<p>WES支持多种灵活的上架模式，适应不同业务场景：</p>
+<ul>
+<li><strong>多种上架模式</strong>：
+<ul>
+<li><strong>直接上架</strong>：适用于已知明确上架库位的场景，支持整托、整箱上架。</li>
+<li><strong>理货上架</strong>：针对零散商品，系统推荐合并库位，先下架整理再上架，以优化存储空间。</li>
+<li><strong>在线/离线工作站操作</strong>：提供图形化的工作站界面（在线）和PDA操作（离线），引导操作员完成扫描容器、商品、库位、确认数量等步骤。</li>
+</ul>
+</li>
+<li><strong>入库单管理</strong>：支持手动创建、导入或接口下发入库单，并对入库单进行提交、取消、关闭等全流程状态管理。</li>
+<li><strong>策略与容错</strong>：支持混放规则控制（控制不同商品或批次能否共存）、商品容量计算，并提供了“无合适库位”时的处理机制，如将商品转移至暂存区并自动生成返库上架单。</li>
+</ul>
+<h3 id="233-出库管理智能拣选与分播">2.3.3、 出库管理：智能拣选与分播</h3>
+<p>出库是WES的核心价值体现，其功能设计旨在最大化拣选效率和准确率：</p>
+<ul>
+<li><strong>出库单与波次管理</strong>：支持出库单、集合单的创建、提交、指定工作站、优先级调整、取消及缺货发货。系统支持<strong>静态组波</strong>（T+1场景，预先组单）和<strong>动态组波</strong>（即时订单，实时优化），提升订单聚合效率。</li>
+<li><strong>智能化拣选作业</strong>：
+<ul>
+<li><strong>任务调度</strong>：根据策略自动将出库任务分配至最优工作站，并调度对应的货架或料箱到站。</li>
+<li><strong>多样化拣选模式</strong>：支持按单拣选、按箱拣选。系统提供清晰的实操界面，引导操作员从指定库位拣选商品放入指定分播墙槽位，支持扫描校验、缺拣记录、后置绑箱等操作。</li>
+<li><strong>可视化辅助</strong>：工作站界面显示库位/槽位状态（绿色有单、红色缺货等）、商品图片、拣选数量，并可与电子标签灯（PTL）联动，实现“灯光拣选”。</li>
+</ul>
+</li>
+<li><strong>策略中心深度配置</strong>：出库环节拥有丰富的可配置策略，如拣选库存分配算法（效率优先/清库存优先）、缺货提交方式、扫码校验严格度（不需要/需要/逐件扫描）、槽位容量比例、临近超时与槽位超时释放策略等，实现高度定制化。</li>
+</ul>
+<h3 id="234-库内管理精益化库存运营">2.3.4、 库内管理：精益化库存运营</h3>
+<p>为保障库存准确性及优化库内结构，WES提供了强大的库内管理工具：</p>
+<ul>
+<li><strong>在线盘点</strong>：支持明盘与盲盘，可按商品、按容器、动碰（按日期或单据）、全盘等多种方式创建盘点单。操作员在工作站直接清点，系统自动比对差异并记录原因（盘盈/盘亏），可自动生成库存调整单或复盘单。</li>
+<li><strong>在线理货</strong>：用于整合零散库存。操作员可申请理货任务，系统将需要合并的商品从分散的库位下架至工作站槽位，再引导其上架至合并后的目标库位，过程中自动处理多货、少货等异常。</li>
+<li><strong>库存调整</strong>：支持通过库存调整单、批次属性调整单、货权调整单，对系统库存数量、批次属性、货主归属进行手工修正，处理盘点差异、理货差异等异常。</li>
+</ul>
+<h3 id="235-库存可视化与查询">2.3.5、 库存可视化与查询</h3>
+<p>WES提供多层次的库存视图，助力精细化管理：</p>
+<ul>
+<li><strong>二级库存</strong>：按“仓库+库区+货主+商品+批次属性”维度聚合显示库存总量。</li>
+<li><strong>三级库存</strong>：细化到“容器+库位”级别，可查看每个具体储位上的库存详情、锁定数量及被出库单占用的数量。</li>
+<li><strong>实时库存占用查询</strong>：实时追踪出库单对二、三级库存的占用情况。</li>
+<li><strong>库存日志</strong>：记录所有库存变化流水，便于追溯和审计。</li>
+</ul>
+<h3 id="236-策略与配置中心系统的控制台">2.3.6、 策略与配置中心：系统的控制台</h3>
+<p>WES的强大之处在于其高度的可配置性，用户可以通过策略中心和配置中心精细控制系统行为：</p>
+<ul>
+<li><strong>策略中心</strong>：以规则引擎的形式，管理出库、入库、盘点、打印等各环节的策略。例如，设置出库单初始优先级、是否自动提交、缺货处理方式、混放控制规则、装箱清单打印策略等。支持为不同条件（如货主、单据类型）设置不同的规则和优先级。</li>
+<li><strong>配置中心</strong>：提供大量开关和参数配置，如是否启用逐件扫描、是否允许取消作业中的出库单、提前离站设置、盘点任务上限、接口反馈内容等，满足不同仓库的个性化流程需求。</li>
+</ul>
+<h3 id="237-系统管理与集成">2.3.7、 系统管理与集成</h3>
+<ul>
+<li><strong>用户与权限管理</strong>：支持多用户账号、角色权限控制，保障系统安全。</li>
+<li><strong>多语言与外观</strong>：支持中、英、日等多语言包，并可自定义系统LOGO和主题。</li>
+<li><strong>丰富的API接口</strong>：提供了与上游业务系统（如ERP、WMS）集成的完整接口集，涵盖商品同步、入库单/出库单/盘点单的下发与反馈、库存查询、调整单同步等，实现业务流程无缝对接。</li>
+<li><strong>工作站管理</strong>：支持在线工作站、PDA等多种终端设备的配置与管理。</li>
+</ul>
+<h1 id="三-wes-应用架构">三、WES 应用架构</h1>
+<ol>
+<li>
+<p><strong>展现层</strong>：面向各类用户的<strong>交互窗口</strong>，包括管理员使用的WEB后台、自动化设备接口（DEVICE）和现场操作员手持的PDA。</p>
+</li>
+<li>
+<p><strong>应用层</strong>：WES系统的<strong>大脑与核心</strong>，所有业务逻辑、调度规则。</p>
+</li>
+<li>
+<p><strong>数据层</strong>：系统的<strong>记忆中枢</strong>，使用MySQL存储核心业务数据，Redis支撑高并发缓存，MongoDB可能处理日志等非结构化数据，Drools则独立管理策略规则。</p>
+</li>
+<li>
+<p><strong>基础设施层</strong>：系统的<strong>躯体与感官</strong>，基于Docker实现容器化部署，并通过一系列监控工具（如Prometheus、Grafana）保障系统健康运行。</p>
+</li>
+</ol>
+<p><strong>中间件</strong>（如RocketMQ、XXL-JOB、动态线程池）贯穿各层，负责异步通信、定时任务调度等，保障系统高可用与可扩展。</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/%E5%8D%81%E4%B8%87%E5%AD%97%E9%95%BF%E6%96%87%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%20WES%20%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84%E5%AE%9E%E8%B7%B5/file-20251213164857314.png?raw=true" alt="" loading="lazy"></figure>
+<h1 id="四-wes-核心链路">四、WES 核心链路</h1>
+<h2 id="41-出库正向链路">4.1、出库正向链路</h2>
+<p>我们先聊聊出库核心链路。</p>
+<h3 id="阶段一订单创建与初始状态-待分配">阶段一：订单创建与初始状态 (<code>待分配</code>)</h3>
+<ul>
+<li>
+<p><strong>起点</strong>：上游系统（如OMS）下发出库单，WES创建订单，初始状态为 <strong><code>待分配</code></strong>。</p>
+</li>
+<li>
+<p><strong>核心操作</strong>：<strong>库存预占</strong>。此时并不实际扣减库存，而是预先锁定库存量，防止超卖，保证了库存数据的一致性。</p>
+</li>
+</ul>
+<h3 id="阶段二库存分配与策略决策-待分配-待下发">阶段二：库存分配与策略决策 (<code>待分配</code>-&gt; <code>待下发</code>)</h3>
+<p>这是<strong>WES智能化集中体现的关键环节</strong>。</p>
+<ul>
+<li>
+<p><strong>核心操作：库存分配</strong>。系统需要决策“从哪个或多个货位，拣选哪个批次的商品来满足此订单”。</p>
+</li>
+<li>
+<p><strong>策略规则引擎介入</strong>：分配过程会调用<strong>规则引擎（如Drools）</strong>，基于预设策略进行计算，例如：</p>
+<ul>
+<li>
+<p><strong>货位优先级</strong>：就近原则、先入先出原则。</p>
+</li>
+<li>
+<p><strong>效率最优</strong>：减少拣货员行走路径、最大化单车载货量。</p>
+</li>
+<li>
+<p><strong>库存优化</strong>：优先消耗临期库存。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>结果</strong>：分配成功后，订单状态跃迁至 <strong><code>待下发</code></strong>。</p>
+</li>
+</ul>
+<h3 id="阶段三任务组单与指令下发-待下发-执行中">阶段三：任务组单与指令下发 (<code>待下发</code>-&gt; <code>执行中</code>)</h3>
+<p>此阶段的核心是 <strong>“任务组单”</strong>，目的是<strong>提升现场作业效率</strong>。</p>
+<ul>
+<li>
+<p><strong>核心操作</strong>：系统不会立即处理一个订单，而是将一段时间内多个订单的拣货任务进行<strong>聚合与优化</strong>。</p>
+<ul>
+<li>
+<p>将去往同一区域或相邻货位的任务合并，生成一张高效的<strong>拣货波次</strong>。</p>
+</li>
+<li>
+<p>这就是图中 **“任务树”**​ 概念的应用，将多个订单任务聚合为一棵更优的任务树。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>指令下发</strong>：组单完成后，WES通过<strong>WCS/RCS接口</strong>将具体的拣货指令下发给自动化设备（如亮灯拣选、AGV调度），订单状态变为 <strong><code>执行中</code></strong>。</p>
+</li>
+</ul>
+<h3 id="阶段四任务树驱动与现场执行-执行中">阶段四：任务树驱动与现场执行 (<code>执行中</code>)</h3>
+<p>订单进入<strong>物理执行阶段</strong>，由 **“任务树”**​ 驱动，将一个订单分解为一系列有序的原子任务。</p>
+<ul>
+<li>
+<p><strong>任务分解</strong>：</p>
+<ol>
+<li>
+<p><strong>生成拣货任务</strong>：拣货员或设备根据指令到指定货位拣选指定数量的商品。</p>
+</li>
+<li>
+<p><strong>生成搬运任务</strong>：AGV等设备将拣选出的商品搬运至复核台。</p>
+</li>
+<li>
+<p><strong>生成工作站复核任务</strong>：系统提示复核员扫描商品，确保拣选的准确性。</p>
+</li>
+<li>
+<p><strong>生成打包任务</strong>：复核无误后，系统生成打包任务，并打印面单。</p>
+</li>
+</ol>
+</li>
+<li>
+<p><strong>状态管理</strong>：每个子任务都有其自身的状态（如<code>待执行</code>、<code>执行中</code>、<code>已完成</code>），WES需要实时追踪整个任务树的完成进度。</p>
+</li>
+</ul>
+<h3 id="阶段五最终确认与完成-执行中-已完成">阶段五：最终确认与完成 (<code>执行中</code>-&gt; <code>已完成</code>)</h3>
+<ul>
+<li>
+<p><strong>核心操作</strong>：当订单的所有子任务（拣、搬、复、包）都完成后，系统进行<strong>最终确认</strong>。</p>
+</li>
+<li>
+<p><strong>库存扣减</strong>：此时才在数据库中进行<strong>实际的库存扣减</strong>，确保账实相符。</p>
+</li>
+<li>
+<p><strong>状态跃迁</strong>：订单状态最终变为 <strong><code>已完成</code></strong>，并向OMS等上游系统回传完成信息。</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/4/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="42-入库正向链路">4.2 入库正向链路</h2>
+<p>整个入库流程可以被清晰地划分为三个阶段，体现了从信息录入到物理上架的完整闭环：</p>
+<ol>
+<li>
+<p><strong>【信息预置与准备阶段】</strong>：单据创建与模式选择。</p>
+</li>
+<li>
+<p><strong>【物理收货与绑定阶段】</strong>：货品实收、质检、并与系统容器绑定。</p>
+</li>
+<li>
+<p><strong>【智能上架与执行阶段】</strong>：系统调度资源，完成货品上架，按单、按箱将上架信息反馈给上游系统</p>
+</li>
+</ol>
+<h3 id="阶段一信息预置与准备">阶段一：信息预置与准备</h3>
+<p>此阶段是流程的起点，核心是 **“单在先，货在后”**​ ，在系统中搭建好作业框架。</p>
+<ul>
+<li>
+<p><strong>起点</strong>：<strong>上游服务</strong>（如ERP或采购系统）创建并向WES <strong>下发入库单</strong>，单据中包含了预期的货品、数量等信息。</p>
+</li>
+<li>
+<p><strong>WES响应</strong>：WES <strong>保存入库单</strong>，建立本次入库作业的任务主干。</p>
+</li>
+<li>
+<p><strong>现场就绪</strong>：操作员在<strong>STATION工作站</strong>上<strong>上线</strong>，并<strong>开启直接上架业务模式</strong>。此模式意味着收货后可直接规划上架，无需暂存再处理，是提升效率的关键设置。</p>
+</li>
+</ul>
+<h3 id="阶段二物理收货与绑定">阶段二：物理收货与绑定</h3>
+<p>此阶段是<strong>实物与信息首次交汇的关键环节</strong>，核心是 <strong>“验明正身，建立关联”</strong>。</p>
+<ol>
+<li>
+<p><strong>PDA扫描收货</strong>：操作员使用<strong>PDA</strong>（手持终端）<strong>选单</strong>，找到对应的入库单。</p>
+</li>
+<li>
+<p><strong>质检与确认</strong>：<strong>选合格</strong>（完成质检操作），然后<strong>选商品、选批次、确认上架数量</strong>。这个过程确保了入库货品的准确性。</p>
+</li>
+<li>
+<p><strong>关键的系统逻辑</strong>：</p>
+<ul>
+<li>
+<p><strong>按规则校验</strong>：此处会调用<strong>策略规则引擎</strong>，校验批次、效期、包装规格等是否符合预设规则。</p>
+</li>
+<li>
+<p><strong>建立绑定关系</strong>：系统执行 <strong>“入库单与容器的绑定(1:n)”<strong>​ 。这是核心概念，意味着</strong>一张入库单的货品，可以放入一个或多个物理容器</strong>（如托盘、料箱）。绑定后，<strong>库存进入“收货暂存区”</strong>，这是一个逻辑库存状态，表示货品已接收但未确定最终货位。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="阶段三智能上架与执行">阶段三：智能上架与执行</h3>
+<p>此阶段是<strong>WES作为“调度大脑”能力的集中展现</strong>，核心是 <strong>“智能决策，驱动执行”</strong>。</p>
+<ol>
+<li>
+<p><strong>任务生成</strong>：工作站<strong>生成上架申请单</strong>，WES随后<strong>生成上架任务</strong>。这里的“任务”包含了“将哪个容器，放到哪个货位”的完整指令。</p>
+</li>
+<li>
+<p><strong>智能调度与下发</strong>：</p>
+<ul>
+<li>
+<p>WES将任务<strong>下发</strong>给<strong>WCS</strong>（仓库控制系统）。</p>
+</li>
+<li>
+<p>WCS通过<strong>调度算法服务</strong>，计算最优路径，调度**AGV（小车）**​ 前往工作站接取容器。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>任务执行与监控</strong>：</p>
+<ul>
+<li>
+<p>小车搬运容器前往目标货位，并<strong>异步上报位置</strong>，实现全程可视化监控。</p>
+</li>
+<li>
+<p>WCS<strong>推送实操指令到工作站</strong>，指引操作员（或自动化设备）完成最终放置动作。</p>
+</li>
+<li>
+<p>操作员确认后，<strong>上架完成</strong>，反馈信息。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>最终确认与反馈</strong>：</p>
+<ul>
+<li>
+<p>小车<strong>离站</strong>，资源释放。</p>
+</li>
+<li>
+<p>系统通过<strong>反馈定时器</strong>，按单或按箱<strong>批量、异步</strong>地<strong>反馈结果给上游服务</strong>，并<strong>更新单据状态为完成</strong>。这种异步反馈机制避免了阻塞主流程，提升了系统整体性能。</p>
+</li>
+</ul>
+</li>
+</ol>
+<figure data-type="image" tabindex="4"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/%E5%8D%81%E4%B8%87%E5%AD%97%E9%95%BF%E6%96%87%E6%B7%B1%E5%BA%A6%E8%A7%A3%E6%9E%90%20WES%20%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E9%87%8D%E6%9E%84%E5%AE%9E%E8%B7%B5/%E6%96%99%E7%AE%B1%E5%88%B0%E4%BA%BA%E7%BB%84%E7%AE%B1-%E4%B8%8A%E6%9E%B6%E8%B0%83%E5%BA%A6%E6%B5%81%E7%A8%8B.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="43盘点正向链路">4.3盘点正向链路</h2>
+<h2 id="44-理货正向链路">4.4 理货正向链路</h2>
+<h2 id="45-逆向链路">4.5 逆向链路</h2>
+<h1 id="五-三级库存模型">五、三级库存模型</h1>
+<h2 id="51-wes-的多级库存模型是怎样的">5.1、WES 的多级库存模型是怎样的？</h2>
+<p>WES 的库存模型分为三层：</p>
+<ul>
+<li>一级库存</li>
+<li>二级库存</li>
+<li>三级库存<br>
+粒度逐件变细。一级库存是全仓库存，商品维度，二级库存是库区+商品+批次+包装，三级库存则细粒度到库位（料箱、料格），与具体的存储位直接关联。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214502449.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h2 id="52-一级库存的优势与弊端">5.2、一级库存的优势与弊端？</h2>
+<p>先说优势，对于全仓库存的可视化，其实是简单了许多，其次上游调取库存快照时，减少了计算。</p>
+<p>劣势也很明显：</p>
+<ol>
+<li>一级库存是粒度较大，如果是大库存商品并且是热点商品的话，即使是在 B 端也很容易变成热点行，高并发下，出现性能问题。</li>
+<li>库存的级数越多，要保证数据一致性的难度就越高，代价也越高。</li>
+<li>死锁的风险也会增大<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214520258.png?raw=true" alt="" loading="lazy"></li>
+</ol>
+<h2 id="53-重构中如何做取舍">5.3、重构中如何做取舍？</h2>
+<p>工作越久，越觉得软件开发中，没有银弹，方案本身没有好坏，只有适合与不适合，大多数时候我们都在做权衡（Trade-Off）。</p>
+<p>对于 WES 来说，数据一致性和稳定性比报表类的需求其实是更核心的，一级库存固然有一定优点，但都可以通过二级库存聚合计算得到，而且一级库存的使用场景都很低频，去掉一级库存完全是能满足业务需求的。</p>
+<p>去掉一级库存的优势就很明显了，数据一致性的维护更简单了，死锁风险降低，代码层面也会降低复杂度，热点行的发生频率也会下降一个级数。</p>
+<p>所以最终还是去掉了一级库存。</p>
+<h2 id="54-为什么要有二级库存">5.4、为什么要有二级库存？</h2>
+<p>二级库存关注的维度是<strong>单库区商品批次维度</strong>，那我们先假设去掉二级库存，那会有哪些问题？</p>
+<ol>
+<li><strong>性能：</strong> 在一些需要库区视角的场景中，比如出库单缺货时无法快速判断，影响补货时效，因为三级库存是分散在具体库位的，需要去三级库存表查找目标库存列表，并做聚合计算，尤其在某些仓储场景下，sku 种类很少，那要查询的三级库存数量会很大，对三级库存表是一个很大的负担。</li>
+<li><strong>逻辑耦合</strong>：库存决策（是否满足订单）与执行细节（从哪个货位取货）混杂，增加代码复杂度</li>
+<li>另外二级库存与我们的出库调度模型有关联，减少二级库存会让上游的出库单与调度任务直接关联，会缺少灵活性。</li>
+</ol>
+<p>基于上述原因，我们最终还是保留了二级库存。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214550611.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="55-库存扣减的幂等性如何保证">5.5、库存扣减的幂等性如何保证？</h2>
+<p>我们有库存流水表，会有幂等键，二级库存是 出库作业类型 + 作业单 ID + 明细 ID，三级库存扣减是出库作业类型 + 任务 ID。</p>
+<h2 id="56-mysql-库存扣减的性能瓶颈与优化思路">5.6、MySQL 库存扣减的性能瓶颈与优化思路？</h2>
+<h3 id="1-性能瓶颈">1 性能瓶颈</h3>
+<p><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214614333.png?raw=true" alt="" loading="lazy"><br>
+MySQL 库存扣减其实本质上是热点行更新的问题，当多个并发事务同时尝试更新同一行热点数据时，可能会导致锁竞争和冲突。这会增加事务的等待时间和冲突概率，导致性能下降，并可能引发死锁问题。<br>
+具体来说，可能会产生以下问题（<strong>参考了网络上的内容，学习一下</strong>）：</p>
+<ol>
+<li>锁竞争，热点数据的更新是通过update语句进行的，而update是需要给记录增加排他锁的，这就会导致大量的请求被阻塞。降低整个系统的吞吐量。</li>
+<li>占用数据库连接，当有大量的update语句，因为要修改同一条记录而被阻塞的时候，他们持有的数据库连接是不会释放的，而数据库连接又是有限的，所以会导致连接数不够，进而影响整个系统的吞吐量及可用性。</li>
+<li>耗尽数据库CPU，大量锁等待，就会导致大量的自旋，多个线程就会不断的尝试获取锁，CPU就需要不断的执行自旋操作，并且需要做死锁检测，消耗大量CPU时间。并且在这个过程中，操作系统也需要频繁的进行线程上下文的切换，这个过程会导致CPU时间片的浪费。</li>
+<li>死锁风险，在高并发的情况下。由于数据库需要频繁定位和更新这些特定行，可能会增加锁竞争和死锁的风险，影响并发性能。</li>
+<li>索引维护开销大，频繁地更新热点数据，不仅会导致数据的变化，还可能导致相关索引的频繁维护，这可能会增加数据库的开销，导致性能下降。</li>
+<li>主从不一致，热点数据的频繁更新，如果在主从复制出现延迟的情况下，就会放大数据不一致的概率。</li>
+</ol>
+<h3 id="2-优化思路">2 优化思路</h3>
+<p>这类问题的解决思路可以分为3类，分别是排队、拆分以及批次执行。</p>
+<h4 id="思路-一排队">思路 一：排队</h4>
+<p>排队方案要么是加锁，要么是单线程执行。<br>
+如果能使用Redis的话，那么就可以利用他的高并发、单线程特点来解决这个问题。<br>
+如果是使用数据库的话，可以使用优化版的云MySQL，腾讯云 MySQL 和阿里云 MySQL。<br>
+他们都做了二次开发优化，系统会自动探测是否有单行的热点更新，让同一个热点行的更新语句，在执行层进行排队。这样的排队相比update的排队，要轻量级很多，因为他不需要自旋，不需要抢锁。</p>
+<h4 id="思路二拆分用得不多">思路二：拆分（用得不多）</h4>
+<p>类似分段锁机制，将一次扣减分散到不同的库表中进行，但可能存在碎片库存。</p>
+<h4 id="思路三合并">思路三：合并</h4>
+<p>把多个UPDATE合成一个UPDATE， 比如一个用户，有10个占用库存请求，每次占用1个，那么就可以提供一个批量占用的接口，让上游一次性把10个占用合并一起，这样数据库只需要做一次更新就行了</p>
+<p>局限性：不是所有请求都可以合并的，有些场景，如电商的秒杀，用户需要很快的知道反馈，而批量执行就需要有个窗口来聚合，用户是不能接受这种等待窗口的。在一些异步链路上，可以用这种方案。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214636292.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="57-学习互联网电商高并发库存扣减的思路">5.7、学习互联网电商高并发库存扣减的思路</h2>
+<h3 id="1-两种方案">1 两种方案</h3>
+<p>主流的有两种方案：</p>
+<ol>
+<li>数据库扣减：</li>
+<li>redis 扣减：使用lua 脚本，先判断库存呢是否足够，足够再扣减</li>
+</ol>
+<h3 id="2-redis-库存的正确扣减">2 Redis 库存的正确扣减</h3>
+<p>秒杀因为是一个高频的并发库存扣减的场景，所以，如何提升库存扣减的性能，并且保证他的准确性，这是一个在秒杀业务中极其重要的课题，稍有不慎就会带来超卖、少卖等问题。另外还需要关注一下对账的系统设计。<br>
+具体的方案设计如下图：</p>
+<figure data-type="image" tabindex="5"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/%E7%A7%92%E6%9D%80%E5%B0%91%E5%8D%96.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="3-redis保存库存的时候如何避免被redis清理掉">3  Redis保存库存的时候，如何避免被Redis清理掉？</h3>
+<p>考的其实是 Redis 的内存淘汰策略。<br>
+用 volatile 相关策略，这样只有设置了超时时间的才可能被淘汰。<br>
+阿里云上的Redis的默认的淘汰策略是volatile-lru。<br>
+腾讯云默认是noeviction。</p>
+<h1 id="六-出库效率优化">六、出库效率优化</h1>
+<h2 id="61-出库链路耗时在哪里">6.1、出库链路耗时在哪里？</h2>
+<p>如果想优化出库正向链路，那么首先要知道耗时在哪些地方，这样才能对症下药。<br>
+先回顾一下出库链路图：</p>
+<figure data-type="image" tabindex="6"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%A2%B3%E7%90%86/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<p>类似操作系统中磁盘 IO花费时间一般由 3 个部分组成：</p>
+<ol>
+<li>寻道时间</li>
+<li>旋转延迟</li>
+<li>数据传输时间</li>
+</ol>
+<p>这三者的时间都蛮长的，尤其是两者。为什么呢？因为涉及到物理移动。<br>
+在出库链路中，耗时最长的也是如此，所以我们主要从这个方面入手。<br>
+优化主要从两个方面来讨论，业务上优化以及技术上的优化。</p>
+<h2 id="62-出库调度正向链路业务优化">6.2、出库调度正向链路业务优化</h2>
+<h3 id="1-热度移位">1 热度移位</h3>
+<p>在 WES（仓储执行系统）中， <strong>热度移位</strong>功能是一项智能的库存动态调整策略。其核心目标是让<strong>高频次出入库的商品</strong>（热销品）尽可能地靠近仓库的<strong>拣选工作站</strong>或<strong>出库区域</strong>，从而显著减少拣货员或自动化导引车（AGV）的行走或移动距离，最终提升整体仓储运营效率。</p>
+<p>看一下热度移位前后对比图，应该比较清晰一些：</p>
+<figure data-type="image" tabindex="7"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122154308282.png?raw=true" alt="" loading="lazy"></figure>
+<p>我们从图中可以看到，热度移位后，高频商品（红色部分）都移动到拣选工作站附近了。<br>
+热度移位的目的本质是为了减少搬运时间，从而大幅提高出库效率。</p>
+<h3 id="2-超-a-不返库">2 超 A 不返库</h3>
+<p>智能仓的存储区是一个三维空间，热度移位更侧重水平坐标的优化，超 A 不返库则更侧重垂直坐标的优化。<br>
+说的有点抽象，我简单解释一下。仓储区域是一个个的货架，货架分为多层，每一层又分为多个库位，最下层是缓存层，料箱容器如果放在货架上层，则需要从上层搬到下层，再从下层搬运到拣选工作站。<br>
+超 A 不返库指的是高频超 A 商品放到货架最下面一层，也就是缓存层，减掉料箱从货架上层搬运到货架下层的流程。</p>
+<p>文字可能不太好理解，我们看张图示意图吧：</p>
+<figure data-type="image" tabindex="8"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122205831266.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="3-flowpick-单品单件">3 FlowPick 单品单件</h3>
+<p>我们组负责的一些日本海外仓，比如 Eqseek，单据类型比较特殊，单品单件订单占比近80%，为提高拣选效率，可以一次入站完成更多件数，提出flowpick产品化方案。<br>
+当然国内直播电商也有类似场景，比如直播间大主播，观众下单，大多是单品单件订单。<br>
+WES对可聚合订单做标记，交由算法组，让算法把一批订单聚合分配到同一个 flowpick 槽位中。<br>
+这样能大幅减少WES 调度和下游搬运次数。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122220042503.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="4-进站提前上报">4 进站提前上报</h3>
+<p>小车搬运容器即将进入工作站时，会减速，达到指定码点后，会上报到站消息。<br>
+WES 拿到搬运系统上报的到站消息后，会推送实操任务给 STATION。<br>
+我们做了提前上报功能，小车在即将进站前，到达指定码点时，就提前上报到站消息，让 WES 处理并推送实操任务，这样相当于做了并行处理：</p>
+<ul>
+<li>小车从指定码点到真正进站</li>
+<li>WES 接收到站消息并推送实操任务<br>
+这样也减少了出库链路时间。<br>
+如下图所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122221757555.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h3 id="5-提前离站">5 提前离站</h3>
+<p>原先的流程是拣选、封箱、点击全部分播完成后车才走，但其实拣选完之后，车就可以走了。<br>
+提前离站我们做了开关，在拣选到最大值后，车提前离站，下一个车可以直接进站。<br>
+这样我们又减少了一部分链路耗时。<br>
+这里我也画了一张流程图，如下所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122222552157.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="6-预出库">6 预出库</h3>
+<p>那什么是预出库呢？我先聊一下问题背景，其实前文也聊了场景：<br>
+料箱场景下的出库分为两段搬运：</p>
+<ol>
+<li><strong>C56 机器人：</strong> 将料箱搬运至<strong>缓存位</strong>。</li>
+<li><strong>青鸾机器人：</strong> 将缓存位的料箱搬运至<strong>工作站</strong>。<br>
+为了<strong>提高拣选效率</strong>，我们探讨了能否将第一段搬运（C56 搬运至缓存位）提前完成，即实现“预出库”。</li>
+</ol>
+<p>在料箱出库场景中，物料搬运分为两步：</p>
+<ol>
+<li>
+<p><strong>C56 机器人：</strong> 将料箱搬运至<strong>缓存位</strong>。</p>
+</li>
+<li>
+<p><strong>青鸾机器人：</strong> 将缓存位的料箱搬运至<strong>工作站</strong>。</p>
+</li>
+</ol>
+<p>为了<strong>提高拣选效率</strong>，我们探讨了能否将第一段搬运（C56 搬运至缓存位）提前完成，即实现“预出库”。</p>
+<p>我们提出了两种预出库方案：<strong>静态预出库</strong>和<strong>动态预出库</strong>。</p>
+<h4 id="1-静态预出库-static-pre-outbound">1）. 静态预出库 (Static Pre-Outbound)</h4>
+<table>
+<thead>
+<tr>
+<th><strong>适用场景</strong></th>
+<th><strong>客户在一天中某个特定时刻集中下发大部分订单。</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案描述</td>
+<td>系统根据已下发订单所需的库存，<strong>提前</strong>将料箱搬运至缓存位。</td>
+</tr>
+<tr>
+<td>优点</td>
+<td><strong>简单易实施：</strong> 一天只需计算一次。</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>*需要严格控制订单的<strong>出库上墙顺序</strong>。 * 对<strong>缓存位占用较大</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-动态预出库-dynamic-pre-outbound">2）. 动态预出库 (Dynamic Pre-Outbound)</h4>
+<table>
+<thead>
+<tr>
+<th><strong>适用场景</strong></th>
+<th><strong>提升实时拣选效率，优化缓存资源占用。</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案描述</td>
+<td>工作站<strong>虚拟出</strong>部分槽位用于分配“预出库订单”。  这些预出库订单仅执行<strong>第一段搬运</strong>（搬至缓存位）。 当实际订单完成后，对应的预出库订单才会转移到<strong>实际分播墙槽位</strong>上。</td>
+</tr>
+<tr>
+<td>优点</td>
+<td><strong>缓存位占用少</strong>，资源利用灵活。 对实际拣选效率提升<strong>显著</strong>。</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>需要<strong>实时计算</strong>和持续监控。 对<strong>系统资源消耗较大</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h1 id="七-wes-调度模型">七、WES 调度模型</h1>
+<p>我在前文聊过出库链路的大致链路流程。</p>
+<p>但其实真实的出库调度链路远比这复杂，不仅涉及到库存模型、多样化的策略规则、配置、调度算法、热度算法，还涉及到单据任务调度以及相关的单据状态机、作业单状态机、任务状态机等等。</p>
+<p>本文我将聊聊WES 的单据任务调度。</p>
+<p>WES 这边的调度模型基本遵循三层：</p>
+<ol>
+<li>单据层：单据和单据明细</li>
+<li>作业单层：作业单和作业单明细</li>
+<li>任务层：包含命中的三级库存信息、容器、货架、库位</li>
+</ol>
+<p>从上到下，都是一对多的关系，以出库链路来说，一个出库单对应多个出库作业单，一个出库作业单对应多个出库任务。</p>
+<h2 id="71-为什么要设计三层调度模型">7.1、为什么要设计三层调度模型？</h2>
+<p>在一些小仓场景，仓内商品库存比较少，作业场景比较简单，其实作业单这一层是可以省略的，但我司的客户群体基本都是大仓，单仓过万平方，多库区，库存条目数过百万。如果只有调度任务这一层的话，无法精细化管理。比如出库单无法很好地表示库区维度的作业情况，哪些库区是有货的，哪些库区是无货的，哪些库区在作业了，哪些库区还没开始作业。</p>
+<p>除了业务场景的考量，其实在模型含义上，直接使用上游下发的出库单来管理仓内作业流程，业务领域有些混淆了。出库单是上游的概念，出库单定义‘要什么’，而作业单定义‘怎么干’，关注的具体的执行层。</p>
+<h2 id="72-单据-作业单-任务的状态流转">7.2、单据、作业单、任务的状态流转</h2>
+<p>该部分信息有点涉敏，我简单聊聊。<br>
+出库单是上游下发的单据，所以肯定有初始状态。<br>
+提交出库单后，会预占二级库存并且生成出库作业单，出库作业单也有初始状态。<br>
+出库作业单会经过复杂计算，并传给调度算法服务，最终 WES 会根据出库作业单与算法结果分配工作站、预占三级库存，并生成出库任务。<br>
+同样的，出库任务也有初始状态。<br>
+定时任务会流转，最终下发给下游的车辆调度系统，下发成功后，任务状态流转。<br>
+车辆搬运中会不断上报任务调度实体，也就是小车的位置信息，到站后，调度任务状态变更。<br>
+推完实操后，调度任务会变更为实操中。<br>
+实操结束后，会变更为完成。</p>
+<h2 id="73-调度的搬运优先级">7.3、调度的搬运优先级</h2>
+<p>在履约链路中，会存在履约时效性的概念，在仓配场景中，简单来说就是，如何及时地把货物出库并配送到买家手中。</p>
+<p>那上游下发的单据，可能就会带有履约时效性的信息，比如：</p>
+<ol>
+<li>单据优先级：优先级越高，调度任务的优先级也会根据权重提高优先级</li>
+<li>期望发货时间：结合规则策略，动态根据期望发货时间提高优先级</li>
+</ol>
+<p>除了上游单据自带信息，在 WES 内部也会根据一些策略，去动态提高任务优先级，比如：</p>
+<ol>
+<li>按出库单持续时间：一个单子执行的时间越久，尾单部分，优先级就需要越高</li>
+<li>按剩余拣选任务数：有的时候，上游希望剩余拣选任务数达到阈值后，能提高优先级。</li>
+</ol>
+<h2 id="74-库存分配优先级">7.4 库存分配优先级</h2>
+<p>对于多库区精细化作业，需要具备按库区优先级来分配库存，比如存在 A、B 、C 库区，希望先把 A 库区的库存先出掉，再出 B、C 库区的库存。<br>
+同样的，这个能力也是需要提供规则策略动态配置能力的。</p>
+<h1 id="八-与第三方系统交互数据一致性保障">八、与第三方系统交互数据一致性保障</h1>
+<h2 id="81-wes-与第三方系统数据不一致困境">8.1、WES 与第三方系统数据不一致困境</h2>
+<p>首先说一下智能仓储系统的场景：智能仓储系统的核心链路涉及多个系统，但是对于数据最终一致性有要求，且部分场景需要提供补偿机制。</p>
+<p>我们需要与诸多二方系统和三方系统对接，比如：<br>
+1、车辆调度系统，可能就会遇到：</p>
+<ul>
+<li>车不来：下发调度信息的时候，消息发送失败，导致车辆不来</li>
+<li>来错车：下发调度信息的时候，消息乱序，导致来错车</li>
+<li>车不走：下发车辆离站消息的时候，消息发送失败，导致车辆不走</li>
+</ul>
+<p>2、与算法服务对接</p>
+<ul>
+<li>离线任务下发失败</li>
+<li>调用算法计算热度</li>
+</ul>
+<p>3、与外设系统交互，可能会遇到：</p>
+<ul>
+<li>
+<p>灯不亮：</p>
+<ul>
+<li>发送亮灯消息的时候，消息发送失败，导致外设系统未接收到消息，灯不亮</li>
+<li>外设系统与物理设备交互，调用相关接口失败</li>
+</ul>
+</li>
+<li>
+<p>灯不灭：</p>
+<ul>
+<li>发送灭灯消息的时候，消息发送失败，导致外设系统未接收到消息，灯不灭</li>
+<li>外设系统与物理设备交互，调用相关接口失败，灯不灭</li>
+</ul>
+</li>
+<li>
+<p>亮错灯：</p>
+<ul>
+<li>发送亮灯消息的时候，消息乱序，导致外设系统亮灯错乱</li>
+</ul>
+</li>
+</ul>
+<p>4、与打印系统交互，可能会遇到：</p>
+<ul>
+<li>没打印：接口调用失败，导致单据打印失败</li>
+</ul>
+<p>5、与上游系统交互：</p>
+<ul>
+<li>各种单据的实操结果未正常反馈上游
+<ul>
+<li>出库单按单反馈</li>
+<li>出库单按箱反馈</li>
+<li>入库单按单反馈</li>
+<li>入库单按箱反馈</li>
+<li>盘点单按单反馈</li>
+<li>库存调整单按单反馈</li>
+<li>……<br>
+6、与基础数据系统交互</li>
+</ul>
+</li>
+<li>货架热度计算结果更新失败</li>
+<li>料箱热度计算结果更新失败</li>
+<li>容器位置更新<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/file-20251129203301152.png?raw=true" alt="" loading="lazy"><br>
+这些场景无法使用本地事务实现，因为是分布式系统。有些场景也不能纯用 MQ 的消息事务实现，因为 RocketMQ 事务消息重试机制不灵活。</li>
+</ul>
+<h2 id="82-关于重试逻辑的思考">8.2、关于重试逻辑的思考</h2>
+<p>一个健壮的系统是需要考虑关键节点的稳定性的，以与外部系统交互这种节点来讨论，我觉得核心的意识是不相信第三方系统，无论是数据的获取还是推送。</p>
+<p>所以需要实现重试逻辑。</p>
+<p>但二方系统、三方系统有许多，如果在每一个节点都去写重试逻辑，那么重试逻辑就会变得不可复用。比如说：</p>
+<ul>
+<li>重试次数怎么设置？</li>
+<li>每次重试的间隔如何考虑？</li>
+<li>重试逻辑是否影响主线程，需要异步化吗？</li>
+<li>是否考虑加降级呢？</li>
+<li>能不能加告警？</li>
+<li>……</li>
+</ul>
+<h2 id="83-抽象-复用与便捷">8.3、抽象、复用与便捷</h2>
+<p>考虑以上问题后，我在阅读了转转和得物的关于重试组件的技术博客后，开始有了新的思考。是不是可以抽取出业务需求，自定义一个 springboot starter，用户只需要引入这个 maven 包，做一些简单的配置和适配，就可以做到关键节点的自动重试呢？</p>
+<p>很幸运，我在网上找了一些类似的教程和代码，结合得物、转转的技术博客，实现了这个组件。</p>
+<p>我们可以基于SpringAOP来实现，将需要重试的逻辑抽取成 public 修饰的方法，在这个方法上加上一致性注解。<br>
+拦截所有加了一致性注解的方法，封装为一个重试任务，持久化到数据库中，再通过反射去执行这个任务。</p>
+<figure data-type="image" tabindex="9"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/chongshizujian.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="84-如何设计自定义注解">8.4、如何设计自定义注解</h2>
+<p>我们如果想基于反射来做，那注解必须要有反射相关的信息，另外还要有执行间隔、延迟时间、告警相关<br>
+降级相关。</p>
+<ol>
+<li>任务名称：默认取方法全限定名，因为想使用反射来执行</li>
+<li>执行间隔：任务执行间隔</li>
+<li>初始延迟时间</li>
+<li>告警表达式</li>
+<li>告警类</li>
+<li>降级类</li>
+<li>……</li>
+</ol>
+<h2 id="85-重试任务执行流程">8.5、重试任务执行流程</h2>
+<p>如下图所示：<br>
+<img src="https://github.com/PansonPanson/Argo/blob/main/doc/image/%E6%B5%81%E7%A8%8B%E8%AE%BE%E8%AE%A1.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="86-如何自定义任务查询逻辑">8.6、如何自定义任务查询逻辑</h2>
+<p>任务失败重试是通过定时任务调⽤ <code>taskScheduleManager.performanceTask()</code> ⽅法来实现 的，底层逻辑就是根据条件从数据库中查询出来失败的任务，然后判 断是否需要重试，执行后续逻辑。</p>
+<p>在这个过程中，根据条件查询失败的任务，这⾥的条件允许⼀定程度的⾃定义。默认情况下⾏为 是： <strong>每次查询当前时间 - 1⼩时 时间范围内的1000条失败的记录</strong>。</p>
+<p>如果想要更改此逻辑，可以自定义查询类名并继承查询接口，然后在 yml 中配置全路径类名，组件接入启动时会根据自定义配置类来反射获取自定义查询配置信息。<br>
+<img src="https://raw.githubusercontent.com/PansonPanson/supply-chain/refs/heads/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/7/file-20251129204320270.png" alt="" loading="lazy"></p>
+<h2 id="87-指数退避重试">8.7、指数退避重试</h2>
+<p>指数退避重试是一种智能的容错机制，其核心思想是当操作失败后，重试的等待时间随着重试次数的增加而呈指数级增长，并通常会引入随机扰动。它能有效防止因频繁重试导致的系统压力激增，是构建稳定分布式系统和网络应用的关键策略。</p>
+<table>
+<thead>
+<tr>
+<th>重试次数</th>
+<th>基础延迟计算（示例）</th>
+<th>实际等待时间（含抖动）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1次重试</td>
+<td><code>base_delay * (2^0) = 1s</code></td>
+<td>1秒 ± 随机时间</td>
+<td>初始快速重试，希望问题已瞬时恢复</td>
+</tr>
+<tr>
+<td>第2次重试</td>
+<td><code>base_delay * (2^1) = 2s</code></td>
+<td>2秒 ± 随机时间</td>
+<td>延迟加倍，给系统更多恢复时间</td>
+</tr>
+<tr>
+<td>第3次重试</td>
+<td><code>base_delay * (2^2) = 4s</code></td>
+<td>4秒 ± 随机时间</td>
+<td>继续指数增长，进一步退让</td>
+</tr>
+<tr>
+<td>第n次重试</td>
+<td><code>base_delay * (2^(n-1))</code></td>
+<td>计算结果 ± 随机时间，但不超过 <code>max_delay</code></td>
+<td>避免等待时间无限增长</td>
+</tr>
+<tr>
+<td>在计算下一次执行时间时，可以按照这个指数退避重试，但一般我们设置的重试次数都很小，所以与线性重试差距不大。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><img src="" alt="" loading="lazy"></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="88-降级逻辑设计">8.8、降级逻辑设计</h2>
+<p>有时候我们希望重试失败之后进行降级处理，所以注解中要支持定义降级类。<br>
+如果配置了降级类，并且超过了重试次数阈值，就调用降级逻辑。<br>
+具体的实现方式就是通过反射调用指定降级类的同名方法，方法参数要与原方法一致。</p>
+<h2 id="89-告警逻辑">8.9、告警逻辑</h2>
+<p>告警逻辑可以自定义，在注解上可以配置自定义告警类，如果触发告警规则，则通过反射调用告警类的告警方法。<br>
+因为告警可能会比较耗时，所以做了异步化，避免影响主线程。</p>
+<h2 id="810-如何设计重试任务表">8.10、如何设计重试任务表</h2>
+<p><strong>数据模型：argo_task（任务表）</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段名 (Field Name)</th>
+<th>数据类型 (Data Type)</th>
+<th>允许空值 (Nullable)</th>
+<th>默认值 (Default)</th>
+<th>注释 (Comment)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>id</strong>​</td>
+<td>bigint</td>
+<td>NOT NULL</td>
+<td>AUTO_INCREMENT</td>
+<td>主键自增</td>
+</tr>
+<tr>
+<td><strong>task_id</strong>​</td>
+<td>varchar(500)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>用户自定义的任务名称，如果没有则使用方法签名</td>
+</tr>
+<tr>
+<td><strong>task_status</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>0</td>
+<td>执行状态</td>
+</tr>
+<tr>
+<td><strong>execute_times</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行次数</td>
+</tr>
+<tr>
+<td><strong>execute_time</strong>​</td>
+<td>bigint</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行时间</td>
+</tr>
+<tr>
+<td><strong>parameter_types</strong>​</td>
+<td>varchar(255)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>参数的类路径名称</td>
+</tr>
+<tr>
+<td><strong>method_name</strong>​</td>
+<td>varchar(100)</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>方法名</td>
+</tr>
+<tr>
+<td><strong>method_sign_name</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>方法签名</td>
+</tr>
+<tr>
+<td><strong>execute_interval_sec</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>60</td>
+<td>执行间隔秒</td>
+</tr>
+<tr>
+<td><strong>delay_time</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>60</td>
+<td>延迟时间：单位秒</td>
+</tr>
+<tr>
+<td><strong>task_parameter</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>任务参数</td>
+</tr>
+<tr>
+<td><strong>performance_way</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>执行模式：1、立即执行 2、调度执行</td>
+</tr>
+<tr>
+<td><strong>thread_way</strong>​</td>
+<td>int</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>线程模型 1、异步 2、同步</td>
+</tr>
+<tr>
+<td><strong>error_msg</strong>​</td>
+<td>varchar(200)</td>
+<td>NOT NULL</td>
+<td>''</td>
+<td>执行的error信息</td>
+</tr>
+<tr>
+<td><strong>alert_expression</strong>​</td>
+<td>varchar(100)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>告警表达式</td>
+</tr>
+<tr>
+<td><strong>alert_action_bean_name</strong>​</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>告警逻辑的执行beanName</td>
+</tr>
+<tr>
+<td><strong>fallback_class_name</strong>​</td>
+<td>varchar(255)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>降级逻辑的类路径</td>
+</tr>
+<tr>
+<td><strong>fallback_error_msg</strong>​</td>
+<td>varchar(200)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>降级失败时的错误信息</td>
+</tr>
+<tr>
+<td><strong>shard_key</strong>​</td>
+<td>bigint</td>
+<td>YES</td>
+<td>0</td>
+<td>任务分片键</td>
+</tr>
+<tr>
+<td><strong>gmt_create</strong>​</td>
+<td>datetime</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td><strong>gmt_modified</strong>​</td>
+<td>datetime</td>
+<td>NOT NULL</td>
+<td>-</td>
+<td>修改时间</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p><strong>主键 (Primary Key)</strong>：<code>PRIMARY KEY (id)</code>。</p>
+</li>
+<li>
+<p><strong>唯一索引 (Unique Key)</strong>：<code>UNIQUE KEY uk_id_shard_key (id, shard_key) USING BTREE</code>。这是一个复合唯一索引，确保了 <code>id</code>和 <code>shard_key</code>组合的唯一性，常用于分库分表场景。</p>
+</li>
+<li>
+<p><strong>存储引擎与字符集 (Storage Engine &amp; Character Set)</strong>：<code>ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci</code>。使用InnoDB引擎，字符集为支持更广范围字符（如emoji）的utf8mb4。</p>
+</li>
+</ul>
+<h1 id="九-wes-内部系统数据一致性保障">九、WES 内部系统数据一致性保障</h1>
+<p>我在现司的很长一段时间里一直被现场问题工单 oncall 弄得痛不欲生，大概有半年多，我司很多第三方仓，尤其是海外仓，跨时区工作，经常半夜打我电话，一起床又是一个通宵。坦诚来说，工作这么多年，在我司的前半段时间工作，是我职业生涯中最痛苦的一段时间，捂头哈哈~</p>
+<p>这段经历让我切身体会到：<strong>当核心履约链路缺乏系统性设计时，稳定性问题最终一定会以“人工成本”的形式被偿还。</strong></p>
+<p>后来，在一位在公司深耕十年的前辈建议和引荐下，我转入产品线团队，参与 WES 系统的重构工作，也正是在这一过程中，我开始系统性地审视出库链路，并逐步引入 Saga 思想来解决长期存在的履约一致性问题。</p>
+<p>收获良多，我很感谢他。</p>
+<figure data-type="image" tabindex="10"><img src="https://images.unsplash.com/photo-1755109604669-2719abfbe5b6?q=80&amp;w=2777&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<p>在仓储系统中，出库履约是一条<strong>跨系统、跨资源、长生命周期</strong>的业务链路，涉及到状态机、库存模型、调度模型、规则配置等等。本文结合我过往在 WES（Warehouse Execution System）中的工程实践，分享出库链路中落地 Saga 的思考、演进过程与经验总结。</p>
+<hr>
+<h2 id="91-仓储业务名词解释">9.1、仓储业务名词解释</h2>
+<p>为了便于不同业务领域背景的朋友能理解本文的一些内容，加了一些名词说明。</p>
+<figure data-type="image" tabindex="11"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213233756392.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="1-出库单">1. 出库单</h3>
+<p>出库单本质上是上游下发的单据，比如你在淘宝上买了 2 个牙刷，3 件毛巾。那上游（可能是 OMS、WMS）会下发一个出库单到 WES 来，告知 WES 我现在要出货配送 2 个牙刷、3 件毛巾。出库单就是用来表达要出库的商品信息。</p>
+<p>在数据模型上，出库单分为主体和明细。</p>
+<h3 id="2-出库作业单">2. 出库作业单</h3>
+<p>出库作业单某种层面上是根据出库单做的一层解耦单据，将具体的执行层与上游下发的单据层隔离开。</p>
+<p>另一个维度来理解的话，是按库区维度对出库单做了一次拆单。</p>
+<p>出库作业单单也有主体和明细。比如说上文的出库单，可能会分裂成两个出库单，A 库区出库 2 件牙刷，B 库区出库 3 件毛巾。</p>
+<h3 id="3-出库任务">3. 出库任务</h3>
+<p>出库任务业务含义上表示要从某个存储库位（货架库位、料箱、料格）中出库某个包装批次的商品。</p>
+<p>WES 会对这个出库任务做一层转换，加上搬运调度层的含义，比如要把这个商品放到哪个工作站的那个槽位上去拣选，搬运的目的地是哪里。</p>
+<h3 id="4二级库存">4.二级库存</h3>
+<p>库区层面的库存，智能仓分为多个库区，二级库存是库区维度商品批次库存。</p>
+<h3 id="5三级库存">5.三级库存</h3>
+<p>库位维度的库存，实际的存储库存，比二级库存会更细粒度一些。</p>
+<h2 id="92-背景为什么出库履约是一个长事务问题">9.2、背景：为什么出库履约是一个“长事务”问题</h2>
+<p>在 WES 中，一次出库并非一个同步完成的动作，而是由多个阶段逐步推进：</p>
+<ul>
+<li>
+<p>上游系统下发出库单</p>
+</li>
+<li>
+<p>根据规则拆分出库单生成出库作业单，预占二级库存</p>
+</li>
+<li>
+<p>与算法服务交互，分配工作站槽位</p>
+</li>
+<li>
+<p>与算法服务交互，分配三级库存，生成并下发搬运任务</p>
+</li>
+<li></li>
+<li>
+<p>将调度任务下发至下游搬运集群</p>
+</li>
+<li>
+<p>小车到站推送拣选实操</p>
+</li>
+<li>
+<p>实操反馈，扣减二三级库存，完结作业单、任务，小车离站</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="12"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234238868.png?raw=true" alt="" loading="lazy"></figure>
+<p>这一过程具备几个典型特征：</p>
+<ul>
+<li>
+<p>涉及多个本地事务</p>
+</li>
+<li>
+<p>业务链路长，状态中间态多</p>
+</li>
+<li>
+<p>允许失败、需要回滚和重试</p>
+</li>
+<li>
+<p>对可用性要求高，不追求强一致</p>
+</li>
+</ul>
+<p>这使得传统的强一致分布式事务（如 XA / 2PC）在该场景下并不适用。</p>
+<hr>
+<h2 id="93-saga-原理回顾结合我个人的工程视角">9.3、Saga 原理回顾（结合我个人的工程视角）</h2>
+<h3 id="1-什么是-saga">1. 什么是 Saga</h3>
+<p>Saga 是一种用于解决<strong>分布式长事务</strong>的问题模型，其核心思想是：</p>
+<ul>
+<li>
+<p>将一个全局事务拆分为多个<strong>可独立提交的本地事务</strong></p>
+</li>
+<li>
+<p>每个本地事务都对应一个<strong>补偿操作</strong></p>
+</li>
+<li>
+<p>通过正向执行与必要时的补偿执行，最终达成一致状态</p>
+</li>
+</ul>
+<p>Saga 的目标不是“永不失败”，而是：</p>
+<blockquote>
+<p><strong>在允许中间不一致的前提下，最终回到一个业务可接受的状态</strong>。</p>
+</blockquote>
+<hr>
+<h3 id="2-编排型-saga-vs-协同型-saga">2. 编排型 Saga vs 协同型 Saga</h3>
+<p>Saga 通常分为两类：</p>
+<ul>
+<li>
+<p><strong>协同型（Choreography）</strong>：各参与方通过事件协作推进</p>
+</li>
+<li>
+<p><strong>编排型（Orchestration）</strong>：由一个中心节点统一编排流程</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="13"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234323066.png?raw=true" alt="" loading="lazy"></figure>
+<p>在 WES 出库场景中，我们选择的是：</p>
+<blockquote>
+<p><strong>以出库单为业务目标的编排型 Saga</strong></p>
+</blockquote>
+<p>原因很简单：</p>
+<ul>
+<li>
+<p>WES 本身就是履约编排中枢</p>
+</li>
+<li>
+<p>下游系统（如 WCS）不具备事务补偿能力</p>
+</li>
+<li>
+<p>需要明确、可控的流程推进与回滚逻辑</p>
+</li>
+</ul>
+<hr>
+<h2 id="94-wes-出库-saga-的业务建模">9.4、WES 出库 Saga 的业务建模</h2>
+<h3 id="1-saga-的业务边界">1. Saga 的业务边界</h3>
+<ul>
+<li>
+<p><strong>Saga 实例粒度</strong>：出库单</p>
+</li>
+<li>
+<p><strong>Saga 目标</strong>：完成一次出库履约（成功或可控失败）</p>
+</li>
+</ul>
+<p>出库单天然就是一个 Saga 的生命周期边界。</p>
+<hr>
+<h3 id="2-核心业务对象">2. 核心业务对象</h3>
+<ul>
+<li>
+<p>出库单（Outbound Order）</p>
+</li>
+<li>
+<p>出库作业单（Work ）</p>
+</li>
+<li>
+<p>出库任务（Job）</p>
+</li>
+<li>
+<p>二级库存（L2，逻辑库存）</p>
+</li>
+<li>
+<p>三级库存（L3，具体到库位库存）</p>
+</li>
+<li>
+<p>工作站 / WCS</p>
+</li>
+</ul>
+<p>这些对象的<strong>状态变化</strong>，共同构成了 Saga 的执行轨迹。</p>
+<hr>
+<h2 id="95-saga-的正向履约流程">9.5、Saga 的正向履约流程</h2>
+<figure data-type="image" tabindex="14"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234432552.png?raw=true" alt="" loading="lazy"></figure>
+<p>几个关键点：</p>
+<ul>
+<li>
+<p>Saga 并不是同步完成，而是被<strong>定时器持续推进</strong></p>
+</li>
+<li>
+<p>每一步都是独立本地事务</p>
+</li>
+<li>
+<p>任意一步失败，都不会影响已提交步骤的可见性</p>
+</li>
+</ul>
+<hr>
+<h2 id="96-外部事件驱动的-saga工作站下线">9.6、外部事件驱动的 Saga：工作站下线</h2>
+<p>在真实仓储环境中，<strong>资源变化是常态</strong>。</p>
+<h3 id="1-典型场景工作站下线">1. 典型场景：工作站下线</h3>
+<p>当某个工作站下线时：</p>
+<ul>
+<li>
+<p>已生成但未执行的任务不可继续</p>
+</li>
+<li>
+<p>已预占的三级库存需要释放</p>
+</li>
+<li>
+<p>原有作业规划失效，需要重新规划</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-我们的处理方式">2. 我们的处理方式</h3>
+<p>在 Saga 视角下，这不是“异常兜底”，而是：</p>
+<blockquote>
+<p><strong>一次由外部事件触发的补偿 + 重编排流程</strong></p>
+</blockquote>
+<p>具体行为：</p>
+<figure data-type="image" tabindex="15"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234525239.png?raw=true" alt="" loading="lazy"></figure>
+<p>Saga 在这里体现的是<strong>业务韧性</strong>。</p>
+<hr>
+<h2 id="97-saga-的工程落地方式">9.7、Saga 的工程落地方式</h2>
+<figure data-type="image" tabindex="16"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234621384.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="1-状态机-定时器轻量级-saga-driver">1. 状态机 + 定时器：轻量级 Saga Driver</h3>
+<p>我们没有引入专门的工作流或 Saga 框架，而是采用：</p>
+<ul>
+<li>
+<p><strong>状态机</strong>：描述“当前处于哪一步”</p>
+</li>
+<li>
+<p><strong>定时器</strong>：负责推进下一步执行</p>
+</li>
+</ul>
+<p>这种方式：</p>
+<ul>
+<li>
+<p>实现简单</p>
+</li>
+<li>
+<p>易于调试</p>
+</li>
+<li>
+<p>与业务模型高度贴合</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-工作站维度的分布式锁">2. 工作站维度的分布式锁</h3>
+<p>我们在工程上引入了：</p>
+<blockquote>
+<p><strong>以工作站为粒度的分布式锁</strong></p>
+</blockquote>
+<p>使用原则非常明确：</p>
+<ul>
+<li>
+<p>锁只用于<strong>并发收敛</strong></p>
+</li>
+<li>
+<p>不承担 Saga 一致性语义</p>
+</li>
+</ul>
+<p>典型使用场景：</p>
+<ul>
+<li>
+<p>生成任务</p>
+</li>
+<li>
+<p>回滚任务</p>
+</li>
+<li>
+<p>下发任务</p>
+</li>
+<li>
+<p>处理工作站下线事件</p>
+</li>
+</ul>
+<p>并且严格遵循：</p>
+<blockquote>
+<p><strong>锁内逻辑原子化：先提交事务，再释放锁</strong></p>
+</blockquote>
+<hr>
+<h2 id="98-saga-的可观测性任务流转树监控">9.8、Saga 的可观测性：任务流转树监控</h2>
+<p>Saga 最大的工程风险，不是失败，而是：</p>
+<blockquote>
+<p><strong>流程卡死却不可见</strong>。</p>
+</blockquote>
+<p>为此，我们构建了一套<strong>任务流转树监控系统</strong>。</p>
+<h3 id="能看到什么">能看到什么？</h3>
+<ul>
+<li>
+<p>一个出库单下：</p>
+</li>
+<li>
+<p>出库明细的信息</p>
+</li>
+<li>
+<p>分裂成了多少作业单</p>
+</li>
+<li>
+<p>每个作业单生成了多少任务</p>
+</li>
+<li>
+<p>每个 Work / Task：</p>
+</li>
+<li>
+<p>当前状态</p>
+</li>
+<li>
+<p>状态的业务含义</p>
+</li>
+<li>
+<p>在当前状态停留的时长</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="17"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251214000534125.png?raw=true" alt="" loading="lazy"></figure>
+<p>这使得 Saga 从“黑盒流程”变成了“白盒履约”。</p>
+<hr>
+<h2 id="99-我们踩过的坑-为什么没选-tcc">9.9、我们踩过的坑 &amp; 为什么没选 TCC</h2>
+<h3 id="1-我们踩过的几个坑">1. 我们踩过的几个坑</h3>
+<ul>
+<li>
+<p><strong>把异常当成少数情况</strong>：在仓储系统中，异常本身就是常态</p>
+</li>
+<li>
+<p><strong>过早追求强一致</strong>：导致系统复杂度和耦合度急剧上升</p>
+</li>
+<li>
+<p><strong>缺乏可观测性</strong>：问题只能靠日志和人工猜测</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-为什么没选-tcc">2. 为什么没选 TCC</h3>
+<p>我们认真评估过 TCC，但最终没有采用，原因包括：</p>
+<ul>
+<li>
+<p>Try 阶段需要资源强锁定，不适合长时间履约</p>
+</li>
+<li>
+<p>下游系统（如 WCS）不具备 Confirm / Cancel 能力</p>
+</li>
+<li>
+<p>TCC 对接口侵入性极强，演进成本高</p>
+</li>
+</ul>
+<p>相比之下，Saga：</p>
+<ul>
+<li>
+<p>更符合“最终一致”的业务现实</p>
+</li>
+<li>
+<p>对下游侵入小</p>
+</li>
+<li>
+<p>更易与现有系统演进融合</p>
+</li>
+</ul>
+<hr>
+<h2 id="910-总结">9.10、总结</h2>
+<p>我们并不是“为了 Saga 而 Saga”，而是在解决 WES 出库问题的过程中，逐步演进出了一套 Saga 实践方案。</p>
+<ul>
+<li>
+<p>以出库单为业务目标</p>
+</li>
+<li>
+<p>以状态机 + 定时器驱动</p>
+</li>
+<li>
+<p>支持外部事件补偿</p>
+</li>
+<li>
+<p>强调最终一致性与可观测性</p>
+</li>
+</ul>
+<p>这套方案没有追求概念上的完美，但在真实复杂业务中，<strong>稳定、可控、可演进</strong>，我觉得<strong>这，才是 Saga 在工程实践中的真正价值。</strong></p>
+<h1 id="十-库存对账设计">十、库存对账设计</h1>
+<h1 id="十一-策略规则治理">十一、策略规则治理</h1>
+<p>WES 系统重构前，总代码行数接近八十多万，在这八十多万行代码中，既存在非常多的重复逻辑，又存在非常多的变化逻辑，前者可以通过不断地抽取公共逻辑来达到去重、瘦身的效果。</p>
+<p>后者的治理则更为复杂一些，需要做很多抽象与统一整合，也就是策略规则。</p>
+<p>坦诚来说，重构之前对规则引擎一点都不了解，自己也是在不断地接触和学习，扩宽自己的技术栈广度。回过头来，发现做重构确实让自己成长得很快。</p>
+<h3 id="1-正视复杂性wes-业务规则的多与变">1、正视复杂性：WES 业务规则的“多”与“变”</h3>
+<p><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191038018.png?raw=true" alt="" loading="lazy"><br>
+在深入技术选型之前，我们首先要清晰地定义问题。WES 作为仓储执行的入口，其核心复杂度在于其需要应对B 端多变且相互交织的业务规则。这些规则直接体现了不同客户、不同业务场景下的运营策略。</p>
+<ul>
+<li>
+<p><strong>规则的维度多</strong>：仅出库环节，就涉及<strong>单据创建与提交策略</strong>（如自动拆合单、静态组波）、<strong>出库优先级调整策略</strong>（按发货时间、作业时长、剩余任务数动态调整）、<strong>库存分配策略</strong>（多库区优先级）、<strong>工作站作业策略</strong>（绑箱、槽位匹配与释放）等数十个可配置项。</p>
+</li>
+<li>
+<p><strong>规则的逻辑条件复杂</strong>：一个策略的生效往往是多重条件组合判断的结果。例如，“出库单初始优先级”策略，需要根据“出库单类型”来决定其初始的“优先级等级”和“优先级值”。这种 <code>if...else if...else</code>的链式判断，在传统编码中会形成难以维护的“代码沼泽”。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191127744.png?raw=true" alt="" loading="lazy"></p>
+</li>
+<li>
+<p><strong>规则的动态性要求高</strong>：业务策略并非一成不变。新的客户需求、运营优化尝试都要求规则能够快速调整、热生效，而不需要重启服务或发布新版本。例如，快速调整“缺货提交方式”为“有货先作业”以应对临时的爆仓压力，必须是分钟级可配置的能力。</p>
+</li>
+</ul>
+<p>面对这种“多、变、杂”的业务规则，如果继续沿用硬编码的方式，会直接导致：</p>
+<ol>
+<li>
+<p><strong>核心业务逻辑与规则逻辑耦合</strong>：业务代码中充斥着规则判断，可读性急剧下降。</p>
+</li>
+<li>
+<p><strong>维护成本高昂</strong>：任何微小的规则变更都需要开发人员介入修改代码、测试、上线，无法快速响应业务。</p>
+</li>
+<li>
+<p><strong>知识壁垒</strong>：业务规则散落在数十万行代码中，新人难以理解，业务专家（如资深的仓储规划师）也无法直接参与规则的制定与调整。</p>
+</li>
+</ol>
+<h3 id="2-技术选型思考为什么是-drools">2、技术选型思考：为什么是 Drools？</h3>
+<p>基于上述痛点，我们明确了引入规则引擎的核心目标：<strong>将易变的业务规则从稳定的程序逻辑中解耦出来，实现业务规则的统一管理、可视化和动态配置。</strong></p>
+<p>在选型时，我们考察了多种方案：</p>
+<ol>
+<li>
+<p><strong>脚本引擎（如 Groovy, Lua）</strong>：灵活性高，但对于复杂的条件网络和规则推理支持较弱，需要自行实现优先级、冲突解决等机制，开发量和复杂度不可控。</p>
+</li>
+<li>
+<p><strong>自定义规则解析器（如 XML/JSON 配置 + 自研引擎）</strong>：初期看似简单，但随着规则复杂度的提升，自定义的语法和引擎在性能、功能完备性上很难与成熟产品媲美，容易重复造轮子且后期难以维护。</p>
+</li>
+<li>
+<p><strong>商用规则引擎</strong>：功能强大，但存在商业许可成本，与我们的开源技术栈整合和自主可控的要求不符。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191147128.png?raw=true" alt="" loading="lazy"></p>
+</li>
+</ol>
+<p>最终，我们选择了 <strong>Drools</strong>，主要基于以下几点考量：</p>
+<ul>
+<li>
+<p><strong>成熟性与社区生态</strong>：Drools 是 JBoss 旗下的开源项目，经过多年发展，社区活跃，文档丰富，是一个非常成熟、稳定的企业级规则引擎解决方案。</p>
+</li>
+<li>
+<p><strong>强大的规则表达能力</strong>：其核心的 DRL（Drools Rule Language）语言专为规则设计，支持声明式的规则编写（<code>When-Then</code>），天然契合我们的业务场景。它内置的 RETE 算法对于处理大量规则和数据有很高的效率。</p>
+</li>
+<li>
+<p><strong>与 Java 技术栈的无缝集成</strong>：WES 核心系统基于 Java 技术栈，Drools 可以非常方便地集成到 Spring 等主流框架中，降低了引入新技术栈的架构风险和学习成本。</p>
+</li>
+<li>
+<p><strong>“可进化”的架构潜力</strong>：Drools 不仅是一个规则执行引擎，其提供的 **KIE（Knowledge Is Everything）**​ 工作台概念，为我们未来构建图形化、Web 化的策略规则管理平台（正如策略中心）奠定了坚实的技术基础。</p>
+</li>
+</ul>
+<h3 id="3-架构与落地将业务规则抽象为-drools-规则">3、架构与落地：将业务规则抽象为 Drools 规则</h3>
+<p>选型只是第一步，如何将复杂的业务规则优雅地映射到 Drools 的规则模型中，是体现架构能力的关键。</p>
+<p><strong>1. 核心模型抽象</strong></p>
+<p>我们首先对策略中心的配置进行了领域模型抽象。每一个策略项（如“出库单初始优先级”）被抽象为一个 <code>Policy</code>聚合根，其下包含多条有序的 <code>Rule</code>。每条 <code>Rule</code>由 <code>Condition</code>（匹配条件）和 <code>Action</code>（结论数据）组成。这个领域模型与 Drools 的 <code>Rule</code>, <code>LHS</code>(Left Hand Side), <code>RHS</code>(Right Hand Side) 概念可以完美对应。</p>
+<p><strong>2. 动态规则加载</strong></p>
+<p>我们并没有让业务人员直接编写 DRL 文件，而是基于策略中心的数据库配置，在运行时动态生成 DRL 规则内容。系统启动或策略变更时，会从数据库拉取最新配置，通过模板技术将其转换为标准的 DRL 语法，然后加载到 Drools 的 <code>KieSession</code>中。这样，策略中心UI上的每一次“保存”操作，就相当于完成了一次业务规则的“发布”。</p>
+<p><strong>3. 规则执行与集成</strong></p>
+<p>在业务逻辑的关键节点（如“创建出库单”、“分配库存”前），我们将业务对象（如 <code>Order</code>对象）作为 <code>Fact</code>插入到 <code>KieSession</code>中，触发规则引擎执行。引擎会根据定义的规则顺序和优先级，对 <code>Fact</code>进行匹配和推理，并执行相应的 <code>Action</code>，修改对象的状态。执行完毕后，我们只需取出被规则修改过的对象，继续后续的业务流程即可。整个过程对核心业务代码几乎是透明的。</p>
+<h2 id="4-重构收益">4、重构收益</h2>
+<p>引入 Drools 规则引擎后，我们获得了显著的收益：</p>
+<ul>
+<li>
+<p><strong>架构清晰，职责分离</strong>：业务代码不再关心“如何判断”，只关注“做什么”，代码变得简洁、可读、易测试。</p>
+</li>
+<li>
+<p><strong>响应速度飞跃</strong>：常用规则基本百分百覆盖，现在可以由实施顾问或运维人员通过策略中心界面直接完成，无需开发介入，开新仓的时候，直接可以按需配置。</p>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jin-qi-guan-yu-da-mo-xing-ying-yong-luo-di-de-yi-xie-si-kao/" class="post-title gt-a-link">
+                    近期关于大模型应用落地的一些思考
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

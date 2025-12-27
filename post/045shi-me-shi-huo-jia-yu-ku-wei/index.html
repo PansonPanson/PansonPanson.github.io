@@ -1,0 +1,262 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>045.什么是货架与库位 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    045.什么是货架与库位
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="货架shelf和库位storage-location是什么"><strong>货架（Shelf）和库位（Storage Location）是什么？</strong></h3>
+<p>在 <strong>WMS（仓库管理系统）</strong> 或 <strong>WES（仓库执行系统）</strong> 中，<strong>货架</strong> 和 <strong>库位</strong> 是仓库管理的基本单元，负责存储和定位商品，提高仓库运营效率。</p>
+<hr>
+<h2 id="1-什么是货架shelf"><strong>1. 什么是货架（Shelf）？</strong></h2>
+<p><strong>货架</strong> 指的是 <strong>仓库中用于存放商品的架子或存储设备</strong>，通常由多个层级（货架层）组成，以便分类存放不同的货物。</p>
+<h3 id="货架的作用"><strong>货架的作用</strong></h3>
+<ul>
+<li><strong>最大化利用仓库空间</strong>，提高存储密度。</li>
+<li><strong>提高拣选效率</strong>，减少人工找货时间。</li>
+<li><strong>确保货物安全</strong>，避免堆放导致损坏。</li>
+<li><strong>支持自动化作业</strong>，如 AGV（自动搬运车）、机械臂等设备取货。</li>
+</ul>
+<h3 id="常见货架类型"><strong>常见货架类型</strong></h3>
+<ol>
+<li><strong>横梁式货架</strong>：常见的标准货架，适用于托盘存储。</li>
+<li><strong>贯通式货架</strong>：适用于存储大量同类型商品（如冷库）。</li>
+<li><strong>重力式货架</strong>：利用重力滑动货物，提高拣选效率。</li>
+<li><strong>自动化立体库货架</strong>：与自动存取设备结合，实现智能化仓储。</li>
+<li><strong>悬臂式货架</strong>：适用于存放长条状物品，如管材、木材等。</li>
+<li><strong>流利式货架</strong>：利用滚筒式设计，方便先进先出的存储模式。</li>
+</ol>
+<hr>
+<h2 id="2-什么是库位storage-location"><strong>2. 什么是库位（Storage Location）？</strong></h2>
+<p><strong>库位</strong> 指的是 <strong>货物在仓库中的具体存放位置</strong>，它是仓库管理中的<strong>最小存储单元</strong>。</p>
+<h3 id="库位的作用"><strong>库位的作用</strong></h3>
+<ul>
+<li><strong>精确定位商品</strong>，减少查找时间。</li>
+<li><strong>提高库存管理的精确度</strong>，避免错放或丢失。</li>
+<li><strong>优化仓库空间利用</strong>，合理规划存储区域。</li>
+<li><strong>支持智能化仓储</strong>，结合 WMS/WES 系统进行智能调度。</li>
+</ul>
+<h3 id="库位的编号规则"><strong>库位的编号规则</strong></h3>
+<p>通常，库位的编号采用 <strong>“库区-货架-层-列”</strong> 的方式，例如：</p>
+<ul>
+<li><strong>A01-03-02</strong>
+<ul>
+<li><strong>A01</strong>：库区编号</li>
+<li><strong>03</strong>：货架编号</li>
+<li><strong>02</strong>：货架的第 2 层</li>
+<li>这个库位对应某个具体的存储空间</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-货架与库位的关系"><strong>3. 货架与库位的关系</strong></h2>
+<ul>
+<li><strong>货架</strong> 是存储货物的整体结构，一个货架上可以有多个 <strong>库位</strong>。</li>
+<li><strong>库位</strong> 是具体存放商品的物理位置，每个库位通常对应一个 SKU（商品最小管理单元）。</li>
+</ul>
+<h3 id="示例"><strong>示例</strong></h3>
+<ul>
+<li><strong>货架编号</strong>：A01
+<ul>
+<li><strong>库位 1</strong>：A01-01-01（第 1 层）</li>
+<li><strong>库位 2</strong>：A01-01-02（第 2 层）</li>
+<li><strong>库位 3</strong>：A01-01-03（第 3 层）</li>
+</ul>
+</li>
+</ul>
+<p>在 WMS 系统中，库存管理时会<strong>精确到库位级别</strong>，确保商品存放、移动、拣选都能准确无误。</p>
+<hr>
+<h2 id="4-货架与库位在-wmswes-系统中的应用"><strong>4. 货架与库位在 WMS/WES 系统中的应用</strong></h2>
+<ol>
+<li><strong>入库管理</strong>：系统根据商品属性分配合适的库位存放。</li>
+<li><strong>库存管理</strong>：实时更新每个库位的库存信息，避免库存错乱。</li>
+<li><strong>拣选作业</strong>：系统提供拣选路径，优化取货效率。</li>
+<li><strong>智能仓储</strong>：与自动化设备结合（如自动立库、AGV），提高作业效率。</li>
+</ol>
+<hr>
+<h2 id="总结"><strong>总结</strong></h2>
+<ul>
+<li><strong>货架</strong> 是存储货物的架子，可以有多个层级。</li>
+<li><strong>库位</strong> 是具体的存储位置，每个库位唯一标识一个存放点。</li>
+<li><strong>WMS/WES 系统</strong> 通过管理货架和库位，实现精准的库存管理，提高仓库运作效率。</li>
+</ul>
+<p>这样一来，仓库中的货物存放和流转都能有条不紊地进行，提高作业效率并减少错误率。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/046shi-me-shi-agv/" class="post-title gt-a-link">
+                    046.什么是 AGV
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>基于原型模式和享元模式完成不同分层POJO 之间的数据拷贝 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    基于原型模式和享元模式完成不同分层POJO 之间的数据拷贝
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-03-27 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>Once you understand the design patterns and have had an &quot;Aha!&quot; (and not just a &quot;Huh?&quot;) experience with them, you won't ever think about object-oriented design in the same way. You'll have insights that can make your own designs more flexible,<br>
+modular, reusable, and understandable—which is why you're interested in object-oriented technology in the first place, right?   —— GOF</em></p>
+<!-- more -->
+<p><em>一旦你理解了设计模式并且有了一种“Aha！”（而不是“Huh？”）的应用经验和体验后，你将用一种非同寻常的方式思考面向对象设计。你将拥有一种深刻的洞察力，以帮助你设计出更加灵活的、模块化的、可复用的和易理解的软件 ——这也是你为何着迷于面向对象技术的源动力，不是吗？ —— 《设计模式》作者四人帮</em></p>
+<p>你在初学 Java 的时候，是不是遇到过这样的场景，不经意间写过这样的代码：</p>
+<p>原型模式与享元模式有一些相似的地方，但本质是不同的。在 GOF的书里，原型模式是创建型模式，而享元模式则属于结构姓模式。从性能优化的角度分析，原型模式是在创建多个实例时，对创建过程的性能进行调优；享元模式是用减少创建实例的方式，来调优系统性能。</p>
+<p>原型模式的一个经典应用场景是优化创建重复对象：</p>
+<pre><code class="language-java">int i = 1000;
+while(i &gt; 0) {
+  Student student = new Student();
+  i--;
+}
+</code></pre>
+<ul>
+<li>自己实现属性拷贝太繁琐，代码冗余</li>
+<li>apache 的 Beanuitils: 反射</li>
+<li>apache 的 PropetiesUtils: 反射</li>
+<li>SPring 的 beanutils: 反射</li>
+<li>cglib 的 BeanCopier: 动态代理，性能很高，达到上面反射方式的几十倍甚至是数百倍</li>
+<li>原型模式和享元模式的设计模式讲解</li>
+<li>代码实现</li>
+<li>优化深度克隆：List:   其实深拷贝就是基于浅拷贝来递归实现具体的每个对象</li>
+<li>CgLib  底层实现</li>
+</ul>
+<blockquote>
+<p>new一个对象和clone一个对象，性能差在哪里呢？文中提到直接从内存复制二进制这里不是很理解</p>
+<p>作者回复: 一个对象通过new创建的过程为：<br>
+1、在内存中开辟一块空间；<br>
+2、在开辟的内存空间中创建对象；<br>
+3、调用对象的构造函数进行初始化对象。</p>
+<p>而一个对象通过clone创建的过程为：<br>
+1、根据原对象内存大小开辟一块内存空间；<br>
+2、复制已有对象，克隆对象中所有属性值。</p>
+<p>相对new来说，clone少了调用构造函数。如果构造函数中存在大量属性初始化或大对象，则使用clone的复制对象的方式性能会好一些。</p>
+</blockquote>
+<p>引入 pom:</p>
+<pre><code class="language-xml">&lt;!-- cglib的BeanCopier需要的依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm-commons&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;asm&lt;/groupId&gt;
+            &lt;artifactId&gt;asm-util&lt;/artifactId&gt;
+            &lt;version&gt;3.3.1&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;cglib&lt;/groupId&gt;
+            &lt;artifactId&gt;cglib-nodep&lt;/artifactId&gt;
+            &lt;version&gt;2.2.2&lt;/version&gt;
+        &lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-java">public class BeanCopierUtils {  
+       
+	/**
+	 * BeanCopier缓存
+	 */
+	public static Map&lt;String, BeanCopier&gt; beanCopierCacheMap = new HashMap&lt;String, BeanCopier&gt;();  
+      
+	/**
+	 * 将source对象的属性拷贝到target对象中去
+	 * @param source source对象
+	 * @param target target对象
+	 */
+    public static void copyProperties(Object source, Object target){  
+        String cacheKey = source.getClass().toString() + target.getClass().toString();
+        
+        BeanCopier beanCopier = null;  
+        
+        if (!beanCopierCacheMap.containsKey(cacheKey)) {  
+        	synchronized(BeanCopierUtils.class) {
+        		 if (!beanCopierCacheMap.containsKey(cacheKey)) {  
+        			 beanCopier = BeanCopier.create(source.getClass(), target.getClass(), false);  
+        			 beanCopierCacheMap.put(cacheKey, beanCopier);  
+        		 }
+        	}
+        } else {  
+            beanCopier = beanCopierCacheMap.get(cacheKey);   
+        }  
+        
+        beanCopier.copy(source, target, null);  
+    }  
+  
+}  
+</code></pre>
+<p>参考：</p>
+<ol>
+<li><a href="https://book.douban.com/subject/1052241/">Design Patterns: Elements of Reusable Object-Oriented Software</a></li>
+<li><a href="https://time.geekbang.org/column/intro/185">Java性能调优实战</a></li>
+<li></li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/macos-huan-jing-ru-he-shi-yong-github-typora-picgo-da-jian-xie-zuo-huan-jing/" class="post-title gt-a-link">
+                    MacOS 环境如何使用 GitHub + Typora + PicGo 搭建写作环境
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>035.什么是货架到人按单指导上架 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    035.什么是货架到人按单指导上架
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><strong>货架到人按单指导上架（Shelf-to-Person Order Guided Putaway）</strong> 是一种仓库管理模式，旨在通过系统指引操作员按订单要求将商品从货架上取出并放置到指定位置。这种方式结合了仓库管理系统（WMS）与自动化技术，通过按订单的需求来引导操作员进行上架操作，从而提高效率、减少错误，并保证库存的准确性。</p>
+<h3 id="货架到人按单指导上架的流程"><strong>货架到人按单指导上架的流程：</strong></h3>
+<ol>
+<li>
+<p><strong>接收订单和商品</strong>：</p>
+<ul>
+<li>仓库收到订单，并通过仓库管理系统（WMS）将订单信息处理后生成上架任务。</li>
+<li>商品或料箱在接收区进行入库操作，仓库管理系统（WMS）根据商品的种类、存储要求和订单需求生成相应的上架任务。</li>
+</ul>
+</li>
+<li>
+<p><strong>订单生成上架任务</strong>：</p>
+<ul>
+<li>根据每个订单的需求，仓库管理系统（WMS）为每个订单自动生成上架任务，指定每个商品的位置及上架优先级。</li>
+<li>系统通过条码扫描、RFID、语音指令等技术，向操作员提供每个商品具体的上架位置和任务。</li>
+</ul>
+</li>
+<li>
+<p><strong>操作员接收上架指令</strong>：</p>
+<ul>
+<li>操作员通过扫描设备、手持终端或语音设备，接收系统给出的具体上架指令，指示操作员从哪个货架上取出商品，并将其放置到指定位置。</li>
+</ul>
+</li>
+<li>
+<p><strong>按单上架</strong>：</p>
+<ul>
+<li>根据订单的要求，操作员将商品按照系统指示从货架上取出，进行上架操作。每个操作员都根据当前的订单任务来上架商品。</li>
+<li>如果订单包含多个商品，操作员根据系统提供的优先级和指导，逐一完成每个商品的上架。</li>
+</ul>
+</li>
+<li>
+<p><strong>确认上架</strong>：</p>
+<ul>
+<li>完成上架后，操作员通过扫描设备确认商品已经成功上架到指定的存储位置。系统会更新库存信息和上架状态，确保库存数据的实时同步。</li>
+<li>系统还会对上架过程进行跟踪，保证每个步骤都按计划执行。</li>
+</ul>
+</li>
+<li>
+<p><strong>完成任务</strong>：</p>
+<ul>
+<li>上架任务完成后，操作员可以开始处理其他订单，或者等待新的上架任务。</li>
+</ul>
+</li>
+</ol>
+<h3 id="货架到人按单指导上架的优点"><strong>货架到人按单指导上架的优点：</strong></h3>
+<ol>
+<li>
+<p><strong>订单导向性强</strong>：</p>
+<ul>
+<li>该模式能够根据具体订单需求来指导上架过程，确保每个商品的上架位置、数量等都能精确对应到订单要求。</li>
+</ul>
+</li>
+<li>
+<p><strong>提高准确性</strong>：</p>
+<ul>
+<li>系统通过精准的指引，减少了操作员的主观判断，避免了误操作和商品放错位置的情况，确保库存的准确性。</li>
+</ul>
+</li>
+<li>
+<p><strong>提高效率</strong>：</p>
+<ul>
+<li>系统为操作员提供明确的上架指导，减少了寻找货物的时间，提高了上架速度，进而提高了整体的仓库作业效率。</li>
+</ul>
+</li>
+<li>
+<p><strong>减少人工干预</strong>：</p>
+<ul>
+<li>通过系统自动生成上架任务并指导操作员，减少了人为干预，降低了人为错误的发生率。</li>
+</ul>
+</li>
+<li>
+<p><strong>灵活的任务分配</strong>：</p>
+<ul>
+<li>仓库管理系统根据订单的需求灵活分配上架任务，可以动态调整任务优先级，从而更好地满足订单的需求。</li>
+</ul>
+</li>
+<li>
+<p><strong>实时监控和跟踪</strong>：</p>
+<ul>
+<li>系统实时监控上架任务的进度，确保每项任务按时完成，同时能够对异常情况进行预警，确保作业的顺利进行。</li>
+</ul>
+</li>
+</ol>
+<h3 id="适用场景"><strong>适用场景：</strong></h3>
+<ol>
+<li>
+<p><strong>订单驱动的仓库</strong>：</p>
+<ul>
+<li>对于以订单为驱动的仓库管理（如电商仓库），通过按单指导上架可以有效提高作业效率，并确保商品的准确存储。</li>
+</ul>
+</li>
+<li>
+<p><strong>多品类商品存储</strong>：</p>
+<ul>
+<li>在商品种类繁多、存储要求不同的仓库环境中，按单指导上架能够确保商品按照订单要求准确存放，避免库存积压和错误。</li>
+</ul>
+</li>
+<li>
+<p><strong>实时性要求高的仓库</strong>：</p>
+<ul>
+<li>在一些要求高效和快速响应的仓库（如零售和电商仓库）中，按单指导上架能够保证快速、精准地完成商品的上架任务。</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结"><strong>总结：</strong></h3>
+<p><strong>货架到人按单指导上架</strong> 是一种基于订单需求的仓库管理模式，操作员根据系统的实时指引，将商品从货架上取出并准确地上架到指定位置。该模式通过仓库管理系统（WMS）的支持，减少人工干预、提高作业效率和库存准确性，非常适用于订单驱动型的仓库和多品类商品存储环境。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/036_-shi-me-shi-liao-xiang-dao-ren-zai-xian-jian-xuan/" class="post-title gt-a-link">
+                    036.什么是料箱到人在线拣选
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>6.824 Lecture 1: Introduction | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    6.824 Lecture 1: Introduction
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-07-27 ·
+                    </time>
+                    
+                        <a href="https://panson.top/tag/570MfFDvf/" class="post-tags">
+                            # Golang
+                        </a>
+                    
+                        <a href="https://panson.top/tag/8cm4CCC9SA/" class="post-tags">
+                            # distributed system
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="what-is-a-distributed-system">What is a distributed system?</h2>
+<ul>
+<li>multiple cooperating computers</li>
+<li>storage for big web sites, MapReduce, peer-to-peer</li>
+<li>sharing, &amp;clots of critical infrastructure is distributed</li>
+</ul>
+<h2 id="why-do-people-build-distributed-systems">Why do people build distributed systems?</h2>
+<ul>
+<li>to increase capacity via parallelism</li>
+<li>to tolerate faults via replication</li>
+<li>to place computing physically close to external entities</li>
+<li>to achieve security via isolation</li>
+</ul>
+<h2 id="but">But:</h2>
+<ul>
+<li>many concurrent parts, complex interactions</li>
+<li>must cope with partial failure</li>
+<li>tricky to realize performance potential</li>
+</ul>
+<h2 id="why-take-this-course">Why take this course?</h2>
+<p>interesting -- hard problems, powerful solutions<br>
+used by real systems -- driven by the rise of big Web sites<br>
+active research area -- important unsolved problems<br>
+hands-on -- you'll build real systems in the labs</p>
+<p>CASE STUDY: MapReduce</p>
+<p>Let's talk about MapReduce (MR) as a case study<br>
+a good illustration of 6.824's main topics<br>
+hugely influential<br>
+the focus of Lab 1</p>
+<p>MapReduce overview<br>
+context: multi-hour computations on multi-terabyte data-sets<br>
+e.g. build search index, or sort, or analyze structure of web<br>
+only practical with 1000s of computers<br>
+applications not written by distributed systems experts<br>
+overall goal: easy for non-specialist programmers<br>
+programmer just defines Map and Reduce functions<br>
+often fairly simple sequential code<br>
+MR takes care of, and hides, all aspects of distribution!</p>
+<p>Abstract view of a MapReduce job<br>
+input is (already) split into M files<br>
+Input1 -&gt; Map -&gt; a,1 b,1<br>
+Input2 -&gt; Map -&gt;     b,1<br>
+Input3 -&gt; Map -&gt; a,1     c,1<br>
+|   |   |<br>
+|   |   -&gt; Reduce -&gt; c,1<br>
+|   -----&gt; Reduce -&gt; b,2<br>
+---------&gt; Reduce -&gt; a,2<br>
+MR calls Map() for each input file, produces set of k2,v2<br>
+&quot;intermediate&quot; data<br>
+each Map() call is a &quot;task&quot;<br>
+MR gathers all intermediate v2's for a given k2,<br>
+and passes each key + values to a Reduce call<br>
+final output is set of &lt;k2,v3&gt; pairs from Reduce()s</p>
+<p>Example: word count<br>
+input is thousands of text files<br>
+Map(k, v)<br>
+split v into words<br>
+for each word w<br>
+emit(w, &quot;1&quot;)<br>
+Reduce(k, v)<br>
+emit(len(v))</p>
+<p>MapReduce scales well:<br>
+N &quot;worker&quot; computers get you Nx throughput.<br>
+Maps()s can run in parallel, since they don't interact.<br>
+Same for Reduce()s.<br>
+So you can get more throughput by buying more computers.</p>
+<p>MapReduce hides many details:<br>
+sending app code to servers<br>
+tracking which tasks are done<br>
+moving data from Maps to Reduces<br>
+balancing load over servers<br>
+recovering from failures</p>
+<p>However, MapReduce limits what apps can do:<br>
+No interaction or state (other than via intermediate output).<br>
+No iteration, no multi-stage pipelines.<br>
+No real-time or streaming processing.</p>
+<p>Input and output are stored on the GFS cluster file system<br>
+MR needs huge parallel input and output throughput.<br>
+GFS splits files over many servers, in 64 MB chunks<br>
+Maps read in parallel<br>
+Reduces write in parallel<br>
+GFS also replicates each file on 2 or 3 servers<br>
+Having GFS is a big win for MapReduce</p>
+<p>What will likely limit the performance?<br>
+We care since that's the thing to optimize.<br>
+CPU? memory? disk? network?<br>
+In 2004 authors were limited by network capacity.<br>
+What does MR send over the network?<br>
+Maps read input from GFS.<br>
+Reduces read Map output.<br>
+Can be as large as input, e.g. for sorting.<br>
+Reduces write output files to GFS.<br>
+[diagram: servers, tree of network switches]<br>
+In MR's all-to-all shuffle, half of traffic goes through root switch.<br>
+Paper's root switch: 100 to 200 gigabits/second, total<br>
+1800 machines, so 55 megabits/second/machine.<br>
+55 is small, e.g. much less than disk or RAM speed.<br>
+Today: networks and root switches are much faster relative to CPU/disk.</p>
+<p>Some details (paper's Figure 1):<br>
+one master, that hands out tasks to workers and remembers progress.</p>
+<ol>
+<li>master gives Map tasks to workers until all Maps complete<br>
+Maps write output (intermediate data) to local disk<br>
+Maps split output, by hash, into one file per Reduce task</li>
+<li>after all Maps have finished, master hands out Reduce tasks<br>
+each Reduce fetches its intermediate output from (all) Map workers<br>
+each Reduce task writes a separate output file on GFS</li>
+</ol>
+<p>How does MR minimize network use?<br>
+Master tries to run each Map task on GFS server that stores its input.<br>
+All computers run both GFS and MR workers<br>
+So input is read from local disk (via GFS), not over network.<br>
+Intermediate data goes over network just once.<br>
+Map worker writes to local disk.<br>
+Reduce workers read directly from Map workers, not via GFS.<br>
+Intermediate data partitioned into files holding many keys.<br>
+R is much smaller than the number of keys.<br>
+Big network transfers are more efficient.</p>
+<p>How does MR get good load balance?<br>
+Wasteful and slow if N-1 servers have to wait for 1 slow server to finish.<br>
+But some tasks likely take longer than others.<br>
+Solution: many more tasks than workers.<br>
+Master hands out new tasks to workers who finish previous tasks.<br>
+So no task is so big it dominates completion time (hopefully).<br>
+So faster servers do more tasks than slower ones, finish abt the same time.</p>
+<p>What about fault tolerance?<br>
+I.e. what if a worker crashes during a MR job?<br>
+We want to completely hide failures from the application programmer!<br>
+Does MR have to re-run the whole job from the beginning?<br>
+Why not?<br>
+MR re-runs just the failed Map()s and Reduce()s.<br>
+Suppose MR runs a Map twice, one Reduce sees first run's output,<br>
+another Reduce sees the second run's output?<br>
+Correctness requires re-execution to yield exactly the same output.<br>
+So Map and Reduce must be pure deterministic functions:<br>
+they are only allowed to look at their arguments.<br>
+no state, no file I/O, no interaction, no external communication.<br>
+What if you wanted to allow non-functional Map or Reduce?<br>
+Worker failure would require whole job to be re-executed,<br>
+or you'd need to create synchronized global checkpoints.</p>
+<p>Details of worker crash recovery:</p>
+<ul>
+<li>Map worker crashes:<br>
+master notices worker no longer responds to pings<br>
+master knows which Map tasks it ran on that worker<br>
+those tasks' intermediate output is now lost, must be re-created<br>
+master tells other workers to run those tasks<br>
+can omit re-running if Reduces already fetched the intermediate data</li>
+<li>Reduce worker crashes.<br>
+finished tasks are OK -- stored in GFS, with replicas.<br>
+master re-starts worker's unfinished tasks on other workers.</li>
+</ul>
+<p>Other failures/problems:</p>
+<ul>
+<li>What if the master gives two workers the same Map() task?<br>
+perhaps the master incorrectly thinks one worker died.<br>
+it will tell Reduce workers about only one of them.</li>
+<li>What if the master gives two workers the same Reduce() task?<br>
+they will both try to write the same output file on GFS!<br>
+atomic GFS rename prevents mixing; one complete file will be visible.</li>
+<li>What if a single worker is very slow -- a &quot;straggler&quot;?<br>
+perhaps due to flakey hardware.<br>
+master starts a second copy of last few tasks.</li>
+<li>What if a worker computes incorrect output, due to broken h/w or s/w?<br>
+too bad! MR assumes &quot;fail-stop&quot; CPUs and software.</li>
+<li>What if the master crashes?</li>
+</ul>
+<p>Current status?<br>
+Hugely influential (Hadoop, Spark, &amp;c).<br>
+Probably no longer in use at Google.<br>
+Replaced by Flume / FlumeJava (see paper by Chambers et al).<br>
+GFS replaced by Colossus (no good description), and BigTable.</p>
+<p>Conclusion<br>
+MapReduce single-handedly made big cluster computation popular.</p>
+<ul>
+<li>Not the most efficient or flexible.</li>
+</ul>
+<ul>
+<li>Scales well.</li>
+<li>Easy to program -- failures and data movement are hidden.<br>
+These were good trade-offs in practice.<br>
+We'll see some more advanced successors later in the course.<br>
+Have fun with the lab!</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

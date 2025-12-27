@@ -1,0 +1,232 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>022.什么是货架到人离线直接上架 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    022.什么是货架到人离线直接上架
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-03 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="货架到人离线直接上架shelf-to-person-offline-direct-shelving"><strong>货架到人离线直接上架（Shelf-to-Person Offline Direct Shelving）</strong></h3>
+<p><strong>货架到人离线直接上架</strong> 是一种仓库作业方式，通常用于 <strong>WMS（仓库管理系统）</strong> 中，结合 <strong>货架管理</strong> 和 <strong>上架作业</strong>，旨在 <strong>提高商品入库的效率</strong> 和 <strong>减少人为错误</strong>。具体来说，这个过程是指在商品入库时， <strong>商品直接从货架上进行分类、整理，并通过手动或机械化方式直接上架</strong>，无需经过中间的存储和排序过程。</p>
+<hr>
+<h2 id="核心概念"><strong>核心概念</strong></h2>
+<ol>
+<li><strong>货架到人</strong>：与传统的“人到货架”不同，货架到人意味着 <strong>商品已经放置在指定的货架位置</strong>，操作员不需要去找货品，而是 <strong>直接从货架上选择商品并进行上架</strong>。</li>
+<li><strong>离线直接上架</strong>：指的是上架操作是<strong>在没有实时系统支持的情况下完成的</strong>，可能使用纸质清单或手持设备进行商品上架，且没有即时与系统交互（离线作业）。</li>
+</ol>
+<hr>
+<h2 id="工作流程"><strong>工作流程</strong></h2>
+<h3 id="1-商品入库"><strong>1. 商品入库：</strong></h3>
+<ul>
+<li>商品到达仓库后，先经过检验、验收，确保无误。</li>
+<li>将商品直接放置到事先规划好的货架区域。</li>
+</ul>
+<h3 id="2-离线作业"><strong>2. 离线作业：</strong></h3>
+<ul>
+<li>操作员根据订单、货架规划或手持设备，<strong>从货架上直接选择商品</strong>。</li>
+<li>操作员可以使用手动操作或机械设备（如叉车、AGV等）来处理商品。</li>
+</ul>
+<h3 id="3-直接上架"><strong>3. 直接上架：</strong></h3>
+<ul>
+<li>商品被整理、打包或分类后，直接放到货架或指定的储物位置，等待后续的订单拣选。</li>
+</ul>
+<hr>
+<h2 id="特点与优势"><strong>特点与优势</strong></h2>
+<ol>
+<li><strong>减少人为错误</strong>：通过货架直接上架，避免了库存数据不准确的情况，减少了中间环节可能出现的错误。</li>
+<li><strong>提高上架效率</strong>：避免了传统上架方式中的多次搬运，可以减少商品在仓库内的流动，节省时间。</li>
+<li><strong>简化操作流程</strong>：通过合理的货架规划，员工只需将商品放到货架上，而不需要多次扫描、移动或处理。</li>
+<li><strong>适用于高频商品</strong>：这种方式适合一些较为常见且高频入库的商品，能够加速整个上架过程。</li>
+<li><strong>离线操作简便</strong>：不依赖系统实时操作，能在网络不稳定或临时无法连接时进行操作。</li>
+</ol>
+<hr>
+<h2 id="适用场景"><strong>适用场景</strong></h2>
+<ol>
+<li><strong>传统仓库作业</strong>：适用于一些传统仓库，特别是那些不需要频繁在线同步的环境。</li>
+<li><strong>入库高频商品</strong>：对于一些商品批量入库且不需要精细存放的情形，能够提高仓库的入库速度。</li>
+<li><strong>小型仓库或低技术要求的仓库</strong>：无需大量依赖高端技术和设备的仓库作业。</li>
+</ol>
+<hr>
+<h2 id="总结"><strong>总结</strong></h2>
+<ul>
+<li><strong>货架到人离线直接上架</strong> 是一种简单、高效的仓库作业方式，旨在通过直接将商品从货架上整理并上架，减少不必要的存储、移动和误差。</li>
+<li>这种方式通常适用于入库高频商品、低技术要求的仓库，并且不依赖系统实时操作，有助于提高入库效率和降低出错率。</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/023_-shi-me-shi-huo-jia-dao-ren-chi-xian-zheng-tuo-shang-jia/" class="post-title gt-a-link">
+                    023.什么是货架到人离线整托上架
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

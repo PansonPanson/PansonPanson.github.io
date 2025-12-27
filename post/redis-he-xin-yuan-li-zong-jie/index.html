@@ -1,0 +1,600 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Redis 核心原理总结 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Redis 核心原理总结
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-01-15 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>本文主要总结了 Redis 底层的数据结构和线程模型。</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">1 底层数据结构</a>
+<ul>
+<li><a href="#11-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E6%80%BB%E8%A7%88">1.1 数据结构总览</a></li>
+<li><a href="#12-%E5%8E%8B%E7%BC%A9%E5%88%97%E8%A1%A8">1.2 压缩列表</a></li>
+<li><a href="#13-%E8%B7%B3%E8%A1%A8">1.3 跳表</a></li>
+</ul>
+</li>
+<li><a href="#2-redis-%E7%9A%84%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B">2 redis  的线程模型</a>
+<ul>
+<li><a href="#21-%E5%8D%95%E7%BA%BF%E7%A8%8B">2.1 单线程</a>
+<ul>
+<li><a href="#211-redis-%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B%E4%B9%9F%E8%83%BD%E6%95%88%E7%8E%87%E8%BF%99%E4%B9%88%E9%AB%98">2.1.1 Redis 单线程模型也能效率这么高？</a></li>
+</ul>
+</li>
+<li><a href="#22-%E5%A4%9A%E7%BA%BF%E7%A8%8B">2.2 多线程</a></li>
+<li><a href="#23-%E6%80%BB%E7%BB%93">2.3 总结</a></li>
+</ul>
+</li>
+<li><a href="#3-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3 缓存雪崩、缓存击穿、缓存穿透</a>
+<ul>
+<li><a href="#31-%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1 缓存雪崩</a>
+<ul>
+<li><a href="#311-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9">3.1.1 什么是缓存雪崩</a></li>
+<li><a href="#311-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.1.1 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#32-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2 缓存穿透</a>
+<ul>
+<li><a href="#321-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F">3.2.1 什么是缓存穿透？</a></li>
+<li><a href="#322-%E7%A9%BF%E9%80%8F%E5%B8%A6%E6%9D%A5%E7%9A%84%E9%97%AE%E9%A2%98">3.2.2 穿透带来的问题</a></li>
+<li><a href="#323-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.2.3 解决办法</a></li>
+</ul>
+</li>
+<li><a href="#33-%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3 缓存击穿</a>
+<ul>
+<li><a href="#331-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF">3.3.1 什么是缓存击穿</a></li>
+<li><a href="#332-%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95">3.3.2 解决办法</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#4-%E8%BF%87%E6%9C%9F%E7%AD%96%E7%95%A5">4 过期策略</a></li>
+<li><a href="#5-%E6%8C%81%E4%B9%85%E5%8C%96%E4%B9%8B-aof-%E4%B8%8E-rdb">5 持久化之 AOF 与 RDB</a>
+<ul>
+<li><a href="#51-aof">5.1 AOF</a>
+<ul>
+<li><a href="#511-aof-%E7%9A%84%E5%86%99%E5%90%8E%E6%97%A5%E5%BF%97%E6%96%B9%E5%BC%8F%E7%9A%84%E4%BC%98%E7%82%B9%E4%B8%8E%E7%BC%BA%E7%82%B9">5.1.1 AOF 的写后日志方式的优点与缺点</a></li>
+<li><a href="#512-%E5%86%99%E5%9B%9E%E7%AD%96%E7%95%A5">5.1.2 写回策略</a></li>
+<li><a href="#513-aofappend-only-file-%E9%87%8D%E5%86%99%E6%9C%BA%E5%88%B6">5.1.3 AOF(Append Only File) 重写机制</a></li>
+</ul>
+</li>
+<li><a href="#52-rdbredis-database">5.2 RDB(Redis DataBase)</a></li>
+</ul>
+</li>
+<li><a href="#6-%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5">6 主从同步</a>
+<ul>
+<li><a href="#61-%E5%85%A8%E9%87%8F%E5%A4%8D%E5%88%B6%E5%90%8C%E6%AD%A5%E6%B5%81%E7%A8%8B">6.1 全量复制同步流程</a>
+<ul>
+<li><a href="#611-%E7%AC%AC%E4%B8%80%E9%98%B6%E6%AE%B5">6.1.1 第一阶段</a></li>
+<li><a href="#612-%E7%AC%AC%E4%BA%8C%E9%98%B6%E6%AE%B5">6.1.2 第二阶段</a></li>
+<li><a href="#613-%E7%AC%AC%E4%B8%89%E9%98%B6%E6%AE%B5">6.1.3 第三阶段</a></li>
+</ul>
+</li>
+<li><a href="#62-%E4%B8%BB%E4%BB%8E%E7%BA%A7%E8%81%94%E6%A8%A1%E5%BC%8F">6.2 主从级联模式</a></li>
+<li><a href="#63-%E5%A2%9E%E9%87%8F%E5%A4%8D%E5%88%B6">6.3 增量复制</a></li>
+</ul>
+</li>
+<li><a href="#7-%E5%93%A8%E5%85%B5%E6%9C%BA%E5%88%B6">7 哨兵机制</a>
+<ul>
+<li><a href="#71-%E5%8E%9F%E7%90%86">7.1 原理</a></li>
+<li><a href="#72-redis-%E5%93%A8%E5%85%B5%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E7%9A%84%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E9%97%AE%E9%A2%98">7.2 Redis 哨兵主备切换的数据丢失问题</a></li>
+<li><a href="#73-quorum-majority-configuration-epoch-configuration-%E4%BC%A0%E6%92%AD">7.3 quorum、majority、configuration epoch、configuration 传播</a>
+<ul>
+<li><a href="#731-quorum-%E5%92%8C-majority">7.3.1 quorum 和 majority</a></li>
+<li><a href="#732-configuration-epoch">7.3.2 configuration epoch</a></li>
+<li><a href="#733-configuration-%E4%BC%A0%E6%92%AD">7.3.3 configuration 传播</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E5%8F%82%E8%80%83">参考：</a></li>
+</ul>
+</p>
+<h1 id="1-底层数据结构">1 底层数据结构</h1>
+<h2 id="11-数据结构总览">1.1 数据结构总览</h2>
+<p>String类型的底层实现只有⼀种数据结构，也就是简单动态字符串。⽽List、Hash、Set和<br>
+Sorted Set这四种数据类型，都有两种底层实现结构。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Redis%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB.jpg?raw=true" alt="" loading="lazy"></p>
+<h2 id="12-压缩列表">1.2 压缩列表</h2>
+<p>压缩列表实际上类似于⼀个数组，数组中的每⼀个元素都对应保存⼀个数据。<br>
+和数组不同的是，压缩列表在表头有三个字段 <strong>zlbytes</strong>、<strong>zltail</strong> 和 <strong>zllen</strong>，分别表⽰列表⻓度、列表尾的偏移量和列表中的entry个数；压缩列表在表尾还有⼀个 <strong>zlend</strong>，表⽰列表结束。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/ziplist.png?raw=true" alt="" loading="lazy"><br>
+在压缩列表中，如果我们要查找定位第⼀个元素和最后⼀个元素，可以通过表头三个字段的⻓度直接定位，<br>
+复杂度是O(1)。⽽查找其他元素时，就没有这么⾼效了，只能逐个查找，此时的复杂度为 O(N)。<br>
+使⽤压缩列表本质上是将所有元素紧挨着存储，所以分配的是⼀块连续的内存空间，虽然数据结构本⾝没有时间复杂度的优势，但是这样节省空间⽽且也能避免⼀些内存碎⽚。</p>
+<h2 id="13-跳表">1.3 跳表</h2>
+<p>跳表在链表的基础上，增加了多级索引，通过索引位置的⼏个跳转，实现数据的快速定位。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/skiplist.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="2-redis-的线程模型">2 redis  的线程模型</h1>
+<h2 id="21-单线程">2.1 单线程</h2>
+<p>在 redis 启动初始化的时候，redis 会将<strong>连接应答处理器</strong>跟 AE_READABLE 事件关联起来，接着如果一个客户端跟 redis 发起连接，此时会产生一个 AE_READBLE 事件，然后由连接应答处理器来处理与客户端建立连接，创建客户端对应的 socket，同时将这个 socket 的 AE_READABLE 事件跟<strong>命令请求处理器</strong>关联起来。</p>
+<p>当客户端向 redis 发起请求的时候（不管是读请求还是写请求，都一样），首先都会在 socket 中产生一个 AE_READABLE 事件，然后由对应的命令请求处理器来处理。这个命令请求处理器就会从 socket 中读取请求相关数据，然后进行执行和处理。</p>
+<p>接着 redis 这边准备好了给客户端的响应数据之后，就会将 socket 的 AE_WRITABLE 事件跟<strong>命令回复处理器</strong> 关联起来，当客户端这边准备好读取响应数据时，就会在 socket 上产生一个 AE_READABLE 事件，会由对应的命令回复处理器来处理，就是将准备好的响应数据写入 socket，供客户端来读取。</p>
+<p>命令回复处理器写完之后，就会删除这个 socket 的 AE_WRITABLE 事件和命令回复处理器的关联关系。</p>
+<p>redis 内部使用文件事件处理器（file event handler），这个文件事件处理器是单线程的，所以 redis 才叫做单线程的模型。它采用 IO 多路复用机制同时监听多个 socket，将产生事件的 socket 压入内存队列中，事件分派器根据 socket 上的事件类型来选择对应的事件处理器进行处理。</p>
+<p>如果被监听的 socket 准备好执行 accept、read、write、close 等操作的时候，跟操作对应的文件事件就会产生，这个时候文件事件处理器就会调用之前关联好的事件处理器来处理这个事件。</p>
+<p>文件事件处理器是单线程模式运行的，但是通过 IO 多路复用机制监听多个 socket，可以实现高性能的网络通信模型，又可以跟内部的其他单线程的模块进行对接，保证了redis 内部的线程模型的简单性。</p>
+<p>文件事件处理器包含 4 个部分：</p>
+<ul>
+<li>多个 socket</li>
+<li>IO 多路复用程序</li>
+<li>文件事件分派器</li>
+<li>事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-single-thread-model.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<p>多个socket 可能并发地产生不同的操作，每个操作对应不同的文件事件，但是 IO 多路复用程序会监听多个 socket，将 socket 放入一个队列中排队，每次从队列中取出一个 socket 给事件分派器，事件分派器把 sokcet 给对应的时间处理器。</p>
+<p>然后一个 socket 的事件处理完之后，IO 多路复用程序才会将队列中的下一个 socket 给事件分配器。文件事件分派器会根据每个 socket 当前产生的事件，来选择对应的事件处理器来处理。</p>
+<h3 id="211-redis-单线程模型也能效率这么高">2.1.1 Redis 单线程模型也能效率这么高？</h3>
+<ol>
+<li>纯内存操作。</li>
+<li>核心是基于非阻塞的 IO 多路复用机制。</li>
+<li>C 语言实现，一般来说，C 语言实现的程序“距离”操作系统更近，执行速度相对会更快。</li>
+<li>单线程反而避免了多线程的频繁上下文切换问题，预防了多线程可能产生的竞争问题。</li>
+</ol>
+<h2 id="22-多线程">2.2 多线程</h2>
+<p>Redis 6.0 之后的版本抛弃了单线程模型这一设计，原本使用单线程运行的 Redis 也开始选择性地使用多线程模型。</p>
+<p>前面还在强调 Redis 单线程模型的高效性，现在为什么又要引入多线程？这其实说明 Redis 在有些方面，单线程已经不具有优势了。因为<strong>读写网络的 Read/Write 系统调用在 Redis 执行期间占用了大部分 CPU 时间，如果把网络读写做成多线程的方式对性能会有很大提升</strong>。</p>
+<p><strong>Redis 的多线程部分只是用来处理网络数据的读写和协议解析，执行命令仍然是单线程。</strong> 之所以这么设计是不想 Redis 因为多线程而变得复杂，需要去控制 key、lua、事务、LPUSH/LPOP 等等的并发问题。</p>
+<h2 id="23-总结">2.3 总结</h2>
+<p>Redis 选择使用单线程模型处理客户端的请求主要还是因为** CPU 不是 Redis 服务器的瓶颈**，所以使用多线程模型带来的性能提升并不能抵消它带来的开发成本和维护成本，系统的性能瓶颈也主要在网络 I/O 操作上；而 Redis 引入多线程操作也是出于性能上的考虑，对于一些大键值对的删除操作，通过多线程非阻塞地释放内存空间也能减少对 Redis 主线程阻塞的时间，提高执行的效率。</p>
+<h1 id="3-缓存雪崩-缓存击穿-缓存穿透">3 缓存雪崩、缓存击穿、缓存穿透</h1>
+<h2 id="31-缓存雪崩">3.1 缓存雪崩</h2>
+<h3 id="311-什么是缓存雪崩">3.1.1 什么是缓存雪崩</h3>
+<p>缓存雪崩的情况是说，当某一时刻发生大规模的缓存失效的情况，比如你的缓存服务宕机了，会有大量的请求进来直接打到DB上面。结果就是DB 撑不住，挂掉。</p>
+<h3 id="311-解决办法">3.1.1 解决办法</h3>
+<ul>
+<li>事前：redis 高可用，主从+哨兵，redis cluster，避免全盘崩溃。</li>
+<li>事中：本地 ehcache 缓存 + hystrix 限流&amp;降级，避免 MySQL 被打死。</li>
+<li>事后：redis 持久化，一旦重启，自动从磁盘上加载数据，快速恢复缓存数据。</li>
+</ul>
+<h2 id="32-缓存穿透">3.2 缓存穿透</h2>
+<h3 id="321-什么是缓存穿透">3.2.1 什么是缓存穿透？</h3>
+<p>正常情况下，我们去查询数据都是存在。<br>
+那么请求去查询一条压根儿数据库中根本就不存在的数据，也就是缓存和数据库都查询不到这条数据，但是请求每次都会打到数据库上面去。<br>
+这种查询不存在数据的现象我们称为缓存穿透。</p>
+<h3 id="322-穿透带来的问题">3.2.2 穿透带来的问题</h3>
+<p>黑客拿一个不存在的 key 不断请求你的接口，这样所有的请求最终都会打到数据库中，从而导致数据库宕机。</p>
+<h3 id="323-解决办法">3.2.3 解决办法</h3>
+<ul>
+<li>缓存空值<br>
+之所以会发生穿透，就是因为缓存中没有存储这些空数据的key。从而导致每次查询都到数据库去了。<br>
+那么我们就可以为这些key对应的值设置为null 丢到缓存里面去。后面再出现查询这个key 的请求的时候，直接返回null 。<br>
+这样，就不用在到数据库中去走一圈了，但是别忘了设置过期时间。</li>
+<li>BloomFilter<br>
+这种方案可以加在第一种方案中，在缓存之前在加一层 BloomFilter ，在查询的时候先去 BloomFilter 去查询 key 是否存在，如果不存在就直接返回，存在再走查缓存 -&gt; 查 DB。</li>
+</ul>
+<h2 id="33-缓存击穿">3.3 缓存击穿</h2>
+<h3 id="331-什么是缓存击穿">3.3.1 什么是缓存击穿</h3>
+<p>缓存击穿，就是说某个 key 非常热点，访问非常频繁，处于集中式高并发访问的情况，当这个 key 在失效的瞬间，大量的请求就击穿了缓存，直接请求数据库，就像是在一道屏障上凿开了一个洞。</p>
+<h3 id="332-解决办法">3.3.2 解决办法</h3>
+<p>解决方式也很简单，可以将热点数据设置为永远不过期；或者基于 redis or zookeeper 实现互斥锁，等待第一个请求构建完缓存之后，再释放锁，进而其它请求才能通过该 key 访问数据。<br>
+但是由于这样做会阻塞其他的线程，此时系统吞吐量会下降，需要结合实际的业务去考虑是否要这么做。</p>
+<h1 id="4-过期策略">4 过期策略</h1>
+<p>Redis 的高性能有一个原因是 Redis 使用内存做缓存，但内存是宝贵且有限的，Redis 不可能使用内存做持久化。<br>
+使用 Redis 的过程中，常见的有两个问题：</p>
+<ul>
+<li>Redis 数据丢失</li>
+<li>数据缓存过期了，但是还占用着内存</li>
+</ul>
+<p>要想理解这些问题的产生原因，就不得不了解 Redis 的过期策略。</p>
+<p>Redis 使用定期删除 + 懒惰删除的策略</p>
+<ul>
+<li>定期删除：指的是 redis 默认是每隔 100ms 就随机抽取一些设置了过期时间的 key，检查其是否过期，如果过期就删除。（因为是随机的，所以可能会有一些 key 一直没删除掉）</li>
+<li>懒惰删除：获取某个 key 的时候，redis 会检查一下 ，这个 key 如果设置了过期时间那么是否过期了，如果过期了此时就会删除，不会给你返回任何东西。</li>
+</ul>
+<p>但是如果定期删除漏掉了很多过期 key，然后你也没及时去查，也就没走惰性删除，内存中还是会存在大量的无用数据。</p>
+<p>所以 Redis 也就有了内存淘汰机制。<br>
+redis 内存淘汰机制有以下 6 种：</p>
+<ul>
+<li>noeviction: 当内存不足以容纳新写入数据时，新写入操作会报错，这个一般没人用吧，实在是太恶心了。</li>
+<li>allkeys-lru：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）。</li>
+<li>allkeys-random：当内存不足以容纳新写入数据时，在键空间中，随机移除某个 key，这个一般没人用吧，为啥要随机，肯定是把最近最少使用的 key 给干掉啊。</li>
+<li>volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的 key（这个一般不太合适）。</li>
+<li>volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，随机移除某个 key。</li>
+<li>volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的 key 优先移除。</li>
+</ul>
+<p>Redis lru 底层原理：Redis采用了一个近似的lru 算法，就是随机取出若干个key，然后按照访问时间排序后，淘汰掉最不经常使用的。</p>
+<ul>
+<li>Redis会基于server.maxmemory_samples配置选取固定数目的key，然后比较它们的lru访问时间，然后淘汰最近最久没有访问的key，maxmemory_samples的值越大，Redis的近似LRU算法就越接近于严格LRU算法，但是相应消耗也变高，对性能有一定影响。</li>
+</ul>
+<p>手写一个 LRU 算法：</p>
+<pre><code class="language-java">class LRUCache&lt;K, V&gt; extends LinkedHashMap&lt;K, V&gt; {
+    private final int CACHE_SIZE;
+
+    /**
+     * 传递进来最多能缓存多少数据
+     *
+     * @param cacheSize 缓存大小
+     */
+    public LRUCache(int cacheSize) {
+        // true 表示让 linkedHashMap 按照访问顺序来进行排序，最近访问的放在头部，最老访问的放在尾部。
+        super((int) Math.ceil(cacheSize / 0.75) + 1, 0.75f, true);
+        CACHE_SIZE = cacheSize;
+    }
+
+    @Override
+    protected boolean removeEldestEntry(Map.Entry&lt;K, V&gt; eldest) {
+        // 当 map中的数据量大于指定的缓存个数的时候，就自动删除最老的数据。
+        return size() &gt; CACHE_SIZE;
+    }
+}
+</code></pre>
+<p>测试代码：</p>
+<pre><code class="language-java">    static LRUCache&lt;Integer, Integer&gt; lruCache = new LRUCache&lt;&gt;(16);
+
+    public static void main(String[] args) {
+        for (int i = 0; i &lt; 16; i++) {
+            lruCache.put(i, i);
+        }
+        System.out.println(lruCache.entrySet());
+        for(int i = 16; i &lt; 20; i++) {
+            lruCache.put(i, i);
+            System.out.println(lruCache.entrySet());
+        }
+
+    }
+</code></pre>
+<p>结果：</p>
+<pre><code class="language-java">[0=0, 1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15]
+[1=1, 2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16]
+[2=2, 3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17]
+[3=3, 4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18]
+[4=4, 5=5, 6=6, 7=7, 8=8, 9=9, 10=10, 11=11, 12=12, 13=13, 14=14, 15=15, 16=16, 17=17, 18=18, 19=19]
+</code></pre>
+<p>可以看到在 size 超过 16 个时，进行了 LRU 缓存淘汰。</p>
+<h1 id="5-持久化之-aof-与-rdb">5 持久化之 AOF 与 RDB</h1>
+<h2 id="51-aof">5.1 AOF</h2>
+<h3 id="511-aof-的写后日志方式的优点与缺点">5.1.1 AOF 的写后日志方式的优点与缺点</h3>
+<p>我们以Redis收到“set key1 value1”命令后记录的⽇志为例，看看AOF⽇志的内容。</p>
+<pre><code class="language-java">*3
+$3
+set
+$4
+key1
+$6
+value1
+</code></pre>
+<p>其中，“*3”表⽰当前命令有三个部分，每部分都是由“$+数字”开头，后⾯紧跟着具体的命令、键或值。这⾥，“数字”表⽰这部分中的命令、键或值⼀共有多少字节。例如，“$3 set”表⽰这部分有3个字节。</p>
+<p>AOF 采用写后⽇志这种⽅式，就是先让系统执⾏命令，只有命令能执⾏成功，才会被记录到⽇志中，否则，系统就会直接向客⼾端报错。所以，Redis使⽤写后⽇志这⼀⽅式的⼀⼤好处是，<strong>可以避免出现记录错误命令的情况</strong>。</p>
+<p>不过，AOF也有两个潜在的⻛险。</p>
+<ol>
+<li>如果刚执⾏完⼀个命令，还没有来得及记⽇志就宕机了，那么这个命令和相应的数据就有丢失的⻛<br>
+险。如果此时Redis是⽤作缓存，还可以从后端数据库重新读⼊数据进⾏恢复，但是，如果Redis是直接⽤作<br>
+数据库的话，此时，因为命令没有记⼊⽇志，所以就⽆法⽤⽇志进⾏恢复了。</li>
+<li>AOF虽然避免了对当前命令的阻塞，但可能会给下⼀个操作带来阻塞⻛险。这是因为，AOF⽇志也是<br>
+在主线程中执⾏的，如果在把⽇志⽂件写⼊磁盘时，磁盘写压⼒⼤，就会导致写盘很慢，进⽽导致后续的操<br>
+作也⽆法执⾏了。</li>
+</ol>
+<h3 id="512-写回策略">5.1.2 写回策略</h3>
+<ol>
+<li><strong>Always</strong>，同步写回：每个写命令执⾏完，⽴⻢同步地将⽇志写回磁盘；</li>
+<li><strong>Everysec</strong>，每秒写回：每个写命令执⾏完，只是先把⽇志写到AOF⽂件的内存缓冲区，每隔⼀秒把缓冲区中的内容写⼊磁盘；</li>
+<li><strong>No</strong>，操作系统控制的写回：每个写命令执⾏完，只是先把⽇志写到AOF⽂件的内存缓冲区，由操作系统决定何时将缓冲区内容写回磁盘。</li>
+</ol>
+<h3 id="513-aofappend-only-file-重写机制">5.1.3 AOF(Append Only File) 重写机制</h3>
+<p>AOF 的重写根据键值对的最新状态，将中间过程省略，从而缩小日志文件大小。<br>
+和AOF⽇志由主线程写回不同，重写过程是由后台线程bgrewriteaof来完成的，这也是为了避免阻塞主线程，导致数据库性能下降。</p>
+<p>重写的过程可以总结为“⼀个拷⻉，两处⽇志”。</p>
+<p>“⼀个拷⻉”就是指，每次执⾏重写时，主线程fork出后台的bgrewriteaof⼦进程。此时，fork会把主线程的内存拷⻉⼀份给bgrewriteaof⼦进程，这⾥⾯就包含了数据库的最新数据。然后，bgrewriteaof⼦进程就可以在不影响主线程的情况下，逐⼀把拷⻉的数据写成操作，记⼊重写⽇志。</p>
+<p>“两处⽇志”⼜是什么呢？因为主线程未阻塞，仍然可以处理新来的操作。此时，如果有写操作，第⼀处⽇志就是指正在使⽤的AOF⽇志，Redis会把这个操作写到它的缓冲区。这样⼀来，即使宕机了，这个AOF⽇志的操作仍然是⻬全的，可以⽤于恢复。⽽第⼆处⽇志，就是指新的AOF重写⽇志。这个操作也会被写到重写⽇志的缓冲区。这样，重写⽇志也不会丢失最新的操作。等到拷⻉数据的所有操作记录重写完成后，重写⽇志记录的这些最新操作也会写⼊新的AOF⽂件，以保证数据库最新状态的记录。此时，我们就可以⽤新的AOF⽂件替代旧⽂件了。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-aof2.png?raw=true" alt="" loading="lazy"><br>
+总结来说，每次AOF重写时，Redis会先执⾏⼀个内存拷⻉，⽤于重写；然后，使⽤两个⽇志保证在重写过<br>
+程中，新写⼊的数据不会丢失。⽽且，因为Redis采⽤额外的线程进⾏数据重写，所以，这个过程并不会阻<br>
+塞主线程。</p>
+<h2 id="52-rdbredis-database">5.2 RDB(Redis DataBase)</h2>
+<p>Redis的数据都在内存中，为了提供所有数据的可靠性保证，RDB 执⾏的是全量快照。<br>
+Redis提供了两个命令来⽣成RDB⽂件，分别是save和bgsave。</p>
+<ul>
+<li>save：在主线程中执⾏，会导致阻塞；</li>
+<li>bgsave：创建⼀个⼦进程，专⻔⽤于写⼊RDB⽂件，避免了主线程的阻塞，这也是Redis RDB⽂件⽣成的默认配置。</li>
+</ul>
+<p>为了快照⽽暂停写操作，肯定是不能接受的。所以这个时候，Redis就会借助操作系统提供的写时复制技术<br>
+（Copy-On-Write, COW），在执⾏快照的同时，正常处理写操作。<br>
+简单来说，bgsave⼦进程是由主线程fork⽣成的，可以共享主线程的所有内存数据。bgsave⼦进程运⾏<br>
+后，开始读取主线程的内存数据，并把它们写⼊RDB⽂件。<br>
+Redis 4.0中提出了⼀个混合使⽤AOF⽇志和内存快照的⽅法。简单来说，内存快照以⼀定的频率执⾏，在两次快照之间，使⽤AOF⽇志记录这期间的所有命令操作。<br>
+此时，如果主线程对这些数据也都是读操作（例如图中的键值对A），那么，主线程和bgsave⼦进程相互不影响。但是，如果主线程要修改⼀块数据（例如图中的键值对C），那么，这块数据就会被复制⼀份，⽣成该数据的副本。然后，bgsave⼦进程会把这个副本数据写⼊RDB⽂件，⽽在这个过程中，主线程仍然可以直接修改原来的数据。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-aof3.png?raw=true" alt="" loading="lazy"></p>
+<h1 id="6-主从同步">6 主从同步</h1>
+<h2 id="61-全量复制同步流程">6.1 全量复制同步流程</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-master-slave.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="611-第一阶段">6.1.1 第一阶段</h3>
+<p>第⼀阶段是主从库间建⽴连接、协商同步的过程，主要是为全量复制做准备。在这⼀步，从库和主库建⽴起<br>
+连接，并告诉主库即将进⾏同步，主库确认回复后，主从库间就可以开始同步了。<br>
+具体来说，从库给主库发送psync命令，表⽰要进⾏数据同步，主库根据这个命令的参数来启动复制。<br>
+psync命令包含了主库的runID和复制进度offset两个参数。</p>
+<ul>
+<li>runID，是每个Redis实例启动时都会⾃动⽣成的⼀个随机ID，⽤来唯⼀标记这个实例。当从库和主库第一次复制时，因为不知道主库的runID，所以将runID设为“？”。</li>
+<li>offset，此时设为-1，表⽰第⼀次复制。<br>
+主库收到psync命令后，会⽤FULLRESYNC响应命令带上两个参数：主库runID和主库⽬前的复制进度offset，返回给从库。从库收到响应后，会记录下这两个参数。<br>
+这⾥有个地⽅需要注意，FULLRESYNC响应表⽰第⼀次复制采⽤的全量复制，也就是说，主库会把当前所<br>
+有的数据都复制给从库。</li>
+</ul>
+<h3 id="612-第二阶段">6.1.2 第二阶段</h3>
+<p>这⾥有个地⽅需要注意，FULLRESYNC响应表⽰第⼀次复制采⽤的全量复制，也就是说，主库会把当前所有的数据都复制给从库。<br>
+具体来说，主库执⾏bgsave命令，⽣成RDB⽂件，接着将⽂件发给从库。从库接收到RDB⽂件后，会先清空当前数据库，然后加载RDB⽂件。这是因为从库在通过replicaof命令开始和主库同步前，可能保存了其他数据。为了避免之前数据的影响，从库需要先把当前数据库清空。<br>
+在主库将数据同步给从库的过程中，主库不会被阻塞，仍然可以正常接收请求。否则，Redis的服务就被中断了。但是，这些请求中的写操作并没有记录到刚刚⽣成的RDB⽂件中。为了保证主从库的数据⼀致性，主库会在内存中⽤专⻔的replication buffer，记录RDB⽂件⽣成后收到的所有写操作。</p>
+<h3 id="613-第三阶段">6.1.3 第三阶段</h3>
+<p>主库会把第⼆阶段执⾏过程中新收到的写命令，再发送给从库。<br>
+具体的操作是，当主库完成RDB⽂件发送后，就会把此时replication buffer中的修改操作发给从库，从库再重新执⾏这些操作。这样⼀来，主从库就实现同步了</p>
+<h2 id="62-主从级联模式">6.2 主从级联模式</h2>
+<p>⼀次全量复制中，对于主库来说，需要完成两个耗时的操作：</p>
+<ul>
+<li>⽣成RDB⽂件</li>
+<li>传输RDB⽂件<br>
+我们可以通过“主-从-从”模式将主库⽣成RDB和传输RDB的压⼒，以级联的⽅式分散到从库上.<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-slave-slave.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h2 id="63-增量复制">6.3 增量复制</h2>
+<p>当主从库断连后，主库会把断连期间收到的写操作命令，写⼊replication buffer，同时也会把这些操作命令也写⼊repl_backlog_buffer这个缓冲区。<br>
+repl_backlog_buffer是⼀个环形缓冲区，主库会记录⾃⼰写到的位置，从库则会记录⾃⼰已经读到的位<br>
+置。<br>
+刚开始的时候，主库和从库的写读位置在⼀起，这算是它们的起始位置。随着主库不断接收新的写操作，它在缓冲区中的写位置会逐步偏离起始位置，我们通常⽤偏移量来衡量这个偏移距离的⼤⼩，对主库来说，对应的偏移量就是master_repl_offset。主库接收的新写操作越多，这个值就会越⼤。<br>
+同样，从库在复制完写操作命令后，它在缓冲区中的读位置也开始逐步偏移刚才的起始位置，此时，从库已<br>
+复制的偏移量slave_repl_offset也在不断增加。正常情况下，这两个偏移量基本相等。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-replica-buffer.png?raw=true" alt="" loading="lazy"></p>
+<p>增量复制流程如下所示：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/redis-add-syn.png?raw=true" alt="" loading="lazy"></p>
+<p><strong>注意：</strong><br>
+因为repl_backlog_buffer是⼀个环形缓冲区，所以在缓冲区写满后，主库会继续写⼊，此时，就会覆盖掉之前写⼊的操作。如果从库的读取速度⽐较慢，就有可能导致从库还未读取的操作被主库新写的操作覆盖了，这会导致主从库间的数据不⼀致。<br>
+因此，我们要想办法避免这⼀情况，⼀般⽽⾔，我们可以调整repl_backlog_size这个参数。这个参数和所<br>
+需的缓冲空间⼤⼩有关。缓冲空间的计算公式是：缓冲空间⼤⼩ = 主库写⼊命令速度 * 操作⼤⼩ - 主从库间⽹络传输命令速度 * 操作⼤⼩。在实际应⽤中，考虑到可能存在⼀些突发的请求压⼒，我们通常需要把这个缓冲空间扩⼤⼀倍，即repl_backlog_size = 缓冲空间⼤⼩ * 2，这也就是repl_backlog_size的最终值。<br>
+举个例⼦，如果主库每秒写⼊2000个操作，每个操作的⼤⼩为2KB，⽹络每秒能传输1000个操作，那么，有1000个操作需要缓冲起来，这就⾄少需要2MB的缓冲空间。否则，新写的命令就会覆盖掉旧操作了。为了应对可能的突发压⼒，我们最终把repl_backlog_size设为4MB。</p>
+<h1 id="7-哨兵机制">7 哨兵机制</h1>
+<h2 id="71-原理">7.1 原理</h2>
+<p>主从集群模式下，如果主库宕机，那就需要哨兵机制登场了。在Redis主从集群中，哨兵机制是实现主从库⾃动切换的关键机制，它有效地解决了主从复制模式下故障转移的三个问题：</p>
+<ol>
+<li>主库真的挂了吗？</li>
+<li>该选择哪个从库作为主库？</li>
+<li>怎么把新主库的相关信息通知给从库和客⼾端呢？<br>
+哨兵其实就是⼀个运⾏在特殊模式下的Redis进程，主从库实例运⾏的同时，它也在运⾏。哨兵主要负责的<br>
+就是三个任务：监控、选主（选择主库）和通知。</li>
+<li>监控：监控是指哨兵进程在运⾏时，周期性地给所有的主从库发送PING命令，检测它们是否仍然在线运⾏。如果从库没有在规定时间内响应哨兵的PING命令，哨兵就会把它标记为“下线状态”；同样，如果主库也没有在规定时间内响应哨兵的PING命令，哨兵就会判定主库下线，然后开始⾃动切换主库的流程。</li>
+<li>选主：主库挂了以后，哨兵就需要从很多个从库⾥，按照⼀定的规则选择⼀个从库实例，把它作为新的主库。这⼀步完成后，现在的集群⾥就有了新主库。</li>
+<li>通知：在执⾏通知任务时，哨兵会把新主库的连接信息发给其他从库，让它们执⾏replicaof命令，和新主库建⽴连接，并进⾏数据复制。同时，哨兵会把新主库的连接信息通知给客⼾端，让它们把请求操作发到新主库上。</li>
+</ol>
+<p>为了降低哨兵监控的误判率，通常会采⽤多实例组成的集群模式进⾏部署，这也被称为哨兵集群。引⼊多个哨兵实例⼀起来判断，就可以避免单个哨兵因为⾃⾝⽹络状况不好，⽽误判主库下线的情况。同时，多个哨兵的⽹络同时不稳定的概率较⼩，由它们⼀起做决策，误判率也能降低。在判断主库是否下线时，不能由⼀个哨兵说了算，只有⼤多数的哨兵实例，都判断主库已经“主观下线”了，主库才会被标记为“客观下线”。</p>
+<p>在选主时，除了要检查从库的当前<strong>在线状态</strong>，还要判断它之前的<strong>⽹络连接状态</strong>。使⽤配置项down-after-milliseconds * 10。其中，down-after-milliseconds是我们认定主从库断连的最⼤连接超时时间。如果在down-after-milliseconds毫秒内，主从节点都没有通过⽹络联系上，我们就可以认为主从节点断连了。如果发⽣断连的次数超过了10次，就说明这个从库的⽹络状况不好，不适合作为新主库。</p>
+<p>接下来就要给剩余的从库打分了。我们可以分别按照三个规则依次进⾏三轮打分，这三个规则分别是</p>
+<ol>
+<li>从库优先级</li>
+<li>从库复制进度</li>
+<li>从库ID号。</li>
+</ol>
+<p>只要在某⼀轮中，有从库得分最⾼，那么它就是主库了，选主过程到此结束。如果没有出现得分最⾼的从库，那么就继续进⾏下⼀轮。</p>
+<ol>
+<li>
+<p>第⼀轮：优先级最⾼的从库得分⾼。<br>
+⽤⼾可以通过slave-priority配置项，给不同的从库设置不同优先级。⽐如，你有两个从库，它们的内存⼤⼩不⼀样，你可以⼿动给内存⼤的实例设置⼀个⾼优先级。在选主时，哨兵会给优先级⾼的从库打⾼分，如果有⼀个从库优先级最⾼，那么它就是新主库了。如果从库的优先级都⼀样，那么哨兵开始第⼆轮打分。</p>
+</li>
+<li>
+<p>第⼆轮：和旧主库同步程度最接近的从库得分⾼。<br>
+这个规则的依据是，如果选择和旧主库同步最接近的那个从库作为主库，那么，这个新主库上就有最新的数据。<br>
+主从库同步时有个命令传播的过程。在这个过程中，主库会⽤master_repl_offset记录当前的最新写操作在repl_backlog_buffer中的位置，⽽从库会⽤slave_repl_offset这个值记录当前的复制进度。此时，我们想要找的从库，它的slave_repl_offset需要最接近master_repl_offset。如果在所有从库中，有从库的slave_repl_offset最接近master_repl_offset，那么它的得分就最⾼，可以作为新主库。</p>
+</li>
+<li>
+<p>第三轮：ID号⼩的从库得分⾼。<br>
+每个实例都会有⼀个ID，这个ID就类似于这⾥的从库的编号。⽬前，Redis在选主库时，有⼀个默认的规<br>
+定：在优先级和复制进度都相同的情况下，ID号最⼩的从库得分最⾼，会被选为新主库。</p>
+</li>
+</ol>
+<p>总结：⾸先，哨兵会按照在线状态、⽹络状态，筛选过滤掉⼀部分不符合要求的从库，然后，依次按照优先级、复制进度、ID号⼤⼩再对剩余的从库进⾏打分，只要有得分最⾼的从库出现，就把它选为新主库。</p>
+<p>备注：</p>
+<ul>
+<li>哨兵实例之间可以相互发现，要归功于Redis提供的pub/sub机制，也就是发布/订阅机制。主从集群中，主库上有⼀个名为“<strong>sentinel</strong>:hello”的频道，不同哨兵就是通过它来相互发现，实现互相通信的。</li>
+<li>哨兵除了彼此之间建⽴起连接形成集群外，还需要和从库建⽴连接。这是因为，在哨兵的监控任务中，它需要对主从库都进⾏⼼跳判断，⽽且在主从库切换完成后，它还需要通知从库，让它们和新主库进⾏同步。</li>
+<li>哨兵是如何知道从库的IP地址和端⼝？这是由哨兵向主库发送INFO命令来完成的。就像下图所⽰，哨兵2给主库发送INFO命令，主库接受到这个命令后，就会把从库列表返回给哨兵。接着，哨兵就可以根据从库列表中的连接信息，和每个从库建⽴连接，并在这个连接上持续地对从库进⾏监控。哨兵1和3可以通过相同的⽅法和从库建⽴连接。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/shaobing002.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h2 id="72-redis-哨兵主备切换的数据丢失问题">7.2 Redis 哨兵主备切换的数据丢失问题</h2>
+<p>导致数据丢失的两种情况：</p>
+<ol>
+<li>
+<p>异步复制导致的数据丢失<br>
+因为 master-&gt;slave 的复制是异步的，所以可能有部分数据还没复制到 slave，master 就宕机了，此时这部分数据就丢失了。</p>
+</li>
+<li>
+<p>脑裂导致的数据丢失<br>
+脑裂，也就是说，某个 master 所在机器突然脱离了正常的网络，跟其他 slave 机器不能连接，但是实际上 master 还运行着。此时哨兵可能就会认为 master 宕机了，然后开启选举，将其他 slave 切换成了 master。这个时候，集群里就会有两个 master ，也就是所谓的脑裂。</p>
+<p>此时虽然某个 slave 被切换成了 master，但是可能 client 还没来得及切换到新的 master，还继续向旧 master 写数据。因此旧 master 再次恢复的时候，会被作为一个 slave 挂到新的 master 上去，自己的数据会清空，重新从新的 master 复制数据。而新的 master 并没有后来 client 写入的数据，因此，这部分数据也就丢失了。</p>
+</li>
+</ol>
+<h2 id="73-quorum-majority-configuration-epoch-configuration-传播">7.3 quorum、majority、configuration epoch、configuration 传播</h2>
+<h3 id="731-quorum-和-majority">7.3.1 quorum 和 majority</h3>
+<p>每次一个哨兵要做主备切换，首先需要 quorum 数量的哨兵认为 odown，然后选举出一个哨兵来做切换，这个哨兵还需要得到 majority 哨兵的授权，才能正式执行切换。</p>
+<p>如果 quorum &lt; majority，比如 5 个哨兵，majority 就是 3，quorum 设置为 2，那么就 3 个哨兵授权就可以执行切换。</p>
+<p>但是如果 quorum &gt;= majority，那么必须 quorum 数量的哨兵都授权，比如 5 个哨兵，quorum 是 5，那么必须 5 个哨兵都同意授权，才能执行切换。</p>
+<h3 id="732-configuration-epoch">7.3.2 configuration epoch</h3>
+<p>哨兵会对一套 Redis master+slaves 进行监控，有相应的监控的配置。</p>
+<p>执行切换的那个哨兵，会从要切换到的新 master（salve-&gt;master）那里得到一个 configuration epoch，这就是一个 version 号，每次切换的 version 号都必须是唯一的。</p>
+<p>如果第一个选举出的哨兵切换失败了，那么其他哨兵，会等待 failover-timeout 时间，然后接替继续执行切换，此时会重新获取一个新的 configuration epoch，作为新的 version 号。</p>
+<h3 id="733-configuration-传播">7.3.3 configuration 传播</h3>
+<p>哨兵完成切换之后，会在自己本地更新生成最新的 master 配置，然后同步给其他的哨兵，就是通过之前说的 pub/sub 消息机制。</p>
+<p>这里之前的 version 号就很重要了，因为各种消息都是通过一个 channel 去发布和监听的，所以一个哨兵完成一次新的切换之后，新的 master 配置是跟着新的 version 号的。其他的哨兵都是根据版本号的大小来更新自己的 master 配置的。</p>
+<h1 id="参考">参考：</h1>
+<ul>
+<li><a href="https://book.douban.com/subject/25900156/">《Redis 设计与实现》</a></li>
+<li><a href="https://github.com/shishan100/Java-Interview-Advanced">Java-Interview-Advanced</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzU0OTk3ODQ3Ng==&amp;mid=2247484884&amp;idx=1&amp;sn=ceb798b6e8ef0ee608a992385f7d8568&amp;chksm=fba6edd7ccd164c155271811f7948b476955cab41b23f2333847b8c268b31cc9f3332c2e3926&amp;mpshare=1&amp;scene=1&amp;srcid=0608pIX1L8Fja1H99IyorW2X%23rd">阿里一面：关于【缓存穿透、缓存击穿、缓存雪崩、热点数据失效】问题的解决方案</a></li>
+<li><a href="https://time.geekbang.org/column/intro/100056701">Redis核心技术与实战</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/liao-liao-jin-cheng-jian-tong-xin/" class="post-title gt-a-link">
+                    聊聊进程间通信
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

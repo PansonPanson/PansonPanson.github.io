@@ -1,0 +1,383 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读002：ArrayList | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读002：ArrayList
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-05 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>ArrayList  源码阅读~</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E7%BB%A7%E6%89%BF%E5%85%B3%E7%B3%BB">2 继承关系</a></li>
+<li><a href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96">3 初始化</a></li>
+<li><a href="#4-%E6%A0%B8%E5%BF%83%E6%96%B9%E6%B3%95">4  核心方法</a>
+<ul>
+<li><a href="#41-set">4.1 set</a></li>
+<li><a href="#42-add">4.2 add</a></li>
+<li><a href="#43-get">4.3 get</a></li>
+<li><a href="#44-remove">4.4 remove</a></li>
+</ul>
+</li>
+<li><a href="#5-%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6">5 扩容机制</a></li>
+<li><a href="#6-fail-fast">6 Fail-Fast</a>
+<ul>
+<li><a href="#%E5%8F%82%E8%80%83">参考</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="1-引言">1 引言</h1>
+<p>首先，我们要对 ArrayList 的特点有一个基本的认识，比如说 ：</p>
+<ul>
+<li>ArrayList 底层是用什么实现的？</li>
+<li>缺点是什么？有点又是什么？</li>
+<li>扩容机制了解吗</li>
+</ul>
+<p>其实 ArrayList 底层是基于数组来实现的，随机读的时间复杂度为 O(1)， 对于删除的的时间复杂度为O(N)。所以 ArrayList 的优势在于随机读，缺点有两个地方，一个是不断地添加元素的时候，会扩容，扩容会导致性能较差，另一个删除元素的时候，会导致大量元素的拷贝，性能也较差。</p>
+<h1 id="2-继承关系">2 继承关系</h1>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/arraylist001.png?raw=true" alt="" loading="lazy"></figure>
+<pre><code class="language-java">public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt;
+        implements List&lt;E&gt;, RandomAccess, Cloneable, java.io.Serializable
+</code></pre>
+<p>ArrayList实现了List, RandomAccess, Cloneable, java.io.Serializable等接口。</p>
+<ul>
+<li>ArrayList实现了List，提供了基础的添加、删除、遍历等操作。</li>
+<li>ArrayList实现了RandomAccess，提供了随机访问的能力。</li>
+<li>ArrayList实现了Cloneable，可以被克隆。</li>
+<li>ArrayList实现了Serializable，可以被序列化。</li>
+</ul>
+<h1 id="3-初始化">3 初始化</h1>
+<p>一共 3 个构造函数</p>
+<ol>
+<li>不指定初始大小，默认为 10</li>
+</ol>
+<pre><code class="language-java">public ArrayList() {
+        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
+    }
+</code></pre>
+<ol start="2">
+<li>指定初始大小</li>
+</ol>
+<pre><code class="language-java">public ArrayList(int initialCapacity) {
+        if (initialCapacity &gt; 0) {
+            this.elementData = new Object[initialCapacity];
+        } else if (initialCapacity == 0) {
+            this.elementData = EMPTY_ELEMENTDATA;
+        } else {
+            throw new IllegalArgumentException(&quot;Illegal Capacity: &quot;+
+                                               initialCapacity);
+        }
+    }
+</code></pre>
+<ol start="3">
+<li>传入指定集合初始化</li>
+</ol>
+<pre><code class="language-java">    public ArrayList(Collection&lt;? extends E&gt; c) {
+        Object[] a = c.toArray();
+        if ((size = a.length) != 0) {
+            if (c.getClass() == ArrayList.class) {
+                elementData = a;
+            } else {
+                elementData = Arrays.copyOf(a, size, Object[].class);
+            }
+        } else {
+            // replace with empty array.
+            elementData = EMPTY_ELEMENTDATA;
+        }
+    }
+</code></pre>
+<h1 id="4-核心方法">4  核心方法</h1>
+<h2 id="41-set">4.1 set</h2>
+<pre><code class="language-java">public E set(int index, E element) {
+        // 判断是否数组越界
+        rangeCheck(index);
+        E oldValue = elementData(index);
+        elementData[index] = element;
+        return oldValue;
+}
+
+private void rangeCheck(int index) {
+        if (index &gt;= size)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre>
+<h2 id="42-add">4.2 add</h2>
+<ol>
+<li>在末尾插入</li>
+</ol>
+<pre><code class="language-java">	public boolean add(E e) {
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        elementData[size++] = e;
+        return true;
+ }
+</code></pre>
+<ol start="2">
+<li>在指定下标插入</li>
+</ol>
+<pre><code class="language-java">public void add(int index, E element) {
+        // 添加时判断数据越界
+        rangeCheckForAdd(index);
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+  			
+  			// 数组拷贝
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+}
+
+// 添加时判断数据越界
+private void rangeCheckForAdd(int index) {
+        if (index &gt; size || index &lt; 0)
+            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
+}
+</code></pre>
+<h2 id="43-get">4.3 get</h2>
+<p>直接通过索引下标获取元素</p>
+<pre><code class="language-java">public E get(int index) {
+    rangeCheck(index);
+    checkForComodification();
+    return ArrayList.this.elementData(offset + index);
+}
+</code></pre>
+<h2 id="44-remove">4.4 remove</h2>
+<p>调用 System.arraycopy() 将 index+1 后面的元素都复制到 index 位置上，该操作的时间复杂度为 O(N)。</p>
+<pre><code class="language-java">public E remove(int index) {
+    rangeCheck(index);
+
+    modCount++;
+    E oldValue = elementData(index);
+
+    int numMoved = size - index - 1;
+    if (numMoved &gt; 0)
+        System.arraycopy(elementData, index+1, elementData, index,
+                         numMoved);
+    elementData[--size] = null; // clear to let GC do its work
+
+    return oldValue;
+}
+</code></pre>
+<h1 id="5-扩容机制">5 扩容机制</h1>
+<p>在添加元素的时候，可能会触发扩容机制，新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)， 大约是旧容量的 1.5 倍左右。</p>
+<p>相关源码如下：</p>
+<pre><code class="language-java">public boolean add(E e) {
+  	// 
+    ensureCapacityInternal(size + 1);  // Increments modCount!!
+    elementData[size++] = e;
+    return true;
+}
+
+private void ensureCapacityInternal(int minCapacity) {
+    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    }
+    ensureExplicitCapacity(minCapacity);
+}
+
+private void ensureExplicitCapacity(int minCapacity) {
+    modCount++;
+    // overflow-conscious code
+    if (minCapacity - elementData.length &gt; 0)
+        grow(minCapacity);
+}
+
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    int oldCapacity = elementData.length;
+  	// 新容量的大小为 oldCapacity + (oldCapacity &gt;&gt; 1)
+    // 大约是旧容量的 1.5 倍左右
+    int newCapacity = oldCapacity + (oldCapacity &gt;&gt; 1);
+    if (newCapacity - minCapacity &lt; 0)
+        newCapacity = minCapacity;
+    if (newCapacity - MAX_ARRAY_SIZE &gt; 0)
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+</code></pre>
+<h1 id="6-fail-fast">6 Fail-Fast</h1>
+<p>modCount 用来记录 ArrayList 结构发生变化的次数。结构发生变化是指添加或者删除至少一个元素的所有操作，或者是调整内部数组的大小，仅仅只是设置元素的值不算结构发生变化。</p>
+<p>在进行序列化或者迭代等操作时，需要比较操作前后 modCount 是否改变，如果改变了需要抛出 <strong>ConcurrentModificationException</strong>。</p>
+<h2 id="参考">参考</h2>
+<ol>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzkxNDEyOTI0OQ==&amp;mid=2247484475&amp;idx=2&amp;sn=af21ac6a8f360c5a918053e753dbfe79&amp;source=41#wechat_redirect">ArrayList</a></li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/arraylist-yuan-ma-yue-du/" class="post-title gt-a-link">
+                    JDK 源码阅读001：String 
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（九）：如何应对复杂业务系统规则 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（九）：如何应对复杂业务系统规则
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-03-06 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>WES 系统重构前，总代码行数接近八十多万，在这八十多万行代码中，既存在非常多的重复逻辑，又存在非常多的变化逻辑，前者可以通过不断地抽取公共逻辑来达到去重、瘦身的效果。</p>
+<p>后者的治理则更为复杂一些，需要做很多抽象与统一整合，也就是策略规则。</p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1760883918278-bf835637e81f?q=80&amp;w=2338&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<p>坦诚来说，重构之前对规则引擎一点都不了解，自己也是在不断地接触和学习，扩宽自己的技术栈广度。回过头来，发现做重构确实让自己成长得很快。</p>
+<h3 id="一-正视复杂性wes-业务规则的多与变">一、正视复杂性：WES 业务规则的“多”与“变”</h3>
+<p><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191038018.png?raw=true" alt="" loading="lazy"><br>
+在深入技术选型之前，我们首先要清晰地定义问题。WES 作为仓储执行的入口，其核心复杂度在于其需要应对B 端多变且相互交织的业务规则。这些规则直接体现了不同客户、不同业务场景下的运营策略。</p>
+<ul>
+<li>
+<p><strong>规则的维度多</strong>：仅出库环节，就涉及<strong>单据创建与提交策略</strong>（如自动拆合单、静态组波）、<strong>出库优先级调整策略</strong>（按发货时间、作业时长、剩余任务数动态调整）、<strong>库存分配策略</strong>（多库区优先级）、<strong>工作站作业策略</strong>（绑箱、槽位匹配与释放）等数十个可配置项。</p>
+</li>
+<li>
+<p><strong>规则的逻辑条件复杂</strong>：一个策略的生效往往是多重条件组合判断的结果。例如，“出库单初始优先级”策略，需要根据“出库单类型”来决定其初始的“优先级等级”和“优先级值”。这种 <code>if...else if...else</code>的链式判断，在传统编码中会形成难以维护的“代码沼泽”。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191127744.png?raw=true" alt="" loading="lazy"></p>
+</li>
+<li>
+<p><strong>规则的动态性要求高</strong>：业务策略并非一成不变。新的客户需求、运营优化尝试都要求规则能够快速调整、热生效，而不需要重启服务或发布新版本。例如，快速调整“缺货提交方式”为“有货先作业”以应对临时的爆仓压力，必须是分钟级可配置的能力。</p>
+</li>
+</ul>
+<p>面对这种“多、变、杂”的业务规则，如果继续沿用硬编码的方式，会直接导致：</p>
+<ol>
+<li>
+<p><strong>核心业务逻辑与规则逻辑耦合</strong>：业务代码中充斥着规则判断，可读性急剧下降。</p>
+</li>
+<li>
+<p><strong>维护成本高昂</strong>：任何微小的规则变更都需要开发人员介入修改代码、测试、上线，无法快速响应业务。</p>
+</li>
+<li>
+<p><strong>知识壁垒</strong>：业务规则散落在数十万行代码中，新人难以理解，业务专家（如资深的仓储规划师）也无法直接参与规则的制定与调整。</p>
+</li>
+</ol>
+<h3 id="二-技术选型思考为什么是-drools">二、技术选型思考：为什么是 Drools？</h3>
+<p>基于上述痛点，我们明确了引入规则引擎的核心目标：<strong>将易变的业务规则从稳定的程序逻辑中解耦出来，实现业务规则的统一管理、可视化和动态配置。</strong></p>
+<p>在选型时，我们考察了多种方案：</p>
+<ol>
+<li>
+<p><strong>脚本引擎（如 Groovy, Lua）</strong>：灵活性高，但对于复杂的条件网络和规则推理支持较弱，需要自行实现优先级、冲突解决等机制，开发量和复杂度不可控。</p>
+</li>
+<li>
+<p><strong>自定义规则解析器（如 XML/JSON 配置 + 自研引擎）</strong>：初期看似简单，但随着规则复杂度的提升，自定义的语法和引擎在性能、功能完备性上很难与成熟产品媲美，容易重复造轮子且后期难以维护。</p>
+</li>
+<li>
+<p><strong>商用规则引擎</strong>：功能强大，但存在商业许可成本，与我们的开源技术栈整合和自主可控的要求不符。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%B9%9D%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E5%BA%94%E5%AF%B9%E5%A4%8D%E6%9D%82%E4%B8%9A%E5%8A%A1%E7%B3%BB%E7%BB%9F%E8%A7%84%E5%88%99/file-20251206191147128.png?raw=true" alt="" loading="lazy"></p>
+</li>
+</ol>
+<p>最终，我们选择了 <strong>Drools</strong>，主要基于以下几点考量：</p>
+<ul>
+<li>
+<p><strong>成熟性与社区生态</strong>：Drools 是 JBoss 旗下的开源项目，经过多年发展，社区活跃，文档丰富，是一个非常成熟、稳定的企业级规则引擎解决方案。</p>
+</li>
+<li>
+<p><strong>强大的规则表达能力</strong>：其核心的 DRL（Drools Rule Language）语言专为规则设计，支持声明式的规则编写（<code>When-Then</code>），天然契合我们的业务场景。它内置的 RETE 算法对于处理大量规则和数据有很高的效率。</p>
+</li>
+<li>
+<p><strong>与 Java 技术栈的无缝集成</strong>：WES 核心系统基于 Java 技术栈，Drools 可以非常方便地集成到 Spring 等主流框架中，降低了引入新技术栈的架构风险和学习成本。</p>
+</li>
+<li>
+<p><strong>“可进化”的架构潜力</strong>：Drools 不仅是一个规则执行引擎，其提供的 **KIE（Knowledge Is Everything）**​ 工作台概念，为我们未来构建图形化、Web 化的策略规则管理平台（正如策略中心）奠定了坚实的技术基础。</p>
+</li>
+</ul>
+<h3 id="三-架构与落地将业务规则抽象为-drools-规则">三、架构与落地：将业务规则抽象为 Drools 规则</h3>
+<p>选型只是第一步，如何将复杂的业务规则优雅地映射到 Drools 的规则模型中，是体现架构能力的关键。</p>
+<p><strong>1. 核心模型抽象</strong></p>
+<p>我们首先对策略中心的配置进行了领域模型抽象。每一个策略项（如“出库单初始优先级”）被抽象为一个 <code>Policy</code>聚合根，其下包含多条有序的 <code>Rule</code>。每条 <code>Rule</code>由 <code>Condition</code>（匹配条件）和 <code>Action</code>（结论数据）组成。这个领域模型与 Drools 的 <code>Rule</code>, <code>LHS</code>(Left Hand Side), <code>RHS</code>(Right Hand Side) 概念可以完美对应。</p>
+<p><strong>2. 动态规则加载</strong></p>
+<p>我们并没有让业务人员直接编写 DRL 文件，而是基于策略中心的数据库配置，在运行时动态生成 DRL 规则内容。系统启动或策略变更时，会从数据库拉取最新配置，通过模板技术将其转换为标准的 DRL 语法，然后加载到 Drools 的 <code>KieSession</code>中。这样，策略中心UI上的每一次“保存”操作，就相当于完成了一次业务规则的“发布”。</p>
+<p><strong>3. 规则执行与集成</strong></p>
+<p>在业务逻辑的关键节点（如“创建出库单”、“分配库存”前），我们将业务对象（如 <code>Order</code>对象）作为 <code>Fact</code>插入到 <code>KieSession</code>中，触发规则引擎执行。引擎会根据定义的规则顺序和优先级，对 <code>Fact</code>进行匹配和推理，并执行相应的 <code>Action</code>，修改对象的状态。执行完毕后，我们只需取出被规则修改过的对象，继续后续的业务流程即可。整个过程对核心业务代码几乎是透明的。</p>
+<h2 id="四-重构收益">四、重构收益</h2>
+<p>引入 Drools 规则引擎后，我们获得了显著的收益：</p>
+<ul>
+<li>
+<p><strong>架构清晰，职责分离</strong>：业务代码不再关心“如何判断”，只关注“做什么”，代码变得简洁、可读、易测试。</p>
+</li>
+<li>
+<p><strong>响应速度飞跃</strong>：常用规则基本百分百覆盖，现在可以由实施顾问或运维人员通过策略中心界面直接完成，无需开发介入，开新仓的时候，直接可以按需配置。</p>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-ba-wes-san-ji-ku-cun-mo-xing/" class="post-title gt-a-link">
+                    WES 重构系列（八）：WES 三级库存模型
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

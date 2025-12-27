@@ -1,0 +1,288 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>046.什么是 AGV | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    046.什么是 AGV
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="agvautomated-guided-vehicle是什么"><strong>AGV（Automated Guided Vehicle）是什么？</strong></h3>
+<p><strong>AGV（自动导引运输车）</strong>，即<strong>自动搬运机器人</strong>，是一种<strong>能够沿预设路径或自主导航完成货物运输的无人驾驶设备</strong>。AGV 主要用于<strong>仓储、物流、制造、医疗等行业</strong>，用于提升运输效率和降低人工成本。</p>
+<hr>
+<h2 id="1-agv-的核心特点"><strong>1. AGV 的核心特点</strong></h2>
+<ul>
+<li><strong>无人驾驶</strong>：不需要人工操作，可自动完成搬运任务。</li>
+<li><strong>路径导航</strong>：通过磁条、激光、视觉、惯性导航等方式自主行驶。</li>
+<li><strong>智能调度</strong>：可接入 WMS（仓库管理系统）/WCS（仓库控制系统），进行任务分配和路径优化。</li>
+<li><strong>安全性高</strong>：配备避障传感器，可自动检测并规避障碍物，确保运行安全。</li>
+<li><strong>充电自主化</strong>：可在电量低时自动返回充电站补充电量。</li>
+</ul>
+<hr>
+<h2 id="2-agv-的工作原理"><strong>2. AGV 的工作原理</strong></h2>
+<p>AGV 依赖多种导航和控制技术，实现自动搬运：</p>
+<ul>
+<li><strong>导航方式</strong>
+<ul>
+<li><strong>磁条导航</strong>（Magnetic Tape）：AGV 沿地面磁条行驶，简单稳定，适用于固定路线搬运。</li>
+<li><strong>激光导航</strong>（Laser）：利用激光反射标识定位，路径灵活，可动态调整路线。</li>
+<li><strong>惯性导航</strong>（Inertial）：利用陀螺仪与加速度计进行定位，适用于复杂环境。</li>
+<li><strong>视觉导航</strong>（Vision）：使用摄像头识别环境特征点，自主调整路线，适合动态仓库环境。</li>
+<li><strong>SLAM（同步定位与建图）</strong>：结合激光、视觉等技术，实现自主导航，无需预设路径。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="3-agv-在仓储和物流中的应用"><strong>3. AGV 在仓储和物流中的应用</strong></h2>
+<h3 id="1仓库物流"><strong>（1）仓库物流</strong></h3>
+<ul>
+<li><strong>料箱搬运</strong>：将料箱从存储区运输到拣选站，适用于“料箱到人”系统。</li>
+<li><strong>托盘搬运</strong>：将整托货物从存储区运送到生产线或发货区。</li>
+<li><strong>自动补货</strong>：AGV 在库存低时自动将货物补充到相应区域。</li>
+</ul>
+<h3 id="2制造工厂"><strong>（2）制造工厂</strong></h3>
+<ul>
+<li><strong>生产线物料配送</strong>：AGV 负责将原材料从仓库运送到生产线，提高生产效率。</li>
+<li><strong>成品运输</strong>：将生产完成的产品运送到质检区或仓库。</li>
+</ul>
+<h3 id="3电商-物流中心"><strong>（3）电商 &amp; 物流中心</strong></h3>
+<ul>
+<li><strong>拣选与打包</strong>：AGV 在大规模电商仓库中用于拣选订单，提高订单处理速度。</li>
+<li><strong>快递分拣</strong>：AGV 搬运包裹至不同分拣站点，提高快递分拣效率。</li>
+</ul>
+<hr>
+<h2 id="4-agv-与-amr自主移动机器人的区别"><strong>4. AGV 与 AMR（自主移动机器人）的区别</strong></h2>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>AGV（Automated Guided Vehicle）</th>
+<th>AMR（Autonomous Mobile Robot）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>导航方式</strong></td>
+<td>依赖磁条、激光等固定路径</td>
+<td>具备自主路径规划能力</td>
+</tr>
+<tr>
+<td><strong>灵活性</strong></td>
+<td>受限于预设路径，调整较困难</td>
+<td>可根据环境动态调整路线</td>
+</tr>
+<tr>
+<td><strong>应用场景</strong></td>
+<td>适用于规则化仓储</td>
+<td>适用于复杂动态环境</td>
+</tr>
+<tr>
+<td><strong>避障能力</strong></td>
+<td>主要依赖传感器，避障能力有限</td>
+<td>具备更高级的环境感知和避障能力</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="5-agv-的优缺点"><strong>5. AGV 的优缺点</strong></h2>
+<h3 id="优势"><strong>✅ 优势</strong></h3>
+<ul>
+<li><strong>减少人工成本</strong>，减少人工作业，提高自动化水平。</li>
+<li><strong>提高运输效率</strong>，减少人工搬运时间。</li>
+<li><strong>提升安全性</strong>，减少人工搬运中的事故风险。</li>
+<li><strong>可 24/7 运行</strong>，不断优化仓储和生产效率。</li>
+</ul>
+<h3 id="劣势"><strong>❌ 劣势</strong></h3>
+<ul>
+<li><strong>初期投资较高</strong>，包括设备、软件及基础设施建设。</li>
+<li><strong>灵活性有限</strong>，传统 AGV 需要固定路径导航，不易变更路线。</li>
+<li><strong>维护成本</strong>，AGV 需要定期维护传感器、电池、轮子等部件。</li>
+</ul>
+<hr>
+<h2 id="6-agv-在智能仓储中的发展趋势"><strong>6. AGV 在智能仓储中的发展趋势</strong></h2>
+<ul>
+<li><strong>向 AMR（自主移动机器人）发展</strong>，具备更强的自主导航能力。</li>
+<li><strong>结合 AI 和大数据</strong>，优化任务调度，提高仓库运营效率。</li>
+<li><strong>多机器人协同作业</strong>，提升仓库吞吐量，满足大规模订单需求。</li>
+<li><strong>无缝对接 WMS/WCS 系统</strong>，智能调度 AGV 任务，实现自动化仓储管理。</li>
+</ul>
+<hr>
+<h2 id="7-结论"><strong>7. 结论</strong></h2>
+<p>AGV 在现代智能仓储和物流体系中扮演着关键角色，能够<strong>替代人工搬运，提高仓库自动化程度</strong>。随着<strong>AI、5G、视觉导航等技术的发展</strong>，AGV 逐步向更智能的 AMR 方向演进，为未来智慧物流和智能制造提供更高效的解决方案。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/047shi-me-shi-zuo-ye-di-tu/" class="post-title gt-a-link">
+                    047.什么是作业地图
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

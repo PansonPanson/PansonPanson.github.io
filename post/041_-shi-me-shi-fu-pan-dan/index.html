@@ -1,0 +1,252 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>041.什么是复盘单 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    041.什么是复盘单
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 <strong>WES（仓库执行系统）</strong> 或 <strong>WMS（仓库管理系统）</strong> 中，<strong>复盘单</strong> 是一种用来处理库存差异并决定是否需要进行二次盘点的单据。当系统在库存管理过程中发现实际库存与理论库存之间存在差异时，可能会触发复盘单的生成。复盘单的主要作用是进行库存差异的确认、分析，并决定是否需要再次盘点以校准库存数据。</p>
+<h3 id="复盘单的工作流程"><strong>复盘单的工作流程：</strong></h3>
+<ol>
+<li>
+<p><strong>触发库存差异：</strong></p>
+<ul>
+<li>在正常的库存管理过程中，系统会定期或者在操作过程中对库存进行盘点。若在盘点过程中发现某一商品的实际库存与系统中的理论库存不一致，就会产生库存差异。</li>
+</ul>
+</li>
+<li>
+<p><strong>生成复盘单：</strong></p>
+<ul>
+<li>系统自动根据库存差异生成复盘单，并将其提交给相关人员进行处理。复盘单通常会记录差异商品的信息、差异的数量以及差异的可能原因。</li>
+</ul>
+</li>
+<li>
+<p><strong>决定是否进行二次盘点：</strong></p>
+<ul>
+<li>复盘单中可能会根据差异的情况建议进行二次盘点。二次盘点是为了进一步确认库存差异是否属实，以及找到造成差异的根本原因。</li>
+<li>如果差异较大，或者经过初步调查无法解释差异原因，复盘单可能会触发二次盘点任务。</li>
+</ul>
+</li>
+<li>
+<p><strong>二次盘点：</strong></p>
+<ul>
+<li>复盘单生成后，仓库管理人员或操作员会根据复盘单指示的商品和数量进行二次盘点。二次盘点的目的是确认库存的准确性，确保库存数据的正确性。</li>
+<li>二次盘点完成后，系统会更新库存数据，确保仓库中的库存信息与实际情况一致。</li>
+</ul>
+</li>
+<li>
+<p><strong>处理盘点差异：</strong></p>
+<ul>
+<li>如果二次盘点后发现库存差异仍然存在，可能需要进一步调查，了解是系统故障、操作错误，还是其他原因导致的差异。复盘单的结果可以用来指导后续的库存调整、报废处理等。</li>
+</ul>
+</li>
+</ol>
+<h3 id="复盘单的作用与意义"><strong>复盘单的作用与意义：</strong></h3>
+<ul>
+<li>
+<p><strong>确保库存准确性：</strong><br>
+复盘单帮助仓库管理人员发现并处理库存差异，确保库存数据的准确性。库存差异可能会影响后续的订单处理、出库作业和库存管理，因此及时发现和解决库存差异至关重要。</p>
+</li>
+<li>
+<p><strong>提供差异分析和整改依据：</strong><br>
+复盘单不仅记录差异，还可以帮助分析差异的原因（如操作错误、系统故障、搬运过程中的问题等），为整改和优化提供依据。</p>
+</li>
+<li>
+<p><strong>规范库存管理：</strong><br>
+通过复盘单和二次盘点，仓库能够规范库存管理流程，减少库存管理中的失误和漏洞。</p>
+</li>
+<li>
+<p><strong>减少库存损失：</strong><br>
+通过复盘单及时纠正库存差异，可以减少库存损失，确保库存信息的真实、可靠，为后续的库存调整、补货等操作提供准确数据。</p>
+</li>
+</ul>
+<h3 id="复盘单的常见信息"><strong>复盘单的常见信息：</strong></h3>
+<ol>
+<li><strong>差异商品信息：</strong> 包括商品的名称、编码、数量、规格等信息。</li>
+<li><strong>库存差异：</strong> 理论库存与实际库存之间的差异。</li>
+<li><strong>原因分析：</strong> 系统可能会记录初步的差异原因，例如系统错误、操作错误、拣选错误等。</li>
+<li><strong>盘点时间：</strong> 系统盘点时间，以及差异发现的具体时间。</li>
+<li><strong>操作员信息：</strong> 处理复盘单的人员或操作员的信息。</li>
+<li><strong>处理意见：</strong> 是否需要进行二次盘点、库存调整，或其他操作。</li>
+</ol>
+<h3 id="总结"><strong>总结：</strong></h3>
+<p><strong>复盘单</strong> 在 WMS 或 WES 系统中是一个非常重要的工具，用于处理库存差异问题。它帮助仓库管理人员发现和确认库存差异，决定是否进行二次盘点，并确保库存数据的准确性。通过复盘单，仓库能够规范库存管理流程、减少差异，提高库存管理效率和准确性。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/043_-shi-me-shi-huo-jia-dao-ren-zai-xian-li-huo/" class="post-title gt-a-link">
+                    043.什么是货架到人在线理货
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

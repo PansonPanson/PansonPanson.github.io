@@ -1,0 +1,307 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-003 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-003
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-11-19 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>&quot;We don't read and write poetry because it's cute. We read and write poetry because we are members of the human race. And the human race is filled with passion. And medicine, law, business, engineering, these are noble pursuits and necessary to sustain life. But poetry, beauty, romance, love, these are what we stay alive for.&quot;<br>
+- Dead Poets Society</em></p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311281721421.png" alt="" loading="lazy"></figure>
+<hr>
+<h1 id="1-algorithm算法题">1 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/jump-game/description/">55. 跳跃游戏</a></li>
+</ul>
+<pre><code class="language-java">
+class Solution {
+    public boolean canJump(int[] nums) {
+        
+        // 定义 maxDistance，表示遍历当前元素时能跳到的最大距离
+        int maxDistance = 0;
+        for(int i = 0; i &lt; nums.length; i++) {
+            // base case
+            if(i &gt; maxDistance) {
+                return false;
+            }
+            maxDistance = Math.max(maxDistance, i + nums[i]);
+        }
+        return true;
+    }
+}
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/jump-game-ii/description/">45. 跳跃游戏 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int jump(int[] nums) {
+        // 使用贪心算法
+        // 最优跳跃次数
+        int times = 0;
+
+        // 当前跳跃次数下的所能到达的右边界
+        int border = 0;
+        
+        // 记录已遍历元素所能跳跃的最远位置的下标
+        int maxIndex = 0;
+
+        for(int i = 0; i &lt; nums.length - 1; i++) {
+            maxIndex = Math.max(maxIndex, i + nums[i]);
+            if(i == border) {
+                times++;
+                // 更新下一轮次跳跃的右边界
+                border = maxIndex;
+            }
+        }
+        return times;
+    }
+}
+</code></pre>
+<h1 id="2-techniquetips分享一个小技术">2 Technique/Tips(分享一个小技术)</h1>
+<h2 id="21-redis-源码阅读-sds-结构体1为什么-redis-没有使用-c-语言自带的字符串">2.1 Redis 源码阅读 —— sds 结构体1：为什么 Redis 没有使用 C 语言自带的字符串？</h2>
+<h2 id="redis-设计时考虑到-c-语言字符串的诸多限制重新设计与实现了字符串-老生常谈的问题redis-为什么要设计专用的字符串也就是-sds-结构体我问了-chatgpt它给出了以下的回答">Redis 设计时，考虑到 C 语言字符串的诸多限制，重新设计与实现了字符串。<br>
+老生常谈的问题，Redis 为什么要设计专用的字符串，也就是 sds 结构体？<br>
+我问了 chatGPT，它给出了以下的回答：</h2>
+<ul>
+<li><strong>英文：</strong></li>
+</ul>
+<p>Redis does not use the C language's built-in strings primarily because Redis is designed to be a high-performance, in-memory data store that offers advanced data manipulation and storage capabilities. The built-in C strings in the C programming language have limitations that make them unsuitable for Redis' requirements. Here are a few reasons why Redis does not use C's built-in strings:</p>
+<ol>
+<li>
+<p>Dynamic resizing: Redis needs to efficiently handle strings of varying lengths, including very large strings. C's built-in strings have a fixed size and cannot dynamically resize themselves, which would limit Redis' ability to handle dynamic data.</p>
+</li>
+<li>
+<p>Memory management: Redis manages memory dynamically and optimizes memory usage. C's built-in strings do not provide automatic memory management or support for efficient memory allocation strategies, which Redis requires to optimize memory usage and prevent memory leaks.</p>
+</li>
+<li>
+<p>Performance considerations: Redis is designed to offer high-performance data storage and manipulation. C's built-in strings have limitations in terms of performance optimizations, such as efficient substring extraction, concatenation, and comparison operations, which could impact Redis' overall performance.</p>
+</li>
+<li>
+<p>Additional data structure requirements: Redis supports various data types, including lists, sets, hashes, and more. C's built-in strings do not provide the necessary abstractions and functionality required to handle these complex data structures efficiently.</p>
+</li>
+<li>
+<p>Compatibility with other languages: Redis is widely used as a data store in various programming languages. By implementing its own string data structure, Redis ensures consistency and compatibility across different language bindings and client libraries.</p>
+</li>
+</ol>
+<p>By designing its own string data structure, Redis can tailor it specifically to meet the performance, memory management, and functionality requirements of a high-performance data store. This allows Redis to offer efficient storage and manipulation of data, making it popular for caching, messaging, and other data-intensive applications.</p>
+<ul>
+<li><strong>中文：</strong></li>
+</ul>
+<p>Redis不使用C语言本身的字符串主要是因为Redis被设计为高性能的内存数据存储，提供高级的数据操作和存储功能。C语言的内置字符串具有一些限制，使其不适用于Redis的需求。以下是Redis不使用C语言内置字符串的几个原因：</p>
+<ol>
+<li>
+<p>动态调整大小：Redis需要高效地处理长度可变的字符串，包括非常大的字符串。C语言的内置字符串具有固定的大小，无法动态调整大小，这将限制Redis处理动态数据的能力。</p>
+</li>
+<li>
+<p>内存管理：Redis动态管理内存并优化内存使用。C语言的内置字符串不提供自动的内存管理或支持高效的内存分配策略，而这是Redis需要的，以优化内存使用并防止内存泄漏。</p>
+</li>
+<li>
+<p>性能考虑：Redis旨在提供高性能的数据存储和操作。C语言的内置字符串在性能优化方面存在限制，例如高效的子字符串提取、连接和比较操作，这可能会影响Redis的整体性能。</p>
+</li>
+<li>
+<p>额外的数据结构要求：Redis支持各种数据类型，包括列表、集合、哈希等。C语言的内置字符串不提供处理这些复杂数据结构所需的抽象和功能。</p>
+</li>
+<li>
+<p>与其他语言的兼容性：Redis被广泛用作各种编程语言中的数据存储。通过实现自己的字符串数据结构，Redis确保不同语言绑定和客户端库之间的一致性和兼容性。</p>
+</li>
+</ol>
+<p>通过设计自己的字符串数据结构，Redis可以根据高性能数据存储的要求进行定制。这使得Redis能够高效地存储和操作数据，因此在缓存、消息传递和其他数据密集型应用中非常受欢迎。</p>
+<hr>
+<p>我个人觉得最主要的是以下 3 个方面：</p>
+<ol>
+<li>二进制安全（binary safe）： 所谓“二进制安全”，简单来说指的是可以存储任意类型的数据。C 语言字符串中，<code>\0</code> 表示字符串结尾，如果字符串内容想保存 <code>\0</code>这类特殊字符，C 语言自带的字符串显然是无法满足要求的。</li>
+<li>高性能：比如说字符串长度的读取、字符串追加、比较、扩缩容等操作，比原生的 C 语言字符串更加高效。</li>
+<li>避免缓冲区溢出：C 语言中，在字符串拼接时，如果忘记提前申请分配内存空间，会导致缓冲区溢出。在 Redis 中，字符串拼接会自动检查空间是否足够，不够则扩容，避免缓冲区溢出。</li>
+</ol>
+<h1 id="3-share分享我的所见所闻">3 Share(分享我的所见所闻)</h1>
+<p><em>本来第 3 部分应该是“分享一个观点”，但我觉得许多时候，人在经常性地分享观点时，会趋于建议或者劝诫，类似“知识陷阱”一样。<br>
+这让我对“分享观点”这件事情有些迟疑，基于上述的原因，我将第 4 点改为了“分享我的所见所闻”，内容比较杂乱，包含一周内读过的书、看过的博客、学习的摄影知识等等。</em></p>
+<h2 id="31-技术文章">3.1 技术文章</h2>
+<ul>
+<li><a href="https://time.geekbang.org/column/article/285000?utm_campaign=geektime_search&amp;utm_content=geektime_search&amp;utm_medium=geektime_search&amp;utm_source=geektime_search&amp;utm_term=geektime_search">极客时间-《Redis 核心技术与实战》-16 | 异步机制：如何避免单线程模型的阻塞？</a></li>
+</ul>
+<h2 id="32-泛互联网文章">3.2 泛互联网文章</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/jxIYY5UNbDdqm4dwaRR70Q">张一鸣：为什么BAT挖不走我们的人才？</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/redis-yuan-ma-yue-du-xi-lie-sds/" class="post-title gt-a-link">
+                    Redis 源码阅读系列-sds
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

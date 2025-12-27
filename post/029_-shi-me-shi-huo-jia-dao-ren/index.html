@@ -1,0 +1,228 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>029.什么是货架到人 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    029.什么是货架到人
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-03 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="货架到人shelf-to-person"><strong>货架到人（Shelf-to-Person）</strong></h3>
+<p><strong>货架到人（Shelf-to-Person）</strong> 是一种现代化的仓储拣选方式，通常依赖自动化系统和机器人技术来将商品从存储货架自动运送到操作员所在的工作站。与传统的“人到货”（即操作员自己去货架上挑选商品）不同，货架到人模式大大减少了操作员的步行时间，提升了拣选效率。</p>
+<h3 id="基本原理"><strong>基本原理</strong></h3>
+<p>在货架到人模式中，商品被存储在固定的货架或存储位置。当有订单需要拣选时，自动化设备（例如：自动引导车（AGV）、自动传送带、堆垛机、机器人等）会将存储在货架上的商品自动运送到指定的工作站。操作员只需在工作站接收商品并进行分拣或打包，而不需要走到仓库的其他区域去挑选商品。</p>
+<h3 id="关键特点"><strong>关键特点</strong></h3>
+<ol>
+<li><strong>自动化运送</strong>：货架上的商品通过自动化设备（如机器人、传送带）送到操作员的工作站，避免人工搬运。</li>
+<li><strong>减少步行距离</strong>：操作员无需走到货架上挑选商品，只需在工作站执行拣选任务，大大减少了步行时间和体力消耗。</li>
+<li><strong>提高效率</strong>：自动化设备可以快速、精准地将商品送到工作站，减少等待时间，提升整体作业效率。</li>
+<li><strong>减少错误</strong>：自动化系统通过精准的路径规划和任务执行，减少了人工拣选过程中可能出现的错误。</li>
+</ol>
+<hr>
+<h3 id="货架到人的优势"><strong>货架到人的优势</strong></h3>
+<ol>
+<li><strong>提高拣选效率</strong>：自动化系统能迅速将商品送到工作站，操作员的工作效率大幅提升。</li>
+<li><strong>降低劳动强度</strong>：操作员不再需要走动、搬运商品，体力消耗大大降低，避免了重复的体力劳动。</li>
+<li><strong>提高准确性</strong>：自动化设备减少了人为错误，确保了商品准确无误地送到操作员手中，减少了漏拣和错误拣选的情况。</li>
+<li><strong>优化仓库空间</strong>：自动化设备可以更高效地使用仓库空间，特别是在高密度存储区域，通过减少操作员步行，可以更紧凑地安排存储。</li>
+<li><strong>提高灵活性</strong>：适用于快速变化的订单和高频次的操作，能够快速响应仓库中的各种需求。</li>
+</ol>
+<hr>
+<h3 id="货架到人的应用场景"><strong>货架到人的应用场景</strong></h3>
+<ol>
+<li><strong>电商仓库</strong>：电商仓库通常需要高效处理大量小订单，货架到人模式帮助仓库快速处理高频次、小批量订单，提升了作业效率。</li>
+<li><strong>零售仓库</strong>：大型零售商的仓库需要快速、准确地拣选商品以应对不断变化的市场需求，货架到人模式能够有效提高库存管理效率。</li>
+<li><strong>食品和日用消费品仓库</strong>：这些行业的商品种类繁多，货架到人模式能够有效地提高仓库的处理能力，减少操作员的疲劳。</li>
+<li><strong>分销中心</strong>：分销商需要快速、高效地从货架上取货并发货，货架到人模式能大大提高分销效率。</li>
+</ol>
+<hr>
+<h3 id="货架到人和料箱到人对比"><strong>货架到人和料箱到人对比</strong></h3>
+<ol>
+<li><strong>货架到人（Shelf-to-Person）</strong>：商品存储在货架上，自动化设备将货物从货架送到操作员的工作站，适用于存储量大且种类繁多的商品。</li>
+<li><strong>料箱到人（Case-to-Person）</strong>：商品通常存储在料箱或集装箱中，自动化设备将商品从料箱送到操作员的工作站，通常用于较为标准化和批量的商品管理。</li>
+</ol>
+<p><strong>区别</strong>：</p>
+<ul>
+<li><strong>适用场景</strong>：货架到人更适合存储种类多、变化快的商品，而料箱到人则适用于高频次、标准化的商品存储。</li>
+<li><strong>拣选方式</strong>：货架到人更依赖商品的存储位置和数量，而料箱到人则更多依赖于自动化系统进行物品集合。</li>
+</ul>
+<hr>
+<h3 id="总结"><strong>总结</strong></h3>
+<p><strong>货架到人</strong> 是一种依靠自动化设备将商品从货架运送到操作员工作站的仓储作业方式。这种方式减少了操作员在仓库中走动的时间，降低了劳动强度，提升了拣选效率和准确性。它适用于电商、零售、食品等行业，能够有效提高仓库的运营效率和灵活性。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/030_-huo-jia-dao-ren-he-liao-xiang-dao-ren-de-qu-bie/" class="post-title gt-a-link">
+                    030.货架到人和料箱到人的区别
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,798 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>RocketMQ NameServer 源码阅读 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    RocketMQ NameServer 源码阅读
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-03-09 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="0-引言">0 引言</h1>
+<p>最近找了许多 RocketMQ 的资料，以为会很齐全，但翻了一下市面上的资料，包括极客时间上的消息队列课程、阿里云的文档以及网上零零散散的博文，总觉得有些意犹未尽，还是觉得再翻翻源码，自己消化整理一下理解会更透彻。这种时候就觉得有些贪心，恨不得阅尽天下书。</p>
+<!-- more -->
+<p>开卷有益，那从功利主义的角度来讨论，阅读 NameServer 能够获得什么知识？我觉得主要包括以下几个方面：</p>
+<ul>
+<li>了解路由中心架构设计的取舍：RocketMQ 做为 Kafka 的后继者，肯定有对前辈的借鉴。RocketMQ 的 路由中心出于轻量化的考虑，设计了 NameServer，并没有直接使用 ZooKeeper。</li>
+<li>了解常用 JVM 参数作用：RocektMQ 对不同的JDK 版本使用了不同的垃圾收集器，在启动脚本中会做判断。</li>
+<li>了解 NameSever 的核心配置与启动流程</li>
+</ul>
+<h1 id="1-nameserver-设计者的思考">1 NameServer 设计者的思考</h1>
+<p>先看看 RocektMQ 的组件架构图吧，直接参考官方 doc：https://rocketmq.apache.org/docs/rmq-arc/，原图截取下来比较糊，我就直接贴地址了。</p>
+<p>RocektMQ 没有使用业界常用的 ZooKeeper管理路由信息，而是使用了自研的NameServer，看《RocketMQ 技术内幕》的作者们在阐述NameServer设计理念时讲道：追求最终一致，容忍分钟级的不一致， NameServer 之间不通信，极大降低 NameSever 的实现复杂度。</p>
+<p>了解 ZooKeeper 的同学应该都知道 paxos 和 zab协议的复杂性，实现过程很复杂，而且消息广播时，网络的开销也很大，简洁的系统优雅且易维护，从这个角度上来说，NameSever 的设计无疑是正确的。</p>
+<p>在正式开始阅读源码之前，我一般会习惯性自己捋一下思路，如果让我自己设计一个新的注册中心，我该如何设计。首先是 NameServer，作为一个路由中心，首先是在单机模式下，需要具备什么功能：路由表、与数据的生产者通信、与数据消费者通信、还有与存储服务器间的通信，其中可能又涉及到心跳机制。然后再分布式系统中，如何保证可用性呢，肯定需要集群部署，好了，分布式系统的经典问题CAP又出现了，需要像   zk 一样吗？采用什么协议呢？如果某个存储机器挂了，怎么进行路由更新？总之就是一大堆问题。还是接着看 NameSever 的实现源码吧。</p>
+<h1 id="2-隔靴搔痒不如直面源码">2 隔靴搔痒不如直面源码</h1>
+<p>下载 RocketMQ 最新的 release 版本（目前最新的release 是 4.9.3），namesever 对应的模块：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2022/nameserver.png?raw=true" alt="" loading="lazy"><br>
+看到代码狂喜，NameServer 的代码量好像很少呀，先跑起来看看。NameServer 的启动类是 org.apache.rocketmq.namesrv.NameServerStartup，配置好环境之后，就可以正常启动了。</p>
+<pre><code class="language-java">Connected to the target VM, address: '127.0.0.1:60554', transport: 'socket'
+The Name Server boot success. serializeType=JSON
+</code></pre>
+<ul>
+<li>注：nameserver 启动之前需要配置一下初始环境，包括一些日志文件和默认的本机配置，因为网络上随便搜索都能找到 step-by-step 的教程，这些不是本文的侧重点，故不在此赘述。</li>
+</ul>
+<p>接着启动 broker 模块下的 BrokerStartup 类，启动成功之后，控制台也会打印成功的日志：</p>
+<pre><code class="language-java">Connected to the target VM, address: '127.0.0.1:55019', transport: 'socket'
+The broker[broker-a, 127.0.0.1:10911] boot success. serializeType=JSON and name server is 127.0.0.1:9876
+</code></pre>
+<p>Broker 和 NameServer 启动之后，可以创建一个debug 用的 topic，我本地命名为“TopicTest”。我这里使用控制台新建了一个Topic。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2022/rocketmq-dashboard.png?raw=true" alt="" loading="lazy"></p>
+<p>修改 <code>org.apache.rocketmq.example.quickstart.Producer</code> 类，我们发送一条消息到 broker 里面去。</p>
+<pre><code class="language-java">public class Producer {
+    public static void main(String[] args) throws MQClientException, InterruptedException {
+
+        /*
+         * Instantiate with a producer group name.
+         */
+        DefaultMQProducer producer = new DefaultMQProducer(&quot;please_rename_unique_group_name&quot;);
+
+        /*
+         * Specify name server addresses.
+         * &lt;p/&gt;
+         *
+         * Alternatively, you may specify name server addresses via exporting environmental variable: NAMESRV_ADDR
+         * &lt;pre&gt;
+         * {@code
+         * producer.setNamesrvAddr(&quot;name-server1-ip:9876;name-server2-ip:9876&quot;);
+         * }
+         * &lt;/pre&gt;
+         */
+
+        /*
+         * Launch the instance.
+         */
+        producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+        producer.start();
+
+        for (int i = 0; i &lt; 1; i++) {
+            try {
+
+                /*
+                 * Create a message instance, specifying topic, tag and message body.
+                 */
+                Message msg = new Message(&quot;TopicTest&quot; /* Topic */,
+                    &quot;TagA&quot; /* Tag */,
+                    (&quot;Hello RocketMQ &quot; + i).getBytes(RemotingHelper.DEFAULT_CHARSET) /* Message body */
+                );
+
+                /*
+                 * Call send message to deliver message to one of brokers.
+                 */
+                SendResult sendResult = producer.send(msg);
+                /*
+                 * There are different ways to send message, if you don't care about the send result,you can use this way
+                 * {@code
+                 * producer.sendOneway(msg);
+                 * }
+                 */
+
+                /*
+                 * if you want to get the send result in a synchronize way, you can use this send method
+                 * {@code
+                 * SendResult sendResult = producer.send(msg);
+                 * System.out.printf(&quot;%s%n&quot;, sendResult);
+                 * }
+                 */
+
+                /*
+                 * if you want to get the send result in a asynchronize way, you can use this send method
+                 * {@code
+                 *
+                 *  producer.send(msg, new SendCallback() {
+                 *  @Override
+                 *  public void onSuccess(SendResult sendResult) {
+                 *      // do something
+                 *  }
+                 *
+                 *  @Override
+                 *  public void onException(Throwable e) {
+                 *      // do something
+                 *  }
+                 *});
+                 *
+                 *}
+                 */
+
+                System.out.printf(&quot;%s%n&quot;, sendResult);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Thread.sleep(1000);
+            }
+        }
+
+        /*
+         * Shut down once the producer instance is not longer in use.
+         */
+        producer.shutdown();
+    }
+}
+
+</code></pre>
+<p>接着便会看到rocketMq 的工作目录多了许多文件：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2022/broker-message.png?raw=true" alt="" loading="lazy"></p>
+<p>熟悉RocketMQ 的同学一定一下就看出了相应文件的作用，可能会在下一篇与 RocketMQ 存储相关的文章里再展开详述，这里不赘述。<br>
+同理，修改 consumer:</p>
+<pre><code class="language-java">public class Consumer {
+
+    public static void main(String[] args) throws InterruptedException, MQClientException {
+
+        /*
+         * Instantiate with specified consumer group name.
+         */
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(&quot;please_rename_unique_group_name_4&quot;);
+
+        /*
+         * Specify name server addresses.
+         * &lt;p/&gt;
+         *
+         * Alternatively, you may specify name server addresses via exporting environmental variable: NAMESRV_ADDR
+         * &lt;pre&gt;
+         * {@code
+         * consumer.setNamesrvAddr(&quot;name-server1-ip:9876;name-server2-ip:9876&quot;);
+         * }
+         * &lt;/pre&gt;
+         */
+
+        consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+
+        /*
+         * Specify where to start in case the specific consumer group is a brand-new one.
+         */
+        consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+
+        /*
+         * Subscribe one more topic to consume.
+         */
+        consumer.subscribe(&quot;TopicTest&quot;, &quot;*&quot;);
+
+        /*
+         *  Register callback to execute on arrival of messages fetched from brokers.
+         */
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs,
+                ConsumeConcurrentlyContext context) {
+                System.out.printf(&quot;%s Receive New Messages: %s %n&quot;, Thread.currentThread().getName(), msgs);
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+
+        /*
+         *  Launch the consumer instance.
+         */
+        consumer.start();
+
+        System.out.printf(&quot;Consumer Started.%n&quot;);
+    }
+}
+</code></pre>
+<p>至此，我们在本地搭建好了一套消息生产、路由、存储、消费的流程。我们可以开始真正的源码 debug 流程。</p>
+<h1 id="3-聊聊启动脚本中的jvm-知识">3 聊聊启动脚本中的JVM 知识</h1>
+<p>NameServer 的启动会调用 distribution 模块下的 runserver.sh ，以下是脚本中的 JVM 启动参数，我们来看看每一个 JVM 参数的含义。</p>
+<pre><code class="language-shell">choose_gc_options()
+{
+    # Example of JAVA_MAJOR_VERSION value : '1', '9', '10', '11', ...
+    # '1' means releases befor Java 9
+    JAVA_MAJOR_VERSION=$(&quot;$JAVA&quot; -version 2&gt;&amp;1 | sed -r -n 's/.* version &quot;([0-9]*).*$/\1/p')
+    if [ -z &quot;$JAVA_MAJOR_VERSION&quot; ] || [ &quot;$JAVA_MAJOR_VERSION&quot; -lt &quot;9&quot; ] ; then
+      JAVA_OPT=&quot;${JAVA_OPT} -server -Xms4g -Xmx4g -Xmn2g -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&quot;
+      JAVA_OPT=&quot;${JAVA_OPT} -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:CMSInitiatingOccupancyFraction=70 -XX:+CMSParallelRemarkEnabled -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+CMSClassUnloadingEnabled -XX:SurvivorRatio=8 -XX:-UseParNewGC&quot;
+      JAVA_OPT=&quot;${JAVA_OPT} -verbose:gc -Xloggc:${GC_LOG_DIR}/rmq_srv_gc_%p_%t.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps&quot;
+      JAVA_OPT=&quot;${JAVA_OPT} -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=30m&quot;
+    else
+      JAVA_OPT=&quot;${JAVA_OPT} -server -Xms4g -Xmx4g -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m&quot;
+      JAVA_OPT=&quot;${JAVA_OPT} -XX:+UseG1GC -XX:G1HeapRegionSize=16m -XX:G1ReservePercent=25 -XX:InitiatingHeapOccupancyPercent=30 -XX:SoftRefLRUPolicyMSPerMB=0&quot;
+      JAVA_OPT=&quot;${JAVA_OPT} -Xlog:gc*:file=${GC_LOG_DIR}/rmq_srv_gc_%p_%t.log:time,tags:filecount=5,filesize=30M&quot;
+    fi
+}
+</code></pre>
+<ul>
+<li>-server： 在 server 模式下启动，性能会更好一些，具体的信息可以参考：<a href="https://stackoverflow.com/questions/198577/real-differences-between-java-server-and-java-client">Real differences between &quot;java -server&quot; and &quot;java -client&quot;?</a></li>
+<li>-Xms4g -Xmx4g -Xmn2g：分别是初始堆大小、最大堆大小、年轻代大小（包括eden 和两个 survivor)，为了防止申请内存抖动，一般都会把初始堆和最大堆大小设置为等大。</li>
+<li>-XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m：分别是元空间的 FullGC 阈值、元空间占用内存的最大值，具体可以参考：<a href="https://www.jianshu.com/p/b448c21d2e71">JVM参数MetaspaceSize的误解</a></li>
+<li>-XX:+UseConcMarkSweepGC ：老年代使用 CMS 垃圾收集器</li>
+<li>-XX:+UseCMSCompactAtFullCollection ：CMS 是基于“标记-清除”算法的，也就意味着会出现内存碎片，导致明明老年代有足够的空间，但无法找到足够大的连续空间来分配对象，不得不提前触发一次 FullGC，开启该开关后，可以再 FullGC 前先进行一次内存碎片的合并整理。</li>
+<li>-XX:CMSInitiatingOccupancyFraction=70  ：还是由于 CMS 浮动垃圾的存在，导致不能等老年代满了再进行垃圾回收，必须预留一部分空间放置浮动垃圾， 可以根据业务需要调整该数值。</li>
+<li>-XX:+CMSParallelRemarkEnabled：CMS 包括初始标记、并发标记、重新标记、并发清理四个阶段，开启该参数，可以加快重新标记阶段的速度。</li>
+<li>-XX:SoftRefLRUPolicyMSPerMB=0：代表每MB空闲内存空间可以允许SoftReference对象存活多久（对象不可达之后开始计时）。</li>
+<li>-XX:+CMSClassUnloadingEnabled ：对永久代进行回收</li>
+<li>-XX:SurvivorRatio=8 ：最常见的配置，设置新生代各区域比例，eden : survivor = 8</li>
+<li>-XX:-UseParNewGC：新生代使用 ParNewGC</li>
+<li>-XX:+UseG1GC：从 shell 脚本中可以看到 JDK 9之后改为使用 G1垃圾收集器了。</li>
+<li>-XX:G1HeapRegionSize=16m：每一个 region 设置为16MB</li>
+<li>-XX:G1ReservePercent=25：空闲空间的预留内存百分比，防止溢出</li>
+<li>-XX:InitiatingHeapOccupancyPercent=30 可以参考<a href="https://doudaxia.club/index.php/archives/212/">关于G1收集器参数InitiatingHeapOccupancyPercent的正确认知</a></li>
+</ul>
+<p>呼，看完了一大堆JVM 参数，我们回过头来继续阅读 NameServer 的源码。</p>
+<h1 id="4-nameservercontroller通信的核心">4 NameServerController——通信的核心</h1>
+<p>服务的执行入口是在 <code>org.apache.rocketmq.namesrv.NamesrvStartup</code> 中</p>
+<pre><code class="language-java">/**
+     * NameServer 启动其实就是启动 NamesrvController
+     * @param args
+     * @return
+     */
+    public static NamesrvController main0(String[] args) {
+
+        try {
+            // 1. 创建 NamesrvController
+            NamesrvController controller = createNamesrvController(args);
+            start(controller);
+            String tip = &quot;The Name Server boot success. serializeType=&quot; + RemotingCommand.getSerializeTypeConfigInThisServer();
+            log.info(tip);
+            System.out.printf(&quot;%s%n&quot;, tip);
+            return controller;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        return null;
+    }
+    ```
+NameServer 做为路由中心，需要接收很多网络请求，单从 `Controller` 后缀就可以推知是该类大概就是路由的核心类了。
+
+```java
+    public static NamesrvController createNamesrvController(String[] args) throws IOException, JoranException {
+        System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
+        //PackageConflictDetect.detectFastjson();
+
+        Options options = ServerUtil.buildCommandlineOptions(new Options());
+        commandLine = ServerUtil.parseCmdLine(&quot;mqnamesrv&quot;, args, buildCommandlineOptions(options), new PosixParser());
+        if (null == commandLine) {
+            System.exit(-1);
+            return null;
+        }
+
+        final NamesrvConfig namesrvConfig = new NamesrvConfig();
+        final NettyServerConfig nettyServerConfig = new NettyServerConfig();
+        nettyServerConfig.setListenPort(9876);
+        //  读取 -c 对应的配置文件，解析到  namesrvConfig 和 nettyServerConfig 中去
+        if (commandLine.hasOption('c')) {
+            String file = commandLine.getOptionValue('c');
+            if (file != null) {
+                InputStream in = new BufferedInputStream(new FileInputStream(file));
+                properties = new Properties();
+                properties.load(in);
+                MixAll.properties2Object(properties, namesrvConfig);
+                MixAll.properties2Object(properties, nettyServerConfig);
+
+                namesrvConfig.setConfigStorePath(file);
+
+                System.out.printf(&quot;load config properties file OK, %s%n&quot;, file);
+                in.close();
+            }
+        }
+
+        if (commandLine.hasOption('p')) {
+            InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);
+            MixAll.printObjectProperties(console, namesrvConfig);
+            MixAll.printObjectProperties(console, nettyServerConfig);
+            System.exit(0);
+        }
+
+        MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
+
+        if (null == namesrvConfig.getRocketmqHome()) {
+            System.out.printf(&quot;Please set the %s variable in your environment to match the location of the RocketMQ installation%n&quot;, MixAll.ROCKETMQ_HOME_ENV);
+            System.exit(-2);
+        }
+
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        JoranConfigurator configurator = new JoranConfigurator();
+        configurator.setContext(lc);
+        lc.reset();
+        configurator.doConfigure(namesrvConfig.getRocketmqHome() + &quot;/conf/logback_namesrv.xml&quot;);
+
+        log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
+
+        MixAll.printObjectProperties(log, namesrvConfig);
+        MixAll.printObjectProperties(log, nettyServerConfig);
+
+        //重点关注:  配置完 nettyServerConfig 之后，就可以监听 9876 端口。之后 broker 和 客户端有请求过来，就可以处理了。
+        final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig);
+
+        // remember all configs to prevent discard
+        controller.getConfiguration().registerConfig(properties);
+
+        return controller;
+    }
+
+</code></pre>
+<p>创建 NamesrvController 的方法涉及到许多配置的加载，我觉得读源码不要线性阅读，因为这样很容易陷入无穷无尽的细节，导致自己大脑堆栈溢出，看到后面完全忘记上下文了。我们先来关注最核心的部分： 一个 NamesrvController 由哪几个部分组成，方法出口已经我已经加了注释：</p>
+<pre><code class="language-java">final NamesrvController controller = new NamesrvController(namesrvConfig, nettyServerConfig);
+</code></pre>
+<p>一共两个核心配置，一个是 NameServerConfig，一个是 NettyServerConfig。<br>
+NameServerConfig 的配置如下：</p>
+<pre><code class="language-java">public class NamesrvConfig {
+    private static final InternalLogger log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
+
+    // ROCKET_HOME 环境变量
+    private String rocketmqHome = System.getProperty(MixAll.ROCKETMQ_HOME_PROPERTY, System.getenv(MixAll.ROCKETMQ_HOME_ENV));
+    // kv 配置的路径
+    private String kvConfigPath = System.getProperty(&quot;user.home&quot;) + File.separator + &quot;namesrv&quot; + File.separator + &quot;kvConfig.json&quot;;
+    // NameServer 自己的配置存储路径
+    private String configStorePath = System.getProperty(&quot;user.home&quot;) + File.separator + &quot;namesrv&quot; + File.separator + &quot;namesrv.properties&quot;;
+    // 生产环境的名称
+    private String productEnvName = &quot;center&quot;;
+    // 是否启动了 clusterTest 测试集群
+    private boolean clusterTest = false;
+    // 是否支持有序消息
+    private boolean orderMessageEnable = false;
+
+    // 省略 get set 
+    ……
+}
+</code></pre>
+<p>NettyServerConfig 的配置如下：</p>
+<pre><code class="language-java">public class NettyServerConfig implements Cloneable {
+
+    // NettyServer 默认的监听端口号 8888
+    private int listenPort = 8888;
+    // NettyServer 工作线程的数量，默认是8
+    private int serverWorkerThreads = 8;
+    // netty 回调线程池数量
+    private int serverCallbackExecutorThreads = 0;
+    // netty io 线程数量，默认为3，负责解析网络请求， 解析之后会交由work线程处理
+    private int serverSelectorThreads = 3;
+    // broker 端参数，broker 端基于 netty 构建网络服务器的时候会使用以下两参数
+    private int serverOnewaySemaphoreValue = 256;
+    private int serverAsyncSemaphoreValue = 64;
+
+    // 如果一个网络连接空闲时间超过120s，就会被关闭
+    private int serverChannelMaxIdleTimeSeconds = 120;
+
+    // socket send buffer 缓冲区 以及 receive buffer 缓冲区的大小
+    private int serverSocketSndBufSize = NettySystemConfig.socketSndbufSize;
+    private int serverSocketRcvBufSize = NettySystemConfig.socketRcvbufSize;
+
+
+    private int writeBufferHighWaterMark = NettySystemConfig.writeBufferHighWaterMark;
+    private int writeBufferLowWaterMark = NettySystemConfig.writeBufferLowWaterMark;
+    private int serverSocketBacklog = NettySystemConfig.socketBacklog;
+    private boolean serverPooledByteBufAllocatorEnable = true;
+
+    /**
+     * make make install
+     *
+     *
+     * ../glibc-2.10.1/configure \ --prefix=/usr \ --with-headers=/usr/include \
+     * --host=x86_64-linux-gnu \ --build=x86_64-pc-linux-gnu \ --without-gd
+     */
+    // 是否启动 epoll io 模型，默认是不开启的。
+    private boolean useEpollNativeSelector = false;
+}
+</code></pre>
+<p>配置有点多，看到这里可以大概总结一下：<br>
+NettyServerConfig  和 NameServerConfig 组成了 NamesrvController，NameServer负责对外提供Broker 的注册功能。</p>
+<p>以上就是 NameSeverController 的配置部分。我们接着往下看：</p>
+<pre><code class="language-java">start(controller);
+</code></pre>
+<pre><code class="language-java">public static NamesrvController start(final NamesrvController controller) throws Exception {
+
+        if (null == controller) {
+            throw new IllegalArgumentException(&quot;NamesrvController is null&quot;);
+        }
+
+        //  here : 方法里面创建了 new ServerBootstrap()，也就是 netty 的核心组件
+        boolean initResult = controller.initialize();
+        if (!initResult) {
+            controller.shutdown();
+            System.exit(-3);
+        }
+
+        Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable&lt;Void&gt;() {
+            @Override
+            public Void call() throws Exception {
+                controller.shutdown();
+                return null;
+            }
+        }));
+
+        controller.start();
+
+        return controller;
+    }
+    ```
+
+
+    ```java
+
+    public boolean initialize() {
+        // 前文所说的 kv 配置
+        this.kvConfigManager.load();
+        // 初始化 netty 服务器
+        this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
+         
+         // netty 服务器的工作线程
+        this.remotingExecutor =
+            Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl(&quot;RemotingExecutorThread_&quot;));
+
+        // 把工作线程池给netty服务器
+        this.registerProcessor();
+
+        // 核心线程： 定时任务线程，定时扫描哪些broker 没发送心跳
+        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                NamesrvController.this.routeInfoManager.scanNotActiveBroker();
+            }
+        }, 5, 10, TimeUnit.SECONDS);
+        
+        // 启动一个后台线程执行定时任务，定时打印 kv 配置
+        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                NamesrvController.this.kvConfigManager.printAllPeriodically();
+            }
+        }, 1, 10, TimeUnit.MINUTES);
+
+        if (TlsSystemConfig.tlsMode != TlsMode.DISABLED) {
+            // Register a listener to reload SslContext
+            try {
+                fileWatchService = new FileWatchService(
+                    new String[] {
+                        TlsSystemConfig.tlsServerCertPath,
+                        TlsSystemConfig.tlsServerKeyPath,
+                        TlsSystemConfig.tlsServerTrustCertPath
+                    },
+                    new FileWatchService.Listener() {
+                        boolean certChanged, keyChanged = false;
+                        @Override
+                        public void onChanged(String path) {
+                            if (path.equals(TlsSystemConfig.tlsServerTrustCertPath)) {
+                                log.info(&quot;The trust certificate changed, reload the ssl context&quot;);
+                                reloadServerSslContext();
+                            }
+                            if (path.equals(TlsSystemConfig.tlsServerCertPath)) {
+                                certChanged = true;
+                            }
+                            if (path.equals(TlsSystemConfig.tlsServerKeyPath)) {
+                                keyChanged = true;
+                            }
+                            if (certChanged &amp;&amp; keyChanged) {
+                                log.info(&quot;The certificate and private key changed, reload the ssl context&quot;);
+                                certChanged = keyChanged = false;
+                                reloadServerSslContext();
+                            }
+                        }
+                        private void reloadServerSslContext() {
+                            ((NettyRemotingServer) remotingServer).loadSslContext();
+                        }
+                    });
+            } catch (Exception e) {
+                log.warn(&quot;FileWatchService created error, can't load the certificate dynamically&quot;);
+            }
+        }
+
+        return true;
+    }
+    ```
+
+    看完初始化的代码之后，我们再回过头来看看：
+    ```
+    ```java
+public static NamesrvController start(final NamesrvController controller) throws Exception {
+
+        if (null == controller) {
+            throw new IllegalArgumentException(&quot;NamesrvController is null&quot;);
+        }
+
+        //  here : 方法里面创建了 new ServerBootstrap()，也就是 netty 的核心组件
+        boolean initResult = controller.initialize();
+        if (!initResult) {
+            controller.shutdown();
+            System.exit(-3);
+        }
+
+        // 钩子，JVM 关闭的时候会回调该函数
+        Runtime.getRuntime().addShutdownHook(new ShutdownHookThread(log, new Callable&lt;Void&gt;() {
+            @Override
+            public Void call() throws Exception {
+                controller.shutdown();
+                return null;
+            }
+        }));
+
+        controller.start();
+
+        return controller;
+    }
+</code></pre>
+<p>其实这是一种很常见的编程技巧，通过注册一个 JVM 钩子函数，在 JVM 关闭之前先关闭线程池，释放那个资源。</p>
+<pre><code class="language-java">public void shutdown() {
+        this.remotingServer.shutdown();
+        this.remotingExecutor.shutdown();
+        this.scheduledExecutorService.shutdown();
+
+        if (this.fileWatchService != null) {
+            this.fileWatchService.shutdown();
+        }
+}
+</code></pre>
+<p>最后再看一下 NettyRemotingServer 的启动：</p>
+<pre><code class="language-java">    public void start() {
+        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(
+            nettyServerConfig.getServerWorkerThreads(),
+            new ThreadFactory() {
+
+                private AtomicInteger threadIndex = new AtomicInteger(0);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, &quot;NettyServerCodecThread_&quot; + this.threadIndex.incrementAndGet());
+                }
+            });
+
+        prepareSharableHandlers();
+        // netty 配置相关
+        ServerBootstrap childHandler =
+            this.serverBootstrap.group(this.eventLoopGroupBoss, this.eventLoopGroupSelector)
+                .channel(useEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
+                .option(ChannelOption.SO_BACKLOG, nettyServerConfig.getServerSocketBacklog())
+                .option(ChannelOption.SO_REUSEADDR, true)
+                .option(ChannelOption.SO_KEEPALIVE, false)
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .localAddress(new InetSocketAddress(this.nettyServerConfig.getListenPort()))
+                    // 设置了一大堆的网络连接请求处理器
+                    // HandShakeHandler 负责连接握手， NettyDecoder是负责编解码的，
+                    // IdleStateHandler是负责网络连接管理的，serverHandler 是负责最关键的网络请求处理的。
+                .childHandler(new ChannelInitializer&lt;SocketChannel&gt;() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline()
+                            .addLast(defaultEventExecutorGroup, HANDSHAKE_HANDLER_NAME, handshakeHandler)
+                            .addLast(defaultEventExecutorGroup,
+                                encoder,
+                                new NettyDecoder(),
+                                new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),
+                                connectionManageHandler,
+                                serverHandler
+                            );
+                    }
+                });
+        if (nettyServerConfig.getServerSocketSndBufSize() &gt; 0) {
+            log.info(&quot;server set SO_SNDBUF to {}&quot;, nettyServerConfig.getServerSocketSndBufSize());
+            childHandler.childOption(ChannelOption.SO_SNDBUF, nettyServerConfig.getServerSocketSndBufSize());
+        }
+        if (nettyServerConfig.getServerSocketRcvBufSize() &gt; 0) {
+            log.info(&quot;server set SO_RCVBUF to {}&quot;, nettyServerConfig.getServerSocketRcvBufSize());
+            childHandler.childOption(ChannelOption.SO_RCVBUF, nettyServerConfig.getServerSocketRcvBufSize());
+        }
+        if (nettyServerConfig.getWriteBufferLowWaterMark() &gt; 0 &amp;&amp; nettyServerConfig.getWriteBufferHighWaterMark() &gt; 0) {
+            log.info(&quot;server set netty WRITE_BUFFER_WATER_MARK to {},{}&quot;,
+                    nettyServerConfig.getWriteBufferLowWaterMark(), nettyServerConfig.getWriteBufferHighWaterMark());
+            childHandler.childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(
+                    nettyServerConfig.getWriteBufferLowWaterMark(), nettyServerConfig.getWriteBufferHighWaterMark()));
+        }
+
+        if (nettyServerConfig.isServerPooledByteBufAllocatorEnable()) {
+            childHandler.childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+        }
+
+        try {
+            // 设置netty 要监听的端口，默认是9876
+            ChannelFuture sync = this.serverBootstrap.bind().sync();
+            InetSocketAddress addr = (InetSocketAddress) sync.channel().localAddress();
+            this.port = addr.getPort();
+        } catch (InterruptedException e1) {
+            throw new RuntimeException(&quot;this.serverBootstrap.bind().sync() InterruptedException&quot;, e1);
+        }
+
+        if (this.channelEventListener != null) {
+            this.nettyEventExecutor.start();
+        }
+
+        this.timer.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                try {
+                    NettyRemotingServer.this.scanResponseTable();
+                } catch (Throwable e) {
+                    log.error(&quot;scanResponseTable exception&quot;, e);
+                }
+            }
+        }, 1000 * 3, 1000);
+    }
+
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/eureka-yuan-ma-yue-du/" class="post-title gt-a-link">
+                    Eureka 源码阅读
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

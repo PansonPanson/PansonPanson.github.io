@@ -1,0 +1,294 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>040.什么是货架到人在线盘点 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    040.什么是货架到人在线盘点
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><strong>货架到人在线盘点（Shelf-to-Person Online Inventory Counting）</strong> 是一种结合自动化设备和仓库管理系统（WMS）进行仓库库存盘点的作业模式。在这种模式下，盘点任务不再由操作员主动走到货架去进行盘点，而是由自动化设备（如AGV、自动搬运车、输送带等）将货架上的物品或货架本身送到操作员所在的位置，操作员只需进行扫描、核对，并实时更新库存信息。</p>
+<h3 id="货架到人在线盘点的工作原理"><strong>货架到人在线盘点的工作原理：</strong></h3>
+<ol>
+<li>
+<p><strong>生成盘点任务：</strong></p>
+<ul>
+<li>仓库管理系统（WMS）根据库存管理需求，生成盘点任务，通常包括对某一类商品或某一批次的物品进行盘点。系统会指定需要盘点的区域、货架或物品。</li>
+</ul>
+</li>
+<li>
+<p><strong>自动化设备调度货架：</strong></p>
+<ul>
+<li>系统调度自动化设备（如AGV或自动搬运车），将需要盘点的货架从仓库的存储区域或货架区运送到操作员工作区。这样，操作员无需步行到货架去取货或盘点。</li>
+</ul>
+</li>
+<li>
+<p><strong>在线指导操作员盘点：</strong></p>
+<ul>
+<li>当货架到达操作员工作区域后，系统通过手持设备（如PDA、扫描枪等）或屏幕显示，实时提供盘点指导。操作员根据系统的提示，扫描货架上的物品进行核对。</li>
+</ul>
+</li>
+<li>
+<p><strong>扫描核对：</strong></p>
+<ul>
+<li>操作员扫描货架上的每个物品的条形码或RFID标签，系统会自动与库存数据进行对比。操作员需要确认物品数量是否匹配，如果出现差异，系统会自动记录并标记为异常，提醒操作员处理问题。</li>
+</ul>
+</li>
+<li>
+<p><strong>实时更新库存：</strong></p>
+<ul>
+<li>盘点过程中，系统会实时更新库存数据。当操作员确认某项物品的盘点数量时，库存数据会立刻在系统中更新，保证库存信息的准确性。</li>
+</ul>
+</li>
+<li>
+<p><strong>完成盘点：</strong></p>
+<ul>
+<li>当所有物品的盘点完成后，系统生成盘点报告，并完成库存更新。盘点任务结束后，操作员可以将货架返回到原存储区域。</li>
+</ul>
+</li>
+</ol>
+<h3 id="货架到人在线盘点的优势"><strong>货架到人在线盘点的优势：</strong></h3>
+<ol>
+<li>
+<p><strong>提高盘点效率：</strong></p>
+<ul>
+<li>自动化设备将货架送到操作员工作区，减少了操作员走动的时间，操作员仅需扫描和确认数据。整个盘点过程大大提高了效率。</li>
+</ul>
+</li>
+<li>
+<p><strong>减少人工错误：</strong></p>
+<ul>
+<li>系统提供实时指导，减少了因操作员手动记录、疏忽或误操作而导致的错误，从而提高了盘点的准确性。</li>
+</ul>
+</li>
+<li>
+<p><strong>实时库存更新：</strong></p>
+<ul>
+<li>盘点结果会实时反馈到仓库管理系统中，库存数据得到实时更新，避免了传统盘点方式中手动更新库存数据带来的延迟问题。</li>
+</ul>
+</li>
+<li>
+<p><strong>自动化与精准性：</strong></p>
+<ul>
+<li>自动化设备的使用减少了人工干预，操作员的盘点工作变得更加精准、快速。通过扫描和自动记录，系统能够确保每个物品盘点无误。</li>
+</ul>
+</li>
+<li>
+<p><strong>节省空间和时间：</strong></p>
+<ul>
+<li>操作员不需要走动到货架进行盘点，减少了空间的浪费和时间的消耗。盘点任务变得更加集约化和高效化。</li>
+</ul>
+</li>
+<li>
+<p><strong>灵活的盘点方式：</strong></p>
+<ul>
+<li>该模式可以进行定期盘点、周期性盘点或循环盘点，适应不同仓库的盘点需求。仓库可以在不干扰日常操作的情况下进行盘点，确保库存信息的实时准确性。</li>
+</ul>
+</li>
+</ol>
+<h3 id="适用场景"><strong>适用场景：</strong></h3>
+<ol>
+<li>
+<p><strong>高频次库存盘点的仓库：</strong></p>
+<ul>
+<li>适用于需要频繁盘点的仓库，特别是物品种类繁多，库存波动较大的电商仓库、物流仓库等。</li>
+</ul>
+</li>
+<li>
+<p><strong>自动化仓库：</strong></p>
+<ul>
+<li>在自动化程度较高的仓库中，自动化设备已经广泛应用于物料搬运和货物存取，货架到人在线盘点模式能够进一步提升盘点效率。</li>
+</ul>
+</li>
+<li>
+<p><strong>大型分拣中心或配送中心：</strong></p>
+<ul>
+<li>在这些中心中，盘点的任务通常量大且时间紧迫，采用货架到人在线盘点能够减少人工劳动，提高盘点的速度和准确性。</li>
+</ul>
+</li>
+<li>
+<p><strong>制造业仓库：</strong></p>
+<ul>
+<li>制造业中的仓库通常有大量物料需要管理，货架到人在线盘点帮助确保物料库存准确，确保生产线的顺畅运行。</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结"><strong>总结：</strong></h3>
+<p><strong>货架到人在线盘点</strong> 是一种结合自动化设备和仓库管理系统的库存盘点模式，操作员不再需要走动到货架进行盘点，而是通过自动化设备将货架送到操作员面前，操作员进行扫描和核对。通过这种模式，仓库能够提高盘点效率，减少人工干预，确保库存数据实时、准确，尤其适用于高频次盘点和自动化仓库等场景。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/041_-shi-me-shi-fu-pan-dan/" class="post-title gt-a-link">
+                    041.什么是复盘单
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

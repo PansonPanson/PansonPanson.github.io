@@ -1,0 +1,277 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>译文：Java EE vs J2EE vs Jakarta | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    译文：Java EE vs J2EE vs Jakarta
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-02-04 ·
+                    </time>
+                    
+                        <a href="https://panson.top/tag/DhGlDDOcy/" class="post-tags">
+                            # Java
+                        </a>
+                    
+                        <a href="https://panson.top/tag/MIlya99K9l/" class="post-tags">
+                            # translation
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>本文为译文，已投稿至码农翻身公众号。文章主要介绍了一些 Java 开发中的 3 个名词：Java EE 、J2EE 、 Jakarta ，以及 Java 的发展史。</em></p>
+<!-- more -->
+<p>原文链接：<a href="https://www.baeldung.com/java-enterprise-evolution">JEE vs J2EE vs Jakarta</a></p>
+<p>原文作者：Rodrigo Graciano</p>
+<hr>
+<h2 id="1引言">1.引言</h2>
+<p>听说过 Java EE 吗？那关于 Java 2EE 、J2EE 或者现在的 Jakarta EE，你又是否有所耳闻呢？实际上，这些各异的术语描述的都是相同的东西：由 Java SE 扩展出的一系列企业规范。</p>
+<p>在本篇短文中，我们将讲述 Java EE 的发展史。<!-- more --></p>
+<h2 id="2历史">2.历史</h2>
+<p>在 Java 的第一个版本中，Java 企业扩展还只是核心 JDK 的一部分（译者注：核心 JDK 通常指 Java SE） 。然而到了 1999 年，Java 企业扩展已经被剥离出 Java SE，成为了 Java 2 的一部分，这也意味着 J2EE，或者说Java 2 平台企业版（Java 2 Platform Enterprise Edition）的诞生。J2EE 这个称呼一直维持到2006年。</p>
+<p>2006 年发布的 Java 5，J2EE 被重命名为 Java EE，或者说 Java 平台企业版（Java Platform Enterprise Edition）。这次改名后的称呼一直延续到 了 2017 年的 9 月。那年发生了一件重大的事，Oracle 决定将 Java EE 捐赠给 Eclipse 基金会（但 Java仍然属于 Oracle）。</p>
+<h2 id="3转变阶段">3.转变阶段</h2>
+<p>事实上，因为 Oracle 拥有 “Java” 商标权。按照法律要求，Eclipse 基金会需要对 Java EE 进行更名。</p>
+<p>经过社区的投票选择，Java EE 被更名为 Jakarta EE。从某种意义上来说，Java EE 依然叫 JEE。（译者注： 将 Java EE 首字母缩写也可简称为 JEE）。</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J2EE 1.2</td>
+<td>1999 年 12月</td>
+</tr>
+<tr>
+<td>J2EE 1.3</td>
+<td>2001 年 09 月</td>
+</tr>
+<tr>
+<td>J2EE 1.4</td>
+<td>2003 年 11 月</td>
+</tr>
+<tr>
+<td>Java EE 5</td>
+<td>2006 年 05 月</td>
+</tr>
+<tr>
+<td>Java EE 6</td>
+<td>2009 年 12 月</td>
+</tr>
+<tr>
+<td>Java EE 7</td>
+<td>2013 年 04 月</td>
+</tr>
+<tr>
+<td>Java EE 8</td>
+<td>2017 年 08 月</td>
+</tr>
+<tr>
+<td>Jakarta EE</td>
+<td>2018 年 02 月</td>
+</tr>
+<tr>
+<td>宣布新名字[译者注：译者怀疑此处是原文排版没排好]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>不过这仍然是个正在进行的故事，还未完全尘埃落定。</p>
+<p>举个例子，虽然 Oracle 开源了 Java 源代码，但却并未开源所有的文档。关于这个问题，因为涉及到一些法律事宜，导致开源一些文档（例如与 JMS、EJB相关的）非常棘手，至今仍有许多争议。</p>
+<p>现在还无法得知新的 Eclipse 基金会文档是否能够参考原文档。</p>
+<p>同样令人奇怪的是 Eclipse 基金会不能使用 javax 的命名空间来创建新的 Java 包，但是可以在现有包的下面创建新的类和子类。</p>
+<p>转变阶段也意味着对 Jakarta EE 添加规范的新流程。为了更好地理解这一点，让我们快速看一下 Oracle 添加规范的流程以及 Eclipse 基金会相应做出的改变。</p>
+<h2 id="4未来">4.未来</h2>
+<p>在过去，为了将一个特性添加进 “EE”（译者注：原文作者为了避免 Jakarta EE 历史名字的混杂性，使用“EE”来代指全部的版本，下同），我们需要 3 样东西 ：规范、参考实现与测试。社区里的任何人都可以提交这 3 样东西，之后执行委员会将会决定何时将它们整合进 Java 语言中。</p>
+<p>为了更好地理解添加规范的旧流程，让我们进一步了解 JSRs、Glassfish 和 TCK是什么 ，以及它们是如何整合新特性的。</p>
+<p>我们也将一睹在未来可以预期的事。</p>
+<h3 id="41jcp-以及现在的-efsp">4.1.JCP 以及现在的 EFSP</h3>
+<p>在过去，产生EE 新特性的流程被称为 JCP（Java Community Process）。</p>
+<p>Java SE 现在仍然采用 JCP。但是由于 EE 的所有权已经从 Oracle 移交至 Eclipse 基金会，EE 已经有了新的流程，这个流程是<a href="https://www.eclipse.org/projects/dev_process">Eclipse 开发流程</a>的扩展，与 Java SE 的流程互不干扰，我们称之为 EFSP（Eclipse Foundation Specification Process）。</p>
+<p>尽管 JCP 与 EFSP 之间有一些大的差异，但大都围绕着“透明、公开、集体负责和供应商中立”这几条准则展开。例如，EFSP 的组织者设想的合作工作团体是供应商中立的，认证流程是自助服务的，组织的运作与管理是精英化的。</p>
+<h3 id="42jsrs">4.2.JSRs</h3>
+<p>在 JCP 中，为 EE 添加新特性的第一步是创建一个 JSR（Java Specification Request）。JSR 有点类似于一个 EE 特性的接口。JCP 执行委员会会核准一个完整的 JSR，然后相应的 JSR 贡献者会编写代码，使其在社区内生效。</p>
+<p>JSR-339 或者 JAX-RS 对于阐述上面的流程是一个好例子。JAX-RS 最初于 2011 年提出，在2012年被 JCP 批准，最终在 2013 年得以发布。</p>
+<p>虽然在讨论规范时，社区可以随时加入进来，但时间表明，一个实现优先（ implementation-first）的方式更利于创建能被广泛接受的特性与 API。所谓的实现优先，类似于JSR 310中的 java.time 和 Joda Time这个例子（译者注：JDK 1.8 之前 Java 关于时间的 API 很不如人意，使用广泛的是 Joda-Tme）。</p>
+<p>因此，EFSP（Eclipse Foundation Specification Process）在其设定的目标中阐述了这个观点：“EFSP 将基于是否先进行了动手实验和编码，来判断其是否值得添加进规范中。”</p>
+<h3 id="43glassfish">4.3.Glassfish</h3>
+<p>此外，JSR 作为 JCP 的一部分，需要一个参考实现。这有点类似于实现接口的类。对于那些想要创建自己的规范实现的群体，比如说兼容库的开发人员或者其他组织，参考实现都可以给予帮助。</p>
+<p>对于 Java EE 特性，JCP 使用 Glassfish 作为参考实现。</p>
+<p>虽然 Glassfish 的中心化简化了实现者的探索过程，但是这种中心化也要求更多的管理，并且倾向于偏袒某个供应商。</p>
+<p>因此，EFSP 不要求参考实现，而只要求兼容的实现。简而言之，这种微妙的变化使得类似 Glassfish 之类的中心体系结构内的实现，不会被基金会无缘由地首选。</p>
+<h3 id="44tck">4.4.TCK</h3>
+<p>最后，JCP 要求 EE 特性需通过 TCK（Technology Compatibility Kit）的测试。</p>
+<p>TCK 是一组验证特定 EE JSR 的测试。简而言之，为了遵循 Java EE，应用服务器需要实现所有 JSR， 并通过特定 TCK 上的所有测试。</p>
+<p>与前述类似，Oracle虽然开源了TCK和EE jsr的源代码（译者注：但并没有开源相应的文档）。当然，未来所有的文档和 TCK 都将是开源的。</p>
+<h2 id="5总结">5.总结</h2>
+<p>这些年来，Java EE 无疑前进了许多。很高兴看到它继续变化与变好。</p>
+<p>前方之路充满坎坷，希望 Java 的转变能够平滑些。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

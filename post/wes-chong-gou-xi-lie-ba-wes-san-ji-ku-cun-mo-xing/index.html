@@ -1,0 +1,264 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（八）：WES 三级库存模型 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（八）：WES 三级库存模型
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-03-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><strong>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</strong><br>
+<img src="https://images.unsplash.com/photo-1741323361387-e78360b1b76b?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></p>
+<h2 id="一-wes-的多级库存模型是怎样的">一、WES 的多级库存模型是怎样的？</h2>
+<p>WES 的库存模型分为三层：</p>
+<ul>
+<li>一级库存</li>
+<li>二级库存</li>
+<li>三级库存<br>
+粒度逐件变细。一级库存是全仓库存，商品维度，二级库存是库区+商品+批次+包装，三级库存则细粒度到库位（料箱、料格），与具体的存储位直接关联。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214502449.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h2 id="二-一级库存的优势与弊端">二、一级库存的优势与弊端？</h2>
+<p>先说优势，对于全仓库存的可视化，其实是简单了许多，其次上游调取库存快照时，减少了计算。</p>
+<p>劣势也很明显：</p>
+<ol>
+<li>一级库存是粒度较大，如果是大库存商品并且是热点商品的话，即使是在 B 端也很容易变成热点行，高并发下，出现性能问题。</li>
+<li>库存的级数越多，要保证数据一致性的难度就越高，代价也越高。</li>
+<li>死锁的风险也会增大<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214520258.png?raw=true" alt="" loading="lazy"></li>
+</ol>
+<h2 id="三-重构中如何做取舍">三、重构中如何做取舍？</h2>
+<p>工作越久，越觉得软件开发中，没有银弹，方案本身没有好坏，只有适合与不适合，大多数时候我们都在做权衡（Trade-Off）。</p>
+<p>对于 WES 来说，数据一致性和稳定性比报表类的需求其实是更核心的，一级库存固然有一定优点，但都可以通过二级库存聚合计算得到，而且一级库存的使用场景都很低频，去掉一级库存完全是能满足业务需求的。</p>
+<p>去掉一级库存的优势就很明显了，数据一致性的维护更简单了，死锁风险降低，代码层面也会降低复杂度，热点行的发生频率也会下降一个级数。</p>
+<p>所以最终还是去掉了一级库存。</p>
+<h2 id="四-为什么要有二级库存">四、为什么要有二级库存？</h2>
+<p>二级库存关注的维度是<strong>单库区商品批次维度</strong>，那我们先假设去掉二级库存，那会有哪些问题？</p>
+<ol>
+<li><strong>性能：</strong> 在一些需要库区视角的场景中，比如出库单缺货时无法快速判断，影响补货时效，因为三级库存是分散在具体库位的，需要去三级库存表查找目标库存列表，并做聚合计算，尤其在某些仓储场景下，sku 种类很少，那要查询的三级库存数量会很大，对三级库存表是一个很大的负担。</li>
+<li><strong>逻辑耦合</strong>：库存决策（是否满足订单）与执行细节（从哪个货位取货）混杂，增加代码复杂度</li>
+<li>另外二级库存与我们的出库调度模型有关联，减少二级库存会让上游的出库单与调度任务直接关联，会缺少灵活性。</li>
+</ol>
+<p>基于上述原因，我们最终还是保留了二级库存。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214550611.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="五-库存扣减的幂等性如何保证">五、库存扣减的幂等性如何保证？</h2>
+<p>我们有库存流水表，会有幂等键，二级库存是 出库作业类型 + 作业单 ID + 明细 ID，三级库存扣减是出库作业类型 + 任务 ID。</p>
+<h2 id="六-mysql-库存扣减的性能瓶颈与优化思路">六、MySQL 库存扣减的性能瓶颈与优化思路？</h2>
+<h3 id="61-性能瓶颈">6.1 性能瓶颈</h3>
+<p><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214614333.png?raw=true" alt="" loading="lazy"><br>
+MySQL 库存扣减其实本质上是热点行更新的问题，当多个并发事务同时尝试更新同一行热点数据时，可能会导致锁竞争和冲突。这会增加事务的等待时间和冲突概率，导致性能下降，并可能引发死锁问题。<br>
+具体来说，可能会产生以下问题（<strong>参考了网络上的内容，学习一下</strong>）：</p>
+<ol>
+<li>锁竞争，热点数据的更新是通过update语句进行的，而update是需要给记录增加排他锁的，这就会导致大量的请求被阻塞。降低整个系统的吞吐量。</li>
+<li>占用数据库连接，当有大量的update语句，因为要修改同一条记录而被阻塞的时候，他们持有的数据库连接是不会释放的，而数据库连接又是有限的，所以会导致连接数不够，进而影响整个系统的吞吐量及可用性。</li>
+<li>耗尽数据库CPU，大量锁等待，就会导致大量的自旋，多个线程就会不断的尝试获取锁，CPU就需要不断的执行自旋操作，并且需要做死锁检测，消耗大量CPU时间。并且在这个过程中，操作系统也需要频繁的进行线程上下文的切换，这个过程会导致CPU时间片的浪费。</li>
+<li>死锁风险，在高并发的情况下。由于数据库需要频繁定位和更新这些特定行，可能会增加锁竞争和死锁的风险，影响并发性能。</li>
+<li>索引维护开销大，频繁地更新热点数据，不仅会导致数据的变化，还可能导致相关索引的频繁维护，这可能会增加数据库的开销，导致性能下降。</li>
+<li>主从不一致，热点数据的频繁更新，如果在主从复制出现延迟的情况下，就会放大数据不一致的概率。</li>
+</ol>
+<h3 id="62-优化思路">6.2 优化思路</h3>
+<p>这类问题的解决思路可以分为3类，分别是排队、拆分以及批次执行。</p>
+<h4 id="思路-一排队">思路 一：排队</h4>
+<p>排队方案要么是加锁，要么是单线程执行。<br>
+如果能使用Redis的话，那么就可以利用他的高并发、单线程特点来解决这个问题。<br>
+如果是使用数据库的话，可以使用优化版的云MySQL，腾讯云 MySQL 和阿里云 MySQL。<br>
+他们都做了二次开发优化，系统会自动探测是否有单行的热点更新，让同一个热点行的更新语句，在执行层进行排队。这样的排队相比update的排队，要轻量级很多，因为他不需要自旋，不需要抢锁。</p>
+<h4 id="思路二拆分用得不多">思路二：拆分（用得不多）</h4>
+<p>类似分段锁机制，将一次扣减分散到不同的库表中进行，但可能存在碎片库存。</p>
+<h4 id="思路三合并">思路三：合并</h4>
+<p>把多个UPDATE合成一个UPDATE， 比如一个用户，有10个占用库存请求，每次占用1个，那么就可以提供一个批量占用的接口，让上游一次性把10个占用合并一起，这样数据库只需要做一次更新就行了</p>
+<p>局限性：不是所有请求都可以合并的，有些场景，如电商的秒杀，用户需要很快的知道反馈，而批量执行就需要有个窗口来聚合，用户是不能接受这种等待窗口的。在一些异步链路上，可以用这种方案。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/file-20251204214636292.png?raw=true" alt="" loading="lazy"></p>
+<h2 id="七-学习互联网电商高并发库存扣减的思路">七、学习互联网电商高并发库存扣减的思路</h2>
+<h3 id="71-两种方案">7.1 两种方案</h3>
+<p>主流的有两种方案：</p>
+<ol>
+<li>数据库扣减：</li>
+<li>redis 扣减：使用lua 脚本，先判断库存呢是否足够，足够再扣减</li>
+</ol>
+<h3 id="72-redis-库存的正确扣减">7.2 Redis 库存的正确扣减</h3>
+<p>秒杀因为是一个高频的并发库存扣减的场景，所以，如何提升库存扣减的性能，并且保证他的准确性，这是一个在秒杀业务中极其重要的课题，稍有不慎就会带来超卖、少卖等问题。另外还需要关注一下对账的系统设计。<br>
+具体的方案设计如下图：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%85%AB%EF%BC%89%EF%BC%9AWES%20%E4%B8%89%E7%BA%A7%E5%BA%93%E5%AD%98%E6%A8%A1%E5%9E%8B/%E7%A7%92%E6%9D%80%E5%B0%91%E5%8D%96.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="73-redis保存库存的时候如何避免被redis清理掉">7.3  Redis保存库存的时候，如何避免被Redis清理掉？</h3>
+<p>核心其实是 Redis 的内存淘汰策略。<br>
+用 volatile 相关策略，这样只有设置了超时时间的才可能被淘汰。<br>
+阿里云上的Redis的默认的淘汰策略是volatile-lru。<br>
+腾讯云默认是noeviction。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-qi-guan-yu-wes-shu-ju-zui-zhong-yi-zhi-xing-zu-jian-de-si-kao/" class="post-title gt-a-link">
+                    WES 重构系列（七）：关于WES 数据最终一致性组件的思考
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

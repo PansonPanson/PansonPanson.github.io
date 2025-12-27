@@ -1,0 +1,232 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>032.什么是料箱到人空箱直接上架 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    032.什么是料箱到人空箱直接上架
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>好的，去掉与其他模式的区别后，更新内容如下：</p>
+<hr>
+<p><strong>料箱到人空箱直接上架（Case-to-Person Empty Putaway）</strong> 是一种仓库管理模式，主要用于管理空的料箱，帮助提高仓库的空间利用率和存储效率。与“料箱到人整箱直接上架”不同，空箱上架的过程并不涉及商品，而是将空的料箱或托盘直接放置在合适的货架位置，供后续使用或存储商品时使用。</p>
+<h3 id="料箱到人空箱直接上架的流程"><strong>料箱到人空箱直接上架的流程：</strong></h3>
+<ol>
+<li>
+<p><strong>接收空箱</strong>：</p>
+<ul>
+<li>空的料箱或托盘被运输或送入仓库。这些空箱一般是在运输商品后留下的空箱，或者是为了后续填充商品而准备的空料箱。</li>
+</ul>
+</li>
+<li>
+<p><strong>空箱传输</strong>：</p>
+<ul>
+<li>自动化设备（如输送带、自动导引车（AGV）、机器人等）会将这些空的料箱从接收区域送到仓库的存储区域。这个过程自动化程度较高，无需人工干预。</li>
+</ul>
+</li>
+<li>
+<p><strong>空箱上架</strong>：</p>
+<ul>
+<li>自动化设备将这些空的料箱或托盘送到目标货架上，按需要将其存放在合适的存储位置。这些空箱存放在专门的区域，以备后续商品存放时使用。</li>
+<li>存储过程中，仓库管理系统（WMS）会记录每个空箱的位置，以便后续能够快速调度使用。</li>
+</ul>
+</li>
+<li>
+<p><strong>目标货架管理</strong>：</p>
+<ul>
+<li>上架后的空箱会被系统跟踪，确保它们的存储位置清晰可查。这样，在需要时，系统可以快速调度空箱，减少人工查找和搬运的时间。</li>
+</ul>
+</li>
+</ol>
+<h3 id="料箱到人空箱直接上架的优点"><strong>料箱到人空箱直接上架的优点：</strong></h3>
+<ul>
+<li><strong>提高存储效率</strong>：通过自动化将空箱直接送到货架，可以减少人工搬运，提高存储效率。</li>
+<li><strong>优化空间利用</strong>：空箱的存储通常会有专门的区域，能够合理规划存储空间，使仓库布局更为高效。</li>
+<li><strong>减少人工操作</strong>：通过自动化设备处理空箱的上架，可以减少人工干预，降低劳动强度，提高作业效率。</li>
+<li><strong>提高空箱的调度效率</strong>：自动化系统可以准确记录每个空箱的位置，确保仓库人员能够在需要时迅速找到空箱，避免浪费时间寻找。</li>
+</ul>
+<h3 id="适用场景"><strong>适用场景：</strong></h3>
+<ul>
+<li><strong>空料箱管理</strong>：当仓库需要管理大量空料箱，或者空托盘在仓库中占用较大空间时，这种模式能帮助高效管理空料箱。</li>
+<li><strong>标准化商品存储</strong>：对于一些商品批量化存储，空箱通常在商品存放前需要先行准备。空箱上架可以确保它们在适当的地方随时待命。</li>
+<li><strong>高效的仓库空间管理</strong>：适用于空间利用率要求较高的仓库，特别是在商品进出频繁、空箱堆积较多的环境。</li>
+</ul>
+<h3 id="总结"><strong>总结：</strong></h3>
+<p><strong>料箱到人空箱直接上架</strong> 是一种通过自动化手段将空料箱或空托盘直接送到指定存储位置的仓储管理方式，适用于高效管理空料箱、提高空间利用率和优化仓库布局。通过减少人工干预和自动化管理，空箱的存储、调度和使用变得更加高效。这种模式对于存储和调配空料箱的仓库，特别是在商品存放和拣选频繁的环境中具有重要的意义。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/033_-shi-me-shi-liao-xiang-dao-ren-zai-xian-zhi-dao-shang-jia/" class="post-title gt-a-link">
+                    033.什么是料箱到人在线指导上架
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

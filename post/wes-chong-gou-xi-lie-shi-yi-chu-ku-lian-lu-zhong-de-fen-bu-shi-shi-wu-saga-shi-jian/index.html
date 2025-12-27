@@ -1,0 +1,541 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（十一）：出库链路中的分布式事务 Saga 实践 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（十一）：出库链路中的分布式事务 Saga 实践
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-04-16 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>我在现司的很长一段时间里一直被现场问题工单 oncall 弄得痛不欲生，大概有半年多，我司很多第三方仓，尤其是海外仓，跨时区工作，经常半夜打我电话，一起床又是一个通宵。坦诚来说，工作这么多年，在我司的前半段时间工作，是我职业生涯中最痛苦的一段时间，捂头哈哈~</p>
+<!-- more -->
+<p>这段经历让我切身体会到：<strong>当核心履约链路缺乏系统性设计时，稳定性问题最终一定会以“人工成本”的形式被偿还。</strong></p>
+<p>后来，在一位在公司深耕十年的前辈建议和引荐下，我转入产品线团队，参与 WES 系统的重构工作，也正是在这一过程中，我开始系统性地审视出库链路，并逐步引入 Saga 思想来解决长期存在的履约一致性问题。</p>
+<p>收获良多，我很感谢他。</p>
+<figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1755109604669-2719abfbe5b6?q=80&amp;w=2777&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></figure>
+<p>在仓储系统中，出库履约是一条<strong>跨系统、跨资源、长生命周期</strong>的业务链路，涉及到状态机、库存模型、调度模型、规则配置等等。本文结合我过往在 WES（Warehouse Execution System）中的工程实践，分享出库链路中落地 Saga 的思考、演进过程与经验总结。</p>
+<hr>
+<h1 id="一-仓储业务名词解释">一、仓储业务名词解释</h1>
+<p>为了便于不同业务领域背景的朋友能理解本文的一些内容，加了一些名词说明。</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213233756392.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="1-出库单">1. 出库单</h3>
+<p>出库单本质上是上游下发的单据，比如你在淘宝上买了 2 个牙刷，3 件毛巾。那上游（可能是 OMS、WMS）会下发一个出库单到 WES 来，告知 WES 我现在要出货配送 2 个牙刷、3 件毛巾。出库单就是用来表达要出库的商品信息。</p>
+<p>在数据模型上，出库单分为主体和明细。</p>
+<h2 id="2-出库作业单">2. 出库作业单</h2>
+<p>出库作业单某种层面上是根据出库单做的一层解耦单据，将具体的执行层与上游下发的单据层隔离开。<br>
+另一个维度来理解的话，是按库区维度对出库单做了一次拆单。<br>
+出库作业单单也有主体和明细。比如说上文的出库单，可能会分裂成两个出库单，A 库区出库 2 件牙刷，B 库区出库 3 件毛巾。</p>
+<h2 id="3-出库任务">3. 出库任务</h2>
+<p>出库任务业务含义上表示要从某个存储库位（货架库位、料箱、料格）中出库某个包装批次的商品。</p>
+<p>WES 会对这个出库任务做一层转换，加上搬运调度层的含义，比如要把这个商品放到哪个工作站的那个槽位上去拣选，搬运的目的地是哪里。</p>
+<h2 id="4二级库存">4.二级库存</h2>
+<p>库区层面的库存，智能仓分为多个库区，二级库存是库区维度商品批次库存。</p>
+<h2 id="5三级库存">5.三级库存</h2>
+<p>库位维度的库存，实际的存储库存，比二级库存会更细粒度一些。</p>
+<h2 id="二-背景为什么出库履约是一个长事务问题">二、背景：为什么出库履约是一个“长事务”问题</h2>
+<p>在 WES 中，一次出库并非一个同步完成的动作，而是由多个阶段逐步推进：</p>
+<ul>
+<li>
+<p>上游系统下发出库单</p>
+</li>
+<li>
+<p>根据规则拆分出库单生成出库作业单，预占二级库存</p>
+</li>
+<li>
+<p>与算法服务交互，分配工作站槽位</p>
+</li>
+<li>
+<p>与算法服务交互，分配三级库存，生成并下发搬运任务</p>
+</li>
+<li></li>
+<li>
+<p>将调度任务下发至下游搬运集群</p>
+</li>
+<li>
+<p>小车到站推送拣选实操</p>
+</li>
+<li>
+<p>实操反馈，扣减二三级库存，完结作业单、任务，小车离站</p>
+</li>
+</ul>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234238868.png?raw=true" alt="" loading="lazy"></figure>
+<p>这一过程具备几个典型特征：</p>
+<ul>
+<li>
+<p>涉及多个本地事务</p>
+</li>
+<li>
+<p>业务链路长，状态中间态多</p>
+</li>
+<li>
+<p>允许失败、需要回滚和重试</p>
+</li>
+<li>
+<p>对可用性要求高，不追求强一致</p>
+</li>
+</ul>
+<p>这使得传统的强一致分布式事务（如 XA / 2PC）在该场景下并不适用。</p>
+<hr>
+<h2 id="三-saga-原理回顾结合我个人的工程视角">三、Saga 原理回顾（结合我个人的工程视角）</h2>
+<p>名词说明：Saga 从何而来</p>
+<p>Saga 并不是一个首字母缩写词（并不存在官方的“全称”），而是来源于北欧语 saga，原意是长篇史诗、连续发生的一系列故事。</p>
+<p>在分布式系统语境下，这个词被用来形容一类非常贴切的事务形态：</p>
+<p>由一系列本地事务组成、跨越较长时间、可能失败但可以通过补偿回到业务可接受状态的事务过程。</p>
+<p>这一概念最早由 Hector Garcia-Molina 等人在数据库领域提出，后来逐步演进为我们今天所说的 Saga Pattern（Saga 模式）。</p>
+<p>从工程角度理解，Saga 更像是：</p>
+<p>一段允许中间不一致的业务“叙事过程”</p>
+<p>每一步都是**可落库、可观测、可回滚（补偿）**的本地事务</p>
+<p>最终目标不是强一致，而是业务上的闭环与可控收敛</p>
+<p>这一点，与仓储履约这种“长链路、强现实约束”的业务形态高度契合。</p>
+<h3 id="1-什么是-saga">1. 什么是 Saga</h3>
+<p>Saga 是一种用于解决<strong>分布式长事务</strong>的问题模型，其核心思想是：</p>
+<ul>
+<li>
+<p>将一个全局事务拆分为多个<strong>可独立提交的本地事务</strong></p>
+</li>
+<li>
+<p>每个本地事务都对应一个<strong>补偿操作</strong></p>
+</li>
+<li>
+<p>通过正向执行与必要时的补偿执行，最终达成一致状态</p>
+</li>
+</ul>
+<p>Saga 的目标不是“永不失败”，而是：</p>
+<blockquote>
+<p><strong>在允许中间不一致的前提下，确保系统最终回到一个业务可接受、可解释、可恢复的状态</strong>。</p>
+</blockquote>
+<hr>
+<h3 id="2-编排型-saga-vs-协同型-saga">2. 编排型 Saga vs 协同型 Saga</h3>
+<p>Saga 通常分为两类：</p>
+<ul>
+<li>
+<p><strong>协同型（Choreography）</strong>：各参与方通过事件协作推进</p>
+</li>
+<li>
+<p><strong>编排型（Orchestration）</strong>：由一个中心节点统一编排流程<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234323066.png?raw=true" alt="" loading="lazy"></p>
+</li>
+</ul>
+<p>在 WES 出库场景中，我们选择的是：</p>
+<blockquote>
+<p><strong>以出库单为业务目标的编排型 Saga</strong></p>
+</blockquote>
+<p>原因很简单：</p>
+<ul>
+<li>
+<p>WES 本身就是履约编排中枢</p>
+</li>
+<li>
+<p>下游系统（如 WCS）不具备事务补偿能力</p>
+</li>
+<li>
+<p>需要明确、可控的流程推进与回滚逻辑</p>
+</li>
+</ul>
+<hr>
+<h2 id="四-wes-出库-saga-的业务建模">四、WES 出库 Saga 的业务建模</h2>
+<h3 id="1-saga-的业务边界">1. Saga 的业务边界</h3>
+<ul>
+<li>
+<p><strong>Saga 实例粒度</strong>：出库单</p>
+</li>
+<li>
+<p><strong>Saga 目标</strong>：完成一次出库履约（成功或可控失败）</p>
+</li>
+</ul>
+<p>出库单天然就是一个 Saga 的生命周期边界。</p>
+<hr>
+<h3 id="2-核心业务对象">2. 核心业务对象</h3>
+<ul>
+<li>
+<p>出库单（Outbound Order）</p>
+</li>
+<li>
+<p>出库作业单（Work ）</p>
+</li>
+<li>
+<p>出库任务（Job）</p>
+</li>
+<li>
+<p>二级库存（L2，逻辑库存）</p>
+</li>
+<li>
+<p>三级库存（L3，具体到库位库存）</p>
+</li>
+<li>
+<p>工作站 / WCS</p>
+</li>
+</ul>
+<p>这些对象的<strong>状态变化</strong>，共同构成了 Saga 的执行轨迹。</p>
+<hr>
+<h2 id="五-saga-的正向履约流程">五、Saga 的正向履约流程</h2>
+<figure data-type="image" tabindex="4"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234432552.png?raw=true" alt="" loading="lazy"></figure>
+<p>几个关键点：</p>
+<ul>
+<li>
+<p>Saga 并不是同步完成，而是被<strong>定时器持续推进</strong></p>
+</li>
+<li>
+<p>每一步都是独立本地事务</p>
+</li>
+<li>
+<p>任意一步失败，都不会影响已提交步骤的可见性</p>
+</li>
+</ul>
+<hr>
+<h2 id="六-外部事件驱动的-saga工作站下线">六、外部事件驱动的 Saga：工作站下线</h2>
+<p>在真实仓储环境中，<strong>资源变化是常态</strong>。</p>
+<h3 id="1-典型场景工作站下线">1. 典型场景：工作站下线</h3>
+<p>当某个工作站下线时：</p>
+<ul>
+<li>
+<p>已生成但未执行的任务不可继续</p>
+</li>
+<li>
+<p>已预占的三级库存需要释放</p>
+</li>
+<li>
+<p>原有作业规划失效，需要重新规划</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-我们的处理方式">2. 我们的处理方式</h3>
+<p>在 Saga 视角下，从实现上看，这并不是一次“异常处理逻辑”，而是 Saga 在面对外部环境变化时的一次<strong>显式补偿与重编排</strong>，也是我们在仓储系统中最常见、也最重要的一类 Saga 触发方式。</p>
+<p>具体行为：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234525239.png?raw=true" alt="" loading="lazy"></p>
+<p>Saga 在这里体现的是<strong>业务韧性</strong>。</p>
+<hr>
+<h2 id="七-saga-的工程落地方式">七、Saga 的工程落地方式</h2>
+<figure data-type="image" tabindex="5"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251213234621384.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="1-状态机-定时器轻量级-saga-driver">1. 状态机 + 定时器：轻量级 Saga Driver</h3>
+<p>我们没有引入专门的工作流或 Saga 框架，而是采用：</p>
+<ul>
+<li>
+<p><strong>状态机</strong>：描述“当前处于哪一步”</p>
+</li>
+<li>
+<p><strong>定时器</strong>：负责推进下一步执行</p>
+</li>
+</ul>
+<p>这种方式：</p>
+<ul>
+<li>
+<p>实现简单</p>
+</li>
+<li>
+<p>易于调试</p>
+</li>
+<li>
+<p>与业务模型高度贴合</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-工作站维度的分布式锁">2. 工作站维度的分布式锁</h3>
+<p>我们在工程上引入了：</p>
+<blockquote>
+<p><strong>以工作站为粒度的分布式锁</strong></p>
+</blockquote>
+<p>使用原则非常明确：</p>
+<ul>
+<li>
+<p>锁只用于<strong>并发收敛</strong></p>
+</li>
+<li>
+<p>不承担 Saga 一致性语义</p>
+</li>
+</ul>
+<p>典型使用场景：</p>
+<ul>
+<li>
+<p>生成任务</p>
+</li>
+<li>
+<p>回滚任务</p>
+</li>
+<li>
+<p>下发任务</p>
+</li>
+<li>
+<p>处理工作站下线事件</p>
+</li>
+</ul>
+<p>并且严格遵循：</p>
+<blockquote>
+<p><strong>锁内逻辑原子化：先提交事务，再释放锁</strong></p>
+</blockquote>
+<hr>
+<h2 id="八-saga-的可观测性任务流转树监控">八、Saga 的可观测性：任务流转树监控</h2>
+<p>Saga 最大的工程风险，不是失败，而是：</p>
+<blockquote>
+<p><strong>流程卡死却不可见</strong>。</p>
+</blockquote>
+<p>一旦 Saga 失去可观测性，工程团队就只能依赖人工介入和经验判断，这往往是系统稳定性持续恶化的开始。</p>
+<p>为此，我构建了一套<strong>任务流转树监控系统</strong>。</p>
+<h3 id="能看到什么">能看到什么？</h3>
+<ul>
+<li>
+<p>一个出库单下：</p>
+<ul>
+<li>出库明细的信息</li>
+<li>分裂成了多少作业单</li>
+<li>每个作业单生成了多少任务</li>
+</ul>
+</li>
+<li>
+<p>每个 Work / Task：</p>
+<ul>
+<li>
+<p>当前状态</p>
+</li>
+<li>
+<p>状态的业务含义</p>
+</li>
+<li>
+<p>在当前状态停留的时长</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%8D%81%E4%B8%80%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E9%93%BE%E8%B7%AF%E4%B8%AD%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%20Saga%20%E5%AE%9E%E8%B7%B5/file-20251214000534125.png?raw=true" alt="" loading="lazy"><br>
+这使得 Saga 从“黑盒流程”变成了“白盒履约”。</p>
+<hr>
+<h2 id="九-我们踩过的坑-为什么没选-tcc">九、我们踩过的坑 &amp; 为什么没选 TCC</h2>
+<h3 id="1-我们踩过的几个坑">1. 我们踩过的几个坑</h3>
+<ul>
+<li>
+<p><strong>把异常当成少数情况</strong>：在仓储系统中，异常本身就是常态</p>
+</li>
+<li>
+<p><strong>过早追求强一致</strong>：导致系统复杂度和耦合度急剧上升</p>
+</li>
+<li>
+<p><strong>缺乏可观测性</strong>：问题只能靠日志和人工猜测</p>
+</li>
+</ul>
+<hr>
+<h3 id="2-为什么没选-tcc">2. 为什么没选 TCC</h3>
+<p>我们认真评估过 TCC，但最终没有采用，原因包括：</p>
+<ul>
+<li>
+<p>Try 阶段需要资源强锁定，不适合长时间履约</p>
+</li>
+<li>
+<p>下游系统（如 WCS）不具备 Confirm / Cancel 能力</p>
+</li>
+<li>
+<p>TCC 对接口侵入性极强，演进成本高</p>
+</li>
+</ul>
+<p>相比之下，Saga：</p>
+<ul>
+<li>
+<p>更符合“最终一致”的业务现实</p>
+</li>
+<li>
+<p>对下游侵入小</p>
+</li>
+<li>
+<p>更易与现有系统演进融合</p>
+</li>
+</ul>
+<hr>
+<h2 id="十-总结">十、总结</h2>
+<p>我们并不是“为了 Saga 而 Saga”，而是在解决 WES 出库问题的过程中，逐步演进出了一套 Saga 实践方案。</p>
+<ul>
+<li>
+<p>以出库单为业务目标</p>
+</li>
+<li>
+<p>以状态机 + 定时器驱动</p>
+</li>
+<li>
+<p>支持外部事件补偿</p>
+</li>
+<li>
+<p>强调最终一致性与可观测性</p>
+</li>
+</ul>
+<p>这套方案没有追求概念上的完美，但在真实复杂业务中，<strong>稳定、可控、可演进</strong>。</p>
+<blockquote>
+<p><strong>这，才是 Saga 在工程实践中的真正价值。</strong></p>
+</blockquote>
+<p>需要强调的是，这套 Saga 实践并不是通用银弹。</p>
+<p>它适用于<strong>履约链路长、资源频繁变化、允许中间态存在</strong>的业务场景；<br>
+对于强一致、短事务、高实时性要求的场景，Saga 反而可能引入不必要的复杂度。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-shi-liao-liao-wes-dan-ju-ren-wu-diao-du/" class="post-title gt-a-link">
+                    WES 重构系列（十）：聊聊 WES 单据任务调度
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

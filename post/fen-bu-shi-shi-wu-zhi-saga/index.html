@@ -1,0 +1,230 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>分布式事务之 Saga | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    分布式事务之 Saga
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-02-05 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>Saga是针对分布式长活事务的解决方案，针对事务长、多、复杂的情况，特别是服务由多个公司开发具有不可控性，可以使用Saga模式进行分布式事务的处理。</p>
+<p>Saga在处理事务一致性方面采取了<strong>向前恢复</strong>和<strong>向后恢复</strong>策略，前者通过不断重试的方式保证事务完成，而后者通过子事务的补偿事务，逐一回滚的方式让事务标记失败。</p>
+<p>在分布式协调方面，Saga采用了两种模式：编排和控制。前者让参与者（服务）之间通过消息进行沟通，根据事件出发事务的执行流程，是一种去中心化的模式。后者通过中心控制类，处理事务的执行和回滚步骤，统一调用服务和接受服务的反馈。</p>
+<hr>
+<h3 id="一-核心场景电商订单全流程拆解">一、核心场景：电商订单全流程拆解</h3>
+<p>想象一个国际电商订单流程：</p>
+<ol>
+<li><strong>订单服务</strong> → 创建订单</li>
+<li><strong>支付服务</strong> → 扣款</li>
+<li><strong>风控服务</strong> → 反欺诈检查（耗时1-5秒）</li>
+<li><strong>物流服务</strong> → 分配仓库</li>
+<li><strong>库存服务</strong> → 扣减库存</li>
+</ol>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/PansonPanson/supply-chain/cc88c36ceca256e9aba32542a9337fcce4209b06/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%20Saga/c52793bb5238e1137c495963cb7b61c7.svg" alt="img" loading="lazy"></figure>
+<p><strong>若风控审核失败，系统需按倒序回滚</strong>：</p>
+<ol>
+<li>撤销仓库分配（物流服务）</li>
+<li>退款（支付服务）</li>
+<li>取消订单（订单服务）</li>
+</ol>
+<hr>
+<h3 id="二-saga实现机制两种核心模式对比">二、Saga实现机制：两种核心模式对比</h3>
+<h4 id="1-协同式-choreography">1. 协同式 (Choreography)</h4>
+<p><strong>无中心协调器，服务间通过事件触发</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/PansonPanson/supply-chain/cc88c36ceca256e9aba32542a9337fcce4209b06/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%20Saga/7fc7c8d3ec0848910bf6197620068d53.svg" alt="img" loading="lazy"></figure>
+<p><strong>特征</strong>：</p>
+<ul>
+<li>服务直接发布/订阅事件</li>
+<li>无单点故障风险</li>
+<li>调试复杂度较高（需跟踪事件流）</li>
+</ul>
+<h4 id="2-编排式-orchestration">2. 编排式 (Orchestration)</h4>
+<p><strong>由协调器统一控制流程</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/PansonPanson/supply-chain/cc88c36ceca256e9aba32542a9337fcce4209b06/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%20Saga/82ffbc522519efe79a2b56377e409afe.svg" alt="img" loading="lazy"></figure>
+<p><strong>特征</strong>：</p>
+<ul>
+<li>集中管理状态流转</li>
+<li>易监控和调试</li>
+<li>协调器成为性能瓶颈风险</li>
+</ul>
+<p>💡 技术选型建议：<br>
+流程节点 ≤ 5 → <strong>协同式</strong>（轻量敏捷）<br>
+流程节点 &gt; 5 → <strong>编排式</strong>（可控性强）</p>
+<hr>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-013/" class="post-title gt-a-link">
+                    Panson-Weekly-013
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

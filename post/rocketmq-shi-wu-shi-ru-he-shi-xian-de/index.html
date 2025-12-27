@@ -1,0 +1,370 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>RocketMQ 事务是如何实现的？ | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    RocketMQ 事务是如何实现的？
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-02-08 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>RocketMQ的事务消息通过<strong>两阶段提交（2PC）</strong> 实现的，核心是 Half 消息。下面我们来具体聊聊。</p>
+<h2 id="一-核心流程">一、<strong>核心流程</strong></h2>
+<p>先来看看官网上的一张图：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/RocketMQ%20%E4%BA%8B%E5%8A%A1%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/transflow-0b07236d124ddb814aeaf5f6b5f3f72c.png?raw=true" alt="事务消息" loading="lazy"></figure>
+<p>再来张中文版的：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/RocketMQ%20%E4%BA%8B%E5%8A%A1%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/1306925-20210811144623593-198113297.jpg?raw=true" alt="RocketMQ 事务消息" loading="lazy"></figure>
+<ol>
+<li><strong>发送半消息（Half Message）</strong>
+<ul>
+<li>生产者发送一条<strong>对消费者不可见</strong>的消息到Broker（状态为<code>PREPARED</code>）。</li>
+<li>Broker存储消息（但不会投递给消费者），并响应生产者。</li>
+</ul>
+</li>
+<li><strong>执行本地事务</strong>
+<ul>
+<li>生产者收到半消息确认后，<strong>执行本地事务</strong>（如数据库操作）。</li>
+</ul>
+</li>
+<li><strong>提交或回滚事务</strong>
+<ul>
+<li><strong>成功提交</strong>：生产者发送<code>commit</code>指令，Broker将消息标记为<code>COMMITTED</code>（对消费者可见）。</li>
+<li><strong>失败回滚</strong>：生产者发送<code>rollback</code>指令，Broker删除半消息。</li>
+<li><strong>未响应</strong>：若生产者宕机/超时未响应，进入<strong>事务回查机制</strong>。</li>
+</ul>
+</li>
+<li><strong>事务状态回查</strong>
+<ul>
+<li>Broker定时扫描未处理的半消息（<code>PREPARED</code>状态），向生产者发起回查请求。</li>
+<li>生产者检查本地事务状态，返回<code>commit</code>/<code>rollback</code>结果。</li>
+<li>Broker根据回查结果提交或删除消息。</li>
+</ul>
+</li>
+</ol>
+<h2 id="二-生产者端实现">二、<strong>生产者端实现</strong></h2>
+<pre><code class="language-java">// 1. 创建事务生产者
+TransactionMQProducer producer = new TransactionMQProducer(&quot;group&quot;);
+producer.setNamesrvAddr(&quot;localhost:9876&quot;);
+
+// 2. 设置事务监听器（核心）
+producer.setTransactionListener(new TransactionListener() {
+    // 执行本地事务
+    @Override
+    public LocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+        try {
+            // 业务操作（如更新数据库）
+            boolean success = doBusinessLogic();
+            return success ? 
+                LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
+        } catch (Exception e) {
+            return LocalTransactionState.UNKNOW; // 触发回查
+        }
+    }
+
+    // Broker回查时调用
+    @Override
+    public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+        // 根据消息内容检查本地事务状态
+        return checkBusinessStatus(msg) ? 
+            LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
+    }
+});
+
+// 3. 发送半消息
+Message msg = new Message(&quot;Topic&quot;, &quot;Tag&quot;, &quot;Hello TX&quot;.getBytes());
+SendResult result = producer.sendMessageInTransaction(msg, null);
+</code></pre>
+<p><code>RocketMQLocalTransactionListener</code> 接口规范了事务监听类必须实现的两个接口：<code>executeLocalTransaction</code>用于执行本地事务，<code>checkLocalTransaction</code> 用于 broker 回调，检查本地事务执行。</p>
+<pre><code class="language-java">package org.apache.rocketmq.spring.core;
+
+import org.springframework.messaging.Message;
+
+public interface RocketMQLocalTransactionListener {
+    RocketMQLocalTransactionState executeLocalTransaction(final Message msg, final Object arg);
+
+    RocketMQLocalTransactionState checkLocalTransaction(final Message msg);
+}
+</code></pre>
+<h2 id="三-broker端处理">三、<strong>Broker端处理</strong></h2>
+<ul>
+<li><strong>半消息存储</strong>：半消息存入单独的Topic（<code>RMQ_SYS_TRANS_HALF_TOPIC</code>），避免被消费。</li>
+<li><strong>定时任务扫描</strong>：
+<ul>
+<li>Broker启动定时任务（默认60秒），扫描超过阈值的半消息。</li>
+<li>向生产者发起回查（最多15次，超过则视为失败）。</li>
+</ul>
+</li>
+<li><strong>状态转换</strong>：
+<ul>
+<li><code>COMMIT</code> → 将消息恢复到原Topic，供消费者消费。</li>
+<li><code>ROLLBACK</code>/超时 → 删除半消息。</li>
+</ul>
+</li>
+</ul>
+<h2 id="四-异常情况">四、异常情况</h2>
+<h3 id="异常1如果步骤-4-发生异常commit或rollback发送失败怎么办">异常1：如果步骤 4 发生异常（<code>COMMIT</code>或<code>ROLLBACK</code>发送失败）怎么办？</h3>
+<p>在RocketMQ的事务消息机制中，若Broker长时间未收到生产者发送的<code>COMMIT</code>或<code>ROLLBACK</code>指令（例如因生产者宕机、网络故障或本地事务执行超时），系统会通过<strong>事务状态回查机制</strong>确保消息的最终一致性。</p>
+<hr>
+<h4 id="1-事务状态回查机制">1. 事务状态回查机制</h4>
+<ul>
+<li><strong>触发条件</strong>：<br>
+Broker在固定周期（默认60秒）内扫描未确认状态（<code>PREPARED</code>）的半消息（half消息）。若消息超过指定等待时间仍未收到确认指令，则触发回查。</li>
+<li><strong>回查流程</strong>：
+<ul>
+<li>Broker向生产者发起回调请求，调用生产者实现的<code>TransactionListener.checkLocalTransaction()</code>方法；</li>
+<li>生产者需在该方法中查询本地事务状态（如检查数据库操作结果）；</li>
+<li>根据业务状态返回以下结果之一：
+<ul>
+<li><code>COMMIT_MESSAGE</code>：提交消息（消息对消费者可见）；</li>
+<li><code>ROLLBACK_MESSAGE</code>：回滚消息（删除半消息）；</li>
+<li><code>UNKNOW</code>：状态未明，等待下次回查。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="2-broker端的处理逻辑">2. <strong>Broker端的处理逻辑</strong></h4>
+<ul>
+<li><strong>消息存储隔离</strong>：<br>
+半消息存储在特殊Topic（<code>RMQ_SYS_TRANS_HALF_TOPIC</code>）中，消费者无法直接消费，确保未提交消息不会泄露。</li>
+<li><strong>回查策略</strong>：
+<ul>
+<li>回查次数限制：默认最多15次（可配置），超过后自动视为失败并回滚消息；</li>
+<li>回查间隔：首次回查后若仍返回<code>UNKNOW</code>，后续回查间隔逐步增加（如60秒→2分钟→10分钟）。</li>
+</ul>
+</li>
+<li><strong>结果处理</strong>：
+<ul>
+<li>收到<code>COMMIT</code>：将消息从<code>RMQ_SYS_TRANS_HALF_TOPIC</code>转移到原始Topic，写入磁盘（CommitLog）并投递给消费者；</li>
+<li>收到<code>ROLLBACK</code>：删除半消息；</li>
+<li>持续<code>UNKNOW</code>：达到最大回查次数后强制回滚。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h4 id="3-生产者端的实现要求">3. <strong>生产者端的实现要求</strong></h4>
+<p>生产者需在<code>checkLocalTransaction()</code>方法中实现<strong>幂等且可靠的状态查询逻辑</strong>，例如：</p>
+<pre><code>@Override
+public LocalTransactionState checkLocalTransaction(MessageExt msg) {
+    // 根据消息唯一ID查询数据库事务状态
+    String orderId = msg.getProperty(&quot;ORDER_ID&quot;);
+    boolean isSuccess = orderService.isTransactionCompleted(orderId);
+    return isSuccess ? 
+        LocalTransactionState.COMMIT_MESSAGE : LocalTransactionState.ROLLBACK_MESSAGE;
+}
+</code></pre>
+<p><strong>注意事项</strong>：</p>
+<ul>
+<li><strong>幂等性</strong>：多次回查可能针对同一消息，需避免重复提交或回滚；</li>
+<li><strong>状态判断</strong>：若事务结果依赖外部调用（如RPC），需设计降级策略（如超时后视为失败）。</li>
+</ul>
+<hr>
+<h4 id="4-极端场景的应对">4. <strong>极端场景的应对</strong></h4>
+<ul>
+<li><strong>生产者永久宕机</strong>：<br>
+Broker在多次回查失败后自动回滚消息，避免消息积压。</li>
+<li><strong>回查期间业务状态变更</strong>：<br>
+生产者需记录事务日志（如数据库事务表），确保回查时能获取准确状态。</li>
+</ul>
+<hr>
+<h4 id="总结"><strong>总结</strong></h4>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Broker</strong></td>
+<td>定时扫描未确认消息 → 触发回查 → 根据结果提交/回滚/重试</td>
+</tr>
+<tr>
+<td><strong>生产者</strong></td>
+<td>实现状态检查接口 → 查询本地事务日志 → 返回明确状态</td>
+</tr>
+<tr>
+<td><strong>消息存储</strong></td>
+<td>半消息隔离存储（<code>RMQ_SYS_TRANS_HALF_TOPIC</code>） → 提交后转至目标Topic</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/fen-bu-shi-shi-wu-zhi-saga/" class="post-title gt-a-link">
+                    分布式事务之 Saga
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

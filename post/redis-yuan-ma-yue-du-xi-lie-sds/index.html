@@ -1,0 +1,286 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Redis 源码阅读系列-sds | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Redis 源码阅读系列-sds
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2023-11-16 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>Redis 源码阅读第二弹：sds</em></p>
+<!-- more -->
+<h1 id="1-redis-为什么不使用-c-语言原生字符串">1 Redis 为什么不使用 C 语言原生字符串？</h1>
+<p>Redis 设计时，考虑到 C 语言字符串的诸多限制，重新设计与实现了字符串。<br>
+老生常谈的问题，Redis 为什么要设计专用的字符串，也就是 sds 结构体？<br>
+我问了 chatGPT，它给出了以下的回答：</p>
+<p><strong>英文：</strong></p>
+<p>Redis does not use the C language's built-in strings primarily because Redis is designed to be a high-performance, in-memory data store that offers advanced data manipulation and storage capabilities. The built-in C strings in the C programming language have limitations that make them unsuitable for Redis' requirements. Here are a few reasons why Redis does not use C's built-in strings:</p>
+<ol>
+<li>
+<p>Dynamic resizing: Redis needs to efficiently handle strings of varying lengths, including very large strings. C's built-in strings have a fixed size and cannot dynamically resize themselves, which would limit Redis' ability to handle dynamic data.</p>
+</li>
+<li>
+<p>Memory management: Redis manages memory dynamically and optimizes memory usage. C's built-in strings do not provide automatic memory management or support for efficient memory allocation strategies, which Redis requires to optimize memory usage and prevent memory leaks.</p>
+</li>
+<li>
+<p>Performance considerations: Redis is designed to offer high-performance data storage and manipulation. C's built-in strings have limitations in terms of performance optimizations, such as efficient substring extraction, concatenation, and comparison operations, which could impact Redis' overall performance.</p>
+</li>
+<li>
+<p>Additional data structure requirements: Redis supports various data types, including lists, sets, hashes, and more. C's built-in strings do not provide the necessary abstractions and functionality required to handle these complex data structures efficiently.</p>
+</li>
+<li>
+<p>Compatibility with other languages: Redis is widely used as a data store in various programming languages. By implementing its own string data structure, Redis ensures consistency and compatibility across different language bindings and client libraries.</p>
+</li>
+</ol>
+<p>By designing its own string data structure, Redis can tailor it specifically to meet the performance, memory management, and functionality requirements of a high-performance data store. This allows Redis to offer efficient storage and manipulation of data, making it popular for caching, messaging, and other data-intensive applications.</p>
+<p><strong>中文：</strong></p>
+<p>Redis不使用C语言本身的字符串主要是因为Redis被设计为高性能的内存数据存储，提供高级的数据操作和存储功能。C语言的内置字符串具有一些限制，使其不适用于Redis的需求。以下是Redis不使用C语言内置字符串的几个原因：</p>
+<ol>
+<li>
+<p>动态调整大小：Redis需要高效地处理长度可变的字符串，包括非常大的字符串。C语言的内置字符串具有固定的大小，无法动态调整大小，这将限制Redis处理动态数据的能力。</p>
+</li>
+<li>
+<p>内存管理：Redis动态管理内存并优化内存使用。C语言的内置字符串不提供自动的内存管理或支持高效的内存分配策略，而这是Redis需要的，以优化内存使用并防止内存泄漏。</p>
+</li>
+<li>
+<p>性能考虑：Redis旨在提供高性能的数据存储和操作。C语言的内置字符串在性能优化方面存在限制，例如高效的子字符串提取、连接和比较操作，这可能会影响Redis的整体性能。</p>
+</li>
+<li>
+<p>额外的数据结构要求：Redis支持各种数据类型，包括列表、集合、哈希等。C语言的内置字符串不提供处理这些复杂数据结构所需的抽象和功能。</p>
+</li>
+<li>
+<p>与其他语言的兼容性：Redis被广泛用作各种编程语言中的数据存储。通过实现自己的字符串数据结构，Redis确保不同语言绑定和客户端库之间的一致性和兼容性。</p>
+</li>
+</ol>
+<p>通过设计自己的字符串数据结构，Redis可以根据高性能数据存储的要求进行定制。这使得Redis能够高效地存储和操作数据，因此在缓存、消息传递和其他数据密集型应用中非常受欢迎。</p>
+<hr>
+<p>我个人觉得最主要的是以下 3 个方面：</p>
+<ol>
+<li>二进制安全（binary safe）： 所谓“二进制安全”，简单来说指的是可以存储任意类型的数据。C 语言字符串中，<code>\0</code> 表示字符串结尾，如果字符串内容想保存 <code>\0</code>这类特殊字符，C 语言自带的字符串显然是无法满足要求的。</li>
+<li>高性能：比如说字符串长度的读取、字符串追加、比较、扩缩容等操作，比原生的 C 语言字符串更加高效。</li>
+<li>避免缓冲区溢出：C 语言中，在字符串拼接时，如果忘记提前申请分配内存空间，会导致缓冲区溢出。在 Redis 中，字符串拼接会自动检查空间是否足够，不够则扩容，避免缓冲区溢出。</li>
+</ol>
+<h1 id="2-sds-结构体">2 sds 结构体</h1>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/PansonPanson/blog-pic-2023/main/2023/202311241835437.png" alt="" loading="lazy"></figure>
+<pre><code class="language-c">/* Note: sdshdr5 is never used, we just access the flags byte directly.
+ * However is here to document the layout of type 5 SDS strings. */
+struct __attribute__ ((__packed__)) sdshdr5 {
+    unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr8 {
+    uint8_t len; /* used */
+    uint8_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr16 {
+    uint16_t len; /* used */
+    uint16_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr32 {
+    uint32_t len; /* used */
+    uint32_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+struct __attribute__ ((__packed__)) sdshdr64 {
+    uint64_t len; /* used */
+    uint64_t alloc; /* excluding the header and null terminator */
+    unsigned char flags; /* 3 lsb of type, 5 unused bits */
+    char buf[];
+};
+</code></pre>
+<p>在 Redis 中，设计了 5 个 sds 结构体，用于存储不同长度的字符串。设计 5 个不同的结构体，主要是出于节约存储的目的，比如说用  sdshdr8 就能存下的字符串，如果用 sdshdr64 存储，那就是 8 倍的存储空间消耗，对于一家稍微上体量的互联网公司，可能是过百亿级别的数据量，单就字符串存储上就要多耗费 70GB 的内存。由此可见，Redis 在数据结构上是做了诸多设计优化的。</p>
+<p>字段注释：</p>
+<pre><code class="language-c">struct __attribute__ ((__packed__)) sdshdr8 {
+  	// buf 数组已使用字节数
+    uint8_t len;   
+  	// buf 数组总共分配的字节数
+    uint8_t alloc;  
+  	// 低三位用于表示字符串类型
+    unsigned char flags;
+  	// 用于存储字符串的真实数据
+    char buf[];          
+};
+</code></pre>
+<p>在结构体上</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-002/" class="post-title gt-a-link">
+                    Panson-Weekly-002
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

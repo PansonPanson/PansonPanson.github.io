@@ -1,0 +1,327 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>自己动手写动态线程池框架01——监控线程池基础信息 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    自己动手写动态线程池框架01——监控线程池基础信息
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-12-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>动态线程池线程池的价值体现在两个维度：</p>
+<ol>
+<li>状态观测：实时捕获运行时指标，绘制性能趋势；</li>
+<li>动态干预：基于流量变化动态调整参数，实现弹性伸缩。</li>
+</ol>
+<p>如果我们需要实现动态线程池，那我们就需要熟悉线程池的基础信息，了解线程池有哪些基础信息以及如何动态更新这些信息。</p>
+<!-- more -->
+<h2 id="一-线程池源码基础信息概览">一、线程池源码基础信息概览</h2>
+<p>从线程池源码中可以发现，线程池提供了 get 方法的成员变量，是可以被收集的数据，比如：</p>
+<ul>
+<li>线程池的核心线程数 corePoolSize</li>
+<li>最大线程数 maximumPoolSize</li>
+<li>线程池线程的空闲时间 keepAliveTime</li>
+<li>核心线程是否允许超时回收 allowCoreThreadTimeOut</li>
+<li>线程池的拒绝策略 RejectedExecutionHandler</li>
+<li>任务队列 workQueue</li>
+<li>线程池当前创建的线程数量 poolSize</li>
+<li>曾经创建线程的最大数量 largestPoolSize</li>
+<li>当前活跃线程数量 activeCount</li>
+<li>线程池的执行的任务总数 taskCount</li>
+<li>已经执行完毕的任务总数 completedTaskCount</li>
+</ul>
+<p>从线程池源码中可以发现：提供了 set 方法的成员变量，是可以被更新的数据，比如：</p>
+<ul>
+<li>线程池的核心线程数量 corePoolSize</li>
+<li>线程池的最大线程数量 maximumPoolSize</li>
+<li>线程池的拒绝策略处理器 RejectedExecutionHandler 。</li>
+<li>线程池核心线程是否允许超时回收的标志 allowCoreThreadTimeOut</li>
+<li>线程池线程的最大空闲时间 keepAliveTime</li>
+</ul>
+<h2 id="二-信息总结">二、信息总结</h2>
+<p>从 <code>ThreadPoolExecutor</code> 源码中提取的核心监控参数：</p>
+<table>
+<thead>
+<tr>
+<th><strong>指标类型</strong></th>
+<th><strong>参数</strong></th>
+<th><strong>源码字段/方法</strong></th>
+<th><strong>监控意义</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>静态配置</strong></td>
+<td><code>corePoolSize</code></td>
+<td>核心线程数</td>
+<td>系统常驻处理能力基线</td>
+</tr>
+<tr>
+<td></td>
+<td><code>maximumPoolSize</code></td>
+<td>最大线程数</td>
+<td>突发流量承载上限</td>
+</tr>
+<tr>
+<td></td>
+<td><code>keepAliveTime</code></td>
+<td>空闲线程存活时间</td>
+<td>资源回收策略敏感度</td>
+</tr>
+<tr>
+<td></td>
+<td><code>allowCoreThreadTimeOut</code></td>
+<td>核心线程超时回收</td>
+<td>是否允许核心线程闲置退出（true/false）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>workQueue</code></td>
+<td>任务队列实现类</td>
+<td>队列类型（ArrayBlockingQueue, LinkedBlockingQueue等）影响排队策略</td>
+</tr>
+<tr>
+<td><strong>动态运行时</strong></td>
+<td><code>poolSize</code></td>
+<td><code>getPoolSize()</code></td>
+<td><strong>当前存活线程总数</strong>（包含空闲线程）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>activeCount</code></td>
+<td><code>getActiveCount()</code></td>
+<td><strong>正在执行任务的线程数</strong> → 真实并发负载</td>
+</tr>
+<tr>
+<td></td>
+<td><code>largestPoolSize</code></td>
+<td><code>getLargestPoolSize()</code></td>
+<td><strong>历史最大线程数</strong> → 判断线程池扩容峰值需求</td>
+</tr>
+<tr>
+<td></td>
+<td><code>taskCount</code></td>
+<td><code>getTaskCount()</code></td>
+<td><strong>总提交任务数</strong>（包括队列中未执行的任务）</td>
+</tr>
+<tr>
+<td></td>
+<td><code>completedTaskCount</code></td>
+<td><code>getCompletedTaskCount()</code></td>
+<td><strong>已完成任务数</strong> → 结合taskCount计算吞吐量</td>
+</tr>
+<tr>
+<td><strong>拒绝策略</strong></td>
+<td><code>RejectedExecutionHandler</code></td>
+<td>拒绝策略实例</td>
+<td>当队列满且线程达上限时的处理逻辑（AbortPolicy/CallerRunsPolicy等）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🚨 <strong>备注</strong>：<br>
+<code>activeCount / maximumPoolSize &gt; 70%</code> → 提示线程资源紧张；<br>
+<code>(taskCount - completedTaskCount) &gt; queueSize</code> → 表明存在任务堆积风险。</p>
+</blockquote>
+<hr>
+<h4 id="三-动态调参运行时可修改的关键参数"><strong>三、动态调参：运行时可修改的关键参数</strong></h4>
+<p>线程池支持热更新的参数（通过 <code>setter</code> 方法）：</p>
+<pre><code>// 示例：动态调整核心线程数
+executor.setCorePoolSize(newCoreSize); 
+
+// 调整最大线程数（触发条件：newMax &gt; current threads）
+executor.setMaximumPoolSize(newMaxSize);  
+
+// 允许核心线程超时（适用于低流量时段缩容）
+executor.allowCoreThreadTimeOut(true);  
+
+// 调整空闲线程存活时间（单位：纳秒）
+executor.setKeepAliveTime(30, TimeUnit.SECONDS);  
+
+// 更换拒绝策略（无需重启）
+executor.setRejectedExecutionHandler(new CustomPolicy()); 
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>生产注意事项</strong>：</p>
+<ol>
+<li>调大 <code>corePoolSize</code> 会<strong>立即创建新线程</strong>，但调小需等待线程超时退出；</li>
+<li>修改 <code>maximumPoolSize</code> 时，若新值小于当前线程数，不会强制销毁线程；</li>
+<li>动态调参建议配合<strong>监控告警</strong>，避免频繁操作引发震荡。</li>
+</ol>
+</blockquote>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/yi-ci-shang-you-geng-gai-jie-kou-dao-zhi-de-bai-wan-ji-shu-ju-sao-miao-yin-qi-de-dang-ji-wen-ti-md/" class="post-title gt-a-link">
+                    一次上游更改接口导致的百万级数据扫描引起的宕机问题
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

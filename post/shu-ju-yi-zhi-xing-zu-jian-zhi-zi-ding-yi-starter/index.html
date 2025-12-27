@@ -1,0 +1,300 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>数据一致性组件之自定义 Starter | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    数据一致性组件之自定义 Starter
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-09-18 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>既然要作为组件提供出去，那么肯定要封装为一个 Spring Boot Starter。</p>
+<p>那如何自定义一个 Spring Boot Starter 呢？</p>
+<p>老生常谈的问题。</p>
+<p>自定义 Starter 就是把业务功能封装成自动配置类，然后在 spring.factories 或者 .imports 中声明，让 Spring Boot 在启动时自动发现并注册。<br>
+核心点是：业务类、属性类、自动配置类、条件注解、注册配置文件。</p>
+<p>加载流程就是 @EnableAutoConfiguration 触发 SpringFactoriesLoader 读取配置，再由 @Conditional 系列注解判断是否装配 Bean。</p>
+<p>内部使用方只需要在 maven 配置中加入一致性行组件的依赖，根据需要修改配置文件即可。</p>
+<hr>
+<h3 id="1-创建模块"><strong>1. 创建模块</strong></h3>
+<ul>
+<li>
+<p>好像 spring 官方推荐 <strong>两模块模式</strong>，不过我看许多开源项目都是一个模块</p>
+<ol>
+<li>
+<p><strong><code>xxx-spring-boot-starter</code></strong>（Starter 壳模块）<br>
+只负责依赖管理，依赖 <code>autoconfigure</code> 模块</p>
+</li>
+<li>
+<p><strong><code>xxx-spring-boot-autoconfigure</code></strong>（自动配置模块）<br>
+包含配置类、业务类、<code>spring.factories</code>/<code>.imports</code></p>
+</li>
+</ol>
+</li>
+<li>
+<p>也可以直接做成单模块，但不利于复用</p>
+</li>
+</ul>
+<h3 id="2-编写核心业务类"><strong>2. 编写核心业务类</strong></h3>
+<ul>
+<li>提供 Starter 对外功能的核心逻辑</li>
+</ul>
+<pre><code class="language-java">public class DemoService {
+    private final String prefix;
+    public DemoService(String prefix) { this.prefix = prefix; }
+    public String sayHello(String name) { return prefix + &quot; &quot; + name; }
+}
+</code></pre>
+<hr>
+<h3 id="3-属性绑定类"><strong>3. 属性绑定类</strong></h3>
+<ul>
+<li>用于将 <code>application.yml</code> 配置绑定到 Java 对象</li>
+</ul>
+<pre><code class="language-java">@ConfigurationProperties(prefix = &quot;demo&quot;)
+public class DemoProperties {
+    private String prefix = &quot;Hello&quot;;
+    // getter/setter
+}
+</code></pre>
+<hr>
+<h3 id="4-自动配置类"><strong>4. 自动配置类</strong></h3>
+<ul>
+<li>使用条件注解，按需装配 Bean</li>
+</ul>
+<pre><code class="language-java">@Configuration
+@EnableConfigurationProperties(DemoProperties.class)
+@ConditionalOnProperty(prefix = &quot;demo&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;, matchIfMissing = true)
+public class DemoAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public DemoService demoService(DemoProperties properties) {
+        return new DemoService(properties.getPrefix());
+    }
+}
+</code></pre>
+<p>常用条件注解：</p>
+<ul>
+<li>
+<p><code>@ConditionalOnClass</code> → 类路径存在某个类时生效</p>
+</li>
+<li>
+<p><code>@ConditionalOnMissingBean</code> → 容器没有这个 Bean 时生效</p>
+</li>
+<li>
+<p><code>@ConditionalOnProperty</code> → 配置开关控制</p>
+</li>
+</ul>
+<hr>
+<h3 id="5-注册自动配置类"><strong>5. 注册自动配置类</strong></h3>
+<ul>
+<li><strong>Spring Boot 2.x</strong>：<code>META-INF/spring.factories</code></li>
+</ul>
+<pre><code class="language-properties">org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.example.demo.DemoAutoConfiguration
+</code></pre>
+<ul>
+<li><strong>Spring Boot 3.x</strong>：<code>META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports</code></li>
+</ul>
+<pre><code class="language-txt">com.example.demo.DemoAutoConfiguration
+</code></pre>
+<hr>
+<h2 id="使用时的执行流程"><strong>使用时的执行流程</strong></h2>
+<ol>
+<li>
+<p>项目引入 Starter 依赖</p>
+</li>
+<li>
+<p><code>@SpringBootApplication</code> → <code>@EnableAutoConfiguration</code> → <code>AutoConfigurationImportSelector</code></p>
+</li>
+<li>
+<p>读取 <code>spring.factories</code>/<code>.imports</code> 找到自动配置类</p>
+</li>
+<li>
+<p>解析 <code>@Conditional</code> 系列注解决定是否生效</p>
+</li>
+<li>
+<p>注册 Bean 到 Spring 容器</p>
+</li>
+<li>
+<p>绑定 <code>application.yml</code> 配置到属性类</p>
+</li>
+<li>
+<p>Bean 初始化完成，应用可以直接使用</p>
+</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/shu-ju-yi-zhi-xing-zu-jian-zhi-ren-wu-mo-xing/" class="post-title gt-a-link">
+                    数据一致性组件之任务模型
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

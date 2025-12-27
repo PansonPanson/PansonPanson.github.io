@@ -1,0 +1,387 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>001.什么是入库单 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    001.什么是入库单
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 <strong>WMS（仓库管理系统）</strong> 中，<strong>入库单</strong>是一种用于管理和追踪物料、商品进入仓库的数字化单据。它是 WMS 系统核心功能之一，贯穿于仓库的入库流程，确保从物料接收到正式入库的整个过程可视化、可追踪、规范化。</p>
+<hr>
+<h3 id="wms-中入库单的作用"><strong>WMS 中入库单的作用</strong></h3>
+<ol>
+<li>
+<p><strong>信息记录</strong>：</p>
+<ul>
+<li>记录入库商品的详细信息（如品名、规格、数量、供应商来源等），以实现精准的库存管理。</li>
+</ul>
+</li>
+<li>
+<p><strong>流程控制</strong>：</p>
+<ul>
+<li>从物料到货、验收、上架到正式入库的全过程都由入库单驱动，保证流程有序。</li>
+</ul>
+</li>
+<li>
+<p><strong>与其他系统对接</strong>：</p>
+<ul>
+<li>入库单与采购系统、ERP 系统、财务系统等关联，实现业务协同。</li>
+</ul>
+</li>
+<li>
+<p><strong>库存动态更新</strong>：</p>
+<ul>
+<li>入库单完成后，WMS 系统会实时更新库存数量和位置，确保库存数据准确。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="wms-中入库单的类型"><strong>WMS 中入库单的类型</strong></h3>
+<p>根据业务场景，WMS 中的入库单可以有以下类型：</p>
+<ol>
+<li>
+<p><strong>采购入库单</strong>：</p>
+<ul>
+<li>由采购订单生成，用于记录采购商品入库的情况。</li>
+</ul>
+</li>
+<li>
+<p><strong>生产入库单</strong>：</p>
+<ul>
+<li>工厂生产的成品、半成品完成后进入仓库时生成的入库单。</li>
+</ul>
+</li>
+<li>
+<p><strong>退货入库单</strong>：</p>
+<ul>
+<li>客户或门店退回的商品重新入库时生成的单据。</li>
+</ul>
+</li>
+<li>
+<p><strong>调拨入库单</strong>：</p>
+<ul>
+<li>从其他仓库或分拣中心调拨过来的物品入库时使用。</li>
+</ul>
+</li>
+<li>
+<p><strong>其他入库单</strong>：</p>
+<ul>
+<li>例如赠品入库、盘盈入库、报废物资回收入库等。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="wms-中入库单的核心字段"><strong>WMS 中入库单的核心字段</strong></h3>
+<p>入库单在 WMS 系统中通常包含以下信息：</p>
+<table>
+<thead>
+<tr>
+<th><strong>字段名称</strong></th>
+<th><strong>描述</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>单据编号</strong></td>
+<td>入库单的唯一标识，用于追踪。</td>
+</tr>
+<tr>
+<td><strong>入库时间</strong></td>
+<td>记录物料入库的时间。</td>
+</tr>
+<tr>
+<td><strong>供应商名称</strong></td>
+<td>入库商品的供应商信息（如采购时）。</td>
+</tr>
+<tr>
+<td><strong>物料信息</strong></td>
+<td>商品名称、规格型号、批次号、数量、单位等。</td>
+</tr>
+<tr>
+<td><strong>仓库/库位</strong></td>
+<td>入库的仓库及具体存放库位。</td>
+</tr>
+<tr>
+<td><strong>操作人员</strong></td>
+<td>负责物料验收、入库操作的人员信息。</td>
+</tr>
+<tr>
+<td><strong>关联单据</strong></td>
+<td>关联的采购单号、调拨单号或其他业务单据编号。</td>
+</tr>
+<tr>
+<td><strong>备注</strong></td>
+<td>其他需要说明的信息。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="wms-入库单的流程"><strong>WMS 入库单的流程</strong></h3>
+<ol>
+<li>
+<p><strong>创建入库单</strong>：</p>
+<ul>
+<li>系统根据采购订单或其他来源自动生成入库单，或由操作人员手动录入。</li>
+</ul>
+</li>
+<li>
+<p><strong>收货登记</strong>：</p>
+<ul>
+<li>物料到达仓库，操作人员扫描条码（或录入信息），核对数量和质量。</li>
+</ul>
+</li>
+<li>
+<p><strong>质检验收</strong>（可选）：</p>
+<ul>
+<li>如果需要质检，系统会记录质检结果（合格或不合格）并更新入库单状态。</li>
+</ul>
+</li>
+<li>
+<p><strong>上架操作</strong>：</p>
+<ul>
+<li>系统根据库存规则或人工指定，将商品分配到具体库位，并生成上架任务。</li>
+</ul>
+</li>
+<li>
+<p><strong>入库确认</strong>：</p>
+<ul>
+<li>上架完成后，系统更新入库单状态为“已完成”，并同步更新库存。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="wms-入库单与其他模块的关系"><strong>WMS 入库单与其他模块的关系</strong></h3>
+<ol>
+<li>
+<p><strong>与采购模块</strong>：</p>
+<ul>
+<li>从采购订单生成入库单，确保采购的商品及时入库。</li>
+</ul>
+</li>
+<li>
+<p><strong>与库存模块</strong>：</p>
+<ul>
+<li>入库单完成后，库存数量和库位信息实时更新。</li>
+</ul>
+</li>
+<li>
+<p><strong>与财务模块</strong>：</p>
+<ul>
+<li>入库单完成后，可用于核算采购成本、库存价值等。</li>
+</ul>
+</li>
+<li>
+<p><strong>与质检模块</strong>：</p>
+<ul>
+<li>部分商品入库前需要质检，质检结果会影响入库单状态。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="wms-入库单的优点"><strong>WMS 入库单的优点</strong></h3>
+<ol>
+<li>
+<p><strong>数字化管理</strong>：</p>
+<ul>
+<li>减少人工录入错误，数据实时同步，提高效率。</li>
+</ul>
+</li>
+<li>
+<p><strong>库存精准性</strong>：</p>
+<ul>
+<li>通过入库单驱动库存更新，确保库存数据准确无误。</li>
+</ul>
+</li>
+<li>
+<p><strong>操作规范化</strong>：</p>
+<ul>
+<li>入库全流程可追溯，提升仓库管理的透明度和合规性。</li>
+</ul>
+</li>
+<li>
+<p><strong>高效协同</strong>：</p>
+<ul>
+<li>入库单与其他业务系统联动，提升整体供应链效率。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>通过 WMS 系统中的入库单，企业可以实现仓库管理的流程化和精细化，为供应链的高效运转提供有力支持。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/012_-shi-me-shi-liao-ge-dian-zi-biao-qian/" class="post-title gt-a-link">
+                    012.什么是料格电子标签
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

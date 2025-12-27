@@ -1,0 +1,272 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>MySQL 存储原理串连 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    MySQL 存储原理串连
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-05-08 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>本文是一篇比较散的总结，通过一系列的概念，将 MySQL 核心原理梳理出来，看文章的时候，我可以在脑海里面过一遍，速览并复习。</em></p>
+<!-- more -->
+<p>1、数据库连接池、SQL 接口、SQL 解析器、查询优化器、执行器、存储引擎<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/MySQL001.jpg?raw=true" alt="" loading="lazy"></p>
+<p>2、Buffer Pool、undo 日志文件、Redo Log Buffer、redo 日志文件、binlog</p>
+<ul>
+<li>redo log 在存储引擎层，记录的是一种偏向物理性质的重做日志，类似于“对哪个数据页中的什么记录，做了个什么修改”</li>
+<li>binlog 叫做归档日志，在 server 层，记录的是一种偏向于逻辑性的日志，类似于“对 user 表中的 id=10的一行数据做了更新操作，更新以后的值是什么”<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/MySQL002.jpg?raw=true" alt="" loading="lazy"></li>
+</ul>
+<p>小结：在一次数据更新流程中，InnoDB 存储引擎主要包含了一些 buffer pool、redo log buffer 等内存里的缓存数据，同时还包含了 undo 日志文件、redo 日志文件等，同时 mysql server 还有 binlog 日志文件。<br>
+每次执行更新的时候，每条 SQL 语句，都会对应修改 buffer pool 里的缓存数据、写 undo 日志、写 redo log buffer 几个步骤。<br>
+但是当你提交事务的时候，一定会把 redo log 刷入磁盘，binlog 刷入磁盘，完成 redo log中的事务 commit 标记，最后后台的 IO 线程会随机把 buffer pool 里的脏数据刷入磁盘里去。</p>
+<p>3、Buffer Pool 默认大小（128 MB）、Buffer Pool 描述数据、free 链表、flush 链表、LRU 链表（MySQL 对冷热数据的存储优化）<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool.png?raw=true" alt="" loading="lazy"><br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool01.png?raw=true" alt="" loading="lazy"></p>
+<p>4、使用多个Buffer Pool 优化数据库的并发性能、chunk 机制<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/bufferpool02.png?raw=true" alt="" loading="lazy"></p>
+<p>5、MySQL 一行数据在磁盘上是如何存储的、行溢出<br>
+格式：变长字段的长度列表、null 值列表、数据头、隐藏字段、column01 的值、column02 的值、column03 的值<br>
+说明：</p>
+<ul>
+<li>变长字段的长度列表：以十六进制逆序存放，实例 0x09</li>
+<li>null 值列表以二进制存放，以1表示非NULL，0表示NULL，逆序存储</li>
+<li>数据头：40 个 bit 位
+<ul>
+<li>第 1 位和第 2 位：都是预留位，没有含义；</li>
+<li>第 3 位：delete_mask，他标识的是这行数据是否被删除了；</li>
+<li>第 4 位：min_rec_mask，B+ 树的非叶子节点里的最小值都有这个标记；</li>
+<li>5 到 8 共 4 位：n_owned，记录数</li>
+<li>9 到 21 位：heap_no，当前这行数据在记录堆里的位置</li>
+<li>22 到 24 位：record_type，这行数据的类型，0 代表的事普通类型，1 代表的是 B+ 树的非叶子节点，2 代表的是最小值数据，3 代表的是最大值数据。</li>
+<li>25 到 40 位：next_record，这个是指向他下一条数据的指针</li>
+</ul>
+</li>
+<li>列值：编码之后再存储</li>
+<li>隐藏字段：
+<ul>
+<li>DB_ROW_ID 字段：行的唯一标识，数据库内部给定，不是主键。如果我们没有指定主键和唯一索引的时候，他就内部自动加一个 ROW_ID 做为主键。</li>
+<li>DB_TRX_ID 字段：这是跟事务相关的事务ID</li>
+<li>DB_ROLL_PTR 字段：回滚指针，用来进行事务回滚。</li>
+</ul>
+</li>
+<li>行数据物理存储示例：<br>
+0x09 0x04 00000101 0000000000000000000010000000000000011001 000000000094(DB_ROW_ID) 000000000032D(DB_TRX_ID) EA000010078E(DB_ROL_PTR) 616161 636320 6262626262</li>
+</ul>
+<p>6、MySQL的存储模型：表空间有很多组数据区(extend)，一组数据区是256个数据区，每个数据区占 1 Mb，包含了 64 个数据页，每个数据页 16 Kb；数据页的各个部分</p>
+<ul>
+<li>表空间的第一组数据区的第一个数据区的前 3 个数据页，都是存放特殊信息的；</li>
+<li>表空间的其他组数据区的第一个数据区的前两个数据页，也是存放特殊信息的；</li>
+</ul>
+<p>7、数据库日志的顺序读写和数据文件的随机读写<br>
+8、Linux 存储系统层级：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Linux%20%E5%AD%98%E5%82%A8%E5%B1%82%E6%AC%A1.png?raw=true" alt="" loading="lazy"></p>
+<p>IO 调度层默认使用 CFQ 公平调度算法，使用该算法事会导致饥饿，生产环境中，建议改为deadline IO，该算法的核心思想是：任何 IO 操作都不能一直不停地等待，在指定的时间范围内，都必须让他去执行。<br>
+最后 IO 完成调度之后，就会决定哪个IO 请求先执行，哪个 IO 请求后执行，此时可以执行的 IO 请求就会交给 Block 设备驱动层。<br>
+Block 设备驱动层把 IO 请求发送给真正的存储硬件，也就是 Block 设备层。<br>
+Block 设备层完成了 IO 读写操作之后，进行读写操作，最后把响应经过上面的层级反向依次返回， MySQL 就可以得到本次 IO 读写操作的结果。</p>
+<p>9、Too many connections 故障<br>
+与 Linux 文件句柄数量有关，需要调大一点。</p>
+<pre><code class="language-shell">ulimit -HSn 65535
+</code></pre>
+<p>然后就可以用如下命令检查最大文件句柄数是否被修改了</p>
+<pre><code class="language-shell">cat /etc/security/limits.conf
+cat /etc/rc.local
+</code></pre>
+<p>我们平时可以用ulimit命令来设置每个进程被限制使用的资源量，用ulimit -a就可以看到进程被限制使用的各种资源的量。</p>
+<ul>
+<li>core file size 代表的进程崩溃时候的转储文件的大小限制</li>
+<li>max locked memory就是最大锁定内存大小</li>
+<li>open files就是最大可以打开的文件句柄数量</li>
+<li>max user processes就是最多可以拥有的子进程数量。</li>
+</ul>
+<p>设置之后，我们要确保变更落地到/etc/security/limits.conf文件里，永久性的设置进程的资源限制</p>
+<p>10、redo log 底层存储格式</p>
+<p>redo log 本质上记录的就是在对某个表空间的某个数据页的某个偏移量的地方修改了几个字节的值，具体修改的值是什么，他里面需要记录的就是<strong>表空间号+数据页号+偏移量+修改几个字节的值+具体的值</strong>.</p>
+<p>根据你修改了数据页里的几个字节的值，redo log就划分为了不同的类型，MLOG_1BYTE类型的日志指的就是修改了1个字节的值，MLOG_2BYTE类型的日志指的就是修改了2个字节的值，以此类推，还有修改了4个字节的值的日志类型，修改了8个字节的值的日志类型。当然，如果你要是一下子修改了一大串的值，类型就是MLOG_WRITE_STRING，就是代表你一下子在那个数据页的某个偏移量的位置插入或者修改了一大串的值。</p>
+<p>所以其实一条redo log看起来大致的结构如下所示：</p>
+<ul>
+<li>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，具体修改的数据</li>
+</ul>
+<p>如果是MLOG_WRITE_STRING类型的日志，因为不知道具体修改了多少字节的数据，所以其实会多一个修改数据长度，就告诉你他这次修改了多少字节的数据，如下所示它的格式：</p>
+<ul>
+<li>日志类型（就是类似MLOG_1BYTE之类的），表空间ID，数据页号，数据页中的偏移量，修改数据长度，具体修改的数据</li>
+</ul>
+<p>11、redo log block 数据结构、redo log buffer 中的缓冲日志何时写入磁盘</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/yi-wen-yi-zhi-zookeeper-he-xin-yuan-li/" class="post-title gt-a-link">
+                    一文以知 ZooKeeper 核心原理
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

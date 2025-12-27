@@ -1,0 +1,441 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson-Weekly-030 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Panson-Weekly-030
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-06-10 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>日拱一卒</em></p>
+<hr>
+<h1 id="1-一周见闻">1 一周见闻</h1>
+<h2 id="11-技术文章">1.1 技术文章</h2>
+<ul>
+<li></li>
+</ul>
+<h2 id="12-泛互联网文章">1.2 泛互联网文章</h2>
+<h1 id="2-技术总结">2 技术总结</h1>
+<h1 id="3-algorithm算法题">3 Algorithm(算法题)</h1>
+<ul>
+<li><a href="https://leetcode.cn/problems/subsets/description/">78. 子集</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+        List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+        LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+
+        public List&lt;List&lt;Integer&gt;&gt; subsets(int[] nums) {
+            backtrack(nums, 0);
+            return res;
+        }
+
+        public void backtrack(int[] nums, int start) {
+            res.add(new LinkedList&lt;&gt;(track));
+
+            for(int i = start; i &lt; nums.length; i++) {
+                track.add(nums[i]);
+                backtrack(nums, i + 1);
+                track.removeLast();
+            }
+        }
+    }
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/combinations/description/">77. 组合</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+
+    public List&lt;List&lt;Integer&gt;&gt; combine(int n, int k) {
+        backtrack(n, 1, k);
+        return res;
+    }
+
+    public void backtrack(int n, int start, int k) {
+        if(k == track.size()) {
+            res.add(new LinkedList&lt;&gt;(track));
+        }
+
+        for(int i = start; i &lt;= n; i++) {
+            track.add(i);
+            backtrack(n, i + 1, k);
+            track.removeLast();
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/subsets-ii/description/">90. 子集 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+    public List&lt;List&lt;Integer&gt;&gt; subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        backtrack(nums, 0);
+        return res;
+    }
+
+    public void backtrack(int[] nums, int start) {
+        res.add(new LinkedList&lt;&gt;(track));
+
+        for(int i = start; i &lt; nums.length; i++) {
+            if(i &gt; start &amp;&amp; nums[i] == nums[i - 1]) {
+                continue;
+            }
+            track.add(nums[i]);
+            backtrack(nums, i + 1);
+            track.removeLast();
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/combination-sum-ii/description/">40. 组合总和 II</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+    int sum = 0;
+    public List&lt;List&lt;Integer&gt;&gt; combinationSum2(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        backtrack(candidates, 0, target);
+        return res;
+    }
+
+    public void backtrack(int[] nums, int start, int target) {
+        if(sum == target) {
+            res.add(new LinkedList&lt;&gt;(track));
+            return;
+        }
+
+        for(int i = start; i &lt; nums.length; i++) {
+            if(i &gt; start &amp;&amp; nums[i] == nums[i - 1]) {
+                continue;
+            }
+            if(sum + nums[i] &gt; target) {
+                continue;
+            }
+            track.add(nums[i]);
+            sum += nums[i];
+            backtrack(nums, i + 1, target);
+            sum -= nums[i];
+            track.removeLast();
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/permutations-ii/description/">47. 全排列 II</a></li>
+</ul>
+<pre><code class="language-java">
+//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+
+
+    /**
+     * 给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+     *
+     * 示例 1：
+     *
+     * 输入：nums = [1,1,2]
+     * 输出：
+     * [[1,1,2],
+     *  [1,2,1],
+     *  [2,1,1]]
+     * 示例 2：
+     *
+     * 输入：nums = [1,2,3]
+     * 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+     * 提示：
+     *
+     * 1 &lt;= nums.length &lt;= 8
+     * -10 &lt;= nums[i] &lt;= 10
+     *
+     * @param nums
+     * @return
+     */
+    // 1 1 1 2
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+    boolean[] used;
+    public List&lt;List&lt;Integer&gt;&gt; permuteUnique(int[] nums) {
+        used = new boolean[nums.length];
+        Arrays.sort(nums);
+        backtrack(nums);
+        return res;
+    }
+
+
+    public void backtrack(int[] nums) {
+        if(track.size() == nums.length) {
+            res.add(new LinkedList&lt;&gt;(track));
+            return;
+        }
+        for(int i = 0; i &lt; nums.length; i++) {
+            if(used[i]) {
+                continue;
+            }
+            if(i &gt; 0 &amp;&amp; nums[i] == nums[i - 1] &amp;&amp; !used[i - 1]) {
+                continue;
+            }
+            track.add(nums[i]);
+            used[i] = true;
+            backtrack(nums);
+            track.removeLast();
+            used[i] = false;
+        }
+    }
+}
+//leetcode submit region end(Prohibit modification and deletion)
+ 
+
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/combination-sum/description/">39. 组合总和</a></li>
+</ul>
+<pre><code class="language-java">//leetcode submit region begin(Prohibit modification and deletion)
+class Solution {
+
+    List&lt;List&lt;Integer&gt;&gt; res = new ArrayList&lt;&gt;();
+    LinkedList&lt;Integer&gt; track = new LinkedList&lt;&gt;();
+    int sum = 0;
+    public List&lt;List&lt;Integer&gt;&gt; combinationSum(int[] candidates, int target) {
+        backtrack(candidates, 0, target);
+        return res;
+    }
+
+    public void backtrack(int[] candidates, int start, int target) {
+        if(sum == target) {
+            res.add(new LinkedList&lt;&gt;(track));
+            return;
+        }
+
+        if(sum &gt; target) {
+            return;
+        }
+
+        for(int i = start; i &lt; candidates.length; i++) {
+            sum += candidates[i];
+            track.add(candidates[i]);
+            backtrack(candidates, i, target);
+            sum -= candidates[i];
+            track.removeLast();
+        }
+    }
+}
+</code></pre>
+<ul>
+<li><a href="https://leetcode.cn/problems/minimum-depth-of-binary-tree/description/">111. 二叉树的最小深度</a></li>
+</ul>
+<pre><code class="language-java">class Solution {
+
+
+    public int minDepth(TreeNode root) {
+        if(root == null) {
+            return 0;
+        }
+        ArrayDeque&lt;TreeNode&gt; queue = new ArrayDeque&lt;TreeNode&gt;();
+        queue.offer(root);
+        int depth = 1;
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            for(int i = 0; i &lt; size; i++) {
+                TreeNode node = queue.poll();
+                if(node.left == null &amp;&amp; node.right == null) {
+                    return depth;
+                }
+                if(node.left != null) {
+                    queue.offer(node.left);
+                }
+                if(node.right != null) {
+                    queue.offer(node.right);
+                }
+            }
+            depth++;
+        }
+        return depth;
+    }
+
+
+} 
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/panson-weekly-029/" class="post-title gt-a-link">
+                    Panson-Weekly-029
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

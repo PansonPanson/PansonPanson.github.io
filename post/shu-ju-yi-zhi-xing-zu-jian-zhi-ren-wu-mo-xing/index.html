@@ -1,0 +1,322 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>数据一致性组件之任务模型 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    数据一致性组件之任务模型
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-09-18 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="任务模型">任务模型</h2>
+<p>业内处理数据一致性的处理方案有许多，我们目前的业务并不要求数据强一致性，最终一致性即可。</p>
+<p>我们参照本地消息表的设计了一个以任务为模型的一致性组件。<br>
+什么是任务：将需要保障一致性的业务逻辑封装为一个任务。<br>
+比如在入库实操反馈时：</p>
+<pre><code class="language-java">操作 1：完结单据、调度任务
+操作 2：发送 mq 消息
+</code></pre>
+<p>其中操作 1 和操作 2 我们封装为一个任务。</p>
+<p>在代码层面，多个业务逻辑对应的方法以注解<code>@WesConsistencyTask</code>声明，通过 SpringAOP 机制封装成任务落地到数据库，我们用的是 MySQL。</p>
+<h2 id="数据模型">数据模型</h2>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>类型</th>
+<th>允许为空</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>id</strong></td>
+<td>BIGINT</td>
+<td>否</td>
+<td>自增</td>
+<td>主键自增</td>
+</tr>
+<tr>
+<td><strong>gmt_create</strong></td>
+<td>DATETIME</td>
+<td>否</td>
+<td>CURRENT_TIMESTAMP</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td><strong>gmt_modified</strong></td>
+<td>DATETIME</td>
+<td>否</td>
+<td>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</td>
+<td>修改时间</td>
+</tr>
+<tr>
+<td><strong>task_id</strong></td>
+<td>VARCHAR(500)</td>
+<td>否</td>
+<td>-</td>
+<td>任务唯一标识（用户自定义或方法签名）</td>
+</tr>
+<tr>
+<td><strong>state</strong></td>
+<td>TINYINT</td>
+<td>否</td>
+<td>0</td>
+<td>任务状态：0待执行 1执行中 2执行成功 3执行失败</td>
+</tr>
+<tr>
+<td><strong>execute_times</strong></td>
+<td>INT</td>
+<td>否</td>
+<td>0</td>
+<td>已执行次数</td>
+</tr>
+<tr>
+<td><strong>next_execute_time</strong></td>
+<td>DATETIME</td>
+<td>否</td>
+<td>-</td>
+<td>下一次执行时间</td>
+</tr>
+<tr>
+<td><strong>parameter_types</strong></td>
+<td>VARCHAR(255)</td>
+<td>否</td>
+<td>-</td>
+<td>参数类型（类全路径）</td>
+</tr>
+<tr>
+<td><strong>method_name</strong></td>
+<td>VARCHAR(100)</td>
+<td>否</td>
+<td>-</td>
+<td>方法名</td>
+</tr>
+<tr>
+<td><strong>method_sign_name</strong></td>
+<td>VARCHAR(200)</td>
+<td>否</td>
+<td>''</td>
+<td>方法签名</td>
+</tr>
+<tr>
+<td><strong>execute_interval_second</strong></td>
+<td>INT</td>
+<td>否</td>
+<td>60</td>
+<td>执行间隔秒</td>
+</tr>
+<tr>
+<td><strong>delay_time</strong></td>
+<td>INT</td>
+<td>否</td>
+<td>60</td>
+<td>初始延迟秒</td>
+</tr>
+<tr>
+<td><strong>task_parameter</strong></td>
+<td>VARCHAR(200)</td>
+<td>否</td>
+<td>''</td>
+<td>任务参数（序列化字符串）</td>
+</tr>
+<tr>
+<td><strong>execute_mode</strong></td>
+<td>TINYINT</td>
+<td>否</td>
+<td>-</td>
+<td>执行模式：1立即执行 2调度执行</td>
+</tr>
+<tr>
+<td><strong>thread_way</strong></td>
+<td>TINYINT</td>
+<td>否</td>
+<td>-</td>
+<td>线程模型：1异步 2同步</td>
+</tr>
+<tr>
+<td><strong>error_message</strong></td>
+<td>TEXT</td>
+<td>是</td>
+<td>NULL</td>
+<td>最后一次执行的错误信息</td>
+</tr>
+</tbody>
+</table>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/ru-he-she-ji-ben-di-xiao-xi-biao/" class="post-title gt-a-link">
+                    如何设计本地消息表？
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

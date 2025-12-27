@@ -1,0 +1,1071 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>RocketMQ Broker 源码阅读 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    RocketMQ Broker 源码阅读
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-06-15 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>// 龟速写作中，思路比较乱，还在整理行文</p>
+<h1 id="1-broker-的核心配置与启动过程">1 Broker 的核心配置与启动过程</h1>
+<p>Broker 是 RocketMQ 的存储中心，可以说是最核心的模块，有许多值得研究的地方。话不多说，我们直接看源码吧。<br>
+启动类 <code>org.apache.rocketmq.broker.BrokerStartup</code> 也是和NameServer 类似的，核心的组件是 <code>BrokerController</code>， BrokerController  和 NameServerController的配置有很多相似的配置，考虑到前文NameServer 的源码阅读一文中已经做了对配置类的详解，这里不再赘述。</p>
+<pre><code class="language-java">final BrokerController controller = new BrokerController(
+                brokerConfig,
+                nettyServerConfig,
+                nettyClientConfig,
+                messageStoreConfig);
+</code></pre>
+<p>Broker 一方面需要作为 client 注册到 NameServer 上去，另一方面又需要作为 server 接收 producer 的消息，所以拥有两份配置 nettyServerConfig 和 nettyClientConfig。messageStoreConfig 则是消息存储的配置。<br>
+另外 BrokerController 还包含了许多管控组件以及线程池：</p>
+<pre><code class="language-java">this.consumerOffsetManager = messageStoreConfig.isEnableLmq() ? new LmqConsumerOffsetManager(this) : new ConsumerOffsetManager(this);
+        this.topicConfigManager = messageStoreConfig.isEnableLmq() ? new LmqTopicConfigManager(this) : new TopicConfigManager(this);
+        this.pullMessageProcessor = new PullMessageProcessor(this);
+        this.pullRequestHoldService = messageStoreConfig.isEnableLmq() ? new LmqPullRequestHoldService(this) : new PullRequestHoldService(this);
+        this.messageArrivingListener = new NotifyMessageArrivingListener(this.pullRequestHoldService);
+        this.consumerIdsChangeListener = new DefaultConsumerIdsChangeListener(this);
+        this.consumerManager = new ConsumerManager(this.consumerIdsChangeListener);
+        this.consumerFilterManager = new ConsumerFilterManager(this);
+        this.producerManager = new ProducerManager();
+        ……
+        ……
+
+        this.sendThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getSendThreadPoolQueueCapacity());
+        this.putThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getPutThreadPoolQueueCapacity());
+        this.pullThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getPullThreadPoolQueueCapacity());
+        this.replyThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getReplyThreadPoolQueueCapacity());
+        this.queryThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getQueryThreadPoolQueueCapacity());
+        this.clientManagerThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getClientManagerThreadPoolQueueCapacity());
+        this.consumerManagerThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getConsumerManagerThreadPoolQueueCapacity());
+        this.heartbeatThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getHeartbeatThreadPoolQueueCapacity());
+        this.endTransactionThreadPoolQueue = new LinkedBlockingQueue&lt;Runnable&gt;(this.brokerConfig.getEndTransactionPoolQueueCapacity());
+
+</code></pre>
+<p>再看看 broker 的初始化过程：</p>
+<pre><code class="language-java">    public boolean initialize() throws CloneNotSupportedException {
+        // 加载Topic 的配置、consumer 的消费 offset、
+        // consumer 的订阅组、过滤器 等数据到内存
+        boolean result = this.topicConfigManager.load();
+        result = result &amp;&amp; this.consumerOffsetManager.load();
+        result = result &amp;&amp; this.subscriptionGroupManager.load();
+        result = result &amp;&amp; this.consumerFilterManager.load();
+
+        if (result) {
+            try {
+                // 消息存储管理组件
+                this.messageStore =
+                    new DefaultMessageStore(this.messageStoreConfig, this.brokerStatsManager, this.messageArrivingListener,
+                        this.brokerConfig);
+
+                        // 如果启用了dleger技术管理 commitlog，
+                        // 要初始化一堆 dleger 相关的组件
+                if (messageStoreConfig.isEnableDLegerCommitLog()) {
+                    DLedgerRoleChangeHandler roleChangeHandler = new DLedgerRoleChangeHandler(this, (DefaultMessageStore) messageStore);
+                    ((DLedgerCommitLog)((DefaultMessageStore) messageStore).getCommitLog()).getdLedgerServer().getdLedgerLeaderElector().addRoleChangeHandler(roleChangeHandler);
+                }
+                // broker 的统计组件
+                this.brokerStats = new BrokerStats((DefaultMessageStore) this.messageStore);
+                //load plugin
+                MessageStorePluginContext context = new MessageStorePluginContext(messageStoreConfig, brokerStatsManager, messageArrivingListener, brokerConfig);
+                this.messageStore = MessageStoreFactory.build(context, this.messageStore);
+                this.messageStore.getDispatcherList().addFirst(new CommitLogDispatcherCalcBitMap(this.brokerConfig, this.consumerFilterManager));
+            } catch (IOException e) {
+                result = false;
+                log.error(&quot;Failed to initialize&quot;, e);
+            }
+        }
+
+        result = result &amp;&amp; this.messageStore.load();
+
+        if (result) {
+            // 也是使用  netty 来做为通信服务器，处理producer和 consumer 的消息
+            this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.clientHousekeepingService);
+            NettyServerConfig fastConfig = (NettyServerConfig) this.nettyServerConfig.clone();
+            fastConfig.setListenPort(nettyServerConfig.getListenPort() - 2);
+            this.fastRemotingServer = new NettyRemotingServer(fastConfig, this.clientHousekeepingService);
+            // 下面是一堆线程池
+            // 处理 producer 发送的消息线程池
+            this.sendMessageExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getSendMessageThreadPoolNums(),
+                this.brokerConfig.getSendMessageThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.sendThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;SendMessageThread_&quot;));
+
+            this.putMessageFutureExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getPutMessageFutureThreadPoolNums(),
+                this.brokerConfig.getPutMessageFutureThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.putThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;PutMessageThread_&quot;));
+            
+            // 处理 consumer 拉去消息线程池
+            this.pullMessageExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getPullMessageThreadPoolNums(),
+                this.brokerConfig.getPullMessageThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.pullThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;PullMessageThread_&quot;));
+
+            // 回复消息
+            this.replyMessageExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getProcessReplyMessageThreadPoolNums(),
+                this.brokerConfig.getProcessReplyMessageThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.replyThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;ProcessReplyMessageThread_&quot;));
+            // 查询消息
+            this.queryMessageExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getQueryMessageThreadPoolNums(),
+                this.brokerConfig.getQueryMessageThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.queryThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;QueryMessageThread_&quot;));
+
+            this.adminBrokerExecutor =
+                Executors.newFixedThreadPool(this.brokerConfig.getAdminBrokerThreadPoolNums(), new ThreadFactoryImpl(
+                    &quot;AdminBrokerThread_&quot;));
+
+            this.clientManageExecutor = new ThreadPoolExecutor(
+                this.brokerConfig.getClientManageThreadPoolNums(),
+                this.brokerConfig.getClientManageThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.clientManagerThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;ClientManageThread_&quot;));
+            // 心跳处理
+            this.heartbeatExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getHeartbeatThreadPoolNums(),
+                this.brokerConfig.getHeartbeatThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.heartbeatThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;HeartbeatThread_&quot;, true));
+
+            this.endTransactionExecutor = new BrokerFixedThreadPoolExecutor(
+                this.brokerConfig.getEndTransactionThreadPoolNums(),
+                this.brokerConfig.getEndTransactionThreadPoolNums(),
+                1000 * 60,
+                TimeUnit.MILLISECONDS,
+                this.endTransactionThreadPoolQueue,
+                new ThreadFactoryImpl(&quot;EndTransactionThread_&quot;));
+
+            this.consumerManageExecutor =
+                Executors.newFixedThreadPool(this.brokerConfig.getConsumerManageThreadPoolNums(), new ThreadFactoryImpl(
+                    &quot;ConsumerManageThread_&quot;));
+
+            this.registerProcessor();
+
+            final long initialDelay = UtilAll.computeNextMorningTimeMillis() - System.currentTimeMillis();
+            final long period = 1000 * 60 * 60 * 24;
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BrokerController.this.getBrokerStats().record();
+                    } catch (Throwable e) {
+                        log.error(&quot;schedule record error.&quot;, e);
+                    }
+                }
+            }, initialDelay, period, TimeUnit.MILLISECONDS);
+
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BrokerController.this.consumerOffsetManager.persist();
+                    } catch (Throwable e) {
+                        log.error(&quot;schedule persist consumerOffset error.&quot;, e);
+                    }
+                }
+            }, 1000 * 10, this.brokerConfig.getFlushConsumerOffsetInterval(), TimeUnit.MILLISECONDS);
+
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BrokerController.this.consumerFilterManager.persist();
+                    } catch (Throwable e) {
+                        log.error(&quot;schedule persist consumer filter error.&quot;, e);
+                    }
+                }
+            }, 1000 * 10, 1000 * 10, TimeUnit.MILLISECONDS);
+
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BrokerController.this.protectBroker();
+                    } catch (Throwable e) {
+                        log.error(&quot;protectBroker error.&quot;, e);
+                    }
+                }
+            }, 3, 3, TimeUnit.MINUTES);
+
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        BrokerController.this.printWaterMark();
+                    } catch (Throwable e) {
+                        log.error(&quot;printWaterMark error.&quot;, e);
+                    }
+                }
+            }, 10, 1, TimeUnit.SECONDS);
+
+            this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        log.info(&quot;dispatch behind commit log {} bytes&quot;, BrokerController.this.getMessageStore().dispatchBehindBytes());
+                    } catch (Throwable e) {
+                        log.error(&quot;schedule dispatchBehindBytes error.&quot;, e);
+                    }
+                }
+            }, 1000 * 10, 1000 * 60, TimeUnit.MILLISECONDS);
+
+            if (this.brokerConfig.getNamesrvAddr() != null) {
+                this.brokerOuterAPI.updateNameServerAddressList(this.brokerConfig.getNamesrvAddr());
+                log.info(&quot;Set user specified name server address: {}&quot;, this.brokerConfig.getNamesrvAddr());
+            } else if (this.brokerConfig.isFetchNamesrvAddrByAddressServer()) {
+                this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        try {
+                            BrokerController.this.brokerOuterAPI.fetchNameServerAddr();
+                        } catch (Throwable e) {
+                            log.error(&quot;ScheduledTask fetchNameServerAddr exception&quot;, e);
+                        }
+                    }
+                }, 1000 * 10, 1000 * 60 * 2, TimeUnit.MILLISECONDS);
+            }
+
+            if (!messageStoreConfig.isEnableDLegerCommitLog()) {
+                if (BrokerRole.SLAVE == this.messageStoreConfig.getBrokerRole()) {
+                    if (this.messageStoreConfig.getHaMasterAddress() != null &amp;&amp; this.messageStoreConfig.getHaMasterAddress().length() &gt;= 6) {
+                        this.messageStore.updateHaMasterAddress(this.messageStoreConfig.getHaMasterAddress());
+                        this.updateMasterHAServerAddrPeriodically = false;
+                    } else {
+                        this.updateMasterHAServerAddrPeriodically = true;
+                    }
+                } else {
+                    this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                BrokerController.this.printMasterAndSlaveDiff();
+                            } catch (Throwable e) {
+                                log.error(&quot;schedule printMasterAndSlaveDiff error.&quot;, e);
+                            }
+                        }
+                    }, 1000 * 10, 1000 * 60, TimeUnit.MILLISECONDS);
+                }
+            }
+
+            if (TlsSystemConfig.tlsMode != TlsMode.DISABLED) {
+                // Register a listener to reload SslContext
+                try {
+                    fileWatchService = new FileWatchService(
+                        new String[] {
+                            TlsSystemConfig.tlsServerCertPath,
+                            TlsSystemConfig.tlsServerKeyPath,
+                            TlsSystemConfig.tlsServerTrustCertPath
+                        },
+                        new FileWatchService.Listener() {
+                            boolean certChanged, keyChanged = false;
+
+                            @Override
+                            public void onChanged(String path) {
+                                if (path.equals(TlsSystemConfig.tlsServerTrustCertPath)) {
+                                    log.info(&quot;The trust certificate changed, reload the ssl context&quot;);
+                                    reloadServerSslContext();
+                                }
+                                if (path.equals(TlsSystemConfig.tlsServerCertPath)) {
+                                    certChanged = true;
+                                }
+                                if (path.equals(TlsSystemConfig.tlsServerKeyPath)) {
+                                    keyChanged = true;
+                                }
+                                if (certChanged &amp;&amp; keyChanged) {
+                                    log.info(&quot;The certificate and private key changed, reload the ssl context&quot;);
+                                    certChanged = keyChanged = false;
+                                    reloadServerSslContext();
+                                }
+                            }
+
+                            private void reloadServerSslContext() {
+                                ((NettyRemotingServer) remotingServer).loadSslContext();
+                                ((NettyRemotingServer) fastRemotingServer).loadSslContext();
+                            }
+                        });
+                } catch (Exception e) {
+                    log.warn(&quot;FileWatchService created error, can't load the certificate dynamically&quot;);
+                }
+            }
+            initialTransaction();
+            initialAcl();
+            initialRpcHooks();
+        }
+        return result;
+    }
+</code></pre>
+<p>流程有点长，如果对 RocketMQ 有全局的认识，光凭名字就能猜出来大致的组件的作用。后续有用到的地方会再回过头介绍。<br>
+接下来继续看启动的过程：</p>
+<pre><code class="language-java">    public void start() throws Exception {
+        if (this.messageStore != null) {
+            this.messageStore.start();
+        }
+
+        if (this.remotingServer != null) {
+            this.remotingServer.start();
+        }
+
+        if (this.fastRemotingServer != null) {
+            this.fastRemotingServer.start();
+        }
+
+        if (this.fileWatchService != null) {
+            this.fileWatchService.start();
+        }
+
+        if (this.brokerOuterAPI != null) {
+            this.brokerOuterAPI.start();
+        }
+
+        if (this.pullRequestHoldService != null) {
+            this.pullRequestHoldService.start();
+        }
+
+        if (this.clientHousekeepingService != null) {
+            this.clientHousekeepingService.start();
+        }
+
+        if (this.filterServerManager != null) {
+            this.filterServerManager.start();
+        }
+
+        if (!messageStoreConfig.isEnableDLegerCommitLog()) {
+            startProcessorByHa(messageStoreConfig.getBrokerRole());
+            handleSlaveSynchronize(messageStoreConfig.getBrokerRole());
+            this.registerBrokerAll(true, false, true);
+        }
+
+        this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    BrokerController.this.registerBrokerAll(true, false, brokerConfig.isForceRegister());
+                } catch (Throwable e) {
+                    log.error(&quot;registerBrokerAll Exception&quot;, e);
+                }
+            }
+        }, 1000 * 10, Math.max(10000, Math.min(brokerConfig.getRegisterNameServerPeriod(), 60000)), TimeUnit.MILLISECONDS);
+
+        if (this.brokerStatsManager != null) {
+            this.brokerStatsManager.start();
+        }
+
+        if (this.brokerFastFailure != null) {
+            this.brokerFastFailure.start();
+        }
+
+
+    }
+
+</code></pre>
+<h1 id="2-broker-的注册机制">2 Broker 的注册机制</h1>
+<p>Broker 的注册流程在 <code>registerBrokerAll</code> 的方法里面：</p>
+<pre><code class="language-java">    public synchronized void registerBrokerAll(final boolean checkOrderConfig, boolean oneway, boolean forceRegister) {
+        // topic 配置相关信息，暂时不用管它
+        TopicConfigSerializeWrapper topicConfigWrapper = this.getTopicConfigManager().buildTopicConfigSerializeWrapper();
+
+        if (!PermName.isWriteable(this.getBrokerConfig().getBrokerPermission())
+            || !PermName.isReadable(this.getBrokerConfig().getBrokerPermission())) {
+            ConcurrentHashMap&lt;String, TopicConfig&gt; topicConfigTable = new ConcurrentHashMap&lt;String, TopicConfig&gt;();
+            for (TopicConfig topicConfig : topicConfigWrapper.getTopicConfigTable().values()) {
+                TopicConfig tmp =
+                    new TopicConfig(topicConfig.getTopicName(), topicConfig.getReadQueueNums(), topicConfig.getWriteQueueNums(),
+                        this.brokerConfig.getBrokerPermission());
+                topicConfigTable.put(topicConfig.getTopicName(), tmp);
+            }
+            topicConfigWrapper.setTopicConfigTable(topicConfigTable);
+        }
+
+        if (forceRegister || needRegister(this.brokerConfig.getBrokerClusterName(),
+            this.getBrokerAddr(),
+            this.brokerConfig.getBrokerName(),
+            this.brokerConfig.getBrokerId(),
+            this.brokerConfig.getRegisterBrokerTimeoutMills())) {
+            doRegisterBrokerAll(checkOrderConfig, oneway, topicConfigWrapper);
+        }
+    }
+</code></pre>
+<p>继续debug :</p>
+<pre><code class="language-java">private void doRegisterBrokerAll(boolean checkOrderConfig, boolean oneway,
+        TopicConfigSerializeWrapper topicConfigWrapper) {
+            // 核心就是调用 brokerOuterAPI 去向所有的NameServer注册本机的路由信息
+        List&lt;RegisterBrokerResult&gt; registerBrokerResultList = this.brokerOuterAPI.registerBrokerAll(
+            this.brokerConfig.getBrokerClusterName(),
+            this.getBrokerAddr(),
+            this.brokerConfig.getBrokerName(),
+            this.brokerConfig.getBrokerId(),
+            this.getHAServerAddr(),
+            topicConfigWrapper,
+            this.filterServerManager.buildNewFilterServerList(),
+            oneway,
+            this.brokerConfig.getRegisterBrokerTimeoutMills(),
+            this.brokerConfig.isCompressedRegister());
+
+        if (registerBrokerResultList.size() &gt; 0) {
+            RegisterBrokerResult registerBrokerResult = registerBrokerResultList.get(0);
+            if (registerBrokerResult != null) {
+                if (this.updateMasterHAServerAddrPeriodically &amp;&amp; registerBrokerResult.getHaServerAddr() != null) {
+                    this.messageStore.updateHaMasterAddress(registerBrokerResult.getHaServerAddr());
+                }
+
+                this.slaveSynchronize.setMasterAddr(registerBrokerResult.getMasterAddr());
+
+                if (checkOrderConfig) {
+                    this.getTopicConfigManager().updateOrderTopicConfig(registerBrokerResult.getKvTable());
+                }
+            }
+        }
+    }
+</code></pre>
+<p>继续debug ：</p>
+<pre><code class="language-java">public List&lt;RegisterBrokerResult&gt; registerBrokerAll(
+        final String clusterName,
+        final String brokerAddr,
+        final String brokerName,
+        final long brokerId,
+        final String haServerAddr,
+        final TopicConfigSerializeWrapper topicConfigWrapper,
+        final List&lt;String&gt; filterServerList,
+        final boolean oneway,
+        final int timeoutMills,
+        final boolean compressed) {
+        
+        // 注册结果
+        final List&lt;RegisterBrokerResult&gt; registerBrokerResultList = new CopyOnWriteArrayList&lt;&gt;();
+        // nameserver 地址列表
+        List&lt;String&gt; nameServerAddressList = this.remotingClient.getNameServerAddressList();
+        if (nameServerAddressList != null &amp;&amp; nameServerAddressList.size() &gt; 0) {
+            // 构建网络请求头
+            final RegisterBrokerRequestHeader requestHeader = new RegisterBrokerRequestHeader();
+            requestHeader.setBrokerAddr(brokerAddr);
+            requestHeader.setBrokerId(brokerId);
+            requestHeader.setBrokerName(brokerName);
+            requestHeader.setClusterName(clusterName);
+            requestHeader.setHaServerAddr(haServerAddr);
+            requestHeader.setCompressed(compressed);
+            
+
+            // 构建请求体
+            RegisterBrokerBody requestBody = new RegisterBrokerBody();
+            requestBody.setTopicConfigSerializeWrapper(topicConfigWrapper);
+            requestBody.setFilterServerList(filterServerList);
+            final byte[] body = requestBody.encode(compressed);
+            final int bodyCrc32 = UtilAll.crc32(body);
+            requestHeader.setBodyCrc32(bodyCrc32);
+            // CountDownLatch：注册到全部的 NameServer 之后才能继续执行
+            final CountDownLatch countDownLatch = new CountDownLatch(nameServerAddressList.size());
+
+            // 遍历 NameServer 地址列表
+            for (final String namesrvAddr : nameServerAddressList) {
+                brokerOuterExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // 注册
+                            RegisterBrokerResult result = registerBroker(namesrvAddr, oneway, timeoutMills, requestHeader, body);
+                            if (result != null) {
+                                registerBrokerResultList.add(result);
+                            }
+
+                            log.info(&quot;register broker[{}]to name server {} OK&quot;, brokerId, namesrvAddr);
+                        } catch (Exception e) {
+                            log.warn(&quot;registerBroker Exception, {}&quot;, namesrvAddr, e);
+                        } finally {
+                            // 确保 countDownLatch 能够减少
+                            countDownLatch.countDown();
+                        }
+                    }
+                });
+            }
+
+            try {
+                // 等所有的 countDownLatch 处理完之后
+                countDownLatch.await(timeoutMills, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+            }
+        }
+
+        return registerBrokerResultList;
+    }
+</code></pre>
+<p>debug 进入 <code>RegisterBrokerResult result = registerBroker(namesrvAddr, oneway, timeoutMills, requestHeader, body)</code> 这个方法。</p>
+<pre><code class="language-java">    private RegisterBrokerResult registerBroker(
+        final String namesrvAddr,
+        final boolean oneway,
+        final int timeoutMills,
+        final RegisterBrokerRequestHeader requestHeader,
+        final byte[] body
+    ) throws RemotingCommandException, MQBrokerException, RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException,
+        InterruptedException {
+            // 组合请求头和请求体
+        RemotingCommand request = RemotingCommand.createRequestCommand(RequestCode.REGISTER_BROKER, requestHeader);
+        request.setBody(body);
+
+        // oneway 的消息发送方式
+        if (oneway) {
+            try {
+                this.remotingClient.invokeOneway(namesrvAddr, request, timeoutMills);
+            } catch (RemotingTooMuchRequestException e) {
+                // Ignore
+            }
+            return null;
+        }
+
+        // 使用nettyClient 发送请求
+        RemotingCommand response = this.remotingClient.invokeSync(namesrvAddr, request, timeoutMills);
+        assert response != null;
+        switch (response.getCode()) {
+            case ResponseCode.SUCCESS: {
+                RegisterBrokerResponseHeader responseHeader =
+                    (RegisterBrokerResponseHeader) response.decodeCommandCustomHeader(RegisterBrokerResponseHeader.class);
+                RegisterBrokerResult result = new RegisterBrokerResult();
+                result.setMasterAddr(responseHeader.getMasterAddr());
+                result.setHaServerAddr(responseHeader.getHaServerAddr());
+                if (response.getBody() != null) {
+                    result.setKvTable(KVTable.decode(response.getBody(), KVTable.class));
+                }
+                return result;
+            }
+            default:
+                break;
+        }
+
+        throw new MQBrokerException(response.getCode(), response.getRemark(), requestHeader == null ? null : requestHeader.getBrokerAddr());
+    }
+</code></pre>
+<p>再往下debug:</p>
+<pre><code class="language-java">RemotingCommand response = this.remotingClient.invokeSync(namesrvAddr, request, timeoutMills);
+</code></pre>
+<pre><code class="language-java">@Override
+    public RemotingCommand invokeSync(String addr, final RemotingCommand request, long timeoutMillis)
+        throws InterruptedException, RemotingConnectException, RemotingSendRequestException, RemotingTimeoutException {
+        long beginStartTime = System.currentTimeMillis();
+        // Broker 和 NameServer 之间建立 channel 连接
+        final Channel channel = this.getAndCreateChannel(addr);
+        // 网络连接OK
+        if (channel != null &amp;&amp; channel.isActive()) {
+            try {
+                doBeforeRpcHooks(addr, request);
+                long costTime = System.currentTimeMillis() - beginStartTime;
+                if (timeoutMillis &lt; costTime) {
+                    throw new RemotingTimeoutException(&quot;invokeSync call the addr[&quot; + addr + &quot;] timeout&quot;);
+                }
+                // 发送请求
+                RemotingCommand response = this.invokeSyncImpl(channel, request, timeoutMillis - costTime);
+                doAfterRpcHooks(RemotingHelper.parseChannelRemoteAddr(channel), request, response);
+                return response;
+            } catch (RemotingSendRequestException e) {
+                log.warn(&quot;invokeSync: send request exception, so close the channel[{}]&quot;, addr);
+                this.closeChannel(addr, channel);
+                throw e;
+            } catch (RemotingTimeoutException e) {
+                if (nettyClientConfig.isClientCloseSocketIfTimeout()) {
+                    this.closeChannel(addr, channel);
+                    log.warn(&quot;invokeSync: close socket because of timeout, {}ms, {}&quot;, timeoutMillis, addr);
+                }
+                log.warn(&quot;invokeSync: wait response timeout exception, the channel[{}]&quot;, addr);
+                throw e;
+            }
+        } else {
+            this.closeChannel(addr, channel);
+            throw new RemotingConnectException(addr);
+        }
+    }
+</code></pre>
+<p>看一下建立连接的部分：<code>final Channel channel = this.getAndCreateChannel(addr);</code></p>
+<pre><code class="language-java">// 如果缓存池里没有的话，就新建一个连接
+private Channel getAndCreateChannel(final String addr) throws RemotingConnectException, InterruptedException {
+        if (null == addr) {
+            return getAndCreateNameserverChannel();
+        }
+
+        ChannelWrapper cw = this.channelTables.get(addr);
+        if (cw != null &amp;&amp; cw.isOK()) {
+            return cw.getChannel();
+        }
+
+        return this.createChannel(addr);
+    }
+</code></pre>
+<p>那 NameServer 是如何接收 Broker 的注册请求的呢？可以查看 <code>NamesrvController.initialize()</code>方法。</p>
+<pre><code class="language-java"> public boolean initialize() {
+
+        this.kvConfigManager.load();
+
+        this.remotingServer = new NettyRemotingServer(this.nettyServerConfig, this.brokerHousekeepingService);
+
+        this.remotingExecutor =
+            Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), new ThreadFactoryImpl(&quot;RemotingExecutorThread_&quot;));
+        // here
+        this.registerProcessor();
+        // …… 省略一大堆代码
+</code></pre>
+<pre><code class="language-java">private void registerProcessor() {
+        if (namesrvConfig.isClusterTest()) {
+
+            this.remotingServer.registerDefaultProcessor(new ClusterTestRequestProcessor(this, namesrvConfig.getProductEnvName()),
+                this.remotingExecutor);
+        } else {
+            // NettyServer 接收的网络请求都会交由 DefaultRequestProcessor 处理
+            this.remotingServer.registerDefaultProcessor(new DefaultRequestProcessor(this), this.remotingExecutor);
+        }
+}
+</code></pre>
+<p>这个 DefaultRequestProcessor 直接看 switch 中的 case 就行：</p>
+<pre><code class="language-java">@Override
+    public RemotingCommand processRequest(ChannelHandlerContext ctx,
+        RemotingCommand request) throws RemotingCommandException {
+
+        if (ctx != null) {
+            log.debug(&quot;receive request, {} {} {}&quot;,
+                request.getCode(),
+                RemotingHelper.parseChannelRemoteAddr(ctx.channel()),
+                request);
+        }
+
+
+        switch (request.getCode()) {
+            case RequestCode.PUT_KV_CONFIG:
+                return this.putKVConfig(ctx, request);
+            case RequestCode.GET_KV_CONFIG:
+                return this.getKVConfig(ctx, request);
+            case RequestCode.DELETE_KV_CONFIG:
+                return this.deleteKVConfig(ctx, request);
+            case RequestCode.QUERY_DATA_VERSION:
+                return queryBrokerTopicConfig(ctx, request);
+            case RequestCode.REGISTER_BROKER:
+                Version brokerVersion = MQVersion.value2Version(request.getVersion());
+                if (brokerVersion.ordinal() &gt;= MQVersion.Version.V3_0_11.ordinal()) {
+                    return this.registerBrokerWithFilterServer(ctx, request);
+                } else {
+                    // 重点看这里
+                    return this.registerBroker(ctx, request);
+                }
+            case RequestCode.UNREGISTER_BROKER:
+                return this.unregisterBroker(ctx, request);
+            case RequestCode.GET_ROUTEINFO_BY_TOPIC:
+                return this.getRouteInfoByTopic(ctx, request);
+            case RequestCode.GET_BROKER_CLUSTER_INFO:
+                return this.getBrokerClusterInfo(ctx, request);
+            case RequestCode.WIPE_WRITE_PERM_OF_BROKER:
+                return this.wipeWritePermOfBroker(ctx, request);
+            case RequestCode.ADD_WRITE_PERM_OF_BROKER:
+                return this.addWritePermOfBroker(ctx, request);
+            case RequestCode.GET_ALL_TOPIC_LIST_FROM_NAMESERVER:
+                return getAllTopicListFromNameserver(ctx, request);
+            case RequestCode.DELETE_TOPIC_IN_NAMESRV:
+                return deleteTopicInNamesrv(ctx, request);
+            case RequestCode.GET_KVLIST_BY_NAMESPACE:
+                return this.getKVListByNamespace(ctx, request);
+            case RequestCode.GET_TOPICS_BY_CLUSTER:
+                return this.getTopicsByCluster(ctx, request);
+            case RequestCode.GET_SYSTEM_TOPIC_LIST_FROM_NS:
+                return this.getSystemTopicListFromNs(ctx, request);
+            case RequestCode.GET_UNIT_TOPIC_LIST:
+                return this.getUnitTopicList(ctx, request);
+            case RequestCode.GET_HAS_UNIT_SUB_TOPIC_LIST:
+                return this.getHasUnitSubTopicList(ctx, request);
+            case RequestCode.GET_HAS_UNIT_SUB_UNUNIT_TOPIC_LIST:
+                return this.getHasUnitSubUnUnitTopicList(ctx, request);
+            case RequestCode.UPDATE_NAMESRV_CONFIG:
+                return this.updateConfig(ctx, request);
+            case RequestCode.GET_NAMESRV_CONFIG:
+                return this.getConfig(ctx, request);
+            default:
+                break;
+        }
+        return null;
+    }
+</code></pre>
+<p>重点看 registerBroker(ctx, request) 方法：</p>
+<pre><code class="language-java">public RemotingCommand registerBroker(ChannelHandlerContext ctx,
+        RemotingCommand request) throws RemotingCommandException {
+        final RemotingCommand response = RemotingCommand.createResponseCommand(RegisterBrokerResponseHeader.class);
+        final RegisterBrokerResponseHeader responseHeader = (RegisterBrokerResponseHeader) response.readCustomHeader();
+        final RegisterBrokerRequestHeader requestHeader =
+            (RegisterBrokerRequestHeader) request.decodeCommandCustomHeader(RegisterBrokerRequestHeader.class);
+
+        if (!checksum(ctx, request, requestHeader)) {
+            response.setCode(ResponseCode.SYSTEM_ERROR);
+            response.setRemark(&quot;crc32 not match&quot;);
+            return response;
+        }
+
+        TopicConfigSerializeWrapper topicConfigWrapper;
+        if (request.getBody() != null) {
+            topicConfigWrapper = TopicConfigSerializeWrapper.decode(request.getBody(), TopicConfigSerializeWrapper.class);
+        } else {
+            topicConfigWrapper = new TopicConfigSerializeWrapper();
+            topicConfigWrapper.getDataVersion().setCounter(new AtomicLong(0));
+            topicConfigWrapper.getDataVersion().setTimestamp(0);
+        }
+        // 重点看这行
+        RegisterBrokerResult result = this.namesrvController.getRouteInfoManager().registerBroker(
+            requestHeader.getClusterName(),
+            requestHeader.getBrokerAddr(),
+            requestHeader.getBrokerName(),
+            requestHeader.getBrokerId(),
+            requestHeader.getHaServerAddr(),
+            topicConfigWrapper,
+            null,
+            ctx.channel()
+        );
+
+        responseHeader.setHaServerAddr(result.getHaServerAddr());
+        responseHeader.setMasterAddr(result.getMasterAddr());
+
+        byte[] jsonValue = this.namesrvController.getKvConfigManager().getKVListByNamespace(NamesrvUtil.NAMESPACE_ORDER_TOPIC_CONFIG);
+        response.setBody(jsonValue);
+        response.setCode(ResponseCode.SUCCESS);
+        response.setRemark(null);
+        return response;
+    }
+</code></pre>
+<p>会使用 RouteInfoManager 管理路由信息。</p>
+<h1 id="3-broker-的故障检测机制">3 Broker 的故障检测机制</h1>
+<p>Broker 在启动的时候通过一个定时任务，30 s 更新一次注册信息：</p>
+<pre><code class="language-java">this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    BrokerController.this.registerBrokerAll(true, false, brokerConfig.isForceRegister());
+                } catch (Throwable e) {
+                    log.error(&quot;registerBrokerAll Exception&quot;, e);
+                }
+            }
+        }, 1000 * 10, Math.max(10000, Math.min(brokerConfig.getRegisterNameServerPeriod(), 60000)), TimeUnit.MILLISECONDS);
+</code></pre>
+<pre><code class="language-java">/**
+     * This configurable item defines interval of topics registration of broker to name server. Allowing values are
+     * between 10, 000 and 60, 000 milliseconds.
+     */
+    private int registerNameServerPeriod = 1000 * 30;
+</code></pre>
+<p>上节文章提到的 RouteInfoManager 会管理 Broker 的注册信息：</p>
+<pre><code class="language-java">public RegisterBrokerResult registerBroker(
+        final String clusterName,
+        final String brokerAddr,
+        final String brokerName,
+        final long brokerId,
+        final String haServerAddr,
+        final TopicConfigSerializeWrapper topicConfigWrapper,
+        final List&lt;String&gt; filterServerList,
+        final Channel channel) {
+        RegisterBrokerResult result = new RegisterBrokerResult();
+        try {
+            try {
+                // 写锁独占
+                this.lock.writeLock().lockInterruptibly();
+
+                // clusterName -&gt; set （broker集合），并更新
+                Set&lt;String&gt; brokerNames = this.clusterAddrTable.get(clusterName);
+                if (null == brokerNames) {
+                    brokerNames = new HashSet&lt;String&gt;();
+                    this.clusterAddrTable.put(clusterName, brokerNames);
+                }
+                brokerNames.add(brokerName);
+
+                boolean registerFirst = false;
+
+                //  brokerName -&gt; BrokerData
+                BrokerData brokerData = this.brokerAddrTable.get(brokerName);
+
+                // 第一次注册时候会执行这段逻辑，将 brokerData 注册进去
+                if (null == brokerData) {
+                    registerFirst = true;
+                    brokerData = new BrokerData(clusterName, brokerName, new HashMap&lt;Long, String&gt;());
+                    this.brokerAddrTable.put(brokerName, brokerData);
+                }
+                Map&lt;Long, String&gt; brokerAddrsMap = brokerData.getBrokerAddrs();
+                //Switch slave to master: first remove &lt;1, IP:PORT&gt; in namesrv, then add &lt;0, IP:PORT&gt;
+                //The same IP:PORT must only have one record in brokerAddrTable
+                Iterator&lt;Entry&lt;Long, String&gt;&gt; it = brokerAddrsMap.entrySet().iterator();
+                while (it.hasNext()) {
+                    Entry&lt;Long, String&gt; item = it.next();
+                    if (null != brokerAddr &amp;&amp; brokerAddr.equals(item.getValue()) &amp;&amp; brokerId != item.getKey()) {
+                        it.remove();
+                    }
+                }
+
+                String oldAddr = brokerData.getBrokerAddrs().put(brokerId, brokerAddr);
+                registerFirst = registerFirst || (null == oldAddr);
+
+                if (null != topicConfigWrapper
+                    &amp;&amp; MixAll.MASTER_ID == brokerId) {
+                    if (this.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())
+                        || registerFirst) {
+                        ConcurrentMap&lt;String, TopicConfig&gt; tcTable =
+                            topicConfigWrapper.getTopicConfigTable();
+                        if (tcTable != null) {
+                            for (Map.Entry&lt;String, TopicConfig&gt; entry : tcTable.entrySet()) {
+                                this.createAndUpdateQueueData(brokerName, entry.getValue());
+                            }
+                        }
+                    }
+                }
+                
+                // 将时间戳更新
+                BrokerLiveInfo prevBrokerLiveInfo = this.brokerLiveTable.put(brokerAddr,
+                    new BrokerLiveInfo(
+                        System.currentTimeMillis(),
+                        topicConfigWrapper.getDataVersion(),
+                        channel,
+                        haServerAddr));
+                if (null == prevBrokerLiveInfo) {
+                    log.info(&quot;new broker registered, {} HAServer: {}&quot;, brokerAddr, haServerAddr);
+                }
+
+                if (filterServerList != null) {
+                    if (filterServerList.isEmpty()) {
+                        this.filterServerTable.remove(brokerAddr);
+                    } else {
+                        this.filterServerTable.put(brokerAddr, filterServerList);
+                    }
+                }
+
+                if (MixAll.MASTER_ID != brokerId) {
+                    String masterAddr = brokerData.getBrokerAddrs().get(MixAll.MASTER_ID);
+                    if (masterAddr != null) {
+                        BrokerLiveInfo brokerLiveInfo = this.brokerLiveTable.get(masterAddr);
+                        if (brokerLiveInfo != null) {
+                            result.setHaServerAddr(brokerLiveInfo.getHaServerAddr());
+                            result.setMasterAddr(masterAddr);
+                        }
+                    }
+                }
+            } finally {
+                this.lock.writeLock().unlock();
+            }
+        } catch (Exception e) {
+            log.error(&quot;registerBroker Exception&quot;, e);
+        }
+
+        return result;
+    }
+</code></pre>
+<p>对于那些心跳注册不正常的broker，NameServer 也准备了一个定时任务,10秒扫描一次：</p>
+<pre><code class="language-java">this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+
+            @Override
+            public void run() {
+                NamesrvController.this.routeInfoManager.scanNotActiveBroker();
+            }
+            }, 5, 10, TimeUnit.SECONDS);
+</code></pre>
+<pre><code class="language-java">public void scanNotActiveBroker() {
+        Iterator&lt;Entry&lt;String, BrokerLiveInfo&gt;&gt; it = this.brokerLiveTable.entrySet().iterator();
+        // 遍历 Broker 的心跳数据，如果超时，就剔除出去
+        while (it.hasNext()) {
+            Entry&lt;String, BrokerLiveInfo&gt; next = it.next();
+            long last = next.getValue().getLastUpdateTimestamp();
+            if ((last + BROKER_CHANNEL_EXPIRED_TIME) &lt; System.currentTimeMillis()) {
+                RemotingUtil.closeChannel(next.getValue().getChannel());
+                it.remove();
+                log.warn(&quot;The broker channel expired, {} {}ms&quot;, next.getKey(), BROKER_CHANNEL_EXPIRED_TIME);
+                this.onChannelDestroy(next.getKey(), next.getValue().getChannel());
+            }
+        }
+    }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/shua-ti-ji-lu/" class="post-title gt-a-link">
+                    刷题记录
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

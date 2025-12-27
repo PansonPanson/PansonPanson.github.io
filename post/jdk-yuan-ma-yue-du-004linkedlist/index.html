@@ -1,0 +1,431 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读 003：LinkedList | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读 003：LinkedList
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-08 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <!-- more -->
+<h2 id="1-引言">1 引言</h2>
+<p>LinkedList 底层基于双向链表实现，插入、获取、删除，都可以从队头、队尾来实现，完全可以当做一个队列来用，offer()往队尾插入元素，poll()从队头删除元素。</p>
+<p>优点：队头、队尾、队中插入数据，哪怕是插入大量的数据，也不会出现任何的大量元素的挪动和数组扩容。在中间插入元素性能没有队头和队尾那么好，需要遍历链表到指定的位置，然后完成元素的插入。</p>
+<p>缺点：如果是要随机位置获取一个元素，get(int index)这个方法，需要遍历，如果数据很多，性能比较差的。</p>
+<h2 id="2-类继承关系">2 类继承关系</h2>
+<p>LinkedList不仅实现了List接口，还实现了Queue和Deque接口，所以它既能作为List使用，也能作为双端队列使用，当然也可以作为栈使用。</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/linkedlist.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="3-主要属性与内部类">3 主要属性与内部类</h2>
+<pre><code class="language-java">// 元素个数
+transient int size = 0;
+// 链表首节点
+transient Node&lt;E&gt; first;
+// 链表尾节点
+transient Node&lt;E&gt; last;
+</code></pre>
+<p>属性很简单，定义了元素个数size和链表的首尾节点。</p>
+<p>Node 内部类：典型的双向链表结构。</p>
+<pre><code class="language-java">private static class Node&lt;E&gt; {
+        E item;
+        Node&lt;E&gt; next;
+        Node&lt;E&gt; prev;
+
+        Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) {
+            this.item = element;
+            this.next = next;
+            this.prev = prev;
+        }
+}
+</code></pre>
+<h2 id="4-主要方法">4 主要方法</h2>
+<h3 id="41-add">4.1 add</h3>
+<ul>
+<li>
+<p>add()：默认就是在队列的尾部插入一个元素，在那个双向链表的尾部插入一个元素</p>
+<pre><code class="language-java">public boolean add(E e) {
+    linkLast(e);
+    return true;
+}
+</code></pre>
+<pre><code class="language-java">void linkLast(E e) {
+    final Node&lt;E&gt; l = last;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(l, e, null);
+    last = newNode;
+    if (l == null)
+        first = newNode;
+    else
+        l.next = newNode;
+    size++;
+    modCount++;
+}
+</code></pre>
+</li>
+<li>
+<p>add(index, element)：是在队列的中间插入一个元素，<strong>会判断是在前半段插入还是在后半段插入</strong>。</p>
+<pre><code class="language-java">public void add(int index, E element) {
+    checkPositionIndex(index);
+  	// 在尾部插入
+    if (index == size)
+        linkLast(element);
+    else
+      	// 指定索引位置插入
+        linkBefore(element, node(index));
+}
+</code></pre>
+<pre><code class="language-java">/**
+ * Returns the (non-null) Node at the specified element index.
+ */
+Node&lt;E&gt; node(int index) {
+    // assert isElementIndex(index);
+
+    if (index &lt; (size &gt;&gt; 1)) {
+        Node&lt;E&gt; x = first;
+        for (int i = 0; i &lt; index; i++)
+            x = x.next;
+        return x;
+    } else {
+        Node&lt;E&gt; x = last;
+        for (int i = size - 1; i &gt; index; i--)
+            x = x.prev;
+        return x;
+    }
+}
+</code></pre>
+<pre><code class="language-java">/**
+ * Inserts element e before non-null Node succ.
+ */
+void linkBefore(E e, Node&lt;E&gt; succ) {
+    // assert succ != null;
+    final Node&lt;E&gt; pred = succ.prev;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(pred, e, succ);
+    succ.prev = newNode;
+    if (pred == null)
+        first = newNode;
+    else
+        pred.next = newNode;
+    size++;
+    modCount++;
+}
+</code></pre>
+</li>
+<li>
+<p>addFirst()：在队列的头部插入一个元素</p>
+<pre><code class="language-java">public void addFirst(E e) {
+    linkFirst(e);
+}
+</code></pre>
+<pre><code class="language-java">private void linkFirst(E e) {
+    final Node&lt;E&gt; f = first;
+    final Node&lt;E&gt; newNode = new Node&lt;&gt;(null, e, f);
+    first = newNode;
+    if (f == null)
+        last = newNode;
+    else
+        f.prev = newNode;
+    size++;
+    modCount++;
+}
+</code></pre>
+</li>
+<li>
+<p>addLast()：跟add()方法是一样的，也是在尾部插入一个元素</p>
+<pre><code class="language-java">public void addLast(E e) {
+    linkLast(e);
+}
+</code></pre>
+</li>
+<li>
+<p>offer() == add()：就是在队列尾部入队，将一个元素插入队列尾部，同理还有offerFirst()，offerLast()</p>
+</li>
+</ul>
+<h3 id="42-get">4.2 get</h3>
+<ul>
+<li>
+<p>poll()：从队列头部出队</p>
+<pre><code class="language-java">public E poll() {
+    final Node&lt;E&gt; f = first;
+    return (f == null) ? null : unlinkFirst(f);
+}
+</code></pre>
+<pre><code class="language-java">private E unlinkFirst(Node&lt;E&gt; f) {
+    // assert f == first &amp;&amp; f != null;
+    final E element = f.item;
+    final Node&lt;E&gt; next = f.next;
+    f.item = null;
+    f.next = null; // help GC
+    first = next;
+    if (next == null)
+        last = null;
+    else
+        next.prev = null;
+    size--;
+    modCount++;
+    return element;
+}
+</code></pre>
+</li>
+<li>
+<p>peek()：获取队列头部的元素，但是头部的元素不出队</p>
+<pre><code class="language-java">public E peek() {
+    final Node&lt;E&gt; f = first;
+    return (f == null) ? null : f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getFirst()</p>
+<pre><code class="language-java">public E getFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return f.item;
+}
+</code></pre>
+</li>
+<li>
+<p>getLast()</p>
+<pre><code class="language-java">public E getLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return l.item;
+}
+</code></pre>
+</li>
+<li>
+<p>get(int index)</p>
+<pre><code class="language-java">public E get(int index) {
+    checkElementIndex(index);
+    return node(index).item;
+}
+</code></pre>
+</li>
+</ul>
+<h3 id="43-remove">4.3 remove</h3>
+<ul>
+<li>
+<p>remove()：删除头结点</p>
+<pre><code class="language-java">public E remove() {
+    return removeFirst();
+}
+</code></pre>
+<pre><code class="language-java">public E removeFirst() {
+    final Node&lt;E&gt; f = first;
+    if (f == null)
+        throw new NoSuchElementException();
+    return unlinkFirst(f);
+}
+</code></pre>
+<pre><code class="language-java">private E unlinkFirst(Node&lt;E&gt; f) {
+    // assert f == first &amp;&amp; f != null;
+    final E element = f.item;
+    final Node&lt;E&gt; next = f.next;
+    f.item = null;
+    f.next = null; // help GC
+    first = next;
+    if (next == null)
+        last = null;
+    else
+        next.prev = null;
+    size--;
+    modCount++;
+    return element;
+}
+</code></pre>
+</li>
+<li>
+<p>remove(int index)</p>
+<pre><code class="language-java">public E remove(int index) {
+    checkElementIndex(index);
+    return unlink(node(index));
+}
+</code></pre>
+</li>
+<li>
+<p>removeLast()</p>
+<pre><code class="language-java">public E removeLast() {
+    final Node&lt;E&gt; l = last;
+    if (l == null)
+        throw new NoSuchElementException();
+    return unlinkLast(l);
+}
+</code></pre>
+</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-bi-ji-arraylist/" class="post-title gt-a-link">
+                    JDK 源码阅读002：ArrayList
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

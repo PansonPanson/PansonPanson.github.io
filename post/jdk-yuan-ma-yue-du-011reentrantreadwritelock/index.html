@@ -1,0 +1,323 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读011：ReentrantReadWriteLock | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读011：ReentrantReadWriteLock
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-04-19 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">2 写锁实现原理</a></li>
+<li><a href="#3-%E5%8F%AF%E9%87%8D%E5%85%A5%E5%86%99%E9%94%81%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">3 可重入写锁实现原理</a></li>
+<li><a href="#4-%E8%AF%BB%E5%86%99%E9%94%81%E7%9A%84%E6%8A%A4%E4%BA%92%E6%96%A5%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">4 读写锁的护互斥实现原理</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
+<p>读写锁，可以加读锁，也可以加写锁。</p>
+<p>读锁和写锁是互斥的，也就是说，你加了读锁之后，就不能加写锁；如果加了写锁，就不能加读锁。但是如果有人加了读锁之后，别人可以同时加读锁。</p>
+<p>如果你有一份数据，有人读，有人写，如果你全部都是用synchronized的话，会导致如果多个人读，也是要串行化，一个接一个的读。我们希望的效果是多个人可以同时来读，如果使用读锁和写锁分开的方式，就可以让多个人来读数据，多个人可以同时加读锁。</p>
+<p>小结：</p>
+<ul>
+<li>如果有人在读数据，就不能有人写数据，读锁 -&gt; 写锁 -&gt; 互斥</li>
+<li>如果有人在写数据，别人不能写数据，写锁 -&gt; 写锁 -&gt; 互斥；如果有人在写数据，别人也不能读数据，写锁 -&gt; 读锁 &gt; 互斥</li>
+</ul>
+<h2 id="2-写锁实现原理">2 写锁实现原理</h2>
+<pre><code class="language-java">protected final boolean tryAcquire(int acquires) {
+            /*
+             * Walkthrough:
+             * 1. If read count nonzero or write count nonzero
+             *    and owner is a different thread, fail.
+             * 2. If count would saturate, fail. (This can only
+             *    happen if count is already nonzero.)
+             * 3. Otherwise, this thread is eligible for lock if
+             *    it is either a reentrant acquire or
+             *    queue policy allows it. If so, update state
+             *    and set owner.
+             */
+            Thread current = Thread.currentThread();
+  					// 获取到一个state = 0
+            int c = getState();
+  					// // w，剧透一下，人家读写锁，非常聪明的利用state的值
+						// 二进制值里面的高低16位分别代表了读锁和写锁，AQS就一个，state
+						// state二进制值的高16位代表了读锁，低16位代表了写锁
+						// 可以认为下面的w就是从c（二进制值）通过位运算
+						// 获取到了state的低16位，代表了写锁的状态
+            int w = exclusiveCount(c);
+  					// 如果c != 0，说明有人加过锁，但是此时c = 0
+            if (c != 0) {
+                // (Note: if c != 0 and w == 0 then shared count != 0)
+                if (w == 0 || current != getExclusiveOwnerThread())
+                    return false;
+                if (w + exclusiveCount(acquires) &gt; MAX_COUNT)
+                    throw new Error(&quot;Maximum lock count exceeded&quot;);
+                // Reentrant acquire
+                setState(c + acquires);
+                return true;
+            }
+  					// 非公平锁，此时一定会去尝试加锁
+						// 如果是公平锁，此时会判断如果队列中有等待线程，就不加锁
+            if (writerShouldBlock() ||
+                !compareAndSetState(c, c + acquires))
+                return false;
+            setExclusiveOwnerThread(current);
+            return true;
+}
+</code></pre>
+<pre><code class="language-java">static int exclusiveCount(int c) { return c &amp; EXCLUSIVE_MASK; }
+static final int SHARED_SHIFT   = 16;
+static final int EXCLUSIVE_MASK = (1 &lt;&lt; SHARED_SHIFT) - 1;
+</code></pre>
+<h2 id="3-可重入写锁实现原理">3 可重入写锁实现原理</h2>
+<pre><code class="language-java">protected final boolean tryAcquire(int acquires) {
+            Thread current = Thread.currentThread();
+  					// 获取到一个state = 1
+            int c = getState();
+            int w = exclusiveCount(c);
+  					// 如果c != 0，说明有人加过锁，但是此时c = 0
+            if (c != 0) {
+                // c != 0，w == 0，c肯定不是0，但是低16位是0，说明有人加了读锁，没有人加写锁，
+              	// 此时你要加写锁，而且你还不是之前加锁的那个线程，加锁失败
+                if (w == 0 || current != getExclusiveOwnerThread())
+                    return false;
+              	// 走到这里说明：加了写锁且之前是当前线程加的锁
+                if (w + exclusiveCount(acquires) &gt; MAX_COUNT)
+                    throw new Error(&quot;Maximum lock count exceeded&quot;);
+                // 加锁成功，设置值
+                setState(c + acquires);
+                return true;
+            }
+            if (writerShouldBlock() ||
+                !compareAndSetState(c, c + acquires))
+                return false;
+            setExclusiveOwnerThread(current);
+            return true;
+}
+</code></pre>
+<h2 id="4-读写锁的护互斥实现原理">4 读写锁的护互斥实现原理</h2>
+<pre><code class="language-java">protected final int tryAcquireShared(int unused) {
+    /*
+     * Walkthrough:
+     * 1. If write lock held by another thread, fail.
+     * 2. Otherwise, this thread is eligible for
+     *    lock wrt state, so ask if it should block
+     *    because of queue policy. If not, try
+     *    to grant by CASing state and updating count.
+     *    Note that step does not check for reentrant
+     *    acquires, which is postponed to full version
+     *    to avoid having to check hold count in
+     *    the more typical non-reentrant case.
+     * 3. If step 2 fails either because thread
+     *    apparently not eligible or CAS fails or count
+     *    saturated, chain to version with full retry loop.
+     */
+    Thread current = Thread.currentThread();
+    int c = getState();
+  	// 已经被别的线程加写锁，加锁失败
+    if (exclusiveCount(c) != 0 &amp;&amp;
+        getExclusiveOwnerThread() != current)
+        return -1;
+    int r = sharedCount(c);
+    if (!readerShouldBlock() &amp;&amp;
+        r &lt; MAX_COUNT &amp;&amp;
+        compareAndSetState(c, c + SHARED_UNIT)) {
+        if (r == 0) {
+            firstReader = current;
+            firstReaderHoldCount = 1;
+        } else if (firstReader == current) {
+            firstReaderHoldCount++;
+        } else {
+            HoldCounter rh = cachedHoldCounter;
+            if (rh == null || rh.tid != getThreadId(current))
+                cachedHoldCounter = rh = readHolds.get();
+            else if (rh.count == 0)
+                readHolds.set(rh);
+            rh.count++;
+        }
+        return 1;
+    }
+    return fullTryAcquireShared(current);
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-010reentrantlock/" class="post-title gt-a-link">
+                    JDK 源码阅读010：ReentrantLock 
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

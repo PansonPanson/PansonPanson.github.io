@@ -1,0 +1,386 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>如何设计本地消息表？ | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    如何设计本地消息表？
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-09-17 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>本地消息表是用于解决业务操作与消息发送的原子性问题，本文主要针对 RocketMQ 来说。</p>
+<p>1、 首先一个表肯定要有主键 ID。</p>
+<p>2、因为本地消息表是为消息服务的，所以要有一个字段存储消息内容</p>
+<p>3、还要有一个字段存储具体的 Topic</p>
+<p>4、为了幂等性，需要标识消息的状态，已经发送了还是待发送</p>
+<p>5、为了防止消息一直重试，增加重试次数</p>
+<p>6、模拟延时队列，增加下一次重试时间</p>
+<p>7、还有上一次执行时间</p>
+<p>8、如果多业务共用一张表，还需要增加业务字段，用来区分业务</p>
+<p>9、增加业务幂等键</p>
+<p>10、创建时间与修改时间</p>
+<p>11、创建代码类（系统）和修改代码类（系统）</p>
+<p>整理成表格的话：</p>
+<table>
+<thead>
+<tr>
+<th>字段名</th>
+<th>类型</th>
+<th>允许为空</th>
+<th>默认值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>BIGINT(20)</td>
+<td>NOT NULL</td>
+<td>AUTO_INCREMENT</td>
+<td>主键 ID</td>
+</tr>
+<tr>
+<td>biz_key</td>
+<td>VARCHAR(64)</td>
+<td>NOT NULL</td>
+<td></td>
+<td>业务幂等键，用于防止重复处理同一业务消息</td>
+</tr>
+<tr>
+<td>biz_type</td>
+<td>VARCHAR(32)</td>
+<td>NOT NULL</td>
+<td></td>
+<td>业务类型（如 <code>order_create</code>、<code>stock_update</code>）</td>
+</tr>
+<tr>
+<td>topic</td>
+<td>VARCHAR(64)</td>
+<td>NOT NULL</td>
+<td></td>
+<td>消息所属 RocketMQ Topic</td>
+</tr>
+<tr>
+<td>message_body</td>
+<td>TEXT</td>
+<td>NOT NULL</td>
+<td></td>
+<td>消息内容（建议存储 JSON 序列化后的数据）</td>
+</tr>
+<tr>
+<td>status</td>
+<td>TINYINT(3)</td>
+<td>NOT NULL</td>
+<td>0</td>
+<td>消息状态：0-待发送，1-发送中，2-已发送，3-发送失败</td>
+</tr>
+<tr>
+<td>retry_count</td>
+<td>INT(11)</td>
+<td>NOT NULL</td>
+<td>0</td>
+<td>重试次数</td>
+</tr>
+<tr>
+<td>next_retry_time</td>
+<td>DATETIME</td>
+<td>YES</td>
+<td>NULL</td>
+<td>下次重试时间（用于模拟延时队列）</td>
+</tr>
+<tr>
+<td>last_execute_time</td>
+<td>DATETIME</td>
+<td>YES</td>
+<td>NULL</td>
+<td>上一次执行（发送）时间</td>
+</tr>
+<tr>
+<td>fail_reason</td>
+<td>VARCHAR(255)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>发送失败原因（错误码、异常信息摘要）</td>
+</tr>
+<tr>
+<td>create_by</td>
+<td>VARCHAR(64)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>创建人（代码类名/系统名）</td>
+</tr>
+<tr>
+<td>update_by</td>
+<td>VARCHAR(64)</td>
+<td>YES</td>
+<td>NULL</td>
+<td>最后更新人（代码类名/系统名）</td>
+</tr>
+<tr>
+<td>gmt_create</td>
+<td>DATETIME</td>
+<td>NOT NULL</td>
+<td>CURRENT_TIMESTAMP</td>
+<td>创建时间</td>
+</tr>
+<tr>
+<td>gmt_modified</td>
+<td>DATETIME</td>
+<td>NOT NULL</td>
+<td>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</td>
+<td>修改时间</td>
+</tr>
+</tbody>
+</table>
+<p>索引上，根据查询条件设置：</p>
+<pre><code class="language-mysql">
+-- 扫描待发送的消息
+CREATE INDEX idx_state_nextretry ON local_message (state, next_retry_time);
+
+-- 按业务幂等键查找
+CREATE UNIQUE INDEX uk_biz_type_key ON local_message (biz_type, biz_key);
+
+-- 按 topic 查找
+CREATE INDEX idx_topic ON local_message (topic);
+
+</code></pre>
+<pre><code class="language-mysql">CREATE TABLE `t_local_message` (
+    `id`                bigint          NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `biz_type`          varchar(64)     NOT NULL COMMENT '业务类型（区分不同业务，例如order_create、stock_lock等）',
+    `biz_key`           varchar(128)    NOT NULL COMMENT '业务幂等键（关联具体业务记录，例如订单号）',
+    `topic`             varchar(255)    NOT NULL COMMENT 'RocketMQ Topic',
+    `message_body`      text            NOT NULL COMMENT '消息内容（JSON格式）',
+    `status`            tinyint         NOT NULL COMMENT '消息状态：0-待发送，1-发送中，2-已发送，3-发送失败',
+    `retry_count`       int             NOT NULL DEFAULT 0 COMMENT '消息已重试次数',
+    `next_retry_time`   datetime        DEFAULT NULL COMMENT '下一次重试时间（可实现延时发送）',
+    `last_exec_time`    datetime        DEFAULT NULL COMMENT '最后一次发送时间',
+    `fail_reason`       varchar(512)    DEFAULT NULL COMMENT '最后一次失败原因',
+    `created_by`        varchar(64)     NOT NULL COMMENT '创建人或系统代码标识',
+    `updated_by`        varchar(64)     NOT NULL COMMENT '修改人或系统代码标识',
+    `gmt_create`        datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `gmt_modified`      datetime        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_biz_type_key` (`biz_type`, `biz_key`) COMMENT '业务幂等约束',
+    KEY `idx_status_next_retry` (`status`, `next_retry_time`) COMMENT '扫描待重试的消息',
+    KEY `idx_topic` (`topic`) COMMENT '按 topic 查找'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='本地消息表（生产者侧）';
+
+</code></pre>
+<pre><code>                ┌───────────────────────┐
+                │ 0 待发送               │
+                │（事务提交后写入表）      │
+                └──────────┬────────────┘
+                           │ 定时任务扫描(status=0)
+                           ▼
+                ┌───────────────────────┐
+                │ 1 发送中               │
+                │（调用 MQ 发送接口）      │
+                └───────┬───────┬───────┘
+                        │       │
+          MQ 发送成功   │       │ MQ 发送失败
+                        │       ▼
+                        │   ┌────────────────────────────┐
+                        │   │ 记录 fail_reason            │
+                        │   │ retry_count += 1           │
+                        │   │ 设置 next_retry_time        │
+                        │   └───────────┬────────────────┘
+                        │               │
+                        │               ▼
+                        │   达到最大重试次数？
+                        │          │
+                        │          │ 否
+                        │          ▼
+                        │     回到 1 发送中（下次扫描）
+                        │
+                        ▼
+          ┌────────────────────────────┐
+          │ 2 已发送                    │
+          │（成功投递至 Broker，归档或删） │
+          └────────────────────────────┘
+
+                                 │
+                                 │ 是
+                                 ▼
+                        ┌───────────────────────┐
+                        │ 3 发送失败             │
+                        │（人工处理或补偿机制）     │
+                        └───────────────────────┘
+
+
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/shi-me-shi-ben-di-xiao-xi-biao/" class="post-title gt-a-link">
+                    什么是本地消息表？
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

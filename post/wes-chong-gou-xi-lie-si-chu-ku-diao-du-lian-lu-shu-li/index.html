@@ -1,0 +1,230 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（四）：出库调度正向链路梳理 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（四）：出库调度正向链路梳理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-21 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</em><br>
+<img src="https://images.unsplash.com/photo-1762112974336-756993ced290?q=80&amp;w=2682&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" loading="lazy"></p>
+<h2 id="一-wes-的出库是什么">一、WES 的出库是什么？</h2>
+<p>以电商履约链路为例，WES 在 WMS 的下游。<br>
+WES 的业务链路位置大致参考下图（做了一些简化）：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/4/file-20251121004900019.png?raw=true" alt="" loading="lazy"></figure>
+<p>那出库是什么呢？<br>
+简单来说就是把商品（货物）从仓库里面取出来去发货。<br>
+传统的仓储是人去仓库里面寻找货物并取货物，智能仓储（WES）是机器小车把仓库里面的货自动取出来给到人。<br>
+前者是人到货，后者是货到人。</p>
+<p>那问题来了：</p>
+<ol>
+<li>WES 如何知道上游想要出库哪些商品呢？涉及到与上游系统交互</li>
+<li>WES 如何知道库内有哪些商品呢？涉及到商品模块</li>
+<li>WES 如何知道商品在仓库内的存放位置呢？设计到库存模块，仓储中有多级库存</li>
+<li>WES 如何去通知调度小车把商品取出来呢？涉及到调度模块，与车辆调度系统对接</li>
+<li>如何更快速地完成出库呢？涉及到调度模块，与算法服务对接</li>
+<li>最终如何把出库结果反馈给上游呢？涉及到与上游的交互</li>
+<li>如果商品库存不足，缺货了，又该怎么办？涉及到内部异常机制处理，规则引擎</li>
+<li>……</li>
+</ol>
+<p>我们逐一来捋捋，内容非常多，有业务上的，也有技术上的。</p>
+<p>本文我们先来梳理一下出库链路，后面再聊聊如何优化。</p>
+<p>出库链路又分为正向链路和逆向链路，先说正向链路。</p>
+<h2 id="二-出库正向链路">二、出库正向链路</h2>
+<p>我画了一张出库正向链路图，如下所示：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/image/4/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<ol>
+<li>上游服务会通过商品同步接口，告知 WES 需要维护的商品内容。</li>
+<li>之后会组箱（以料箱业务为例）、上架，此时库内会存在该商品的库存。</li>
+<li>接着正式来到<strong>出库单链路</strong>：出库单提交，预占二级库存，生成出库作业单。</li>
+<li>分三级库存与工作站槽位定时器：定时捞取待分配工作站的出库作业单，组装算法参数（三级库存、单据、工作站槽位信息、地图巷道……），调用算法接口，拿到库存分配与工作站分配结果，创建出库任务，预占三级库存</li>
+<li>任务下发定时器：捞取出库任务表，组转调度任务信息，下发给服务 WCS，并更新出库任务表信息</li>
+<li>WCS 和下游车辆调度系统：调度车辆和货架，搬运信息上报给 WES，WES 根据搬运上报信息更新出库任务表</li>
+<li>车辆和货架到达工作站：WES 根据到站消息，组装实操推送数据（商品、批次、任务、货架、库位、点位……）到 服务 STATION， 如果推送异常则按规则做回滚操作（调度小车离站、出库任务回滚、出库作业单回滚，生成新的出库作业单、解锁三级库存预占锁定……）</li>
+<li>STATION 加载任务，页面弹出出库实操</li>
+<li>STATION工作站拣选人员根据页面提示，扫码、拣货、封箱……全部分播完成，</li>
+<li>STATION 实操完毕，发送实操反馈消息给 WES</li>
+<li>WES 实操反馈监听收到 STATION 发来的实操反馈消息后，完结任务，通知下游车辆调度系统小车离站</li>
+<li>WCS 和下游车辆调度系统：收到离站通知，调度小车离站，并 mq 反馈料箱位置变更事件</li>
+<li>WCS 收到容器变更 mq 消息，更新库存信息</li>
+<li>WES 定时捞取出库单，按规则生成单据反馈信息，按单、按箱反馈上游，至此，正向链路完成数据闭环。</li>
+</ol>
+<p>除此之外，出库链路一般还会有热度移位、静态组播、动态组播、超 A 不返库、QuickPick等等，比较垂直，有机会再聊。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-san-he-bing-xi-tong-zhi-chi-hun-chang-ye-wu/" class="post-title gt-a-link">
+                    WES 重构系列（三）：系统融合支持混场业务调度
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

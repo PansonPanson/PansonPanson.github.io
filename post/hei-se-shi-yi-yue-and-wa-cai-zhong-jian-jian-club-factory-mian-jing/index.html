@@ -1,0 +1,207 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>黑色十一月 and  挖财中间件、club-factory 面经 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    黑色十一月 and  挖财中间件、club-factory 面经
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-12-07 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>十一月水逆到自闭，月中皮肤出现点问题，第一次去医院还误诊成了真菌感染，第二次给医生打电话随访，又去看了一次，每天忌口，天天吃水果蔬菜牛奶，不吃重盐重油重辣，清汤寡饭，还好第二次吃了点药，皮肤恢复得很快，拾掇好心情，十二月重新开始面试。</em></p>
+<!-- more -->
+<p>一天全部面完，有点累，记录一下面经，已剔除业务相关敏感信息。</p>
+<ol>
+<li>MySQL 存储引擎有哪些，Innodb 与 MyISAM 的区别，MyISAM 底层索引机制，Innodb 的底层索引机制</li>
+<li>Dubbo 工作流程，序列化协议与通信协议了解哪些</li>
+<li>NIO 与 BIO，BIO 是否绝对比 NIO 好，Tomcat 中使用的是哪一种</li>
+<li>用过哪些设计模式，设计模式原则</li>
+<li>JVM 调优，怎么调优的，使用了什么命令，排查的流程是什么，后来怎么解决的</li>
+<li>Dubbo 注册中心挂了会怎样，新加的服务能调用吗，老的服务呢</li>
+<li>Kafka 的核心概念，如何做到高可用的，如何做到吞吐量达到 10 几万，消费者组</li>
+<li>RocketMQ 的核心概念，两者的区别，为什么这样选型</li>
+<li>MySQL 的流程</li>
+<li>Redis 用过哪些，怎么用的，底层的数据结构</li>
+<li>编程题：
+<ul>
+<li>读取某个文件目录下，以 .txt 结尾的文件，并统计所有字符出现的次数，根据出现频率，由高到低依次打印，要求使用多线程。</li>
+</ul>
+</li>
+<li>讲一下 Zookeeper 运行流程，Zookeeper 数据一致性问题，Zookeeper 是如何处理的
+<ul>
+<li>Leader收到了过半的follower的ack，接着leader自己commit了，还没来得及发送commit给所有follower自己就挂了。</li>
+<li>leader可能会自己收到了一个请求，结果没来得及发送proposal给所有follower之前就宕机了。</li>
+</ul>
+</li>
+<li>Zookeeper 分布式锁，Redis 分布式锁，Redis 分布式锁原理，如何实现的</li>
+<li>为什么出来看机会，谈期望薪水。</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

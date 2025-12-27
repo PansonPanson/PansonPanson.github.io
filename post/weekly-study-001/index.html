@@ -1,0 +1,409 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>weekly study 001 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    weekly study 001
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-15 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>from 2022-08-15 to 2022-08-21</p>
+<!-- more -->
+<p>leetcode 623: 在二叉树中增加一行</p>
+<pre><code class="language-java">class Solution {
+        public TreeNode addOneRow(TreeNode root, int val, int depth) {
+            if(depth == 1) {
+                TreeNode newRoot = new TreeNode(val);
+                newRoot.left = root;
+                return newRoot;
+            } else {
+                recursion(root, val, depth - 1);
+                return root;
+            }
+        }
+
+        public void recursion(TreeNode root, int val, int depth) {
+            if(root == null) {
+                return;
+            }
+            if(depth == 1) {
+                TreeNode newLeft = new TreeNode(val);
+                newLeft.left = root.left;
+                root.left = newLeft;
+                TreeNode newRight = new TreeNode(val);
+                newRight.right = root.right;
+                root.right = newRight;
+            } else {
+                recursion(root.left, val, depth - 1);
+                recursion(root.right, val, depth - 1);
+            }
+        }
+
+    }
+</code></pre>
+<p>leetcode 641：设计循环双端队列</p>
+<pre><code class="language-java">
+    public class MyCircularDeque {
+
+        private List&lt;Integer&gt; values;
+
+        private int last = 0;
+
+        private int capacity = 0;
+
+        public MyCircularDeque(int k) {
+            values = new LinkedList&lt;&gt;();
+            capacity = k;
+        }
+
+        public boolean insertFront(int value) {
+            if(last &gt;= capacity) {
+                return false;
+            }
+            values.add(0, value);
+            last++;
+            return true;
+        }
+
+        public boolean insertLast(int value) {
+            if(last &gt;= capacity) {
+                return false;
+            }
+            values.add(last, value);
+            last++;
+            return true;
+        }
+
+        public boolean deleteFront() {
+            if(last &lt;= 0) {
+                return false;
+            }
+            values.remove(0);
+            last--;
+            return true;
+        }
+
+        public boolean deleteLast() {
+            if(last &lt;= 0) {
+                return false;
+            }
+            values.remove(last - 1);
+            last--;
+            return true;
+
+        }
+
+        public int getFront() {
+            if(last &lt;= 0) {
+                return -1;
+            }
+            return values.get(0);
+        }
+
+        public int getRear() {
+            if(last &lt;= 0) {
+                return -1;
+            }
+            return values.get(last - 1);
+        }
+
+        public boolean isEmpty() {
+            return last == 0;
+        }
+
+        public boolean isFull() {
+            return last &gt;= capacity;
+        }
+    }
+</code></pre>
+<p>leetcode 1656：设计有序流</p>
+<pre><code class="language-java">class OrderedStream {
+        private String[] values;
+        private int ptr = 1;
+
+        public OrderedStream(int n) {
+            values = new String[n + 1];
+        }
+
+        public List&lt;String&gt; insert(int idKey, String value) {
+            values[idKey] = value;
+            List&lt;String&gt; res = new ArrayList&lt;&gt;();
+            for (int i = ptr; i &lt; values.length; i++) {
+                if (values[i] == null) {
+                    ptr = i;
+                    return res;
+                } else {
+                    res.add(values[i]);
+                }
+            }
+            return res;
+        }
+    }
+
+</code></pre>
+<p>leetcode 1032: 层数最深叶子节点的和</p>
+<pre><code class="language-java">
+class Solution {
+        public int deepestLeavesSum(TreeNode root) {
+            if (root == null) {
+                return 0;
+            }
+            int levelSum = 0;
+            Deque&lt;TreeNode&gt; level = new ArrayDeque&lt;&gt;();
+            level.offer(root);
+            while (!level.isEmpty()) {
+                int levelSize = level.size();
+                levelSum = 0;
+                for(int i = 0; i &lt; levelSize; i++) {
+                    TreeNode node = level.poll();
+                    levelSum += node.val;
+                    if (node.left != null) {
+                        level.offer(node.left);
+                    }
+                    if(node.right != null) {
+                        level.offer(node.right);
+                    }
+                }
+                
+            }
+            return levelSum;
+        }
+    }
+</code></pre>
+<p>leetcode 1224. 最大相等频率</p>
+<pre><code class="language-java">class Solution {
+        int[] cnt = new int[100010], sum = new int[100010];
+        public int maxEqualFreq(int[] nums) {
+            Arrays.fill(cnt, 0); Arrays.fill(sum, 0);
+            int n = nums.length, max = 0, ans = 0;
+            for (int i = 0; i &lt; n; i++) {
+                int t = nums[i], cur = ++cnt[t], len = i + 1;
+                sum[cur]++; sum[cur - 1]--;
+                max = Math.max(max, cur);
+                if (max == 1) ans = len;
+                if (max * sum[max] + 1 == len) ans = len;
+                if ((max - 1) * (sum[max - 1] + 1) + 1 == len) ans = len;
+            }
+            return ans;
+        }
+}
+
+</code></pre>
+<p>leetcode 1450: 在既定时间做作业的学生人数</p>
+<pre><code class="language-java">class Solution {
+
+        public int busyStudent(int[] startTime, int[] endTime, int queryTime) {
+            int res = 0;
+            for(int i = 0; i &lt; startTime.length; i++) {
+                if(queryTime &gt;= startTime[i] &amp;&amp; queryTime &lt; endTime[i]) {
+                    res++;
+                }
+            }
+            return res;
+        }
+    }
+</code></pre>
+<p>leetcode 654: 最大二叉树</p>
+<pre><code class="language-java">class Solution {
+        public TreeNode constructMaximumBinaryTree(int[] nums) {
+            return helper(nums, 0, nums.length - 1);
+        }
+
+        private TreeNode helper(int[] nums, int left, int right) {
+            if(left &lt; right) {
+                return null;
+            }
+            int max = Integer.MIN_VALUE;
+            int maxIndex = left;
+            for(int i = left; i &lt;= right; i++) {
+                if(nums[i] &gt; max) {
+                    max = nums[i];
+                    maxIndex = i;
+                }
+            }
+            TreeNode root = new TreeNode(max);
+            root.left = helper(nums, left, maxIndex - 1);
+            root.right = helper(nums, maxIndex + 1, right);
+            return root;
+        }
+
+
+    }
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/rocketmq-broker-yuan-ma-yue-du/" class="post-title gt-a-link">
+                    RocketMQ Broker 源码阅读
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

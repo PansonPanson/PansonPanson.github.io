@@ -1,0 +1,268 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>018.什么是货主 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    018.什么是货主
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="什么是货主"><strong>什么是货主？</strong></h3>
+<p><strong>货主（Owner）<strong>是指</strong>在供应链、仓储或物流系统中，拥有商品所有权并负责管理库存的企业或个人</strong>。在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，货主通常指的是<strong>仓库内存储的商品的真正所有者</strong>，可能是<strong>品牌商、供应商、零售商或第三方电商商家</strong>。</p>
+<hr>
+<h2 id="货主的主要特征"><strong>货主的主要特征</strong></h2>
+<ol>
+<li><strong>商品所有权</strong>：货主对其库存商品具有法律和经济上的所有权。</li>
+<li><strong>库存管理</strong>：货主在仓库中存储的库存受其自身管理，可能涉及<strong>独立的库存控制、批次管理、补货策略等</strong>。</li>
+<li><strong>订单履行</strong>：货主可以通过<strong>WMS/WES</strong> 来管理订单的拣选、打包和出库流程。</li>
+<li><strong>财务结算</strong>：在<strong>第三方物流（3PL）</strong> 场景下，货主可能需要与仓库运营方结算存储费、操作费、配送费等。</li>
+</ol>
+<hr>
+<h2 id="货主的应用场景"><strong>货主的应用场景</strong></h2>
+<h3 id="1-传统企业仓库"><strong>1. 传统企业仓库</strong></h3>
+<p>在制造业或零售企业的自营仓库中，货主通常是<strong>企业自己</strong>，如：</p>
+<ul>
+<li><strong>某家服装品牌自营仓库</strong>存放的是该品牌的库存，货主即该品牌公司本身。</li>
+</ul>
+<h3 id="2-第三方物流3pl仓库"><strong>2. 第三方物流（3PL）仓库</strong></h3>
+<p>在<strong>第三方物流仓库</strong>（如京东、顺丰等），仓库可能为多个货主提供存储和发货服务，常见货主包括：</p>
+<ul>
+<li><strong>品牌商</strong>（如耐克、阿迪达斯）</li>
+<li><strong>电商商家</strong>（如淘宝/拼多多店铺卖家）</li>
+<li><strong>分销商</strong>（如代理商）</li>
+</ul>
+<p>✅ <strong>示例</strong>：<br>
+京东物流的仓库可能存储多个品牌的商品：</p>
+<ul>
+<li>耐克（Nike）是一个货主，存放耐克的鞋子和服饰。</li>
+<li>小米（Xiaomi）是另一个货主，存放小米的手机和家电。</li>
+<li>京东自营商品也可能作为独立货主存在。</li>
+</ul>
+<p>每个货主的库存<strong>相互独立</strong>，不能混合管理。</p>
+<hr>
+<h2 id="货主在-wmswes-中的作用"><strong>货主在 WMS/WES 中的作用</strong></h2>
+<p>在 <strong>WMS/WES</strong> 系统中，货主通常用于：</p>
+<ul>
+<li><strong>区分不同品牌或商家的库存</strong></li>
+<li><strong>控制订单流转</strong>（避免错误调拨其他货主的库存）</li>
+<li><strong>财务结算</strong>（计算存储费、操作费等）</li>
+</ul>
+<h3 id="货主相关的数据字段"><strong>货主相关的数据字段</strong></h3>
+<table>
+<thead>
+<tr>
+<th><strong>字段</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>货主名称</strong></td>
+<td>货主的企业名称，如 &quot;耐克中国&quot;</td>
+</tr>
+<tr>
+<td><strong>货主编码</strong></td>
+<td>货主的唯一编码，如 &quot;OWN12345&quot;</td>
+</tr>
+<tr>
+<td><strong>货主类型</strong></td>
+<td>可能是品牌商、电商商家、分销商等</td>
+</tr>
+<tr>
+<td><strong>库存归属</strong></td>
+<td>该货主在仓库中的库存归属</td>
+</tr>
+<tr>
+<td><strong>订单归属</strong></td>
+<td>该货主的订单信息</td>
+</tr>
+<tr>
+<td><strong>结算方式</strong></td>
+<td>货主与仓库的结算方式（按存储费/操作费等）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="总结"><strong>总结</strong></h2>
+<ul>
+<li><strong>货主</strong> 是拥有库存所有权的企业或个人，可能是<strong>品牌商、电商商家或分销商</strong>。</li>
+<li><strong>在 WMS/WES 中，货主用于区分库存、管理订单和进行财务结算</strong>。</li>
+<li><strong>在 3PL 物流仓库中，不同货主的库存独立存储，不得混合使用</strong>。</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/019_-shi-me-shi-zu-xiang/" class="post-title gt-a-link">
+                    019.什么是组箱
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

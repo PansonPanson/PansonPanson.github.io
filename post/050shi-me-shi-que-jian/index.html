@@ -1,0 +1,243 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>050.什么是缺拣 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    050.什么是缺拣
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-04 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="缺拣short-picking是什么"><strong>缺拣（Short Picking）是什么？</strong></h3>
+<p><strong>缺拣</strong>是指<strong>订单拣选过程中，由于库存不足或操作失误，导致未能按订单要求拣选到足够的商品</strong>。</p>
+<p>在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，缺拣通常会触发<strong>补货、库存调整或异常处理</strong>，以保证订单履约率。</p>
+<hr>
+<h2 id="1-缺拣的常见原因"><strong>1. 缺拣的常见原因</strong></h2>
+<h3 id="1-实际库存-系统库存"><strong>(1) 实际库存 ≠ 系统库存</strong></h3>
+<ul>
+<li><strong>库存账实不符</strong>（例如：数据错误、漏盘点、盘亏）。</li>
+<li><strong>系统显示有库存，但实际无货</strong>（如库存损耗、商品丢失）。</li>
+</ul>
+<h3 id="2-订单需求-可用库存"><strong>(2) 订单需求 &gt; 可用库存</strong></h3>
+<ul>
+<li><strong>库存不足，无法满足订单全部需求</strong>。</li>
+<li><strong>部分商品刚被其他订单拣选，导致剩余库存不足</strong>。</li>
+</ul>
+<h3 id="3-货位或库存异常"><strong>(3) 货位或库存异常</strong></h3>
+<ul>
+<li><strong>商品存放位置错误，导致拣选员找不到</strong>。</li>
+<li><strong>库存破损或质量问题，无法拣选</strong>。</li>
+</ul>
+<h3 id="4-拣选员或机器人操作失误"><strong>(4) 拣选员或机器人操作失误</strong></h3>
+<ul>
+<li><strong>人工拣选错误，未能拿足所需数量</strong>。</li>
+<li><strong>自动拣选设备故障，未能正确拣货</strong>。</li>
+</ul>
+<hr>
+<h2 id="2-缺拣的应对措施"><strong>2. 缺拣的应对措施</strong></h2>
+<h3 id="1-触发系统补货"><strong>(1) 触发系统补货</strong></h3>
+<ul>
+<li><strong>系统发现库存不足，自动创建补货任务</strong>。</li>
+<li><strong>优先从其他库位、其他仓库或供应商调货</strong>。</li>
+</ul>
+<h3 id="2-调整订单履约策略"><strong>(2) 调整订单履约策略</strong></h3>
+<ul>
+<li><strong>缺拣商品不足时，拆分订单</strong>（部分发货）。</li>
+<li><strong>若完全缺货，则通知客户，提供替代商品或退款</strong>。</li>
+</ul>
+<h3 id="3-盘点-纠正库存"><strong>(3) 盘点 &amp; 纠正库存</strong></h3>
+<ul>
+<li><strong>定期盘点，确保账实库存一致</strong>。</li>
+<li><strong>使用 RFID、PDA 扫码等方式减少人为失误</strong>。</li>
+</ul>
+<h3 id="4-订单优先级调整"><strong>(4) 订单优先级调整</strong></h3>
+<ul>
+<li><strong>优先满足高优先级订单（如 VIP 客户）</strong>。</li>
+<li><strong>对于低优先级订单，系统可建议推迟发货或拆单处理</strong>。</li>
+</ul>
+<hr>
+<h2 id="3-缺拣的影响"><strong>3. 缺拣的影响</strong></h2>
+<p>✅ <strong>影响订单履约率，可能导致客户投诉或取消订单</strong>。<br>
+✅ <strong>增加仓库额外工作量，如补货、盘点、异常处理</strong>。<br>
+✅ <strong>可能影响供应链管理，如导致后续生产或采购计划调整</strong>。</p>
+<hr>
+<h2 id="4-总结"><strong>4. 总结</strong></h2>
+<p>📌 <strong>缺拣 = 订单商品未能完全拣选，通常因库存不足、拣选错误或数据不准</strong>。<br>
+📌 <strong>WMS/WES 可通过补货、库存调整、订单优化等方式降低缺拣影响</strong>。<br>
+📌 <strong>优化库存管理、提高拣选准确率，可减少缺拣率，提高订单履约能力</strong>。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/051shi-me-shi-bang-xiang/" class="post-title gt-a-link">
+                    051.什么是绑箱
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

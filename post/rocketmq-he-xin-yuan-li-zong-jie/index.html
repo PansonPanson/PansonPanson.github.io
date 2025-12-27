@@ -1,0 +1,308 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>RocketMQ 核心原理总结 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    RocketMQ 核心原理总结
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-04-07 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>消息队列中，最熟悉的应该就是 RocketMQ 了，Kafka 和 RabbitMQ 都不是用 Java 写的，深入研究的话，时间耗费有点大，准备先熟悉透了 RocketMQ 之后再去研究 Kafka。本文很多内容其实都参照了官方文档，有兴趣的读者也可以通读一遍<a href="https://github.com/apache/rocketmq/tree/master/docs/cn">官方文档</a>。</em></p>
+<!-- more -->
+<p><ul class="markdownIt-TOC">
+<li><a href="#1-%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1">1 架构设计</a></li>
+<li><a href="#2-nameserver-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">2 NameServer 工作原理</a></li>
+<li><a href="#3-broker-%E7%9A%84%E4%B8%BB%E4%BB%8E%E6%9E%B6%E6%9E%84%E5%8E%9F%E7%90%86">3 Broker 的主从架构原理</a></li>
+<li><a href="#4-%E6%B6%88%E6%81%AF%E5%86%99%E5%85%A5-broker">4 消息写入 Broker</a>
+<ul>
+<li><a href="#41-%E5%88%86%E7%89%87%E6%9C%BA%E5%88%B6">4.1 分片机制</a></li>
+<li><a href="#42-broker-%E5%AD%98%E5%82%A8%E6%9C%BA%E5%88%B6">4.2 Broker 存储机制</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h1 id="1-架构设计">1 架构设计</h1>
+<p>先来看一下 RocketMQ 的架构设计图：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rocketmq_architecture_1.png?raw=true" alt="" loading="lazy"><br>
+RocketMQ架构上主要分为四部分，如上图所示:</p>
+<ol>
+<li>
+<p>Producer：消息发布的角色，支持分布式集群方式部署。Producer通过MQ的负载均衡模块选择相应的Broker集群队列进行消息投递，投递的过程支持快速失败并且低延迟。</p>
+</li>
+<li>
+<p>Consumer：消息消费的角色，支持分布式集群方式部署。支持以push推，pull拉两种模式对消息进行消费。同时也支持集群方式和广播方式的消费，它提供实时消息订阅机制，可以满足大多数用户的需求。</p>
+</li>
+<li>
+<p>NameServer：NameServer是一个非常简单的Topic路由注册中心，其角色类似Dubbo中的zookeeper，支持Broker的动态注册与发现。主要包括两个功能：Broker管理，NameServer接受Broker集群的注册信息并且保存下来作为路由信息的基本数据。然后提供心跳检测机制，检查Broker是否还存活；路由信息管理，每个NameServer将保存关于Broker集群的整个路由信息和用于客户端查询的队列信息。然后Producer和Conumser通过NameServer就可以知道整个Broker集群的路由信息，从而进行消息的投递和消费。NameServer通常也是集群的方式部署，各实例间相互不进行信息通讯。Broker是向每一台NameServer注册自己的路由信息，所以每一个NameServer实例上面都保存一份完整的路由信息。当某个NameServer因某种原因下线了，Broker仍然可以向其它NameServer同步其路由信息，Producer,Consumer仍然可以动态感知Broker的路由的信息。</p>
+</li>
+<li>
+<p>BrokerServer：Broker主要负责消息的存储、投递和查询以及服务高可用保证，为了实现这些功能， Broker包含了以下几个重要子模块。</p>
+<ul>
+<li>Remoting Module：整个Broker的实体，负责处理来自clients端的请求。</li>
+<li>Client Manager：负责管理客户端(Producer/Consumer)和维护Consumer的Topic订阅信息</li>
+<li>Store Service：提供方便简单的API接口处理消息存储到物理硬盘和查询功能。</li>
+<li>HA Service：高可用服务，提供Master Broker 和 Slave Broker之间的数据同步功能。</li>
+<li>Index Service：根据特定的Message key对投递到Broker的消息进行索引服务，以提供消息的快速查询。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rocketmq_architecture_2.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+</li>
+</ol>
+<p>下面来看看部署架构：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rocketmq_architecture_3.png?raw=true" alt="" loading="lazy"></p>
+<p><strong>RocketMQ 网络部署特点：</strong></p>
+<ol>
+<li>NameServer是一个几乎无状态节点，可集群部署，节点之间无任何信息同步。</li>
+<li>Broker部署相对复杂，Broker分为Master与Slave，一个Master可以对应多个Slave，但是一个Slave只能对应一个Master，Master与Slave 的对应关系通过指定相同的BrokerName，不同的BrokerId 来定义，BrokerId为0表示Master，非0表示Slave。Master也可以部署多个。每个Broker与NameServer集群中的所有节点建立长连接，定时注册Topic信息到所有NameServer。 注意：当前RocketMQ版本在部署架构上支持一Master多Slave，但只有BrokerId=1的从服务器才会参与消息的读负载。</li>
+<li>Producer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer获取Topic路由信息，并向提供Topic 服务的Master建立长连接，且定时向Master发送心跳。Producer完全无状态，可集群部署。</li>
+<li>Consumer与NameServer集群中的其中一个节点（随机选择）建立长连接，定期从NameServer获取Topic路由信息，并向提供Topic服务的Master、Slave建立长连接，且定时向Master、Slave发送心跳。Consumer既可以从Master订阅消息，也可以从Slave订阅消息，消费者在向Master拉取消息时，Master服务器会根据拉取偏移量与最大偏移量的距离（判断是否读老消息，产生读I/O），以及从服务器是否可读等因素建议下一次是从Master还是Slave拉取。</li>
+</ol>
+<p><strong>结合部署架构图，描述集群工作流程：</strong></p>
+<ol>
+<li>启动NameServer，NameServer起来后监听端口，等待Broker、Producer、Consumer连上来，相当于一个路由控制中心。</li>
+<li>Broker启动，跟所有的NameServer保持长连接，定时发送心跳包。
+<ul>
+<li>心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息。注册成功后，NameServer集群中就有Topic跟Broker的映射关系。</li>
+</ul>
+</li>
+<li>收发消息前，先创建Topic，创建Topic时需要指定该Topic要存储在哪些Broker上，也可以在发送消息时自动创建Topic。</li>
+<li>Producer发送消息。
+<ul>
+<li>启动时先跟NameServer集群中的其中一台建立长连接，并从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息。</li>
+</ul>
+</li>
+<li>Consumer跟Producer类似，跟其中一台NameServer建立长连接，获取当前订阅Topic存在哪些Broker上，然后直接跟Broker建立连接通道，开始消费消息。</li>
+</ol>
+<h1 id="2-nameserver-工作原理">2 NameServer 工作原理</h1>
+<p>从架构图中可以看到 NameServer 好似一个交通枢纽，所以下面先从 NameServer 聊起。</p>
+<ul>
+<li>第一，每个 Broker（包括 master 和 slave） 启动的时候都得向所有的 NameServer 进行注册，也就是说，每个 NameServer 都会有一份集群中所有 Broker 的信息。</li>
+<li>第二，consumer 和 producer 都是自己主动从 NameServer 拉取 Broker 信息的。</li>
+<li>第三，Broker 与 NameServer 之间存在心跳机制，Broker 每隔 30 秒给所有的 NameServer 发送心跳，告诉所有的 NameServer 自己还活着。每次 NameServer 收到一个 Broker 的心跳，就可以更新一下它的最近一次心跳时间。NameServer 会每隔 10 秒运行一个任务，去检查一下各个 Broker 的最近一次心跳信息，如果某个 Broker 超过 120s 都没发送，那么就认为这个 Broker 已经挂掉了。</li>
+<li>第四，Broker 与 NameServer 进行心跳注册时，还会汇报自己的数据情况，比如哪些 Topic 的哪些数据在自己这里，这些信息都是属于路由信息的一部分。</li>
+<li>第五，生产者在发送消息之前，会先确定一个 Topic, 然后在发送消息的时候指定 Topic， 发送到 master broker 上。然后生产者会与 NameServer 建立一个 TCP 长连接，然后定时从 NameServer 拉取最新的路由信息，包括集群中有哪些 Topic，每个 Topic 存储在哪些 Broker 上。</li>
+</ul>
+<h1 id="3-broker-的主从架构原理">3 Broker 的主从架构原理</h1>
+<ul>
+<li>第一，首先在<code>第二节 NameServer 工作原理 </code>中已经讲了：每个 Broker（包括 master 和 slave） 启动的时候都得向所有的 NameServer 进行注册，也就是说，每个 NameServer 都会有一份集群中所有 Broker 的信息。</li>
+<li>第二，master 与 slave 之间的数据同步方式：slave Broker 不停地发送请求到 master Broker 中去去拉取消息。</li>
+<li>第三，消费者在获取消息的时候，有可能从 Master 获取，也有可能从 Slave Broker 获取。
+<ul>
+<li>做为消费者的系统在获取消息的时候会先发送请求到 master Broker 上去，请求获取一批消息，此时 master broker 是会返回一批消息给消费系统的。</li>
+<li>然后 master Broker 在返回消息给消费者系统的时候，会根据当时 master broker 的负载情况和 slave broker 的同步情况，向消费者系统建议下一次拉取消息的时候是从 master broker 拉取还是从 slave broker 拉取。</li>
+<li>RocketMQ 4.5 之后，Dledger 可以实现 RocketMQ 的高可用自动切换</li>
+</ul>
+</li>
+</ul>
+<h1 id="4-消息写入-broker">4 消息写入 Broker</h1>
+<h2 id="41-分片机制">4.1 分片机制</h2>
+<p>Topic 为了能分布式存储，引入了 MessageQueue 的概念（分片机制），如下图所示：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/RocketMQ-producer-write.png?raw=true" alt="" loading="lazy"></p>
+<p>在 Producer 中有一个开关：sendLatencyFaultEnable，一旦打开这个开关，就会开启自动容错机制，比如说某次访问一个 broker 发现网络延迟有 500 ms，然后还会无法访问，那么就会自动回避访问这个 Broker 一段时间，比如接下来 3000 ms 内，就不会再访问这个 Broker 了。</p>
+<h2 id="42-broker-存储机制">4.2 Broker 存储机制</h2>
+<p>先来讲一下一串名词，这些名词都与Broker 的数据存储有关系。</p>
+<ul>
+<li>CommitLog</li>
+<li>Topic</li>
+<li>MesageQueue</li>
+<li>ConsumeQueue 文件</li>
+<li>CommitLog offset 偏移量</li>
+<li>同步刷盘</li>
+<li>异步刷盘</li>
+</ul>
+<p>我们可以将上面的名词都串起来，捋一捋，就能知道 Broker 的存储机制了。</p>
+<ol>
+<li>
+<p>Broker 收到生产者的一条消息，会把消息直接顺序写入到磁盘上的一个日志文件，叫做 CommitLog。CommitLog 是许多磁盘文件，每个文件最多 1 GB，Broker 收到消息之后就直接追加写入这个文件的结尾。如果一个 CommitLog 写满了 1 GB，就会创建一个新的 CommitLog 文件。</p>
+</li>
+<li>
+<p>在 Broker 中，对 Topic 下的每个 MessageQueue 都会有一系列的 ConsumerQueue 文件，ConsumeQueue 文件里存储的消息在 CommitLog 上的物理位置，也就是 offset 偏移量。一个 ConsumerQueue 的大概目录是这样的：</p>
+<pre><code class="language-java">$HOME/store/consumequeue/{topic}/{queueId}/{fileName}
+</code></pre>
+<p>实际上 ConsumeQueue 中存储的每条数据不只是消息在 CommitLog 中的 offset 偏移量，还包含了消息的长度，以及 tag hashcode。<br>
+Topic 的每个 MessageQueue 都对应了 Broker 机器上的多个ConsumeQueue 文件，保存了这个 MessageQueue 的所有消息在 CommitLog 文件中的物理位置，也就是 offset 偏移量。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/rokcketmq-store.png?raw=true" alt="" loading="lazy"></p>
+</li>
+<li>
+<p>在性能优化上， broker 采用了 磁盘文件顺序写 + OS PageCache 写入 + OS 异步刷盘的策略，基本上可以保证让消息写入 CommitLog 的性能跟写入内存差不多，这样才能保证高吞吐量。</p>
+</li>
+<li>
+<p>消费消息的时候，本质就是根据 MessageQueue 以及开始消费的位置，去找到对应的 ConsumeQueue，读取对应的 offset 偏移量，然后到 CommitLog 中根据 offset 读取消息数据，返回给消费者机器。</p>
+</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/leetcode-fen-lei-zheng-li/" class="post-title gt-a-link">
+                    Leetcode 分类整理
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

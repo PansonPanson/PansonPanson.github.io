@@ -1,0 +1,453 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <div class="main-content">
+        <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+
+        <div class="post-list-container">
+    <div class="post-inner">
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/zhi-ding-tie/">
+                            <span class="post-title gt-c-content-color-first">关于本站</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p><em>分享自己的所见所得，后端技术、供应链、任务调度（AI阅片任务调度、渲染任务调度）、摄影相关。</em></p>
+<hr>
+<h2 id="一-关于本站">一、关于本站</h2>
+<ol>
+<li>
+<p>博客基于 Github + Gridea，由于众所周知的原因，科学上网后才能流畅阅读。</p>
+</li>
+<li>
+<p>博客使用的 Featured Image 和正文首部插图来源: <a href="https://unsplash.com/">unsplash</a><br>
+、<a href="https://film-grab.com/">FILMGRAB</a>、豆瓣、 <a href="https://screenmusings.org/">screenmusings</a>、<a href="https://www.ysjf.com/material">影视飓风</a>，大多数图片也需要科学上网才能正常加载。</p>
+</li>
+<li>
+<p>当然，也有部分是我自己的“摄影作品”。</p>
+</li>
+</ol>
+<h2 id="二-供应链">二、供应链</h2>
+<p>目前做的是供应链领域的后端开发，看过一些书和资料，结合日常工作内容，写了一个小系列。<br>
+具体可以看：<a href="https://panson.top/post/supply-chain/">https://panson.top/post/supply-chain/</a>，也在这个站点下。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2100-10-14 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/zhi-ding-tie/" class="post-feature-image"
+                       style="background-image: url('https://github.com/PansonPanson/blog-picture/blob/master/2022/%E5%88%80%E5%89%91%E7%A5%9E%E5%9F%9F.jpg?raw=true')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/da-mo-xing-zi-xue-bi-ji/">
+                            <span class="post-title gt-c-content-color-first">大模型自学笔记</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p>这周终于稍微清闲了一些，找许多朋友一起聊了许多东西，关于关于职业、生活、旅行、健康，当然聊着聊着就会聊到大模型，看看其他公司大模型落地的现状。比起快手、美团、拼多多等公司，阿里和字节系确实在落地上更进一步，整体上对 AI 的拥抱程度是更上一个层次的。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-12-27 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/da-mo-xing-zi-xue-bi-ji/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1766345907386-3eff10cb9142?q=80&amp;w=2728&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/wes-jiagou-sheji-yu-chonggoushijian/">
+                            <span class="post-title gt-c-content-color-first">十万字长文深度解析 WES 架构设计与重构实践 </span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p>朋友们好，感谢阅读，本文是一篇超长的文章，数了数，目前零零碎碎写了十余万字，还在慢慢整理中，我将系统性聊聊 WES 架构设计与重构实践，后续如果有精力，会继续增补一些内容。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-12-11 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/wes-jiagou-sheji-yu-chonggoushijian/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1764014588206-3c2647a34911?q=80&amp;w=2711&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/jin-qi-guan-yu-da-mo-xing-ying-yong-luo-di-de-yi-xie-si-kao/">
+                            <span class="post-title gt-c-content-color-first">近期关于大模型应用落地的一些思考</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p><em>图床用了 GitHub，文内所有图片都需要科学上网才可以流畅阅读。</em></p>
+<p>整理一下思绪和最近的事情，最近因为太忙了，所以直接住在公司附近的酒店里。因为不再长距离通勤而节约下来的夜晚时间，显得弥足珍贵。</p>
+<p>11 月末到 12 月初是海外黑五的时间段，估计海外仓问题可能比较紧急，加上今晚 oncall，躺着也睡不着，干脆起来写点东西。白天喝了红牛，写点东西助眠。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-12-04 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/jin-qi-guan-yu-da-mo-xing-ying-yong-luo-di-de-yi-xie-si-kao/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1762222630690-20a58212af83?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/kao-lu-zi-ji-xie-yi-ge-zhao-pian-chu-li-de-fen-bu-shi-ai-agent-xiang-mu/">
+                            <span class="post-title gt-c-content-color-first">考虑自己写一个照片处理的分布式 AI Agent 项目</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p>2019年，我入手了一台MacBook Pro，那是英特尔芯片的末代机型，配置是16GB内存和1TB硬盘。 当时我以为，这台电脑即便用到寿终正寝，磁盘空间恐怕也消耗不完。</p>
+<p>然而未来总是难以预料（充满惊喜）。去年生日，爱人送了我一台尼康相机，我的人生仿佛又增加了一个新的锚点——摄影。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-11-17 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/kao-lu-zi-ji-xie-yi-ge-zhao-pian-chu-li-de-fen-bu-shi-ai-agent-xiang-mu/" class="post-feature-image"
+                       style="background-image: url('https://plus.unsplash.com/premium_photo-1755882951561-7164bd8427a2?q=80&amp;w=1325&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/yi-ci-jvm-shen-you-hua-dao-zhi-de-ri-zhi-diu-shi-wen-ti/">
+                            <span class="post-title gt-c-content-color-first">一次 JVM “神优化” 导致的日志丢失问题</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <h2 id="一-问题发生">一、问题发生</h2>
+<p>今天同事私聊我，问了我一个问题，他说在一个美国的海外仓项目中发现一个奇怪的报错日志：只有error 日志信息和一个 NPE 日常，但是没有打印出具体的堆栈。</p>
+<p>他问我有没有遇到过。</p>
+<p>我心里第一个想法：是不是打印日志的地方写得不规范，只把 Exception 的 message 打印了，类似这样：</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-10-30 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/yi-ci-jvm-shen-you-hua-dao-zhi-de-ri-zhi-diu-shi-wen-ti/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1761671263817-958770b10b9f?ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;q=80&amp;w=2672')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/wes-chong-gou-xi-lie-shi-yi-chu-ku-lian-lu-zhong-de-fen-bu-shi-shi-wu-saga-shi-jian/">
+                            <span class="post-title gt-c-content-color-first">WES 重构系列（十一）：出库链路中的分布式事务 Saga 实践</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p>我在现司的很长一段时间里一直被现场问题工单 oncall 弄得痛不欲生，大概有半年多，我司很多第三方仓，尤其是海外仓，跨时区工作，经常半夜打我电话，一起床又是一个通宵。坦诚来说，工作这么多年，在我司的前半段时间工作，是我职业生涯中最痛苦的一段时间，捂头哈哈~</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-04-16 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/wes-chong-gou-xi-lie-shi-yi-chu-ku-lian-lu-zhong-de-fen-bu-shi-shi-wu-saga-shi-jian/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1755109604669-2719abfbe5b6?q=80&amp;w=2777&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/wes-chong-gou-xi-lie-shi-liao-liao-wes-dan-ju-ren-wu-diao-du/">
+                            <span class="post-title gt-c-content-color-first">WES 重构系列（十）：聊聊 WES 单据任务调度</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p>我在前文《WES 重构系列（五）：出库调度正向链路效率优化》一文中聊过，出库链路的大致链路流程。<br>
+但其实真实的出库调度链路远比这复杂，不仅涉及到库存模型、多样化的策略规则、配置、调度算法、热度算法，还涉及到单据任务调度以及相关的单据状态机、作业单状态机、任务状态机等等。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-04-15 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/wes-chong-gou-xi-lie-shi-liao-liao-wes-dan-ju-ren-wu-diao-du/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1755624306659-0efc313dcc92?q=80&amp;w=2687&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/llm-de-fa-zhan-shi/">
+                            <span class="post-title gt-c-content-color-first">LLM 的发展史</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-03-22 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/llm-de-fa-zhan-shi/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1741983139985-7fff27fffc3f?q=80&amp;w=2670&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+            <div class="post gt-bg-theme-color-second">
+                <div class="post-left">
+                    <div>
+                        
+                        <a href="https://panson.top/post/ai/">
+                            <span class="post-title gt-c-content-color-first">从零开始学 AI 总集篇</span>
+                        </a>
+                    </div>
+                    <div class="gt-post-content post-abstract gt-c-content-color-second">
+                        <p><em>想多了解一点这个快速发展的世界，学习一下 AI 相关的知识。</em></p>
+<h2 id="一-工具篇">一、工具篇</h2>
+<p>本地部署试过 Ollama + DeepSeek R1 32 b，19 年的英特尔芯片已经带不动了。</p>
+
+                    </div>
+                    <div class="post-info">
+                        <time class="post-time gt-c-content-color-first">
+                            发布于 · 2025-03-21 ·
+                        </time>
+                        
+                    </div>
+                </div>
+                
+                    <a href="https://panson.top/post/ai/" class="post-feature-image"
+                       style="background-image: url('https://images.unsplash.com/photo-1749460396807-b065b6694f02?q=80&amp;w=1158&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')">
+                    </a>
+                
+            </div>
+        
+    </div>
+</div>
+
+        <div class="pagination-container">
+    
+    
+        <a href="https://panson.top/page/2" class="prev-page gt-a-link">下一页</a>
+    
+</div>
+
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

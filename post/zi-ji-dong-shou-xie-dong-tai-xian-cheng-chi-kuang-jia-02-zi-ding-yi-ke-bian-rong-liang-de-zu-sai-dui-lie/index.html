@@ -1,0 +1,317 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>自己动手写动态线程池框架 02——自定义可变容量的阻塞队列 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    自己动手写动态线程池框架 02——自定义可变容量的阻塞队列
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-12-26 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>考虑到JDK原生阻塞队列的容量不可变性与线程池动态调参需求存在根本性冲突，动态线程池框架需要自定义可变容量的阻塞队列。</p>
+<!-- more -->
+<hr>
+<h3 id="一-原生阻塞队列的致命缺陷静态容量">一、原生阻塞队列的致命缺陷：静态容量</h3>
+<p>JDK提供的常用阻塞队列（如<code>ArrayBlockingQueue</code>、<code>LinkedBlockingQueue</code>）均在构造时<strong>固定容量</strong>：</p>
+<pre><code>// 容量一旦设定即不可修改
+BlockingQueue&lt;Runnable&gt; queue = new ArrayBlockingQueue&lt;&gt;(100); 
+</code></pre>
+<p>这意味着：</p>
+<ol>
+<li><strong>无法运行时扩容</strong>：当流量突增时，即使线程池已动态调大<code>maximumPoolSize</code>，任务仍因队列满被拒绝</li>
+<li><strong>无法运行时缩容</strong>：低峰期需释放内存时，无法缩小队列占用空间</li>
+</ol>
+<hr>
+<h3 id="二-动态线程池的核心诉求资源弹性">二、动态线程池的核心诉求：资源弹性</h3>
+<p>动态线程池的核心价值在于<strong>根据系统负载实时调整资源</strong>：</p>
+<pre><code>graph LR
+A[监控指标] --&gt;|队列堆积| B(扩容线程数)
+A --&gt;|队列持续空| C(缩容线程数)
+B --&gt; D{队列满？}
+D --&gt;|是| E[需扩容队列容量] 
+</code></pre>
+<p>此时暴露矛盾：</p>
+<ul>
+<li><strong>线程数可动态调整</strong>：通过<code>setMaximumPoolSize()</code>实时生效</li>
+<li><strong>队列容量仍固定</strong>：成为系统弹性能力的瓶颈</li>
+</ul>
+<hr>
+<h3 id="三-解决方案自定义可变容量队列">三、解决方案：自定义可变容量队列</h3>
+<p>通过重写阻塞队列实现<strong>运行时动态调整容量</strong>：</p>
+<pre><code>public class ResizableBlockingQueue&lt;T&gt; extends LinkedBlockingQueue&lt;T&gt; {
+
+   // ……省略其他代码，基本与 jdk 父类一致
+   
+  // 动态更新capacity的方法
+  public void setCapacity(int capacity) {
+      final int oldCapacity = this.capacity;
+      //给capacity成员变量赋值
+      this.capacity = capacity;
+      final int size = count.get();
+      if (capacity &gt; size &amp;&amp; size &gt;= oldCapacity) {
+          //因为队列扩容了，所以可以唤醒阻塞的入队线程了
+          signalNotFull();
+      }
+  }
+
+  // 增加唤醒入队线程的方法
+  private void signalNotFull() {
+      final ReentrantLock putLock = this.putLock;
+      putLock.lock();
+      try {
+          notFull.signal();
+      } finally {
+          putLock.unlock();
+      }
+  }
+
+}
+</code></pre>
+<h4 id="动态调优过程示例">动态调优过程示例：</h4>
+<pre><code>// 初始化动态队列（初始容量=50）
+ResizableBlockingQueue queue = new ResizableBlockingQueue(50); 
+
+// 监控到队列持续满载时
+if (queue.isFull()) {
+    // 动态扩容队列（避免触发拒绝策略）
+    queue.setCapacity(100); 
+    
+    // 同步扩容线程数（双维度弹性）
+    executor.setMaximumPoolSize(200); 
+}
+</code></pre>
+<hr>
+<h3 id="四-自定义队列的核心价值">四、自定义队列的核心价值</h3>
+<h4 id="1-突破资源死锁困境">1. <strong>突破资源死锁困境</strong></h4>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>原生队列</th>
+<th>动态队列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>突发流量 + 队列满</td>
+<td>触发拒绝策略丢任务</td>
+<td>即时扩容队列避免任务丢失</td>
+</tr>
+<tr>
+<td>低峰期内存回收</td>
+<td>队列持续占用内存</td>
+<td>缩容队列释放内存</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-实现精准流量控制">2. <strong>实现精准流量控制</strong></h4>
+<pre><code>graph TD
+    F[流量探测器] --&gt;|队列使用率&gt;90%| G[队列扩容+线程扩容]
+    F --&gt;|队列使用率&lt;30%| H[队列缩容+线程缩容]
+    G --&gt; I[避免任务拒绝]
+    H --&gt; J[减少内存占用]
+</code></pre>
+<h4 id="3-保证弹性策略完整性">3. <strong>保证弹性策略完整性</strong></h4>
+<blockquote>
+<p>线程池弹性 = 线程数弹性 + 队列容量弹性<br>
+二者缺一即会导致：</p>
+<ul>
+<li>仅线程扩容 → 队列满载时新线程无用武之地</li>
+<li>仅队列扩容 → 消费者不足导致响应延迟飙升</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="五-生产环境注意事项">五、生产环境注意事项</h3>
+<ol>
+<li>
+<p><strong>容量缩容安全机制</strong></p>
+<pre><code>public synchronized void setCapacity(int newCapacity) {
+    // 禁止缩容到小于当前元素数
+    if (newCapacity &lt; this.size()) {
+        throw new IllegalStateException(&quot;Can't reduce below current size&quot;);
+    }
+    ...
+}
+</code></pre>
+</li>
+<li>
+<p><strong>避免频繁震荡</strong><br>
+增加扩容/缩容的冷却时间（如5分钟内仅允许调整1次）</p>
+</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/zi-ji-dong-shou-xie-dong-tai-xian-cheng-chi-kuang-jia-01-jian-kong-xian-cheng-chi-ji-chu-xin-xi/" class="post-title gt-a-link">
+                    自己动手写动态线程池框架01——监控线程池基础信息
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

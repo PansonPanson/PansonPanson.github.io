@@ -1,0 +1,245 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（一）：记录一下 WES 重构历史 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（一）：记录一下 WES 重构历史
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <figure data-type="image" tabindex="1"><img src="https://images.unsplash.com/photo-1763063462165-94125cccf210?q=80&amp;w=2472&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="封面图：开启代理后流畅展示" loading="lazy"></figure>
+<p>在 Martin Fowler 的 《重构》一书的首页里有一句古老的工程谚语：</p>
+<blockquote>
+<p>“if it works, don't fix it？”</p>
+</blockquote>
+<h2 id="一-为什么要重构">一、为什么要重构？</h2>
+<p>当时我们的智能仓储核心系统（WES）面临三个关键痛点 ：</p>
+<ol>
+<li>领域边界模糊、迭代困难，比如说单据调度业务部分逻辑存在于两个系统里面；</li>
+<li>二是核心链路是 “黑盒”，数据不一致、故障定位难，年均故障工单过万；</li>
+<li>三是公司在扩张期，尤其是海外项目（日本、东南亚、美国等）交付压力大，原有系统支撑不了多区域业务需求。所以启动了全业务分阶段重构，目标是提升系统稳定性、可维护性，支撑海外项目交付。</li>
+</ol>
+<h2 id="二-我们重构阶段历程是怎样的">二、我们重构阶段历程是怎样的？</h2>
+<p>其实主要分为三个大版本：2.9、2.10、21.11</p>
+<ul>
+<li>2.9 版本：WES 收拢了单据调度业务，将单据调度业务从 WCS 上浮到 WES</li>
+<li>2.10 版本：WES 将货架到人系统与料箱到人系统合并为一套系统，并支持多库区混合调度。</li>
+<li>2.11 版本又分为 8 个小版本，从 2.11.1 到 2.11.8，从 2.11.1 到 2.11.6 做了核心链路的梳理和重构，2.11.5 到 2.11.6 围绕核心链路做了许多补充，2.11.7 到 2.11.8 做了一些代码优化与性能优化。</li>
+</ul>
+<h2 id="三-重构的具体方法与策略">三、重构的具体方法与策略</h2>
+<h3 id="1-重构前的准备">1、重构前的准备：</h3>
+<ul>
+<li>需求与业务梳理：我们做了类似事件风暴的会议，团队内的人都聚在会议室里，上午开会交流历史业务，下午写文档，最后梳理出了几百份文档和图表，基本上把核心链路都梳理清楚了。</li>
+<li>技术选型：我们没有大改技术架构，核心框架基本上维持了 SpringCloud 这一套，MySQL 从 5.7 升级到 8.0，RocketMQ 从 4.3 升级到 4.9，引入了 XXL-JOB和动态线程池，后期我写了一个数据一致性组件以及任务流转树监控系统。</li>
+</ul>
+<h3 id="2-重构中原则和步骤">2、重构中原则和步骤：</h3>
+<ul>
+<li>模块化与解耦，领域划分：WES 这边主要负责单据调度和实操相关的内容</li>
+<li>渐进式重构：按业务模式迭代，一次新增一个主业务模式，尽量小步快跑。</li>
+<li>代码规范与可维护性：基本上按照阿里巴巴 Java 开发规范，本地使用阿里巴巴规约插件，远程使用 Sonar 扫描</li>
+<li>所有的大于一天工时的需求都要写dev design，组内阅读或评审。</li>
+<li>开发流程包括：需求评审、技术设计文档评审、测试用例评审、代码评审、研发自测、测试同学测试、仿真压测、现场真车测试、现场真车压测</li>
+</ul>
+<h2 id="四-我负责了哪些事情">四、我负责了哪些事情？</h2>
+<p>业务上：</p>
+<ul>
+<li>独立负责了 2.9 的理货单据调度业务上浮，包括表迁移，代码迁移，与下游团队沟通并确定数据交互形式。</li>
+<li>参与了 2.10 版本的系统合并，比如货架到人在线拣选与料箱到人在线拣选，做了一些表结构的共用，比如出库单表、出库单明细表、出库作业单表、出库作业单明细表，但是对于任务表依旧是分开的，考虑到任务涉及到调度实体，也就是料箱、料格和货架，混用一张表，会增加理解成本，并且单业务模式，会造成许多空字段，显得有些冗余。</li>
+<li>核心参与 2.11.1 到 2.11.8 WES 产品线的迭代与优化，负责了 WES 多种业务模式的调度链路梳理，比如料箱到人的组箱、上架链路，出库的全链路，理货的上架、下架链路，全盘的全链路。</li>
+</ul>
+<p>技术上：</p>
+<ul>
+<li>核心链路效率优化，比如出库链路上做了：
+<ul>
+<li>热度移位</li>
+<li>超 A 不返库</li>
+<li>FlowPick</li>
+<li>进站提前上报</li>
+<li>提前离站</li>
+<li>预出库</li>
+<li>……</li>
+</ul>
+</li>
+<li>业务数据监控：从0 到 1 独立负责了任务流转树监控系统开发与维护。</li>
+<li>核心链路节点的数据一致性保障：从0 到 1 独立负责了数据一致性组件的开发与维护。</li>
+<li>系统性能优化与瘦身：通过解决JVM内存泄漏、清理无用代码、优化慢查询与缓存、重构代码坏味道（如长方法、循环内DB操作）等措施，使死锁、锁超时、计算错误等线上顽疾基本归零。</li>
+<li>设计模式：通过提取公共抽象、应用模板方法等设计模式，对大量重复代码进行整合与重构，提升了代码复用性和可维护性。</li>
+<li>参与接入了 XXL-JOB 和动态线程池框架。</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/g1-xi-lie-yi-g1-he-xin-can-shu/" class="post-title gt-a-link">
+                    G1系列（一）： G1核心参数
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

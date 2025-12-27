@@ -1,0 +1,242 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>015.什么是理货 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    015.什么是理货
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 <strong>WMS</strong>（仓库管理系统）中，<strong>理货</strong>是指对仓库中的货物进行整理、清点、分类和优化摆放的一项重要工作，目的是确保货物在仓库内有序存放，便于后续的拣货、盘点、发货等操作。这是仓储管理中不可或缺的环节，直接影响仓库的运行效率和库存的准确性。</p>
+<h3 id="理货的主要内容">理货的主要内容</h3>
+<ol>
+<li>
+<p><strong>货物整理</strong>：</p>
+<ul>
+<li>对货物进行重新分类、归位，确保货物按照既定的存储规则摆放整齐。</li>
+<li>清除过期、损坏或多余的货物，优化仓库空间使用。</li>
+</ul>
+</li>
+<li>
+<p><strong>货物清点</strong>：</p>
+<ul>
+<li>通过手动或系统扫描，对货物的数量、批次、规格等信息进行核实，确保与系统记录一致。</li>
+</ul>
+</li>
+<li>
+<p><strong>货物分类</strong>：</p>
+<ul>
+<li>按照货物的属性（如种类、批次、保质期等），将货物分门别类摆放在相应的储位上。</li>
+</ul>
+</li>
+<li>
+<p><strong>储位优化</strong>：</p>
+<ul>
+<li>根据仓库的实际情况，对货物的存放位置进行调整，例如将周转率高的商品放在靠近出入口的位置，以减少拣货时间。</li>
+</ul>
+</li>
+<li>
+<p><strong>异常处理</strong>：</p>
+<ul>
+<li>处理在理货过程中发现的问题，如缺货、错放、货物损坏等，并及时更新系统库存。</li>
+</ul>
+</li>
+</ol>
+<h3 id="理货的意义">理货的意义</h3>
+<ul>
+<li><strong>提高仓库效率</strong>：通过理货，货位更加有序，拣货和盘点变得更加快速和准确。</li>
+<li><strong>降低差错率</strong>：理货可以及时发现库存和系统记录的差异，防止发货错误。</li>
+<li><strong>优化空间利用率</strong>：合理摆放货物，避免仓库空间浪费。</li>
+<li><strong>保障货物质量</strong>：及时处理过期、损坏的货物，减少因货物问题带来的损失。</li>
+</ul>
+<h3 id="理货在-wms-系统中的实现">理货在 WMS 系统中的实现</h3>
+<p>在现代的 WMS 系统中，理货通常依赖于系统功能来辅助完成。例如：</p>
+<ul>
+<li><strong>扫描设备</strong>：通过扫描条码或 RFID 标签，快速识别和核对货物信息。</li>
+<li><strong>任务分配</strong>：系统可以根据货物堆放情况，生成理货任务并分配给仓库员工。</li>
+<li><strong>库存调整</strong>：通过系统实时更新货位信息，确保库存数据的准确性。</li>
+<li><strong>优化建议</strong>：部分 WMS 系统能根据数据分析，提供货物摆放优化建议（如 ABC 分类法）。</li>
+</ul>
+<h3 id="理货与其他仓储作业的关系">理货与其他仓储作业的关系</h3>
+<ul>
+<li><strong>与盘点的区别</strong>：盘点主要是对库存数量和状态的全面核对，而理货是对货物的整理与优化。</li>
+<li><strong>与拣货的联系</strong>：理货通常是拣货的前置工作，确保货物在正确的位置，以提高拣货效率。</li>
+</ul>
+<p>总结来说，理货是仓库管理中不可忽视的环节，借助 WMS 系统，可以更高效地完成理货工作，为仓库运营打下坚实基础。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/016_-shi-me-shi-pan-dian-dan/" class="post-title gt-a-link">
+                     016.什么是盘点单
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

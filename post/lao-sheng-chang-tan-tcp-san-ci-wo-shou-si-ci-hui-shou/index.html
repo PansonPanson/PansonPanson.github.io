@@ -1,0 +1,214 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>老生常谈：TCP 三次握手、四次挥手 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    老生常谈：TCP 三次握手、四次挥手
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-01-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>本文图解讲述 TCP 三次握手、四次挥手流程，扩展添加了对应的高频面试题。文中所有的网格图都使用 draw.io 制作。</p>
+<!-- more -->
+<p>先看看 TCP 报文格式：<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/TCP%20.jpg?raw=true" alt="" loading="lazy"></p>
+<p>TCP FLAG 位由 bit 组成，分别代表 ACK、SYN、FIN、URG、PSH、RST ，都以置 1 表示有效。在三次握手和四次挥手中我们重点关注 SYN、ACK、FIN。</p>
+<ul>
+<li>SYN ( Synchronize Sequence Numbers ）用作建立连接时的同步信号；</li>
+<li>ACK (Acknowledgement ）用于对收到的数据进行确认，所确认的数据由确认序列号表示；</li>
+<li>FIN ( Finish ）表示后面没有数据需要发送，通常意昧着所建立的连接需要关闭了。</li>
+</ul>
+<p>在三次握手中，流程如下：</p>
+<ul>
+<li>A 机器发出一个数据包并将 SYN 置为 1，表示希望建立连接。这个包中的序列号假设是 x。</li>
+<li>B 机器收到 A 机器发过来的数据包后，通过 SYN = 1 得知这是一个建立连接的请求，于是发送一个响应包并将 SYN ACK 标记都置为 1。假设这个包中的序列号是 y，而确认序列号必须是 x+1 ，表示收到了 A 发过来的 SYN。在 TCP 中， SYN 被当作数据部分的一个字节。</li>
+<li>A 收到  B 的响应包后需进行确认，确认包中将 ACK 置为 1 ，并将确认序列号置为 y + 1，表示收到了来自 B 的 SYN。</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B.jpg?raw=true" alt="" loading="lazy"></figure>
+<p>为什么需要三次握手？如果是两次握手又会有什么问题？</p>
+<ul>
+<li>信息对等</li>
+<li>脏连接</li>
+</ul>
+<p>四次挥手：<br>
+四次挥手释放连接时，等待2MSL的意义？</p>
+<ul>
+<li>确认被动关闭方能够顺利进入 CLOSED 状态</li>
+<li>防止失效请求</li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-011reentrantreadwritelock/" class="post-title gt-a-link">
+                    JDK 源码阅读011：ReentrantReadWriteLock
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

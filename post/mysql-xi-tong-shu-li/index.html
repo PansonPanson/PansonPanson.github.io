@@ -1,0 +1,378 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>MySQL 系统梳理 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    MySQL 系统梳理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-05 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <ul>
+<li>char和varchar的区别
+<ul>
+<li>char 定长，长度不够时会在末尾添加空格，所以存在丢失末尾空格的问题</li>
+<li>varchar 变长，存储实际字符串的内容，不会填充空格，存在页分裂、内存碎片的问题</li>
+</ul>
+</li>
+<li>8.0 和 5.x 版本区别
+<ul>
+<li>取消查询缓存</li>
+<li>隐藏索引，索引可以被隐藏和显示，隐藏时，不会被查询优化器使用。可以用来测试某个索引是否有用</li>
+<li>select  for update 支持 no wait : 加上 NOWAIT 关键字后，如果锁已被占用，直接报错</li>
+<li>改善了对 JSON  的支持</li>
+<li>UTF-8mb4 作为 MySQL 默认字符集</li>
+</ul>
+</li>
+<li>范式与反范式
+<ul>
+<li>三范式
+<ul>
+<li>第一范式：属性原子，不可再拆分</li>
+<li>第二范式：记录唯一被区分，要有主键，其他字段依赖主键</li>
+<li>第三范式：其他非主键字段不可相互依赖</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>JOIN
+<ul>
+<li>不建议多表 JOIN :  JOIN 使用了嵌套循环，类似 for(for()), O(n^表数量)</li>
+<li>3 种 JOIN
+<ul>
+<li>INNER JOIN : 取两个表的交集</li>
+<li>LEFT JOIN：取左侧表 + 两个表的交集</li>
+<li>RIGHT JOIN：取右侧表 + 两个表的交集</li>
+</ul>
+</li>
+<li>JOIN 算法
+<ul>
+<li>simple nested loop : 暴力嵌套循环扫描 N * M</li>
+<li>index nested loop : 有索引的话可以借用索引，N * logM</li>
+<li>block nested loop：提前把外循环的一部分结果放入 JOIN  BUFFER 中，然后和内循环比较。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>查询语句的执行过程
+<ul>
+<li><strong>连接器</strong> ，校验权限</li>
+<li>校验是否查询缓存，8.0 之前</li>
+<li><strong>解析器</strong> ，根据语法解析， <strong>预处理器</strong> ，进一步检查解析树是否合法，比如要查询的数据表或数据列是否存在等</li>
+<li><strong>优化器，</strong> 生成执行计划，看是否可以优化</li>
+<li><strong>执行器</strong> ，执行 SQL 语句，存储引擎层做</li>
+</ul>
+</li>
+<li>INNODB 行格式：表级别，通过 SHOW TABLE STATUS LIKE 'your_table_name'\G 可以查看 <img src="./MySQL-%E5%B9%95%E5%B8%83%E5%9B%BE%E7%89%87-150813-111966.png" alt="图片" loading="lazy">
+<ul>
+<li>COMPACT</li>
+<li>REDUNDENT</li>
+<li><strong>DYNAMIC：</strong> COMPACT 优化版，最大行长度更大，（大字段处理）优化页外存储</li>
+<li><strong>COMPRESSED</strong> ：支持压缩，优化了存储空间，但增加了 cpu 使用</li>
+</ul>
+</li>
+<li>数据库事务机制（事务属性）：ACID
+<ul>
+<li>原子性（Atomicity）:</li>
+<li>一致性（Consistency）:</li>
+<li>隔离性（Isolation）:</li>
+<li>持久性（Durability）：</li>
+</ul>
+</li>
+<li>更新语句事务执行过程
+<ul>
+<li>先看看 buffer pool 中是否存在，不存在的话，从磁盘中读取该页加载到内存中</li>
+<li>修改 buffer pool 之前，先记录 undo log，用于记录未修改前的数据，保证数据原子性和一致性</li>
+<li>更新 buffer pool，设置为脏页，同时将修改操作记录到 redo log  buffer 中</li>
+</ul>
+</li>
+<li>二阶段提交事务 <img src="./MySQL-%E5%B9%95%E5%B8%83%E5%9B%BE%E7%89%87-823647-684835.png" alt="图片" loading="lazy">
+<ul>
+<li>Prepare ：已经成功执行并生成 redo log</li>
+<li>BinLog 持久化：
+<ul>
+<li>通过 write() 写入文件缓冲区</li>
+<li>通过 fsync() 从文件缓冲区写入磁盘</li>
+</ul>
+</li>
+<li>Commit
+<ul>
+<li>执行引擎内部执行事务操作，更新 redolog</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>为什么要二阶段
+<ul>
+<li>先 redolog 再 binlog, binlog 丢失，主备不一致，主新备旧</li>
+<li>先 binlog 再 redolog， redolog 丢失，主备不一致，主旧备新</li>
+</ul>
+</li>
+<li>如何判断redolog 和 binlog 一致了
+<ul>
+<li>写完 redolog 并标记prepare 时，redolog 中会记录一个 XID</li>
+<li>sync_binlog=1时，做完了上面第一阶段写redolog后，mysql就会对应binlog并且会直接将其刷新到磁盘中。</li>
+<li>XID和redolog中记录的XID是一致则一致</li>
+</ul>
+</li>
+<li>脏读、不可重复读、幻读
+<ul>
+<li>脏读：读到了其他事务还没有提交的数据。</li>
+<li>不可重复读：对某数据进行读取过程中，有其他事务对数据进行了修改（UPDATE、DELETE)，导致第二次读取的结果不同。</li>
+<li>幻读：事务在做范围查询过程中，有另外一个事务对范围内新增或删除了记录(INSERT、DELETE)，导致范围查询的结果条数不一致。</li>
+</ul>
+</li>
+<li>事务隔离级别：读未提交、读已提交、可重复读、可串行化</li>
+<li>InnoDB如何解决脏读、不可重复读和幻读的： MVCC 解决脏读和不可重复读，MVCC + 间隙锁 解决幻读
+<ul>
+<li>脏读：每次查询生成新 ReadView，读取已提交的最新版本。</li>
+<li>不可重复读：事务开始时生成 ReadView，后续所有读操作基于此视图。</li>
+<li>幻读：MVCC+间隙锁可解决一部分，另外就是需要强制加锁，所有操作串行执行。</li>
+</ul>
+</li>
+<li>MySQL 的 select * 会用到事务吗？
+<ul>
+<li>SELECT * 这种普通的读取操作其实也会在事务的上下文中执行，即使没有明确的开启事务语句，InnoDB存储引擎也会为查询自动开启一个隐式事务。</li>
+</ul>
+</li>
+<li>binlog 格式
+<ul>
+<li><strong>STATEMENT</strong>  语句级复制  记录 SQL 原语句</li>
+<li><strong>ROW</strong>  行级复制  记录每行变化</li>
+<li><strong>MIXED</strong>  混合模式  自动选择以上两者</li>
+</ul>
+</li>
+<li>为什么MySQL 默认使用可重复读的隔离级别？
+<ul>
+<li>因为要兼容历史 statement 格式的 binlog，binlog 记录的是sql 语句的原文，如果是读已提交的话会导致数据主备不一致 <img src="./MySQL-%E5%B9%95%E5%B8%83%E5%9B%BE%E7%89%87-647749-865611.png" alt="图片" loading="lazy"></li>
+</ul>
+</li>
+<li>为什么很多公司要修改RR 为 RC?
+<ul>
+<li>提升并发</li>
+<li>减少死锁</li>
+</ul>
+</li>
+<li>快照读和当前读
+<ul>
+<li>快照读，就是读取的是快照数据，即快照生成的那一刻的数据，像我们常用的普通的SELECT语句在不加锁情况下就是快照读
+<ul>
+<li>SELECT * FROM xx_table WHERE</li>
+</ul>
+</li>
+<li>当前读，当前读就是读取最新数据，所以，加锁的 SELECT，或者对数据进行增删改都会进行当前读
+<ul>
+<li>SELECT * FROM xx_table LOCK IN SHARE MODE;</li>
+<li>SELECT * FROM xx_table FOR UPDATE;</li>
+<li>INSERT INTO xx_table ...</li>
+<li>DELETE FROM xx_table ...</li>
+<li>UPDATE xx_table ...</li>
+</ul>
+</li>
+<li>在 RR 中，快照会在事务开始时生成，只有在本事务中对数据进行更改才会更新快照。</li>
+<li>在 RC 中，每次读取都会重新生成一个快照，总是读取行的最新版本。</li>
+</ul>
+</li>
+<li>Innodb 的 RR 有没有解决幻读：没有解决全部情况，MVCC只能解决快照读的幻读
+<ul>
+<li>如果两个事务，事务1先进行快照读，然后事务2插入了一条记录并提交，再在事务1中进行update新插入的这条记录是可以更新成功的，这就是发生了幻读。
+<ul>
+<li><img src="./MySQL-%E5%B9%95%E5%B8%83%E5%9B%BE%E7%89%87-385528-303849.png" alt="图片" loading="lazy"></li>
+</ul>
+</li>
+<li>如果两个事务，事务1先进行快照读，然后事务2插入了一条记录并提交，在事务1中进行了当前读之后，再进行快照读也会发生幻读。
+<ul>
+<li>快照读的定义，在RR中，如果本事务中发生了数据的修改，那么就会更新快照，那么最后一次查询的结果也就发生了变化 <img src="./MySQL-%E5%B9%95%E5%B8%83%E5%9B%BE%E7%89%87-804444-124301.png" alt="图片" loading="lazy"></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>什么是 MVCC？多版本并发控制
+<ul>
+<li>在InnoDB中，MVCC就是通过Read View + Undo Log来实现的，undo log中保存了历史快照，而Read View 用来判断具体哪一个快照是可见的</li>
+<li>可见性判断完整流程
+<ul>
+<li>事务 id &lt; up_limit_id，也就是 事务 id 小于未提交的最小事务 id，其实本意是可见性最大 id，小于这个都可见</li>
+<li>事务 id &gt;= low_limit_id，也就是事务 id大于等于要分配给下一个事务的 id，则不可见</li>
+<li>up_limit_id &lt;= 事务 id &lt; low_limit_id
+<ul>
+<li>事务 id 在活跃事务 id 列表内，则不可见</li>
+<li>不在活跃事务 id 列表内，则可见</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>如果 不可见，则根据 undolog 中的版本链中寻找上一个 undolog</li>
+</ul>
+</li>
+<li></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

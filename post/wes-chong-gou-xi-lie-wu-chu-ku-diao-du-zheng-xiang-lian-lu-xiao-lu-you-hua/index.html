@@ -1,0 +1,302 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（五）：出库调度正向链路效率优化 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（五）：出库调度正向链路效率优化
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-01-25 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub。</em><br>
+<img src="https://images.unsplash.com/photo-1761936632565-b0923577a084?q=80&amp;w=2462&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="文内的图示需要科学上网才能流畅查看，图床直接用了 GitHub" loading="lazy"></p>
+<h2 id="一-出库链路耗时在哪里">一、出库链路耗时在哪里？</h2>
+<p>如果想优化出库正向链路，那么首先要知道耗时在哪些地方，这样才能对症下药。<br>
+先回顾一下出库链路图：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%A2%B3%E7%90%86/file-20251122000925045.png?raw=true" alt="" loading="lazy"></figure>
+<p>类似操作系统中磁盘 IO花费时间一般由 3 个部分组成：</p>
+<ol>
+<li>寻道时间</li>
+<li>旋转延迟</li>
+<li>数据传输时间</li>
+</ol>
+<p>这三者的时间都蛮长的，尤其是两者。为什么呢？因为涉及到物理移动。<br>
+在出库链路中，耗时最长的也是如此，所以我们主要从这个方面入手。<br>
+优化主要从两个方面来讨论，业务上优化以及技术上的优化。</p>
+<h2 id="二-出库调度正向链路业务优化">二、出库调度正向链路业务优化</h2>
+<h3 id="21-热度移位">2.1 热度移位</h3>
+<p>在 WES（仓储执行系统）中， <strong>热度移位</strong>功能是一项智能的库存动态调整策略。其核心目标是让<strong>高频次出入库的商品</strong>（热销品）尽可能地靠近仓库的<strong>拣选工作站</strong>或<strong>出库区域</strong>，从而显著减少拣货员或自动化导引车（AGV）的行走或移动距离，最终提升整体仓储运营效率。</p>
+<p>看一下热度移位前后对比图，应该比较清晰一些：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122154308282.png?raw=true" alt="" loading="lazy"></figure>
+<p>我们从图中可以看到，热度移位后，高频商品（红色部分）都移动到拣选工作站附近了。<br>
+热度移位的目的本质是为了减少搬运时间，从而大幅提高出库效率。</p>
+<h3 id="22-超-a-不返库">2.2 超 A 不返库</h3>
+<p>智能仓的存储区是一个三维空间，热度移位更侧重水平坐标的优化，超 A 不返库则更侧重垂直坐标的优化。<br>
+说的有点抽象，我简单解释一下。仓储区域是一个个的货架，货架分为多层，每一层又分为多个库位，最下层是缓存层，料箱容器如果放在货架上层，则需要从上层搬到下层，再从下层搬运到拣选工作站。<br>
+超 A 不返库指的是高频超 A 商品放到货架最下面一层，也就是缓存层，减掉料箱从货架上层搬运到货架下层的流程。</p>
+<p>文字可能不太好理解，我们看张图示意图吧：</p>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122205831266.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="23-flowpick-单品单件">2.3 FlowPick 单品单件</h3>
+<p>我们组负责的一些日本海外仓，比如 Eqseek，单据类型比较特殊，单品单件订单占比近80%，为提高拣选效率，可以一次入站完成更多件数，提出flowpick产品化方案。<br>
+当然国内直播电商也有类似场景，比如直播间大主播，观众下单，大多是单品单件订单。<br>
+WES对可聚合订单做标记，交由算法组，让算法把一批订单聚合分配到同一个 flowpick 槽位中。<br>
+这样能大幅减少WES 调度和下游搬运次数。<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122220042503.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="24-进站提前上报">2.4 进站提前上报</h3>
+<p>小车搬运容器即将进入工作站时，会减速，达到指定码点后，会上报到站消息。<br>
+WES 拿到搬运系统上报的到站消息后，会推送实操任务给 STATION。<br>
+我们做了提前上报功能，小车在即将进站前，到达指定码点时，就提前上报到站消息，让 WES 处理并推送实操任务，这样相当于做了并行处理：</p>
+<ul>
+<li>小车从指定码点到真正进站</li>
+<li>WES 接收到站消息并推送实操任务<br>
+这样也减少了出库链路时间。<br>
+如下图所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122221757555.png?raw=true" alt="" loading="lazy"></li>
+</ul>
+<h3 id="25-提前离站">2.5 提前离站</h3>
+<p>原先的流程是拣选、封箱、点击全部分播完成后车才走，但其实拣选完之后，车就可以走了。<br>
+提前离站我们做了开关，在拣选到最大值后，车提前离站，下一个车可以直接进站。<br>
+这样我们又减少了一部分链路耗时。<br>
+这里我也画了一张流程图，如下所示：<br>
+<img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E9%87%8D%E6%9E%84%E7%AF%87/assets/WES%20%E9%87%8D%E6%9E%84%E7%B3%BB%E5%88%97%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%9A%E5%87%BA%E5%BA%93%E8%B0%83%E5%BA%A6%E6%AD%A3%E5%90%91%E9%93%BE%E8%B7%AF%E6%95%88%E7%8E%87%E4%BC%98%E5%8C%96/file-20251122222552157.png?raw=true" alt="" loading="lazy"></p>
+<h3 id="26-预出库">2.6 预出库</h3>
+<p>那什么是预出库呢？我先聊一下问题背景，其实前文也聊了场景：<br>
+料箱场景下的出库分为两段搬运：</p>
+<ol>
+<li><strong>C56 机器人：</strong> 将料箱搬运至<strong>缓存位</strong>。</li>
+<li><strong>青鸾机器人：</strong> 将缓存位的料箱搬运至<strong>工作站</strong>。<br>
+为了<strong>提高拣选效率</strong>，我们探讨了能否将第一段搬运（C56 搬运至缓存位）提前完成，即实现“预出库”。</li>
+</ol>
+<p>在料箱出库场景中，物料搬运分为两步：</p>
+<ol>
+<li>
+<p><strong>C56 机器人：</strong> 将料箱搬运至<strong>缓存位</strong>。</p>
+</li>
+<li>
+<p><strong>青鸾机器人：</strong> 将缓存位的料箱搬运至<strong>工作站</strong>。</p>
+</li>
+</ol>
+<p>为了<strong>提高拣选效率</strong>，我们探讨了能否将第一段搬运（C56 搬运至缓存位）提前完成，即实现“预出库”。</p>
+<p>我们提出了两种预出库方案：<strong>静态预出库</strong>和<strong>动态预出库</strong>。</p>
+<h4 id="1-静态预出库-static-pre-outbound">1. 静态预出库 (Static Pre-Outbound)</h4>
+<table>
+<thead>
+<tr>
+<th><strong>适用场景</strong></th>
+<th><strong>客户在一天中某个特定时刻集中下发大部分订单。</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案描述</td>
+<td>系统根据已下发订单所需的库存，<strong>提前</strong>将料箱搬运至缓存位。</td>
+</tr>
+<tr>
+<td>优点</td>
+<td><strong>简单易实施：</strong> 一天只需计算一次。</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>*需要严格控制订单的<strong>出库上墙顺序</strong>。 * 对<strong>缓存位占用较大</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-动态预出库-dynamic-pre-outbound">2. 动态预出库 (Dynamic Pre-Outbound)</h4>
+<table>
+<thead>
+<tr>
+<th><strong>适用场景</strong></th>
+<th><strong>提升实时拣选效率，优化缓存资源占用。</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方案描述</td>
+<td>工作站<strong>虚拟出</strong>部分槽位用于分配“预出库订单”。  这些预出库订单仅执行<strong>第一段搬运</strong>（搬至缓存位）。 当实际订单完成后，对应的预出库订单才会转移到<strong>实际分播墙槽位</strong>上。</td>
+</tr>
+<tr>
+<td>优点</td>
+<td><strong>缓存位占用少</strong>，资源利用灵活。 对实际拣选效率提升<strong>显著</strong>。</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>需要<strong>实时计算</strong>和持续监控。 对<strong>系统资源消耗较大</strong>。</td>
+</tr>
+</tbody>
+</table>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/wes-chong-gou-xi-lie-si-chu-ku-diao-du-lian-lu-shu-li/" class="post-title gt-a-link">
+                    WES 重构系列（四）：出库调度正向链路梳理
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

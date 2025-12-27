@@ -1,0 +1,420 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读007：volatile 关键字 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读007：volatile 关键字
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-23 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-%E5%BC%95%E8%A8%80">1 引言</a></li>
+<li><a href="#2-cpu-%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B">2 CPU 缓存模型</a></li>
+<li><a href="#3-mesi">3 MESI</a></li>
+<li><a href="#4-java-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B">4 Java 内存模型</a></li>
+<li><a href="#5-%E5%8F%AF%E8%A7%81%E6%80%A7-%E5%8E%9F%E5%AD%90%E6%80%A7-%E9%A1%BA%E5%BA%8F%E6%80%A7">5 可见性、原子性、顺序性</a></li>
+<li><a href="#6-happens-before-%E5%8E%9F%E5%88%99">6 happens-before 原则</a></li>
+<li><a href="#7-volitile-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86lock-%E6%8C%87%E4%BB%A4%E4%BB%A5%E5%8F%8A%E5%86%85%E5%AD%98%E5%B1%8F%E9%9A%9C">7 volitile 底层实现原理：lock 指令以及内存屏障</a>
+<ul>
+<li><a href="#71-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E5%8F%AF%E8%A7%81%E6%80%A7%E7%9A%84">7.1 volatile 是如何保证可见性的</a></li>
+<li><a href="#72-volatile-%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81%E6%9C%89%E5%BA%8F%E6%80%A7%E7%9A%84">7.2 volatile 是如何保证有序性的</a></li>
+</ul>
+</li>
+<li><a href="#8-%E7%BB%8F%E5%85%B8%E7%9A%84%E5%8F%8C%E9%87%8D%E6%A3%80%E6%9F%A5%E9%94%81">8 经典的双重检查锁</a></li>
+</ul>
+</li>
+</ul>
+</p>
+<h2 id="1-引言">1 引言</h2>
+<p>多个线程共用一个共享变量，会遇到并发读写的问题，volatile 关键字就是来解决这个问题的。</p>
+<p>本文将会从以下几个方面来讲解 volatile：</p>
+<ul>
+<li>cpu 缓存模型</li>
+<li>Java 内存模型</li>
+<li>原子性、可见性、有序性</li>
+<li>volatile 的作用</li>
+<li>volatile 的底层原理</li>
+</ul>
+<h2 id="2-cpu-缓存模型">2 CPU 缓存模型</h2>
+<p>现代的计算机技术，内存的读写速度没什么突破，cpu如果要频繁的读写主内存的话，会导致性能较差，计算性能就会低，不适应现代计算机技术的发展，于是又在 CPU 中加了几层缓存，如下图所示：</p>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/cpu%20%E7%BC%93%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<p>这样 CPU 可以直接操作自己对应的高速缓存，不需要直接频繁的跟主内存通信，这样可以保证 cpu 的计算效率。</p>
+<p>但是这样会产生并发问题：假设某个时刻 CPU a 更新了本地缓存的 flag，但此时还没更新到主内存，CPU b 此时读取到的值还是旧值。这便产生了一致性的问题。</p>
+<p>其实上述场景只是并发问题中的一个，本质上都是因为各个 CPU 的本地缓存跟主内存之间没有同步，一个数据，在各个地方，可能都不一样，这样就导致了数据的不一致。</p>
+<h2 id="3-mesi">3 MESI</h2>
+<p>对于这个缓存不一致的问题，在计算机上古时期，采用了一种总线加锁机制。简单来说就是，某个cpu如果要修改一个数据，会通过一个总线，对这个数据加一个锁，其他的cpu就没法去读和写这个数据了，只有当这个cpu修改完了以后，其他 cpu 才可以读到最新的数据。</p>
+<p>但这种总线加锁机制显然太过粗暴，可以想象的是，如果并发数比较大，那么效率肯定很低。</p>
+<p>现在计算机流行的是 MESI 协议：</p>
+<p>缓存行有4种不同的状态:</p>
+<ul>
+<li>
+<p>已修改Modified (M)</p>
+<p>缓存行是脏的（<em>dirty</em>），与主存的值不同。如果别的CPU内核要读主存这块数据，该缓存行必须回写到主存，状态变为共享(S).</p>
+</li>
+<li>
+<p>独占Exclusive (E)</p>
+<p>缓存行只在当前缓存中，但是干净的（clean）--缓存数据同于主存数据。当别的缓存读取它时，状态变为共享；当前写数据时，变为已修改状态。</p>
+</li>
+<li>
+<p>共享Shared (S)</p>
+<p>缓存行也存在于其它缓存中且是干净的。缓存行可以在任意时刻抛弃。</p>
+</li>
+<li>
+<p>无效Invalid (I)</p>
+<p>缓存行是无效的</p>
+</li>
+</ul>
+<p>线程修改了缓存行，会刷到主内存中，CPU 会采用嗅探机制，将其他 CPU 的对应缓存行设置为无效状态，强制其他 CPU 从主内存中读取最新的值。</p>
+<p>通过这样的机制，我们才能保证线程工作内存和主内存是一致的。</p>
+<h2 id="4-java-内存模型">4 Java 内存模型</h2>
+<p>Java内存模型是跟cpu缓存模型是类似的，基于cpu缓存模型来建立的java内存模型，只不过java内存模型是标准化的，屏蔽掉底层不同的计算机的区别。</p>
+<p>首先我们来看看几个概念：</p>
+<ol>
+<li>
+<p>read：从主存读取</p>
+</li>
+<li>
+<p>load：将主存读取到的值写入工作内存</p>
+</li>
+<li>
+<p>use：从工作内存读取数据来计算</p>
+</li>
+<li>
+<p>assign：将计算好的值重新赋值到工作内存中</p>
+</li>
+<li>
+<p>store：将工作内存数据写入主存</p>
+</li>
+<li>
+<p>write：将store过去的变量值赋值给主存中的变量</p>
+</li>
+</ol>
+<p>可以参考下图来记忆：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/java%20%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.png?raw=true" alt="" loading="lazy"></figure>
+<h2 id="5-可见性-原子性-顺序性">5 可见性、原子性、顺序性</h2>
+<ul>
+<li>
+<p>可见性：前述问题讲述了主内存和工作内存中最新修改的值不可见的问题，其实就是可见性的问题，voilatile 可以解决此问题。</p>
+</li>
+<li>
+<p>原子性：volatile 一般意义上并不能保证原子性（i++ 的操作不是原子性操作）。</p>
+</li>
+<li>
+<p>有序性：还有一个问题是指令重排序，编译器和指令器，有的时候为了提高代码执行效率，会将指令重排序，就是说比如下面的代码</p>
+</li>
+</ul>
+<pre><code class="language-java">flag = false;
+// 线程1:
+prepare();  // 准备资源
+flag = true;   
+
+//线程2:
+while(!flag){
+ Thread.sleep(1000);
+}
+execute(); // 基于准备好的资源执行操作
+</code></pre>
+<p>重排序之后，让<code>flag = true</code>先执行了，会导致线程2直接跳过while等待，执行某段代码，结果prepare()方法还没执行，资源还没准备好呢，此时就会导致代码逻辑出现异常。</p>
+<h2 id="6-happens-before-原则">6 happens-before 原则</h2>
+<p>上文说过，编译器、指令器可能会对代码进行重排序，但是不能乱排，要遵守一定的规则，这个规则就是 happens-before 原则，只要符合 happens-before 的原则，那么就不能胡乱重排，反之，那就可以进行重排序。</p>
+<p>happens-before原则：</p>
+<ol>
+<li>
+<p>程序次序规则：一个线程内，按照代码顺序，书写在前面的操作先行发生于书写在后面的操作</p>
+</li>
+<li>
+<p>锁定规则：一个unLock操作先行发生于后面对同一个锁额lock操作</p>
+</li>
+<li>
+<p>volatile变量规则：对一个变量的写操作先行发生于后面对这个变量的读操作。volatile变量写，再是读，必须保证是先写，再读。</p>
+</li>
+<li>
+<p>传递规则：如果操作A先行发生于操作B，而操作B又先行发生于操作C，则可以得出操作A先行发生于操作C</p>
+</li>
+<li>
+<p>线程启动规则：Thread对象的start()方法先行发生于此线程的每个一个动作</p>
+</li>
+<li>
+<p>线程中断规则：对线程interrupt()方法的调用先行发生于被中断线程的代码检测到中断事件的发生</p>
+</li>
+<li>
+<p>线程终结规则：线程中所有的操作都先行发生于线程的终止检测，我们可以通过Thread.join()方法结束、Thread.isAlive()的返回值手段检测到线程已经终止执行</p>
+</li>
+<li>
+<p>对象终结规则：一个对象的初始化完成先行发生于他的finalize()方法的开始</p>
+</li>
+</ol>
+<h2 id="7-volitile-底层实现原理lock-指令以及内存屏障">7 volitile 底层实现原理：lock 指令以及内存屏障</h2>
+<p>前文已经讲述过，volatile 可以保证可见性和有序性，那么留给我们的就有两个问题：</p>
+<ol>
+<li>volatile 是如何保证可见性的？</li>
+<li>volatile 是如何保证有序性的？</li>
+</ol>
+<h3 id="71-volatile-是如何保证可见性的">7.1 volatile 是如何保证可见性的</h3>
+<p>对 volatile 修饰的变量，执行写操作的话，JVM会发送一条<strong>lock前缀指令</strong>给CPU，CPU在计算完之后会立即将这个值写回主内存，同时因为有MESI缓存一致性协议，所以各个CPU都会对总线进行嗅探，自己本地缓存中的数据是否被别人修改。</p>
+<p>如果发现别人修改了某个缓存的数据，那么CPU就会将自己本地缓存的数据过期掉，然后这个CPU上执行的线程在读取那个变量的时候，就会从主内存重新加载最新的数据了。</p>
+<h3 id="72-volatile-是如何保证有序性的">7.2 volatile 是如何保证有序性的</h3>
+<p>Java 内存模型里有 4 种内存屏障。</p>
+<ol>
+<li>LoadLoad</li>
+<li>StoreStore</li>
+<li>LoadStore</li>
+<li>StoreLoad</li>
+</ol>
+<pre><code class="language-java">Load1：
+int localVar = this.variable
+
+LoadLoad屏障
+
+Load2：
+int localVar = this.variable2
+</code></pre>
+<p>LoadLoad屏障：Load1；LoadLoad；Load2，确保Load1数据的装载先于Load2后所有装载指令，他的意思，Load1对应的代码和Load2对应的代码，是不能指令重排的</p>
+<pre><code class="language-java">Store1：
+this.variable = 1
+
+StoreStore屏障
+
+Store2：
+this.variable2 = 2
+</code></pre>
+<p>StoreStore屏障：Store1；StoreStore；Store2，确保Store1的数据一定刷回主存，对其他cpu可见，先于Store2以及后续指令</p>
+<p>LoadStore屏障：Load1；LoadStore；Store2，确保Load1指令的数据装载，先于Store2以及后续指令</p>
+<p>StoreLoad屏障：Store1；StoreLoad；Load2，确保Store1指令的数据一定刷回主存，对其他cpu可见，先于Load2以及后续指令的数据装载。</p>
+<p>对于volatile修改变量的读写操作，都会加入内存屏障</p>
+<p>每个volatile写操作前面，加StoreStore屏障，禁止上面的普通写和他重排；每个volatile写操作后面，加StoreLoad屏障，禁止跟下面的volatile读/写重排。</p>
+<p>每个volatile读操作后面，加LoadLoad屏障，禁止下面的普通读和voaltile读重排；每个volatile读操作后面，加LoadStore屏障，禁止下面的普通写和volatile读重排。</p>
+<h2 id="8-经典的双重检查锁">8 经典的双重检查锁</h2>
+<p>不使用 volatile 的双重检查锁</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+<p>在执行这一行代码的时候：</p>
+<pre><code class="language-java">instance = new DoubleCheckSingleton();
+</code></pre>
+<p>实际上这个步骤并不是原子性的，有三个过程：</p>
+<ol>
+<li>分配内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+<li>将对象指向刚分配的内存空间</li>
+</ol>
+<p>但是有些编译器为了性能的原因，可能会将第二步和第三步进行<strong>重排序</strong>，顺序就成了：</p>
+<ol>
+<li>分配内存空间</li>
+<li>将对象指向刚分配的内存空间</li>
+<li>调用构造器方法，执行初始化</li>
+</ol>
+<p>这样就会造成多线程在调用改方法时，有可能会得到一个未被初始化的对象，此时也就是说没有保证可见性。</p>
+<p>我们可以使用 volatile 来实现可见性。</p>
+<pre><code class="language-java">public class DoubleCheckSingleton {
+
+    // 私有变量
+    private volatile static DoubleCheckSingleton instance;
+
+    // 公共方法
+    public DoubleCheckSingleton getInstance() {
+        if(instance == null) {
+            synchronized (DoubleCheckSingleton.class) {
+                if(instance == null) {
+                    instance = new DoubleCheckSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-yue-du-006thread/" class="post-title gt-a-link">
+                    JDK 源码阅读006：Thread
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

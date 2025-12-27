@@ -1,0 +1,527 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Apache curator ZooKeeper 分布式锁源码阅读 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Apache curator ZooKeeper 分布式锁源码阅读
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2021-03-06 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>工作中 redis 分布式锁和 zk 分布式锁都用，这篇文章想深入了解一下 zk 分布式锁的使用以及底层源码，目前业界主流的客户端是 curator，本文也准备以 curator 做为客户端。我选用的是最新的4.3.0版本，可能不同版本有些许不同。</p>
+<!-- more -->
+<p>Curator 的官网提供了示例：https://curator.apache.org/getting-started.html</p>
+<pre><code class="language-java">        InterProcessMutex lock = new InterProcessMutex(client, lockPath);
+        if (lock.acquire(maxWait, waitUnit)) {
+            try {
+                // do some work inside of the critical section here
+            } finally {
+                lock.release();
+            }
+        }   
+</code></pre>
+<h1 id="1-先看看官方示例">1 先看看官方示例</h1>
+<h2 id="11-加锁">1.1 加锁</h2>
+<p>加锁重点关注加锁成功的流程、加锁失败的流程、重复加锁的流程。<br>
+先来看看第一次加锁的流程 Curator 是如何封装的：</p>
+<pre><code class="language-java">private boolean internalLock(long time, TimeUnit unit) throws Exception
+    {
+        /*
+           Note on concurrency: a given lockData instance
+           can be only acted on by a single thread so locking isn't necessary
+        */
+
+        Thread currentThread = Thread.currentThread();
+
+        LockData lockData = threadData.get(currentThread);
+        if ( lockData != null )
+        {
+            // re-entering
+            lockData.lockCount.incrementAndGet();
+            return true;
+        }
+
+        String lockPath = internals.attemptLock(time, unit, getLockNodeBytes());
+        if ( lockPath != null )
+        {
+            LockData newLockData = new LockData(currentThread, lockPath);
+            threadData.put(currentThread, newLockData);
+            return true;
+        }
+
+        return false;
+    }
+</code></pre>
+<p>可以清晰地知道先做了可重入锁的支持，利用 ConcurrentHashMap 保存了每次获取锁的信息（线程和lockPath）。<br>
+再往下 debug：</p>
+<pre><code class="language-java"> @Override
+    public String createsTheLock(CuratorFramework client, String path, byte[] lockNodeBytes) throws Exception
+    {
+        String ourPath;
+        if ( lockNodeBytes != null )
+        {
+            ourPath = client.create().creatingParentContainersIfNeeded().withProtection().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(path, lockNodeBytes);
+        }
+        else
+        {
+            ourPath = client.create().creatingParentContainersIfNeeded().withProtection().withMode(CreateMode.EPHEMERAL_SEQUENTIAL).forPath(path);
+        }
+        return ourPath;
+    }
+</code></pre>
+<p>可以看到创建路径的时候，其实是创建了一个临时顺序节点。在创建完路径之后，就是判断是否能获取锁的逻辑了。</p>
+<pre><code class="language-java"> ourPath = driver.createsTheLock(client, path, localLockNodeBytes);
+ hasTheLock = internalLockLoop(startMillis, millisToWait, ourPath);
+</code></pre>
+<p>debug 进入 <code>internalLockLoop</code>：只截取了部分关键代码</p>
+<pre><code class="language-java">
+ while ( (client.getState() == CuratorFrameworkState.STARTED) &amp;&amp; !haveTheLock )
+            {
+                List&lt;String&gt;        children = getSortedChildren();
+                String              sequenceNodeName = ourPath.substring(basePath.length() + 1); // +1 to include the slash
+
+                PredicateResults    predicateResults = driver.getsTheLock(client, children, sequenceNodeName, maxLeases);
+                if ( predicateResults.getsTheLock() )
+                {
+                    haveTheLock = true;
+                }
+                else {
+                    ...
+                }
+            }
+</code></pre>
+<p>又调用了 <code>getsTheLock</code> 方法：</p>
+<pre><code class="language-java">public PredicateResults getsTheLock(CuratorFramework client, List&lt;String&gt; children, String sequenceNodeName, int maxLeases) throws Exception
+    {
+        int             ourIndex = children.indexOf(sequenceNodeName);
+        validateOurIndex(sequenceNodeName, ourIndex);
+
+        boolean         getsTheLock = ourIndex &lt; maxLeases;
+        String          pathToWatch = getsTheLock ? null : children.get(ourIndex - maxLeases);
+
+        return new PredicateResults(pathToWatch, getsTheLock);
+    }
+</code></pre>
+<p>流程就是先判断当前节点是否是正序第一个节点以及获取当前节点的上一节点，方便监听。<br>
+如果是已经加锁了，此时第二个客户端来获取锁，由于创建的是临时顺序节点，因为不是正序第一个节点，那么就会加锁失败，加锁失败之后，还有一些逻辑：</p>
+<pre><code class="language-java">synchronized(this)
+                    {
+                        try
+                        {
+                            // use getData() instead of exists() to avoid leaving unneeded watchers which is a type of resource leak
+                            client.getData().usingWatcher(watcher).forPath(previousSequencePath);
+                            if ( millisToWait != null )
+                            {
+                                millisToWait -= (System.currentTimeMillis() - startMillis);
+                                startMillis = System.currentTimeMillis();
+                                if ( millisToWait &lt;= 0 )
+                                {
+                                    doDelete = true;    // timed out - delete our node
+                                    break;
+                                }
+
+                                wait(millisToWait);
+                            }
+                            else
+                            {
+                                wait();
+                            }
+                        }
+                        catch ( KeeperException.NoNodeException e )
+                        {
+                            // it has been deleted (i.e. lock released). Try to acquire again
+                        }
+                    }
+</code></pre>
+<p>可以看到加锁失败之后，对上一节点加了一个 watcher 监听器，监听它是否还存在，同时 zk 分布式锁是支持时效时间的，否则线程会一直 wait。</p>
+<h2 id="12-释放锁">1.2 释放锁</h2>
+<p>释放锁的流程相对比较简单，主要是删除当前节点以及对应的线程加锁信息。</p>
+<pre><code class="language-java">public void release() throws Exception
+    {
+        /*
+            Note on concurrency: a given lockData instance
+            can be only acted on by a single thread so locking isn't necessary
+         */
+
+        Thread currentThread = Thread.currentThread();
+        LockData lockData = threadData.get(currentThread);
+        if ( lockData == null )
+        {
+            throw new IllegalMonitorStateException(&quot;You do not own the lock: &quot; + basePath);
+        }
+
+        int newLockCount = lockData.lockCount.decrementAndGet();
+        if ( newLockCount &gt; 0 )
+        {
+            return;
+        }
+        if ( newLockCount &lt; 0 )
+        {
+            throw new IllegalMonitorStateException(&quot;Lock count has gone negative for lock: &quot; + basePath);
+        }
+        try
+        {
+            internals.releaseLock(lockData.lockPath);
+        }
+        finally
+        {
+            threadData.remove(currentThread);
+        }
+    }
+</code></pre>
+<p>额外需要注意的一个流程就是当前线程释放锁之后，其他线程是如何获取锁的？<br>
+其实当前线程释放锁的时候会利用 watcher，这样下一个节点对应的线程就可以再次去请求获取锁，由此我们也可以知道默认情况下是公平锁。</p>
+<h1 id="2-semaphore">2 Semaphore</h1>
+<p>首先抛一个问题，Curator 是如何实现 Semaphore 的呢？普通的锁只能支持一个线程获取到锁。还是按照官方示例代码，一步步debug 吧。<br>
+代码参考：https://curator.apache.org/curator-recipes/shared-semaphore.html</p>
+<pre><code class="language-java">public InterProcessSemaphoreV2(CuratorFramework client,
+                             String path,
+                             int numberOfLeases)
+Parameters:
+client - client
+path - the path to lock
+numberOfLeases - the number of leases allowed by this semaphore
+</code></pre>
+<pre><code class="language-java">InterProcessSemaphoreV2 semaphoreV2 = new InterProcessSemaphoreV2(client, lockPath, 3);
+Lease lease = semaphoreV2.acquire();
+Thread.sleep(1000);
+semaphoreV2.returnLease(lease);
+</code></pre>
+<p>debug 发现在 <code>new InterProcessSemaphoreV2(client, lockPath, 3)</code>底层其实是新创建了一个path 以 &quot;/locks&quot;结尾的锁<code>lock = new InterProcessMutex(client, ZKPaths.makePath(path, LOCK_PARENT));</code>， 另外还创建了一个以 “/leases&quot; 结尾的path。</p>
+<pre><code class="language-java">private InterProcessSemaphoreV2(CuratorFramework client, String path, int maxLeases, SharedCountReader count)
+    {
+        this.client = client.newWatcherRemoveCuratorFramework();
+        path = PathUtils.validatePath(path);
+        lock = new InterProcessMutex(client, ZKPaths.makePath(path, LOCK_PARENT));
+        this.maxLeases = (count != null) ? count.getCount() : maxLeases;
+        leasesPath = ZKPaths.makePath(path, LEASE_PARENT);
+
+        if ( count != null )
+        {
+            count.addListener
+                (
+                    new SharedCountListener()
+                    {
+                        @Override
+                        public void countHasChanged(SharedCountReader sharedCount, int newCount) throws Exception
+                        {
+                            InterProcessSemaphoreV2.this.maxLeases = newCount;
+                            client.postSafeNotify(InterProcessSemaphoreV2.this);
+                        }
+
+                        @Override
+                        public void stateChanged(CuratorFramework client, ConnectionState newState)
+                        {
+                            // no need to handle this here - clients should set their own connection state listener
+                        }
+                    }
+                );
+        }
+    }
+</code></pre>
+<p>在获取锁的时候，我们还可以进一步可看到核心的逻辑如下：</p>
+<pre><code class="language-java">PathAndBytesable&lt;String&gt; createBuilder = client.create().creatingParentContainersIfNeeded().withProtection().withMode(CreateMode.EPHEMERAL_SEQUENTIAL);
+String path = (nodeData != null) ? createBuilder.forPath(ZKPaths.makePath(leasesPath, LEASE_BASE_NAME), nodeData) : createBuilder.forPath(ZKPaths.makePath(leasesPath, LEASE_BASE_NAME));
+String nodeName = ZKPaths.getNodeFromPath(path);
+lease = makeLease(path);
+</code></pre>
+<p>每一次获取锁的时候，都会去 lease path 下创建新的节点。<br>
+看到这里，Semaphore 的底层实现就比较明了了，可以参考下图：<br>
+<img src="https://panson.top/post-images/1644851854860.png" alt="" loading="lazy"></p>
+<h1 id="3-非可重入锁">3 非可重入锁</h1>
+<p>非可重入锁的实现其实是利用了 Semaphore，就是在构造 <code>InterProcessSemaphoreV2</code>时， numberOfLeases 设置为1。</p>
+<pre><code class="language-java">public InterProcessSemaphoreV2(CuratorFramework client,
+                             String path,
+                             int numberOfLeases)
+Parameters:
+client - client
+path - the path to lock
+numberOfLeases - the number of leases allowed by this semaphore
+</code></pre>
+<h1 id="4-读锁与写锁">4 读锁与写锁</h1>
+<h2 id="41-读锁-读锁">4.1 读锁 + 读锁</h2>
+<p>读写锁的基本使用示例: https://curator.apache.org/curator-recipes/shared-reentrant-read-write-lock.html</p>
+<pre><code class="language-java">public InterProcessReadWriteLock(CuratorFramework client,
+                                 String basePath)
+Parameters:
+client - the client
+basePath - path to use for locking
+</code></pre>
+<p>写一个简单demo, debug 一下：</p>
+<pre><code class="language-java">InterProcessReadWriteLock lock = new InterProcessReadWriteLock(client, lockPath);
+lock.readLock().acquire();
+Thread.sleep(1000);
+lock.readLock().release();
+lock.writeLock().acquire();
+lock.writeLock().release();
+</code></pre>
+<p>创建读锁的时候，底层会创建一个包含 <em>READ</em> 路径的节点，基本流程与创建普通锁的流程一致。</p>
+<pre><code class="language-java">private final InterProcessMutex readMutex;
+...
+readMutex = new InternalInterProcessMutex
+        (
+            client,
+            basePath,
+            READ_LOCK_NAME,
+            lockData,
+            Integer.MAX_VALUE,
+            new SortingLockInternalsDriver()
+            {
+                @Override
+                public PredicateResults getsTheLock(CuratorFramework client, List&lt;String&gt; children, String sequenceNodeName, int maxLeases) throws Exception
+                {
+                    return readLockPredicate(children, sequenceNodeName);
+                }
+            }
+        );
+</code></pre>
+<pre><code class="language-java">private PredicateResults readLockPredicate(List&lt;String&gt; children, String sequenceNodeName) throws Exception
+    {
+        if ( writeMutex.isOwnedByCurrentThread() )
+        {
+            return new PredicateResults(null, true);
+        }
+
+        int         index = 0;
+        int         firstWriteIndex = Integer.MAX_VALUE;
+        int         ourIndex = -1;
+        for ( String node : children )
+        {
+            if ( node.contains(WRITE_LOCK_NAME) )
+            {
+                firstWriteIndex = Math.min(index, firstWriteIndex);
+            }
+            else if ( node.startsWith(sequenceNodeName) )
+            {
+                ourIndex = index;
+                break;
+            }
+
+            ++index;
+        }
+
+        StandardLockInternalsDriver.validateOurIndex(sequenceNodeName, ourIndex);
+        // firstWriteIndex： Interger max 值
+        boolean     getsTheLock = (ourIndex &lt; firstWriteIndex);
+        String      pathToWatch = getsTheLock ? null : children.get(firstWriteIndex);
+        return new PredicateResults(pathToWatch, getsTheLock);
+    }
+</code></pre>
+<p>加读锁的处理逻辑比较简单，只是创建一个节点，判断当前节点的索引位置小于 Integer 最大值即可。<br>
+由此我们也可以知道不管是不是同一个线程，获取读锁都是不互斥的。</p>
+<h2 id="42-读锁-写锁">4.2 读锁  + 写锁</h2>
+<pre><code class="language-java">        InterProcessReadWriteLock lock = new InterProcessReadWriteLock(client, lockPath);
+        lock.readLock().acquire();
+        lock.writeLock().acquire();
+</code></pre>
+<p>debug 一下先加读锁再加写锁：</p>
+<pre><code class="language-java">writeMutex = new InternalInterProcessMutex
+        (
+            client,
+            basePath,
+            WRITE_LOCK_NAME,
+            lockData,
+            1,
+            new SortingLockInternalsDriver()
+            {
+                @Override
+                public PredicateResults getsTheLock(CuratorFramework client, List&lt;String&gt; children, String sequenceNodeName, int maxLeases) throws Exception
+                {
+                    return super.getsTheLock(client, children, sequenceNodeName, maxLeases);
+                }
+            }
+        );
+</code></pre>
+<pre><code class="language-java">    @Override
+    public PredicateResults getsTheLock(CuratorFramework client, List&lt;String&gt; children, String sequenceNodeName, int maxLeases) throws Exception
+    {
+        int             ourIndex = children.indexOf(sequenceNodeName);
+        validateOurIndex(sequenceNodeName, ourIndex);
+
+        boolean         getsTheLock = ourIndex &lt; maxLeases;
+        String          pathToWatch = getsTheLock ? null : children.get(ourIndex - maxLeases);
+
+        return new PredicateResults(pathToWatch, getsTheLock);
+    }
+</code></pre>
+<p>可以看到如果想要获取到写锁，那么写锁对应节点的index 必须小于 maxLeases，但在debug 时，发现 maxleases = 1，明显是不符合条件的，所以加完读锁再加写锁是不可行的。</p>
+<h2 id="43-写锁-读锁">4.3 写锁 + 读锁</h2>
+<p>代码debug 流程基本一致，这里不再赘述，直接说结论：同一线程，写锁+读锁可行，不同线程写锁+读锁不可行。</p>
+<h2 id="44-写锁-写锁">4.4 写锁 + 写锁</h2>
+<p>不管是不是同一线程，都不行。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/chang-wen-liao-liao-dubbo-yu-wei-fu-wu/" class="post-title gt-a-link">
+                    聊聊 Dubbo 与微服务
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>005.什么是商品容量 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    005.什么是商品容量
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>在 <strong>WMS（Warehouse Management System，仓库管理系统）</strong> 和 <strong>WES（Warehouse Execution System，仓库执行系统）</strong> 中，<strong>商品容量</strong>（Product Capacity）通常指的是<strong>单位存储空间内可容纳的商品数量</strong>，或者指商品本身在存储和操作过程中的容量属性。具体而言，商品容量的概念可以分为以下几个方面：</p>
+<hr>
+<h3 id="1-存储容量storage-capacity"><strong>1. 存储容量（Storage Capacity）</strong></h3>
+<ul>
+<li>指 <strong>某种商品在仓库中的单位存储空间可容纳的最大数量</strong>。</li>
+<li>例如，一个货架上的某个存储单元（Bin）可以存放 100 盒某种产品，那么这个存储单元的<strong>商品容量</strong>就是 100 盒。</li>
+<li>在 <strong>WMS</strong> 中，存储容量用于<strong>优化库存分配和仓位管理</strong>，确保空间利用最大化。</li>
+</ul>
+<hr>
+<h3 id="2-运输拣选容量handling-capacity"><strong>2. 运输/拣选容量（Handling Capacity）</strong></h3>
+<ul>
+<li>指 <strong>商品在拣选或运输时的最大处理量</strong>。</li>
+<li>例如，一个料箱（Tote）可以容纳 20 件产品，或者一个托盘（Pallet）可以承载 500kg 的货物，那么这个容器的<strong>商品容量</strong>就是其最大承载量。</li>
+<li>在 <strong>WES</strong> 中，这个指标用于<strong>优化拣选路径、计算机器人或输送带的负载能力</strong>。</li>
+</ul>
+<hr>
+<h3 id="3-单位包装容量unit-packaging-capacity"><strong>3. 单位包装容量（Unit Packaging Capacity）</strong></h3>
+<ul>
+<li>指 <strong>单个包装（如箱、托盘）能容纳的商品数量</strong>。</li>
+<li>例如：
+<ul>
+<li><strong>一箱苹果汁</strong>包含 24 瓶（1 箱 = 24 瓶）。</li>
+<li><strong>一个托盘纸巾</strong>包含 1000 包（1 托盘 = 1000 包）。</li>
+</ul>
+</li>
+<li>这个数据在 <strong>WMS 和 WES</strong> 中用于<strong>订单拆分、装载优化和补货计算</strong>。</li>
+</ul>
+<hr>
+<h3 id="4-体积与重量限制volume-weight-capacity"><strong>4. 体积与重量限制（Volume &amp; Weight Capacity）</strong></h3>
+<ul>
+<li>有些 WMS 还会将<strong>体积和重量</strong>作为商品容量的重要指标：
+<ul>
+<li>例如，一个仓库货架的某个存储位置最多可以承载 500kg 的货物，或容纳 1 立方米的产品。</li>
+<li>这些数据用于<strong>存储规划</strong>，确保不会因超载而影响仓库运营。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="在-wms-和-wes-中的应用"><strong>在 WMS 和 WES 中的应用</strong></h3>
+<table>
+<thead>
+<tr>
+<th>商品容量类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>存储容量</strong></td>
+<td>确定每个仓位可存放多少商品，优化库存布局</td>
+</tr>
+<tr>
+<td><strong>运输/拣选容量</strong></td>
+<td>计算拣选容器、自动化系统（如 AGV、输送带）的负载能力</td>
+</tr>
+<tr>
+<td><strong>单位包装容量</strong></td>
+<td>影响订单拆分、补货计算</td>
+</tr>
+<tr>
+<td><strong>体积 &amp; 重量容量</strong></td>
+<td>确保货架、设备、存储单元的承载能力不超标</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h3 id="总结"><strong>总结</strong></h3>
+<p>在 <strong>WMS 和 WES</strong> 系统中，<strong>商品容量</strong>的概念主要涉及<strong>存储、拣选、包装、体积和重量等维度</strong>，用于<strong>优化仓储管理和物流执行</strong>。不同的仓储系统可能会根据业务需求对商品容量的计算方式有所调整。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/001_-shi-me-shi-ru-ku-dan/" class="post-title gt-a-link">
+                    001.什么是入库单
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

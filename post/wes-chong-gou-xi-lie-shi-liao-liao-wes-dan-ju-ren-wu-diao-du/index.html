@@ -1,0 +1,225 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>WES 重构系列（十）：聊聊 WES 单据任务调度 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    WES 重构系列（十）：聊聊 WES 单据任务调度
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2025-04-15 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>我在前文《WES 重构系列（五）：出库调度正向链路效率优化》一文中聊过，出库链路的大致链路流程。<br>
+但其实真实的出库调度链路远比这复杂，不仅涉及到库存模型、多样化的策略规则、配置、调度算法、热度算法，还涉及到单据任务调度以及相关的单据状态机、作业单状态机、任务状态机等等。</p>
+<!-- more -->
+<p>本文我将聊聊WES 的单据任务调度。</p>
+<p>WES 这边的调度模型基本遵循三层：</p>
+<ol>
+<li>单据层：单据和单据明细</li>
+<li>作业单层：作业单和作业单明细</li>
+<li>任务层：包含命中的三级库存信息、容器、货架、库位</li>
+</ol>
+<p>从上到下，都是一对多的关系，以出库链路来说，一个出库单对应多个出库作业单，一个出库作业单对应多个出库任务。</p>
+<h2 id="一-为什么要设计三层调度模型">一、为什么要设计三层调度模型？</h2>
+<p>在一些小仓场景，仓内商品库存比较少，作业场景比较简单，其实作业单这一层是可以省略的，但我司的客户群体基本都是大仓，单仓过万平方，多库区，库存条目数过百万。如果只有调度任务这一层的话，无法精细化管理。比如出库单无法很好地表示库区维度的作业情况，哪些库区是有货的，哪些库区是无货的，哪些库区在作业了，哪些库区还没开始作业。</p>
+<p>除了业务场景的考量，其实在模型含义上，直接使用上游下发的出库单来管理仓内作业流程，业务领域有些混淆了。出库单是上游的概念，出库单定义‘要什么’，而作业单定义‘怎么干’，关注的具体的执行层。</p>
+<h2 id="二-单据-作业单-任务的状态流转">二、单据、作业单、任务的状态流转</h2>
+<p>该部分信息有点涉敏，我简单聊聊。<br>
+出库单是上游下发的单据，所以肯定有初始状态。<br>
+提交出库单后，会预占二级库存并且生成出库作业单，出库作业单也有初始状态。<br>
+出库作业单会经过复杂计算，并传给调度算法服务，最终 WES 会根据出库作业单与算法结果分配工作站、预占三级库存，并生成出库任务。<br>
+同样的，出库任务也有初始状态。<br>
+定时任务会流转，最终下发给下游的车辆调度系统，下发成功后，任务状态流转。<br>
+车辆搬运中会不断上报任务调度实体，也就是小车的位置信息，到站后，调度任务状态变更。<br>
+推完实操后，调度任务会变更为实操中。<br>
+实操结束后，会变更为完成。</p>
+<h2 id="三-调度的搬运优先级">三、调度的搬运优先级</h2>
+<p>在履约链路中，会存在履约时效性的概念，在仓配场景中，简单来说就是，如何及时地把货物出库并配送到买家手中。</p>
+<p>那上游下发的单据，可能就会带有履约时效性的信息，比如：</p>
+<ol>
+<li>单据优先级：优先级越高，调度任务的优先级也会根据权重提高优先级</li>
+<li>期望发货时间：结合规则策略，动态根据期望发货时间提高优先级</li>
+</ol>
+<p>除了上游单据自带信息，在 WES 内部也会根据一些策略，去动态提高任务优先级，比如：</p>
+<ol>
+<li>按出库单持续时间：一个单子执行的时间越久，尾单部分，优先级就需要越高</li>
+<li>按剩余拣选任务数：有的时候，上游希望剩余拣选任务数达到阈值后，能提高优先级。</li>
+</ol>
+<h1 id="四-库存分配优先级">四 库存分配优先级</h1>
+<p>对于多库区精细化作业，需要具备按库区优先级来分配库存，比如存在 A、B 、C 库区，希望先把 A 库区的库存先出掉，再出 B、C 库区的库存。<br>
+同样的，这个能力也是需要提供规则策略动态配置能力的。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/llm-de-fa-zhan-shi/" class="post-title gt-a-link">
+                    LLM 的发展史
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

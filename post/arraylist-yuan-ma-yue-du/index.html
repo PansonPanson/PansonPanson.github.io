@@ -1,0 +1,340 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读001：String  | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读001：String 
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-02 ·
+                    </time>
+                    
+                        <a href="https://panson.top/tag/lnULVaTp5/" class="post-tags">
+                            # jdk
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>本文剖析了 <code>String</code> 的源码（1.8），主要讲述了 <code>String</code> 的一些特性以及一些核心方法的设计与实现。</em></p>
+<!-- more -->
+<hr>
+<h2 id="一-string-的不可变性">一、String 的不可变性</h2>
+<pre><code class="language-java">public final class String implements java.io.Serializable, Comparable&lt;String&gt;, CharSequence {
+    /** The value is used for character storage. */
+    private final char value[];
+}
+</code></pre>
+<p>上面的String 源码解释了 String 的不可变性。</p>
+<ol>
+<li>
+<p>String 被 final 修饰，意味着该类不能被继承，也就没有子类，无法通过继承的方式覆写 String 的方法。</p>
+<p>final 修饰 class，可以参考 <a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.2">Java  虚拟机规范</a></p>
+<blockquote>
+<p>A class can be declared <code>final</code> if its definition is complete and no subclasses are desired or required. <!-- more --></p>
+<p>It is a compile-time error if the name of a <code>final</code> class appears in the <code>extends</code> clause (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.4">§8.1.4</a>) of another class declaration; this implies that a <code>final</code> class cannot have any subclasses.</p>
+<p>It is a compile-time error if a class is declared both <code>final</code> and <code>abstract</code>, because the implementation of such a class could never be completed (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.1.1.1">§8.1.1.1</a>).</p>
+<p>Because a <code>final</code> class never has any subclasses, the methods of a <code>final</code> class are never overridden (<a href="https://docs.oracle.com/javase/specs/jls/se11/html/jls-8.html#jls-8.4.8.1">§8.4.8.1</a>).</p>
+</blockquote>
+</li>
+<li>
+<p>String 底层使用一个 value 字符数组来存储，使用 <code>private</code> 和 <code>final</code> 修饰，意味着 <code>value</code> 一旦被赋值，内存地址不会再改变(<code>final</code>)，并且不能再被修改（<code>private</code>）</p>
+</li>
+</ol>
+<h2 id="二-stringintern-方法">二、String.intern() 方法</h2>
+<p><code>String</code> 类的<code>intern()</code>方法涉及到一个叫做 “常量池“ 的概念，可以理解成 Java 系统级别的缓存。</p>
+<ul>
+<li>直接使用双引号声明出来的<code>String</code>对象会直接存储在常量池中。</li>
+<li>如果不是用双引号声明的<code>String</code>对象，可以使用<code>String</code>提供的<code>intern</code>方法。intern 方法会从字符串常量池中查询当前字符串是否存在，若不存在就会将当前字符串放入常量池中</li>
+</ul>
+<p>JAVA 使用 jni 调用c++实现的<code>StringTable</code>的<code>intern</code>方法, <code>StringTable</code>的<code>intern</code>方法跟Java中的<code>HashMap</code>的实现是差不多的, 只是不能自动扩容。默认大小是1009。<!--more--></p>
+<p>要注意的是，String的String Pool是一个固定大小的<code>Hashtable</code>，默认值大小长度是1009，如果放进String Pool的String非常多，就会造成Hash冲突严重，从而导致链表会很长，而链表长了后直接会造成的影响就是当调用<code>String.intern</code>时性能会大幅下降（因为要一个一个找）。</p>
+<p>在 jdk6中<code>StringTable</code>是固定的，就是1009的长度，所以如果常量池中的字符串过多就会导致效率下降很快。在jdk7中，<code>StringTable</code>的长度可以通过一个参数指定：</p>
+<ul>
+<li><code>-XX:StringTableSize=99991</code></li>
+</ul>
+<h2 id="三-string-的构造函数和若干重要方法">三、String 的构造函数和若干重要方法</h2>
+<h3 id="1-构造函数">1. 构造函数</h3>
+<p><code>String</code> 类有4个核心构造函数</p>
+<pre><code class="language-java">// String 为参数的构造方法
+public String(String original) {
+    this.value = original.value;
+    this.hash = original.hash;
+}
+// char[] 为参数构造方法
+public String(char value[]) {
+    this.value = Arrays.copyOf(value, value.length);
+}
+// StringBuffer 为参数的构造方法
+public String(StringBuffer buffer) {
+    synchronized(buffer) {
+        this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
+    }
+}
+// StringBuilder 为参数的构造方法
+public String(StringBuilder builder) {
+    this.value = Arrays.copyOf(builder.getValue(), builder.length());
+}
+</code></pre>
+<h3 id="2-使用频率很高的几个方法">2. 使用频率很高的几个方法</h3>
+<h4 id="length"><code>length()</code></h4>
+<pre><code class="language-java">// 字符串长度
+public int length() {
+    return value.length;
+}
+</code></pre>
+<h4 id="isempty"><code>isEmpty()</code></h4>
+<pre><code class="language-java">public boolean isEmpty() {
+    return value.length == 0;
+}
+</code></pre>
+<h4 id="charat"><code>charAt()</code></h4>
+<pre><code class="language-java">public char charAt(int index) {
+    if ((index &lt; 0) || (index &gt;= value.length)) {
+        throw new StringIndexOutOfBoundsException(index);
+    }
+    return value[index];
+}
+</code></pre>
+<h4 id="equals-和-equalsignorecase"><code>equals()</code>  和 <code>equalsIgnoreCase()</code></h4>
+<pre><code class="language-java">public boolean equals(Object anObject) {
+    // 对象引用相同直接返回 true
+    if (this == anObject) {
+        return true;
+    }
+    // 判断需要对比的值是否为 String 类型，如果不是则直接返回 false
+    if (anObject instanceof String) {
+        String anotherString = (String)anObject;
+        int n = value.length;
+        // 比较底层数组长度，长度不同，直接返回 false，长度相同，遍历字符数组，循环比较，只要有一个字符不同，返回 false
+        if (n == anotherString.value.length) {
+            char v1[] = value;
+            char v2[] = anotherString.value;
+            int i = 0;
+            while (n-- != 0) {
+                if (v1[i] != v2[i])
+                    return false;
+                i++;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+</code></pre>
+<p>直接使用 <code>equals()</code> 方法时，应该小心空指针。非空字符串放在前面，或者直接使用 apache commons 相关工具类 <code>StringUtils</code>：</p>
+<pre><code class="language-java">// StringUtils::equals
+public static boolean equals(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equals(str2);
+}
+</code></pre>
+<p><code>equalsIgnoreCase()</code>: 该方法 与 <code>equals()</code> 不同之处在于前者忽略大小写比较字符串。</p>
+<h4 id="compareto和-comparetoignorecase"><code>compareTo()</code>和 <code>compareToIgnoreCase()</code></h4>
+<pre><code class="language-java">// 返回值为 0 表示等于，正数表示大于，负数表示小于
+public int compareTo(String anotherString) {
+    int len1 = value.length;
+    int len2 = anotherString.value.length;
+    int lim = Math.min(len1, len2);
+    char v1[] = value;
+    char v2[] = anotherString.value;
+    int k = 0;
+    while (k &lt; lim) {
+        char c1 = v1[k];
+        char c2 = v2[k];
+        if (c1 != c2) {
+            return c1 - c2;
+        }
+        k++;
+    }
+    return len1 - len2;
+}
+</code></pre>
+<p><code>compareToIgnoreCase()</code>：比较忽略大小写</p>
+<h4 id="其他">其他</h4>
+<ul>
+<li>indexOf()：查询字符串首次出现的下标位置</li>
+<li>lastIndexOf()：查询字符串最后出现的下标位置</li>
+<li>contains()：查询字符串中是否包含另一个字符串</li>
+<li>toLowerCase()：把字符串全部转换成小写</li>
+<li>toUpperCase()：把字符串全部转换成大写</li>
+<li>trim()：去掉字符串首尾空格</li>
+<li>replace()：替换字符串中的某些字符</li>
+<li>split()：把字符串分割并返回字符串数组</li>
+<li>join()：把字符串数组转为字符串</li>
+</ul>
+<h2 id="参考">参考：</h2>
+<ul>
+<li><a href="https://tech.meituan.com/2014/03/06/in-depth-understanding-string-intern.html">深入解析String#intern</a></li>
+</ul>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/hello-gridea/" class="post-title gt-a-link">
+                    译文：Java EE vs J2EE vs Jakarta
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

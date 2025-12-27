@@ -1,0 +1,402 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>weekly sdudy 002 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    weekly sdudy 002
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-22 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>from 2022-08-22  to  2022-08-28</p>
+<!-- more -->
+<h1 id="1-algorithm">1 Algorithm</h1>
+<ul>
+<li>leetcode 655.输出二叉树</li>
+</ul>
+<pre><code class="language-java">    class Solution {
+        private final String BLANK = &quot;&quot;;
+        private int height = 0;
+        int m = 0;
+        int n = 0;
+        int r = 0;
+        int c = 0;
+        private final List&lt;List&lt;String&gt;&gt; res = new ArrayList&lt;&gt;();
+        public List&lt;List&lt;String&gt;&gt; printTree(TreeNode root) {
+            height = traverse(root) - 1;
+            m = height + 1;
+            n = (int)Math.pow(2, height + 1) - 1;
+            r = 0;
+            c = (n - 1) / 2;
+            fill();
+            build(root, r, c);
+            return res;
+        }
+
+        private void fill() {
+            for(int i = 0; i &lt; m; i++) {
+                List&lt;String&gt; currentLevel = new ArrayList&lt;&gt;(n);
+                for(int j = 0; j &lt; n; j++) {
+                    currentLevel.add(BLANK);
+                }
+                res.add(currentLevel);
+            }
+        }
+
+        private void build(TreeNode root, int r, int c) {
+            if(root == null) {
+                return;
+            }
+            res.get(r).set(c, String.valueOf(root.val));
+            build(root.left, r + 1, (int) (c - Math.pow(2, height - r -1)));
+            build(root.right, r + 1, (int) (c + Math.pow(2, height - r -1)));
+        }
+
+
+        private int traverse(TreeNode root) {
+            if(root == null) {
+                return 0;
+ 。。。           }
+            int leftHeight = traverse(root.left);
+            int rightHeight = traverse(root.right);
+            return Math.max(leftHeight, rightHeight) + 1;
+        }
+
+</code></pre>
+<ul>
+<li>1445.检查单词是否为句中其他单词的前缀</li>
+</ul>
+<pre><code class="language-java">    static class Solution {
+        public static int isPrefixOfWord(String sentence, String searchWord) {
+            int sentenceIndex = 0;
+            int wordIndex = 0;
+            int res = 1;
+
+            while(sentenceIndex &lt; sentence.length()) {
+                if(Character.isWhitespace(sentence.charAt(sentenceIndex))) {
+                    sentenceIndex++;
+                    res++;
+                }
+                while(sentence.charAt(sentenceIndex) == searchWord.charAt(wordIndex)) {
+                    if(wordIndex == searchWord.length() - 1) {
+                        return res;
+                    }
+                    sentenceIndex++;
+                    wordIndex++;
+                }
+                wordIndex = 0;
+                while(sentenceIndex &lt; sentence.length() &amp;&amp; !Character.isWhitespace(sentence.charAt(sentenceIndex))) {
+                    sentenceIndex++;
+                }
+            }
+            return -1;
+        }
+
+        public static void main(String[] args) {
+            int prefixOfWord = isPrefixOfWord(&quot;dumb dream duck duck i&quot;, &quot;dream&quot;);
+            System.out.println(prefixOfWord);
+        }
+    }
+
+
+</code></pre>
+<ul>
+<li>1460.通过翻转子数组使两个数组相等</li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public boolean canBeEqual(int[] target, int[] arr) {
+        Arrays.sort(target);
+        Arrays.sort(arr);
+        for(int i = 0; i &lt; target.length; i++) {
+            if(target[i] != arr[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+</code></pre>
+<ul>
+<li>658.找到 K 个最接近的元素</li>
+</ul>
+<pre><code class="language-java"> class Solution {
+        public List&lt;Integer&gt; findClosestElements(int[] arr, int k, int x) {
+            int left = 0;
+            int right = arr.length - 1;
+            while(right - left != k -1) {
+                if(x - arr[left] &gt; arr[right] - x) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+            List&lt;Integer&gt; res = new ArrayList&lt;&gt;();
+            for(int i = left; i &lt;= right; i++) {
+                res.add(arr[i]);
+            }
+            return res;
+        }
+    }
+</code></pre>
+<ul>
+<li>1464.数组中两元素的最大乘积</li>
+</ul>
+<pre><code class="language-java">class Solution {
+        public int maxProduct(int[] nums) {
+            int left = 0, right = nums.length - 1, max = Integer.MIN_VALUE;
+            while(left &lt; right) {
+                max = Math.max(max, (nums[right] - 1) * (nums[left] - 1));
+                if(nums[left] &lt; nums[right]) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+            return max;
+        }
+}
+
+class Solution1 {
+        public int maxProduct(int[] nums) {
+            int max0 = Integer.MIN_VALUE, max1 = Integer.MIN_VALUE;
+
+            for(int num : nums) {
+                if(num &gt;= max0) {
+                    max1 = max0;
+                    max0 = num;
+                } else if(num &gt;= max1){
+                    max1 = num;
+                }
+            }
+            return (max0 - 1) * (max1 - 1);
+        }
+    }
+</code></pre>
+<ul>
+<li>662.二叉树最大宽度(</li>
+</ul>
+<pre><code class="language-java">        public int widthOfBinaryTree(TreeNode root) {
+            if(root == null) {
+                return 0;
+            }
+            List&lt;Pair&lt;TreeNode, Integer&gt;&gt; currentLevel = new ArrayList&lt;&gt;();
+            currentLevel.add(new Pair&lt;&gt;(root, 1));
+            int res = 1;
+            while(!currentLevel.isEmpty()) {
+                List&lt;Pair&lt;TreeNode, Integer&gt;&gt; nextLevel = new ArrayList&lt;&gt;();
+                for (Pair&lt;TreeNode, Integer&gt; treeNodeIntegerPair : currentLevel) {
+                    if (treeNodeIntegerPair.getKey().left != null) {
+                        nextLevel.add(new Pair&lt;&gt;(treeNodeIntegerPair.getKey().left, treeNodeIntegerPair.getValue() * 2));
+                    }
+                    if (treeNodeIntegerPair.getKey().right != null) {
+                        nextLevel.add(new Pair&lt;&gt;(treeNodeIntegerPair.getKey().right, treeNodeIntegerPair.getValue() * 2 + 1));
+                    }
+                }
+                res = Math.max(currentLevel.get(currentLevel.size() - 1).getValue() - currentLevel.get(0).getValue() + 1, res);
+                currentLevel = nextLevel;
+            }
+            return res;
+        }
+</code></pre>
+<ul>
+<li>172.阶乘后的零</li>
+</ul>
+<pre><code class="language-java">class Solution {
+    public int trailingZeroes(int n) {
+        int count = 0;
+        while(n &gt;= 5) {
+            count += n / 5;
+            n = n / 5;
+        }
+        return count;
+    }
+}
+</code></pre>
+<h1 id="2-reading">2 Reading</h1>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/VlVrskSLT7PSqzlqiPHERg">新浪微博从 Kafka 到 Pulsar 的演变</a></li>
+</ul>
+<h1 id="3-english-writing">3 English Writing</h1>
+<p>is an entry ticket to :  …… 是获得……（成功、健康、爱情）等的通行证</p>
+<p>【相似句型】be a passport to sth<br>
+【例句精选】<br>
+a. But Tadateru Konoe, the IFRC's Japanese persident, reports that neutrality is still an entry ticket to many disaster zones.(<em>The Economist</em>)<br>
+但是红十字会与红新月会国际联合会的日裔主席近卫忠辉反驳说，保持中立仍旧是进入许多灾难地区的通行证。</p>
+<p>b. While firms' profits have soared, wages for typical worker have barely budged. The middle class——admittedly a vague term in America——feels squeezed. A college degree is no longer a passport to ever-higher pay.(<em>The Economist</em>)<br>
+企业利润暴涨，但普通工人的工资几乎没有变动。中产阶级——一个在美国已变得模糊的概念——感到被挤压。大学学位已经不再是获得高薪的保证。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/weekly-study-001/" class="post-title gt-a-link">
+                    weekly study 001
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

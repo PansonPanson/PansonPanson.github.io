@@ -1,0 +1,331 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>一文以知 ZooKeeper 核心原理 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    一文以知 ZooKeeper 核心原理
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-05-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p>ZooKeeper 应该是一个比较常见的开源工具，加上与分布式系统渊源很深，我们其实可以“望文生义”，大致猜测一下 ZooKeeper 的作用，因为 ZooKeeper 的英文直译是“动物园管理员”，动物园里的动物就像分布式系统里的各个子系统一样，混乱且难以管理，所以 ZooKeeper 大概就是拿来管理分布式系统的，让其可控可用。</p>
+<!-- more -->
+<p>事实上，我们的猜测是正确的，ZooKeeper 的主要作用就是拿来做分布式系统管理的。具体的作用主要包括：</p>
+<ol>
+<li>分布式协调（系统间信息异步通信）</li>
+<li>分布式锁（zk 分布式锁）</li>
+<li>元数据/配置信息管理（注册中心）</li>
+<li>高可用（主从选举）</li>
+</ol>
+<p>ZooKeeper 能实现这么多的功能自然离不开底层数据结构的支持。ZooKeeper 是一个树形结构，每一个节点（znode）拥有唯一的路径 path，客户端基于 path 上传节点数据，ZooKeeper 收到后会实时通知对该路径进行监听的客户端。<br>
+<img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/zknamespace.jpg?raw=true" alt="树形结构示意图" loading="lazy"></p>
+<p>znode 有 4 种类型，持久节点、持久序号节点、临时节点、临时序号节点。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">节点类型英文</th>
+<th style="text-align:left">节点类型中文</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">PERSISTENT</td>
+<td style="text-align:left">持久节点</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_SEQUENTIAL</td>
+<td style="text-align:left">持久序号节点</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL</td>
+<td style="text-align:left">临时节点(不可在拥有子节点)</td>
+</tr>
+<tr>
+<td style="text-align:left">EPHEMERAL_SEQUENTIAL</td>
+<td style="text-align:left">临时序号节点(不可在拥有子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>持久节点：哪怕客户端断开连接，也一直存在。<br>
+临时节点：只要客户端断开连接，节点就没了。<br>
+顺序节点：就是在创建节点的时候自动添加全局递增的序号<br>
+ZooKeeper 分布式锁的实现就是基于临时顺序节点来实现的，加锁的时候，创建一个临时顺序节点。</p>
+<p>每一个 znode 结构包含如下属性：</p>
+<ol>
+<li>path:唯一路径</li>
+<li>childNode：子节点</li>
+<li>stat:状态属性</li>
+<li>type:节点类型</li>
+</ol>
+<p>我们可以使用命令查看 znode 的属性：</p>
+<pre><code class="language-java">stat /cluster
+</code></pre>
+<p>属性列表如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">属性</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">cZxid = 0x75</td>
+<td style="text-align:left">#创建节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">ctime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#创建时间</td>
+</tr>
+<tr>
+<td style="text-align:left">mZxid = 0x75</td>
+<td style="text-align:left">#修改节点的事务 ID</td>
+</tr>
+<tr>
+<td style="text-align:left">mtime = Tue Oct 20 16:49:19 CST 2020</td>
+<td style="text-align:left">#最后修改时间</td>
+</tr>
+<tr>
+<td style="text-align:left">pZxid = 0x76</td>
+<td style="text-align:left">#子节点变更的事物ID</td>
+</tr>
+<tr>
+<td style="text-align:left">cversion = 1</td>
+<td style="text-align:left">#这表示对此znode的子节点进行的更改次数（不包括子节点）</td>
+</tr>
+<tr>
+<td style="text-align:left">dataVersion = 0</td>
+<td style="text-align:left"># 数据版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">aclVersion = 0</td>
+<td style="text-align:left">#权限版本，变更次数</td>
+</tr>
+<tr>
+<td style="text-align:left">ephemeralOwner = 0x0</td>
+<td style="text-align:left">#临时节点所属会话ID</td>
+</tr>
+<tr>
+<td style="text-align:left">dataLength = 0</td>
+<td style="text-align:left">#数据长度</td>
+</tr>
+<tr>
+<td style="text-align:left">numChildren = 1</td>
+<td style="text-align:left">#子节点数(不包括子子节点)</td>
+</tr>
+</tbody>
+</table>
+<p>ZooKeeper 特点：</p>
+<ul>
+<li><strong>顺序写</strong>：集群中只有一台机器可以写，所有机器都可以读，所有写请求都会分配一个zk集群全局的唯一递增编号，zxid，保证各种客户端发起的写请求都是有顺序的</li>
+<li><strong>数据一致性</strong>：任何一台zk机器收到了写请求之后都会同步给其他机器，保证数据的强一致，你连接到任何一台zk机器看到的数据都是一致的</li>
+<li><strong>高性能</strong>：每台zk机器都在内存维护数据，所以zk集群绝对是高并发高性能的，如果你让zk部署在高配置物理机上，一个3台机器的zk集群抗下每秒几万请求没有问题</li>
+<li><strong>高可用</strong>：哪怕集群中挂掉不超过一半的机器，都能保证可用，数据不会丢失，3台机器可以挂1台，5台机器可以挂2台</li>
+<li><strong>高并发</strong>：高性能决定的，只要基于纯内存数据结构来处理，并发能力是很高的，只有一台机器进行写，但是高配置的物理机，比如16核32G，写入几万QPS，读，所有机器都可以读，3台机器的话，起码可以支撑十几万QPS</li>
+</ul>
+<p>ZooKeeper 3 种角色：<br>
+通常来说ZooKeeper集群里有三种角色的机器。</p>
+<ul>
+<li>Leader：集群启动自动选举一个Leader出来，只有Leader是可以写的。</li>
+<li>Follower：Follower 只能同步数据和提供数据的读取，Leader 挂了，Follower 可以继续选举出来Leader。</li>
+<li>Observer：只能读，但是Observer不参与选举</li>
+</ul>
+<p>ZooKeeper最核心的一个机制：Watcher监听回调<br>
+就是客户端可以对 Znode 进行 Watcher 监听，然后 Znode 改变的时候回调客户端。</p>
+<p>在整个zk的架构和工作原理中，有一个非常关键的环节，就是zk集群的数据同步是用什么协议做的？其实用的是特别设计的ZAB协议，ZooKeeper Atomic Broadcast，就是ZooKeeper原子广播协议。</p>
+<p>ZAB的核心思想介绍：主从同步机制和崩溃恢复机制<br>
+两种角色：Leader 和 Follower，只有 Leader 可以接受写操作，Leader 和 Follower 都可以读。<br>
+流程：Leader 收到事务请求，转换为事务 Proposal（提议）同步给所有的 Follower，超过半数的 Follower 都说收到事务 Proposal 了（返回 ack），Leader 再给所有的 Follower 发一个Commit 消息，让所有 Follower 提交事务。</p>
+<p>崩溃恢复：<br>
+zk集群启动的时候，进入恢复模式，选举一个leader出来，然后leader等待集群中过半的follower跟他进行数据同步，只要过半follower完成数据同步，接着就退出恢复模式，可以对外提供服务了</p>
+<p>集群启动：恢复模式，leader选举（过半机器选举机制） + 数据同步<br>
+消息写入：消息广播模式，leader采用2PC模式的过半写机制，给follower进行同步<br>
+崩溃恢复：恢复模式，leader/follower宕机，只要剩余机器超过一半，集群宕机不超过一半的机器，就可以选举新的leader，数据同步</p>
+<p>采用了2PC两阶段提交思想的ZAB消息广播流程：<br>
+每一个消息广播的时候，都是2PC思想走的，先是发起事务Proposal的广播，就是事务提议，仅仅只是个提议而已，各个follower返回ack，过半follower都ack了，就直接发起commit消息到全部follower上去，让大家提交。<br>
+发起一个事务proposal之前，leader会分配一个全局唯一递增的事务id，zxid，通过这个可以严格保证顺序。<br>
+leader会为每个follower创建一个队列，里面放入要发送给follower的事务proposal，这是保证了一个同步的顺序性。<br>
+每个follower收到一个事务proposal之后，就需要立即写入本地磁盘日志中，写入成功之后就可以保证数据不会丢失了，然后返回一个ack给leader，然后过半follower都返回了ack，leader推送commit消息给全部follower。<br>
+leader自己也会进行commit操作，commit之后，就意味这个数据可以被读取到了。</p>
+<p>ZooKeeper到底是强一致性还是最终一致性：<br>
+明显，ZAB协议机制，zk一定不是强一致性，是最终一致，官方的说法是顺序一致性。因为leader一定会保证所有的proposal同步到follower上都是按照顺序来走的，起码顺序不会乱。</p>
+<p>使用 Observer 节点来扩展 ZooKeeper 集群：<br>
+Observer节点是不参与leader选举的，他也不参与ZAB协议同步时候的过半follower ack的那个环节，他只是单纯的接收数据，同步数据，可能数据存在一定的不一致的问题，但是是只读的。<br>
+zk集群无论多少台机器，只能是一个leader进行写，单机写入最多每秒上万QPS，这是没法扩展的，所以zk是适合写少的场景。<br>
+但是读呢？follower起码有2个或者4个，读你起码可以有每秒几万QPS，没问题，那如果读请求更多呢？此时你可以引入Observer节点，他就只是同步数据，提供读服务，可以无限的扩展机器。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/rocketmq-he-xin-yuan-li-zong-jie/" class="post-title gt-a-link">
+                    RocketMQ 核心原理总结
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

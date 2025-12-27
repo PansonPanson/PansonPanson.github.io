@@ -1,0 +1,285 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>007.什么是商品 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    007.什么是商品
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="在-wms-和-wes-中商品是什么"><strong>在 WMS 和 WES 中，商品是什么？</strong></h3>
+<p>在 <strong>WMS（仓库管理系统）</strong> 和 <strong>WES（仓库执行系统）</strong> 中，<strong>商品</strong>（Product 或 SKU）是指<strong>仓库内存储和管理的物品</strong>，通常以<strong>唯一标识（如 SKU、条码）<strong>进行追踪，并涉及</strong>存储、拣选、运输、包装等操作</strong>。</p>
+<hr>
+<h2 id="1-商品product在-wmswes-中的定义"><strong>1. 商品（Product）在 WMS/WES 中的定义</strong></h2>
+<p>在 <strong>WMS 和 WES</strong> 中，商品不仅仅是<strong>普通的商品</strong>，而是一个<strong>数据实体</strong>，通常包括以下关键信息：</p>
+<table>
+<thead>
+<tr>
+<th><strong>字段</strong></th>
+<th><strong>说明</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SKU（库存单位）</strong></td>
+<td>商品的唯一标识代码，如 &quot;ABC123&quot;</td>
+</tr>
+<tr>
+<td><strong>条码（Barcode）</strong></td>
+<td>扫描识别商品的编码，如 EAN-13、UPC</td>
+</tr>
+<tr>
+<td><strong>名称（Product Name）</strong></td>
+<td>商品名称，如 &quot;iPhone 15 256GB&quot;</td>
+</tr>
+<tr>
+<td><strong>商品分类（Category）</strong></td>
+<td>例如 &quot;电子产品&quot;、&quot;服装&quot;、&quot;食品&quot;</td>
+</tr>
+<tr>
+<td><strong>单位（Unit of Measure, UOM）</strong></td>
+<td>例如 &quot;箱&quot;、&quot;件&quot;、&quot;公斤&quot;</td>
+</tr>
+<tr>
+<td><strong>包装规格（Pack Size）</strong></td>
+<td>例如 &quot;1 箱 = 12 罐&quot;</td>
+</tr>
+<tr>
+<td><strong>重量/体积（Weight/Volume）</strong></td>
+<td>物流计算使用，如 &quot;2kg/0.01m³&quot;</td>
+</tr>
+<tr>
+<td><strong>批次（Batch Number）</strong></td>
+<td>生产批次管理，如 &quot;20240301A&quot;</td>
+</tr>
+<tr>
+<td><strong>保质期/有效期（Expiry Date）</strong></td>
+<td>适用于食品、药品，如 &quot;2025-01-01&quot;</td>
+</tr>
+<tr>
+<td><strong>存储规则（Storage Rules）</strong></td>
+<td>例如 &quot;需冷藏（2-8°C）&quot;、&quot;危险品存储&quot;</td>
+</tr>
+<tr>
+<td><strong>库存状态（Inventory Status）</strong></td>
+<td>例如 &quot;可售&quot;、&quot;待检&quot;、&quot;退货&quot;</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="2-wms仓库管理系统中的商品"><strong>2. WMS（仓库管理系统）中的商品</strong></h2>
+<p><strong>WMS 主要关注商品的存储、库存和移动管理</strong>，确保商品在仓库中的<strong>准确存放、补货和拣选</strong>。</p>
+<p>在 WMS 中，商品会被<strong>关联到仓库中的具体存储位置（货架、库位）</strong>，并受到各种规则的影响，如：</p>
+<ul>
+<li><strong>存储规则</strong>：某些商品需要存放在特定温度区域（如冷链仓库）。</li>
+<li><strong>批次管理</strong>：同一 SKU 可能有不同生产批次，需要按**先进先出（FIFO）**出库。</li>
+<li><strong>库存管理</strong>：商品可能处于不同状态（可售库存、待检库存等）。</li>
+</ul>
+<p>✅ <strong>示例：</strong><br>
+一家电商仓库中的 <strong>iPhone 15（SKU: IP15-256-BLACK）</strong>，WMS 需要管理：</p>
+<ul>
+<li>存储在哪个货架、库位？</li>
+<li>是否还有库存？补货情况？</li>
+<li>是否有多个批次？需要优先出库哪个批次？</li>
+</ul>
+<hr>
+<h2 id="3-wes仓库执行系统中的商品"><strong>3. WES（仓库执行系统）中的商品</strong></h2>
+<p><strong>WES 主要关注商品在仓库中的自动化处理</strong>，如<strong>拣选、分拣、包装和出库</strong>，确保订单高效执行。</p>
+<p>在 WES 中，商品信息用于：</p>
+<ul>
+<li><strong>机器人拣选</strong>：自动分拣设备通过<strong>条码</strong>或<strong>RFID</strong>识别商品，执行拣选任务。</li>
+<li><strong>订单合并</strong>：同一订单的商品如何高效合并。</li>
+<li><strong>分波处理</strong>：按订单优先级和路线优化出库顺序。</li>
+</ul>
+<p>✅ <strong>示例：</strong><br>
+在京东智能仓库，<strong>iPhone 15（SKU: IP15-256-BLACK）</strong> 需要：</p>
+<ul>
+<li>机器人从货架上拣选该商品，并放入订单拣选箱。</li>
+<li>自动输送带将商品送往包装区进行贴单、称重。</li>
+<li>按快递区域进行分拣，并装车出库。</li>
+</ul>
+<hr>
+<h2 id="总结"><strong>总结</strong></h2>
+<p>在 <strong>WMS 和 WES</strong> 中，<strong>商品不仅仅是一个产品，而是一个数据实体</strong>，涉及<strong>库存管理、批次追踪、存储规则、拣选执行等多个环节</strong>。</p>
+<ul>
+<li><strong>WMS</strong> 侧重于 <strong>库存存储、管理</strong>，确保库存信息准确。</li>
+<li><strong>WES</strong> 侧重于 <strong>自动化执行（拣选、分拣、包装）</strong>，提高订单履行效率。</li>
+</ul>
+<p>最终，二者协同工作，确保仓库内的商品能够高效管理和流转。</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/006_-shi-me-shi-shang-pin-tiao-ma/" class="post-title gt-a-link">
+                    006.什么是商品条码
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>008.什么是料箱容器 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    008.什么是料箱容器
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-05-02 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h1 id="料箱业务中的容器信息维护">料箱业务中的容器信息维护</h1>
+<p>在料箱业务中，需要维护<strong>容器信息</strong>，包括：<strong>容器类型、容器具体信息、料格类型、料格信息</strong>。<br>
+<strong>容器用于存储商品</strong>，容器可以<strong>分格</strong>，每一个<strong>料格</strong>也都可以用于存储商品。</p>
+<h2 id="1-容器信息"><strong>1. 容器信息</strong></h2>
+<h3 id="基本信息"><strong>基本信息</strong></h3>
+<ol>
+<li><strong>仓库名称</strong>：容器所属仓库的名称。</li>
+<li><strong>仓库编码</strong>：容器所属仓库的编码。</li>
+<li><strong>容器编码</strong>：容器的唯一编码信息。</li>
+<li><strong>容器类型名称</strong>：容器所属类型的名称。</li>
+<li><strong>容器种类</strong>：容器所属类型的种类，分为<strong>托盘/料箱</strong>。</li>
+<li><strong>容器数字码</strong>：容器的数字码信息。</li>
+<li><strong>容器类型编码</strong>：容器所属类型的编码。</li>
+<li><strong>库位</strong>：如果容器在库内，显示容器当前所在的库位信息。</li>
+</ol>
+<h3 id="其他属性"><strong>其他属性</strong></h3>
+<ol start="9">
+<li><strong>是否启用料格</strong>：容器所属类型是否启用料格（是/否）。</li>
+<li><strong>料箱移位属性</strong>（预留字段）：目前无意义。</li>
+<li><strong>是否预出库</strong>（预留字段）：目前无意义。</li>
+<li><strong>料箱所属库区</strong>（预留字段）：目前无意义。</li>
+<li><strong>空满标记</strong>（预留字段）：目前无意义。</li>
+<li><strong>有效状态</strong>：容器是否有效（有效/无效）。</li>
+</ol>
+<hr>
+<h2 id="2-容器类型信息"><strong>2. 容器类型信息</strong></h2>
+<ol>
+<li><strong>容器类型编码</strong>：容器类型的唯一编码信息。</li>
+<li><strong>容器类型名称</strong>：容器类型的名称信息。</li>
+<li><strong>容器种类</strong>：区分容器是<strong>料箱</strong>还是<strong>托盘</strong>。</li>
+<li><strong>长</strong>：容器的长度，记录准确数值。</li>
+<li><strong>宽</strong>：容器的宽度，记录准确数值。</li>
+<li><strong>高</strong>：容器的高度，记录准确数值。</li>
+<li><strong>有效状态</strong>：
+<ul>
+<li><strong>有效</strong>：可用于创建容器。</li>
+<li><strong>无效</strong>：不可用于创建容器。</li>
+</ul>
+</li>
+<li><strong>是否识别容器号</strong>：是否在业务操作中记录和校验容器编码（默认：否）。</li>
+<li><strong>叉孔高度</strong>：全向车叉孔高度（默认：0，无需修改）。</li>
+<li><strong>叉孔底部高度</strong>：全向车叉孔底部高度（默认：0，无需修改）。</li>
+<li><strong>材质类型</strong>：记录该容器类型的材料信息。</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/007_-shi-me-shi-shang-pin/" class="post-title gt-a-link">
+                    007.什么是商品
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

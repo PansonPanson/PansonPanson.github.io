@@ -1,0 +1,335 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>一次线上 MySQL 锁超时问题记录 | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    一次线上 MySQL 锁超时问题记录
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2024-11-03 ·
+                    </time>
+                    
+                        <a href="https://panson.top/tag/lF6AkNxFuJ/" class="post-tags">
+                            # 线上问题
+                        </a>
+                    
+                        <a href="https://panson.top/tag/H4bNl2WCN8T/" class="post-tags">
+                            # MySQL
+                        </a>
+                    
+                        <a href="https://panson.top/tag/0IAwKHJjIuv/" class="post-tags">
+                            # WES
+                        </a>
+                    
+                        <a href="https://panson.top/tag/Lu5yPrkF521/" class="post-tags">
+                            # WMS
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h3 id="一-故障现象">一、故障现象</h3>
+<p>海外仓项目入库流程出现异常，线上日志报错：</p>
+<!-- more -->
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749196544203-32b80fad-12c6-48fa-b676-c5e288939db8.png?raw=true" alt="img" loading="lazy"></figure>
+<pre><code class="language-plain">org.springframework.dao.CannotAcquireLockException: 
+Lock wait timeout exceeded; try restarting transaction
+</code></pre>
+<p>从日志上看，很明显，MySQL 锁超时了。</p>
+<h3 id="二-故障定位与分析">二、故障定位与分析</h3>
+<h4 id="1-问题sql锁定已脱敏">1. 问题SQL锁定（已脱敏）</h4>
+<pre><code class="language-plain">UPDATE table1 
+SET column1 = value1, column2 = value2 
+WHERE a_id_1 = 666 AND id = 888 
+AND sku_id IS NULL  -- 问题关键点
+</code></pre>
+<h4 id="2-锁等待分析">2. 锁等待分析</h4>
+<p>有监控系统的话，可以直接看监控系统。</p>
+<p>我在本地复现了该问题，学习一下相关命令：</p>
+<pre><code class="language-sql">-- 查看当前锁等待
+SELECT * FROM information_schema.innodb_lock_waits;
+
+-- 查看持锁和等待锁的事务
+SELECT * FROM information_schema.innodb_trx;
+
+-- 查看被锁的行
+SELECT * FROM information_schema.innodb_locks;
+/* 锁等待分析语句 */
+SELECT
+    r.trx_id waiting_trx_id,
+    r.trx_mysql_thread_id waiting_thread,
+    r.trx_query waiting_query,
+    b.trx_id blocking_trx_id,
+    b.trx_mysql_thread_id blocking_thread,
+    b.trx_query blocking_query
+FROM information_schema.innodb_lock_waits w
+JOIN information_schema.innodb_trx b ON b.trx_id = w.blocking_trx_id
+JOIN information_schema.innodb_trx r ON r.trx_id = w.requesting_trx_id;
+</code></pre>
+<p>SQL 执行结果如下图：</p>
+<figure data-type="image" tabindex="2"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749198922198-75d07e81-d217-4197-a646-69cb0dd22a9c.png?raw=true" alt="img" loading="lazy"></figure>
+<p>可以看出具体的 SQL 语句。</p>
+<p>看代码，简化后的逻辑：</p>
+<pre><code class="language-java">事务开启：
+
+……省略前置逻辑……
+保存新行到 table1 
+…… 省略中间逻辑……
+if 满足条件 {
+    开启异步线程池，异步更新新行
+}
+…… 省略后续逻辑……
+
+提交事务
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749206402541-d190830c-f7a7-4701-bc79-cff1f551fbfb.png?raw=true" alt="img" loading="lazy"></figure>
+<h4 id="3-根本原因分析">3. 根本原因分析</h4>
+<table>
+<thead>
+<tr>
+<th>问题维度</th>
+<th>具体原因</th>
+<th>影响程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事务边界</td>
+<td>在未提交的事务内启动异步更新</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>SQL设计</td>
+<td><code>sku_id IS NULL</code>导致额外锁定检查</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>架构设计</td>
+<td>主事务与异步操作竞争同一资源</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>超时配置</td>
+<td>默认50秒等待时间未优化</td>
+<td>⭐</td>
+</tr>
+</tbody>
+</table>
+<h3 id="三-故障恢复">三、故障恢复</h3>
+<h4 id="1-sql优化">1. SQL优化</h4>
+<pre><code class="language-plain">UPDATE table1 
+SET column1 = value1, column2 = value2 
+WHERE a_id_1 = 666 AND id = 888 
+- AND sku_id IS NULL
+</code></pre>
+<p><strong>优化依据</strong>：<br>
+业务验证确认<code>sku_id IS NULL</code>条件冗余（当a_id_1和id确定时记录唯一）</p>
+<h4 id="2-事务架构重构">2. 事务架构重构</h4>
+<pre><code class="language-plain">// 改造前（问题版本）
+@Transactional
+void process() {
+    save(table1); // 锁定行
+    // 在事务内启动异步
+    executor.execute(() -&gt; updateTable()); 
+    // ...其他业务逻辑
+} // 事务提交
+
+// 改造后（修复版本）
+void process() {
+    // 1. 在主事务中完成核心操作
+    transactionTemplate.execute(status -&gt; {
+        save(table1);
+        return null;
+    });
+    
+    // 2. 事务提交后启动异步
+    executor.execute(() -&gt; {
+        // 3. 异步操作使用独立事务
+        transactionTemplate.execute(status -&gt; {
+            updateTable();
+            return null;
+        });
+    });
+}
+</code></pre>
+<h4 id="3-异步处理规范">3. 异步处理规范</h4>
+<figure data-type="image" tabindex="4"><img src="https://github.com/PansonPanson/supply-chain/blob/main/%E4%BE%9B%E5%BA%94%E9%93%BE%E5%AD%90%E7%B3%BB%E7%BB%9F/%E6%99%BA%E8%83%BD%E4%BB%93%E5%82%A8%E7%B3%BB%E7%BB%9F/%E6%8A%80%E6%9C%AF%E7%AF%87/images/%E4%B8%80%E6%AC%A1%E7%BA%BF%E4%B8%8A%20MySQL%20%E9%94%81%E8%B6%85%E6%97%B6%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/1749206774540-146d6609-7e0b-4751-8981-f704bbf9a7e8.png?raw=true" alt="img" loading="lazy"></figure>
+<p><strong>关键原则</strong>：</p>
+<ol>
+<li><strong>事务分离</strong>：主事务与异步任务完全解耦</li>
+<li><strong>后置启动</strong>：确保在事务提交后才触发异步</li>
+<li><strong>独立事务</strong>：异步任务使用全新事务上下文</li>
+</ol>
+<h3 id=""></h3>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/yi-ci-xian-shang-ren-wu-dao-zhan-bu-dan-shi-cao-wen-ti/" class="post-title gt-a-link">
+                    一次线上任务到站不弹实操问题
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

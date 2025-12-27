@@ -1,0 +1,334 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>JDK 源码阅读006：Thread | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    JDK 源码阅读006：Thread
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2019-03-18 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="1-类继承体系">1 类继承体系</h2>
+<figure data-type="image" tabindex="1"><img src="https://github.com/PansonPanson/blog-picture/blob/master/2020/Thread.png?raw=true" alt="" loading="lazy"></figure>
+<p>Runnable 接口只有一个核心方法：</p>
+<pre><code class="language-java">public abstract void run();
+</code></pre>
+<p>子类通过继承 Thread 并重写 run 方法实现自己的业务逻辑。</p>
+<h2 id="2-初始化">2 初始化</h2>
+<p>当我们使用<code> new Thread()</code> 的方法创建新的线程时，会调用<code>init</code>方法:</p>
+<ol>
+<li>ThreadGroup g：线程组，如果没有指定线程组，那么默认的线程组就是父线程的线程组，比如说如果你的父线程是main线程的话，那么你的线程组就是main线程的线程组（main线程组）。</li>
+<li>Runnable target：目标</li>
+<li>name：线程名字</li>
+<li>stackSize：默认是0。它的作用是控制jvm给线程分配栈内存的大小。如果这个值比JVM规定的最小值还小的话，取JVM的默认值，一般是1M。</li>
+</ol>
+<pre><code class="language-java">public Thread() {
+    init(null, null, &quot;Thread-&quot; + nextThreadNum(), 0);
+}
+</code></pre>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize) {
+    init(g, target, name, stackSize, null, true);
+}
+</code></pre>
+<p>默认情况下，如果你没有指定你是否为daemon的话，那么你的daemon的状态是由父线程决定的，就是说如果你的父线程是daemon线程，那么你也是daemon线程；同理，你的优先级如果没有指定的话，那么就跟父线程的优先级保持一致。</p>
+<pre><code class="language-java">private void init(ThreadGroup g, Runnable target, String name,
+                  long stackSize, AccessControlContext acc,
+                  boolean inheritThreadLocals) {
+    if (name == null) {
+        throw new NullPointerException(&quot;name cannot be null&quot;);
+    }
+    this.name = name;
+    Thread parent = currentThread();
+    SecurityManager security = System.getSecurityManager();
+    if (g == null) {
+        if (security != null) {
+            g = security.getThreadGroup();
+        }
+        if (g == null) {
+            g = parent.getThreadGroup();
+        }
+    }
+    g.checkAccess();
+    if (security != null) {
+        if (isCCLOverridden(getClass())) {
+            security.checkPermission(SUBCLASS_IMPLEMENTATION_PERMISSION);
+        }
+    }
+    g.addUnstarted();
+    this.group = g;
+    this.daemon = parent.isDaemon();
+    this.priority = parent.getPriority();
+    if (security == null || isCCLOverridden(parent.getClass()))
+        this.contextClassLoader = parent.getContextClassLoader();
+    else
+        this.contextClassLoader = parent.contextClassLoader;
+    this.inheritedAccessControlContext =
+            acc != null ? acc : AccessController.getContext();
+    this.target = target;
+    setPriority(priority);
+    if (inheritThreadLocals &amp;&amp; parent.inheritableThreadLocals != null)
+        this.inheritableThreadLocals =
+            ThreadLocal.createInheritedMap(parent.inheritableThreadLocals);
+    this.stackSize = stackSize;
+  	// 每个线程其实都有一个线程id，threadId，第一个分配的线程，它的id是1，之后的线程是2,3,4,5，依次分配各个线程的id
+    tid = nextThreadID();
+}
+</code></pre>
+<h2 id="3-初始化总结">3 初始化总结</h2>
+<ol>
+<li>
+<p>创建 A 线程的线程，就是 A 线程的父线程</p>
+</li>
+<li>
+<p>如果没有指定ThreadGroup，A 线程的ThreadGroup就是父线程的ThreadGroup</p>
+</li>
+<li>
+<p>A 线程的daemon状态默认是父线程的daemon状态</p>
+</li>
+<li>
+<p>A 线程的优先级默认是父线程的优先级</p>
+</li>
+<li>
+<p>如果没有指定线程的名称，那么默认就是 Thread-0 格式的名称</p>
+</li>
+<li>
+<p>线程id是全局递增的，从 1 开始</p>
+</li>
+</ol>
+<h2 id="4-线程启动">4 线程启动</h2>
+<p>看一下 start() 方法的源码：</p>
+<pre><code class="language-java">public synchronized void start() {
+    // 状态不为 0（对应着 NEW 状态），则抛出异常
+    if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+  	// 将线程加入线程组
+    group.add(this);
+    boolean started = false;
+    try {
+        start0();
+      	// 启动成功，标记为启动成功
+        started = true;
+    } finally {
+        try {
+            if (!started) {
+                group.threadStartFailed(this);
+            }
+        } catch (Throwable ignore) {
+        }
+    }
+}
+</code></pre>
+<h3 id="41-多次调用-start">4.1 多次调用 start()</h3>
+<p>永远都不能对一个线程多次调用和执行start()方法：</p>
+<pre><code class="language-java">if (threadStatus != 0)
+        throw new IllegalThreadStateException();
+</code></pre>
+<p>线程一旦执行过一次以后，那么它的 threadStatus 就一定会变为非 0 的一个状态。如果是非0状态，那么再次调用 <code>start() </code>方法，会抛出一个异常<code>IllegalThreadStateException</code>（非法的线程状态的异常）。</p>
+<h3 id="42-启动成功">4.2 启动成功</h3>
+<p>一旦是<code>start0()</code>成功地启动之后，他就会去执行我们重写的<code>run()</code>方法（如果传入进去的是 <code>Runnalbe</code> 对象，就会执行那个Runnable对象的方法）。</p>
+<pre><code class="language-java">@Override
+public void run() {
+    if (target != null) {
+        target.run();
+    }
+}
+</code></pre>
+<p>如果采用如下方式：</p>
+<pre><code class="language-java">new Thread(new Runnable() {
+	public void run() {
+	}
+}).start();
+</code></pre>
+<p>传递一个 Runnable 对象（target），如果 target 不为 null 的话，那么此时就会执行 target 的 <code>run</code>方法。反之，如果你是直接自己用Thread 类继承了一个子类的话，那么你会重写这个 <code>run()</code>方法，<code>start0()</code>启动线程之后，就会来执行你的<code>run()</code>方法。</p>
+<h2 id="5-线程启动总结">5 线程启动总结</h2>
+<ol>
+<li>
+<p>一旦启动了线程之后，就不能再重新启动了。再次调用start()方法，会抛出异常。因为启动之后，threadStatus就会变成非0的状态。</p>
+</li>
+<li>
+<p>启动线程之后，这个线程就会加入之前处理好的那个线程组中。</p>
+</li>
+<li>
+<p>启动一个线程实际上走的是 native 方法，start0()，会实际的启动一个线程</p>
+</li>
+<li>
+<p>一个线程启动之后就会执行run()方法。</p>
+</li>
+</ol>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/jdk-yuan-ma-jie-xi-005linkedhashmap/" class="post-title gt-a-link">
+                    JDK 源码解析005：LinkedHashMap
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>

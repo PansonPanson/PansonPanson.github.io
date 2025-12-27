@@ -1,0 +1,256 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>详解 GC 日志：YoungGC | Panson</title>
+
+<link rel="shortcut icon" href="https://panson.top/favicon.ico?v=1766826271561">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://panson.top/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            Panson
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            home
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            archives
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/sourcecodereading" class="menu gt-a-link">
+                            源码阅读与造轮子
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/ai" class="menu gt-a-link">
+                            AI
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/supply-chain" class="menu gt-a-link">
+                            供应链
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/distributed-job-scheduler-system" class="menu gt-a-link">
+                            任务调度
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/photograph" class="menu gt-a-link">
+                            摄影
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            about
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1766826271561" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    详解 GC 日志：YoungGC
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2020-10-01 ·
+                    </time>
+                    
+                </div>
+                <div class="post-content">
+                    <p><em>本文主要介绍了 JVM 的常用参数，并详细分析了YoungGC 日志.</em></p>
+<!-- more -->
+<p>在线上运行着的 Java 开发的系统，YoungGC 是一个循环出现的过程，我们如何在开发过程中分析 YoungGC 呢？</p>
+<p>要想分析 YoungGC，我们首先得让 YoungGC 留下“足迹”—— GC 日志。<br>
+我们可以手动创建一个简单的 demo，核心代码如下：</p>
+<pre><code class="language-java">public static void main(String[] args) {
+        byte[] array1 = new byte[1024 * 1024];
+        array1 = new byte[1024 * 1024];
+        array1 = new byte[1024 * 1024];
+        array1 = null;
+
+        byte[] array2 = new byte[2 * 1024 * 1024];
+}
+</code></pre>
+<p>我们可以使用以下 jvm 参数：</p>
+<pre><code class="language-java">-XX:NewSize=5242880 -XX:MaxNewSize=5242880 -XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:SurvivorRatio=8 -XX:PretenureSizeThreshold=10485760 -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XXloggc:gc.log
+</code></pre>
+<p>参数解释：</p>
+<ul>
+<li>-XX:NewSize=5242880：初始新生代大小 5 MB</li>
+<li>-XX:MaxNewSize=5242880：最大新生代大小 5 MB</li>
+<li>-XX:InitialHeapSize=10485760：初始堆大小 10 MB</li>
+<li>-XX:MaxHeapSize=10485760：最大堆大小 10 MB</li>
+<li>-XX:SurvivorRatio=8：新生代中 Eden 区与一个 Survivor 区的大小之比为 8。</li>
+<li>-XX:PretenureSizeThreshold=10485760：大对象阈值为 10 MB，超过此阈值，会尝试放入老年代</li>
+<li>-XX:+UseParNewGC：新生代使用 ParNew 垃圾收集器</li>
+<li>-XX:+UseConcMarkSweepGC：老年代使用 CMS 垃圾收集器</li>
+<li>-XX:+PrintGCDetail：打印详细的GC 日志</li>
+<li>-XX:+PrintGCTimeStamps：打印每次GC 发生的时间</li>
+<li>将 GC 日志写入磁盘文件</li>
+</ul>
+<p>结合以上代码片段和 JVM 参数，我们可以分析知道，在执行</p>
+<pre><code class="language-java">byte[] array2 = new byte[2 * 1024 * 1024];
+</code></pre>
+<p>时，此时新生代的 Eden 区本身只剩下 4 - 3 = 1MB 的大小，会进行一次垃圾回收。</p>
+<p>运行程序，你就会看到在在新生成的文件中保存了 gc 日志：</p>
+<pre><code class="language-java">Memory: 4k page, physical 16777216k(418648k free)
+
+/proc/meminfo:
+
+CommandLine flags: 
+-XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:MaxNewSize=5242880 -XX:NewSize=5242880 -XX:OldPLABSize=16 -XX:PretenureSizeThreshold=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:SurvivorRatio=8 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+UseParNewGC 
+0.145: [GC (Allocation Failure) 0.146: [ParNew: 3874K-&gt;502K(4608K), 0.0014940 secs] 3874K-&gt;1528K(9728K), 0.0016631 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+Heap
+ par new generation   total 4608K, used 3735K [0x00000007bf600000, 0x00000007bfb00000, 0x00000007bfb00000)
+  eden space 4096K,  78% used [0x00000007bf600000, 0x00000007bf928690, 0x00000007bfa00000)
+  from space 512K,  98% used [0x00000007bfa80000, 0x00000007bfafd818, 0x00000007bfb00000)
+  to   space 512K,   0% used [0x00000007bfa00000, 0x00000007bfa00000, 0x00000007bfa80000)
+ concurrent mark-sweep generation total 5120K, used 1026K [0x00000007bfb00000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
+  class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
+</code></pre>
+<p>但是日志信息明显有些混乱，但我们可以将这段 GC  日志分为 3 个部分。<br>
+第 1 个部分是：</p>
+<pre><code class="language-java">CommandLine flags: 
+-XX:InitialHeapSize=10485760 -XX:MaxHeapSize=10485760 -XX:MaxNewSize=5242880 -XX:NewSize=5242880 -XX:OldPLABSize=16 -XX:PretenureSizeThreshold=10485760 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:SurvivorRatio=8 -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+UseParNewGC 
+</code></pre>
+<p>第 2 个部分是：</p>
+<pre><code class="language-java">0.145: [GC (Allocation Failure) 0.146: [ParNew: 3874K-&gt;502K(4608K), 0.0014940 secs] 3874K-&gt;1528K(9728K), 0.0016631 secs] [Times: user=0.01 sys=0.00, real=0.00 secs] 
+</code></pre>
+<p>第 3 个部分是：</p>
+<pre><code class="language-java">Heap
+ par new generation   total 4608K, used 3735K [0x00000007bf600000, 0x00000007bfb00000, 0x00000007bfb00000)
+  eden space 4096K,  78% used [0x00000007bf600000, 0x00000007bf928690, 0x00000007bfa00000)
+  from space 512K,  98% used [0x00000007bfa80000, 0x00000007bfafd818, 0x00000007bfb00000)
+  to   space 512K,   0% used [0x00000007bfa00000, 0x00000007bfa00000, 0x00000007bfa80000)
+ concurrent mark-sweep generation total 5120K, used 1026K [0x00000007bfb00000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 3040K, capacity 4496K, committed 4864K, reserved 1056768K
+  class space    used 335K, capacity 388K, committed 512K, reserved 1048576K
+</code></pre>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://panson.top/post/mysql-he-xin-gai-nian-chuan-lian/" class="post-title gt-a-link">
+                    MySQL 存储原理串连
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">清风拂山岗，明月照大江。</div>
+    <div class="social-container">
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+    </div>
+    <div>
+        Theme by <a href="https://imhanjie.com/" target="_blank">imhanjie</a>, Powered by <a
+                href="https://github.com/getgridea/gridea" target="_blank">Gridea | <a href="https://panson.top/atom.xml" target="_blank">RSS</a></a>
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
